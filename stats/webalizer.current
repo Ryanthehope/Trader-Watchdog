@@ -1,0 +1,681 @@
+# Webalizer V2.23-08 Incremental Data - 04/02/2026 00:14:18
+2026 4 2 0 14 18
+644 338 95 50 9 79 2818921 186 82 0
+2 3 69 1 2
+641 337 2817200 95 186 82
+3 1 1721 2 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+52 40 369390 12
+22 7 9051 4
+12 4 4124 2
+17 5 5905 2
+53 41 188003 18
+23 14 180983 8
+43 29 350021 15
+16 4 5927 3
+46 34 690671 16
+69 35 374894 23
+24 10 179849 7
+40 25 187718 16
+29 16 183190 11
+31 12 24207 9
+21 10 8890 6
+24 14 12121 11
+23 12 8676 8
+11 3 3499 2
+16 4 6329 1
+16 4 6312 0
+12 4 5281 2
+18 5 5772 3
+18 6 6122 5
+8 0 1986 2
+6
+0
+0
+338
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+33
+0
+0
+0
+0
+0
+0
+0
+0
+266
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+# -urls- 
+/wordpress/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/web/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/wp1/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/lander/gazinvest_quiz20-ok-bg-politika-_obj_js_v2/
+0 1 0 610 0 0
+/sitemap.xml
+0 24 0 14547 0 0
+/2020/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/.well-known/security.txt
+0 1 0 622 0 0
+/lander/gazprom-prelander9may-thankspidaras9may/
+0 1 0 605 0 0
+/lander/mod_26/
+0 1 0 605 1 0
+/favicon.svg
+0 16 0 1656 0 0
+/api/site-meta
+0 20 0 2848 3 0
+/api/badge-preview.svg
+0 15 0 5659 0 0
+/ads.txt
+0 2 0 1227 0 0
+/api/members
+0 20 0 6396 2 1
+/lander/gazinvest-prelanderbankomatsssr9may1kanal-thanksvrach/
+0 1 0 605 0 0
+/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/guides/before-you-hire
+0 1 0 605 1 0
+/IvanovaMarina
+0 1 0 605 1 1
+/news/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/api/guides
+0 20 0 33781 2 2
+/lander/gazprom-leadforma-thankspidarasgaz/
+0 1 0 605 0 0
+/favicon.ico
+0 3 0 1849 0 0
+/lander/sber/
+0 1 0 605 0 0
+/.well-known/traffic-advice
+0 1 0 605 0 0
+/lander/gazprom-prelandergnidanewkomment-thanksstory2-objv2/
+0 1 0 610 0 0
+/llms.txt
+0 1 0 622 0 0
+/security.txt
+0 1 0 622 0 0
+/assets/index-DNc82HlR.js
+0 24 0 2385082 0 0
+/wp/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/wp2/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/lander/ru---cryptohub---773-gazprom---vesenniy-sezon-pribil-iz-doma---fz/
+0 1 0 605 0 0
+/website/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/test/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/lander/tinkoff
+0 1 0 610 0 0
+/wp-login.php
+0 4 0 2430 0 0
+/site/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/2019/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/humans.txt
+0 1 0 622 0 0
+/lander/gp_ru_quiz_orange_obj_js_v2/
+0 1 0 605 0 0
+/sito/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/xmlrpc.php
+0 2 0 1244 0 0
+/api/public-config
+0 1 0 0 0 0
+/cms/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/
+0 108 0 64898 72 3
+/assets/index-D1hgptwT.css
+0 23 0 156916 0 0
+/shop/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/blog/wp-includes/wlwmanifest.xml
+0 2 0 1244 0 0
+/lander/gazinvest-prelanderbankomatsssr9may1kanal-thankspidaras9may/
+0 1 0 605 0 0
+/robots.txt
+0 38 0 23185 0 0
+/lander/gpb-prelanderhuylonewkoment-thanksstory2/land/
+0 1 0 610 0 0
+# End Of Table - urls
+# -sites- (monthly)
+135.148.195.5
+0 1 0 0 0 0
+-
+43.157.168.43
+0 1 1 632 1 1775044988
+/
+157.230.23.82
+0 4 3 1450 1 1775052025
+/
+34.89.177.85
+0 1 1 0 1 1775015940
+/
+216.73.216.158
+0 13 13 7905 0 0
+-
+161.115.235.112
+0 1 1 632 1 1775057042
+/
+107.174.160.54
+0 1 1 610 1 1775015941
+/
+43.157.150.69
+0 1 1 622 1 1775060235
+/
+113.31.186.146
+0 2 2 1210 1 1775074390
+/
+136.144.199.92
+0 20 20 12450 1 1775018267
+/
+66.249.64.106
+0 1 1 632 0 0
+-
+66.249.64.100
+0 2 2 12666 1 1775038567
+/
+142.147.147.66
+0 2 2 1215 1 1775018696
+/
+2a09:bac5:3e0b:7eb::ca:143
+0 1 1 610 0 0
+-
+2001:4860:7:805::91
+0 1 1 605 1 1775055691
+/
+66.249.64.7
+0 20 17 10013 2 1775048180
+/api/site-meta
+5.78.75.251
+0 12 12 7392 1 1775018913
+/
+185.173.235.232
+0 1 1 622 1 1775042440
+/
+43.130.60.195
+0 1 1 622 1 1775069643
+/
+135.148.195.7
+0 1 1 632 1 1775062311
+/
+144.217.135.142
+0 10 10 6213 1 1775025635
+/
+46.138.250.165
+0 2 2 1244 1 1775064164
+/
+157.245.199.111
+0 1 0 0 0 0
+-
+2a00:23c7:3e80:301:ce1f:79f2:f0b5:dc83
+0 7 4 2736 1 1775081210
+/api/site-meta
+66.249.64.104
+0 10 9 15644 2 1775047571
+/api/site-meta
+2a09:bac6:d866:1aa0::2a7:c
+0 1 1 605 0 0
+-
+34.203.33.141
+0 2 2 1227 1 1775054086
+/
+43.157.174.69
+0 1 1 622 1 1775034560
+/
+62.113.113.43
+0 2 2 1227 1 1775027993
+/
+149.56.160.150
+0 10 7 163073 1 1775025645
+/
+2a02:c207:2308:5629::1
+0 2 2 159605 1 1775018026
+/
+173.199.119.235
+0 1 1 0 1 1775042837
+/
+45.92.87.114
+0 1 1 632 1 1775026592
+/
+2401:4900:8844:7d3e:6550:7e90:ad07:642d
+0 1 1 622 1 1775023127
+/
+2a00:23c7:3e80:301:9a9:6e2f:50cb:8cf5
+0 12 8 5472 1 1775037935
+/api/public-config
+2a06:98c0:3600::103
+0 245 0 73998 0 0
+-
+66.249.64.2
+0 1 1 622 1 1775043131
+/
+62.253.3.68
+0 7 4 2736 1 1775050979
+/api/site-meta
+74.161.32.198
+0 1 0 558 0 0
+-
+170.106.160.90
+0 1 1 622 1 1775007790
+/
+66.249.64.15
+0 18 15 179095 1 1775043155
+/api/site-meta
+66.249.64.9
+0 2 1 605 0 0
+-
+66.249.64.1
+0 2 2 1244 1 1775043143
+/
+54.39.89.46
+0 1 1 12074 0 0
+-
+66.249.64.3
+0 1 1 605 1 1775047748
+/guides/before-you-hire
+171.241.170.246
+0 1 1 622 1 1775047341
+/
+136.243.153.17
+0 2 2 1244 1 1775081209
+/
+43.135.144.81
+0 2 2 1264 2 1775043959
+/
+20.169.78.135
+0 1 1 610 1 1775053966
+/
+34.72.176.129
+0 9 9 334619 2 1775022942
+/
+13.38.45.165
+0 20 20 12450 1 1775003736
+/
+43.157.153.236
+0 1 1 632 1 1775080694
+/
+93.123.109.152
+0 20 0 11160 0 0
+-
+43.157.38.228
+0 1 1 622 1 1775051725
+/
+49.233.45.47
+0 1 1 622 1 1775057827
+/
+97.107.136.97
+0 2 2 1210 1 1775004842
+/
+88.216.68.253
+0 1 1 610 1 1775053221
+/
+205.169.39.22
+0 7 7 174508 1 1775003222
+/api/site-meta
+49.51.132.100
+0 1 1 632 1 1775016149
+/
+23.111.114.116
+0 14 14 8495 3 1775061520
+/lander/gp_ru_quiz_orange_obj_js_v2/
+43.130.74.193
+0 1 1 632 1 1775025922
+/
+23.27.145.202
+0 1 1 605 1 1775043785
+/
+216.73.216.31
+0 41 39 23655 0 0
+-
+81.217.133.44
+0 2 2 1215 1 1775020990
+/
+185.254.196.141
+0 1 1 605 1 1775022841
+/
+103.86.177.105
+0 1 1 0 1 1775059863
+/
+34.122.147.229
+0 2 2 12404 1 1775022944
+/api/members
+66.249.64.101
+0 2 2 159601 0 0
+-
+135.148.195.9
+0 1 0 0 0 0
+-
+1.162.141.71
+0 1 1 610 1 1775028715
+/
+43.153.85.46
+0 1 1 632 1 1775077457
+/
+2403:6200:88a0:bc8::35
+0 8 8 174530 1 1775024665
+/api/site-meta
+205.169.39.21
+0 7 7 174421 1 1775032458
+/api/guides
+54.39.203.91
+0 1 1 632 0 0
+-
+2a09:bac6:d698:18be::277:9e
+0 1 1 610 0 0
+-
+43.166.253.94
+0 1 1 632 1 1775005699
+/
+2a09:bac6:d69b:25c3::3c3:51
+0 1 1 605 0 0
+-
+206.204.6.241
+0 8 8 174478 1 1775031617
+/api/site-meta
+54.39.6.168
+0 1 1 159060 0 0
+-
+64.233.173.232
+0 1 1 605 0 0
+-
+188.166.155.159
+0 4 3 1450 1 1775032853
+/
+8.129.70.53
+0 2 0 0 1 1775087018
+/
+203.2.64.59
+0 1 1 632 1 1775011961
+/
+2a00:23c8:ff18:cf01:a416:2208:63e0:e26f
+0 8 5 14797 1 1775050976
+/api/site-meta
+43.135.135.57
+0 1 1 622 1 1775055836
+/
+37.1.204.225
+0 1 1 605 1 1775007789
+/
+103.196.9.90
+0 8 8 174641 1 1775031642
+/api/site-meta
+66.249.64.105
+0 8 6 163612 2 1775047571
+/api/members
+135.148.195.3
+0 1 1 622 1 1775080154
+/
+34.41.146.148
+0 6 3 160192 1 1775031850
+/
+66.249.64.8
+0 4 3 172690 1 1775048180
+/api/guides
+104.197.69.115
+0 2 2 1851 1 1775022944
+/api/guides
+15.220.4.87
+0 1 0 0 0 0
+-
+142.44.220.223
+0 1 1 622 1 1775047686
+/
+34.123.170.104
+0 1 1 152 1 1775003108
+/api/site-meta
+# End Of Table - sites (monthly)
+# -sites- (daily)
+216.73.216.158
+0 1 1 605 0 0
+-
+2a06:98c0:3600::103
+0 2 0 1116 0 0
+-
+# End Of Table - sites (daily)
+# -referrers- 
+https://tradeverify.today/
+0 53
+https://www.tradeverify.today/guides/before-you-hire
+0 5
+http://www.tradeverify.today/
+0 16
+https://www.google.com/
+0 3
+- (Direct Request)
+0 511
+https://www.tradeverify.today/
+0 16
+http://tradeverify.today/
+0 38
+https://aisearchindex.space
+0 1
+https://tradeverify.today/post-job
+0 1
+# End Of Table - referrers
+# -agents- 
+Mozilla/5.0
+0 4
+Mozilla/5.0 (Linux; Android 7.1.2; Redmi 4X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Mobile Safari/537.36
+0 1
+http://tradeverify.today/wordpress/wp-admin/setup-config.php
+0 39
+python-requests/2.32.5
+0 1
+Dalvik/2.1.0 (Linux; U; Android 9.0; ZTE BA520 Build/MRA58K)
+0 1
+Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.95 Mobile/15
+0 16
+Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36
+0 1
+Mozilla/5.0 (Linux; Android 11; SM-A705FN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 O
+0 1
+Mozilla/5.0 (compatible; Dataprovider.com)
+0 19
+Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Mobile S
+0 6
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36
+0 1
+https://tradeverify.today/wordpress/wp-admin/setup-config.php
+0 39
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 
+0 1
+Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36
+0 20
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (compatible; alexa site audit/1.0; +http://www.alexa.com/help/webmasters; )
+0 1
+Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/146.0.7
+0 7
+Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)
+0 10
+Mozilla/5.0 (Linux; Android 9; Redmi Note 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Mobile Safari/537.36
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
+0 20
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36
+0 97
+Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.1 Mobile/15E148 Sa
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.182
+0 1
+Go-http-client/1.1
+0 3
+Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)
+0 4
+Mozilla/5.0 (Linux; Android 10; Redmi Note 9S) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36
+0 1
+Googlebot-Image/1.0
+0 6
+Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0
+0 1
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/125.0.6422.60 Safari/537.36
+0 7
+Mozilla/5.0 (Linux; Android 10; Redmi Note 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/537.3
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4240.193 Safari/537.36
+0 40
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/146.0.0.0 Safari/537.36
+0 8
+https://tradeverify.today/wp-admin/setup-config.php
+0 40
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+0 2
+Mozilla/5.0 (Linux; Android 9; Redmi 7A) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.136 Mobile Safari/537.36
+0 1
+Mozilla/5.0(compatible;MSIE10.0;WindowsNT6.1;NavionicsWebStore;Trident/6.0;SLCC2;.NETCLR2.0.50727;.NETCLR3.5.30729;.NETCLR3.0
+0 2
+Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:115.0) Gecko/20100101 Chrome/115.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0
+0 1
+Mozilla/5.0 (Linux; Android 10; Redmi Note 9 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.210 Mobile Safari/5
+0 1
+Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.153 Mobile
+0 9
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E14
+0 2
+Java/1.8.0_332
+0 1
+Mozilla/5.0 (Linux; Android 10; COL-L29) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Mobile Safari/537.36
+0 1
+http://tradeverify.today/wp-admin/setup-config.php
+0 38
+Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)
+0 13
+Mozilla/5.0 (X11; Linux i686; rv:109.0) Gecko/20100101 Firefox/120.0
+0 1
+Mozilla/5.0 (X11; Linux x86_64; rv:142.0) Gecko/20100101 Firefox/142.0
+0 4
+Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E14
+0 16
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36
+0 8
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Sa
+0 1
+Chrome Privacy Preserving Prefetch Proxy
+0 1
+Mozilla/5.0 (compatible; SaaSBrowserBot/1.0; +https://saasbrowser.com/bot)
+0 2
+Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.164 Mobile
+0 33
+Mozilla/5.0 (Linux; Android 8.1.0; DUA-L22) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.96 Mobile Safari/537.36
+0 1
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36
+0 1
+trafilatura/2.0.0 (+https://github.com/adbar/trafilatura)
+0 6
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
+0 8
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0
+0 2
+Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0
+0 2
+DoCoMo/2.0 SH901iC(c100;TB;W24H12)
+0 1
+Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Claude-SearchBot/1.0; +searchbot@anthropic.com)
+0 41
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+0 7
+Mozilla/5.0 (ZZ; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0
+0 1
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Safari/537.36
+0 14
+Mozilla/5.0 (Macintosh; Intel Mac OS X 13.5; rv:124.0) Gecko/20100101 Firefox/124.0
+0 1
+Mozilla/5.0 (Linux; Android 10; STK-LX1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Mobile Safari/537.36
+0 1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36
+0 3
+Mozilla/5.0 (Linux; Android 10; SM-A505FN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.127 Mobile Safari/537.36
+0 1
+serpstatbot/2.1 (advanced backlink tracking bot; https://serpstatbot.com/; abuse@serpstatbot.com)
+0 2
+Mozilla/5.0 (Linux; Android 7.1.1; arm_64; Lenovo TB-8504X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 YaBro
+0 1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36
+0 3
+Mozilla/5.0 (Linux; Android 9; vivo 1901 Build/PPR1.180610.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.8
+0 1
+Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot
+0 1
+Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 MicroMessenger/6
+0 1
+Mozilla/5.0 (Windows NT 10.0; WOW64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.5666.197 Safari/537.36
+0 1
+# End Of Table - agents
+# -search strings- 
+# End Of Table - search strings
+# -usernames- 
+# End Of Table - usernames

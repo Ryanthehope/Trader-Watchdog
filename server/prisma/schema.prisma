@@ -1,0 +1,383 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Staff {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  password   String
+  name       String?
+  totpSecret String?
+  totpEnabled Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Member {
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  tvId          String         @unique
+  name          String
+  trade         String
+  location      String
+  checks        Json
+  /// Optional structured vetting UI for the public profile (categories + accordion items).
+  vettingItems  Json?
+  verifiedSince String
+  blurb         String
+  /// Optional logo under uploads/member-profile-logos/{id}/ (public /api/members/.../profile-logo).
+  profileLogoStoredName String?
+  /// Multiline address on quotes & customer invoices (your business — not TradeVerify billing).
+  invoiceAddress    String?
+  /// Shown on customer invoices for bank transfer (account name, sort code, account no., reference).
+  invoiceBankDetails String?
+  invoicePhone      String?
+  /// Shown on quotes/invoices; if empty, login email is used when present.
+  invoiceEmail      String?
+  vatNumber         String?
+  /// When false, customer invoices hide VAT fields and store vatPence as 0.
+  vatRegistered     Boolean @default(false)
+  /// Brand accent for quote/invoice PDFs (hex, e.g. #0d9488).
+  documentAccentHex String?
+  /// "standard" | "bold" — PDF layout density.
+  documentLayout    String?
+  /// Login email for the member portal (set by staff)
+  loginEmail    String?        @unique
+  /// bcrypt hash; null = portal access not enabled
+  passwordHash  String?
+  /// After provisioning with a temp password; cleared when they set a new password.
+  mustChangePassword Boolean     @default(false)
+  /// When set with membershipBillingType, access ends after this instant (Stripe period end or manual term).
+  membershipExpiresAt   DateTime?
+  /// "stripe" | "manual" | "fast_track" — null with null expiry = legacy grandfathered access.
+  membershipBillingType String?
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  /// Mirrors Stripe subscription.status (active, canceled, past_due, …).
+  stripeSubscriptionStatus String?
+  /// Staff-only: portal membership never expires (overrides billing/expiry).
+  membershipUnlimited   Boolean @default(false)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  dispatchTasks DispatchTask[]
+  documents     MemberDocument[]
+  /// Filled when this profile was auto-created from an approved application.
+  sourceApplication Application? @relation("MemberFromApprovedApplication")
+  reviews       MemberReview[]
+  leads         Lead[]
+  memberQuotes  MemberQuote[]
+  tradeInvoices MemberTradeInvoice[]
+  memberJobs    MemberJob[]
+  availabilityDays MemberAvailabilityDay[]
+}
+
+/// Calendar marks for public profile (available vs busy).
+model MemberAvailabilityDay {
+  id        String   @id @default(cuid())
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  /// YYYY-MM-DD (local business day).
+  date      String
+  /// "available" | "busy"
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([memberId, date])
+  @@index([memberId])
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model MemberReview {
+  id           String       @id @default(cuid())
+  memberId     String
+  member       Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  rating       Int
+  title        String?
+  body         String
+  authorName   String
+  authorEmail  String?
+  status       ReviewStatus @default(PENDING)
+  /// Public reply from the verified business (member portal).
+  businessReply   String?
+  businessRepliedAt DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([memberId])
+  @@index([status])
+}
+
+model MemberDocument {
+  id           String   @id @default(cuid())
+  memberId     String
+  member       Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  storedName   String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  createdAt    DateTime @default(now())
+
+  @@index([memberId])
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  CONTACTED
+  APPROVED
+  DECLINED
+}
+
+model Application {
+  id                     String                 @id @default(cuid())
+  company                String
+  trade                  String
+  email                  String
+  postcode               String
+  status                 ApplicationStatus      @default(PENDING)
+  /// Set when staff first marks the application APPROVED (used for payment window).
+  approvedAt             DateTime?
+  notes                  String?
+  /// Legacy free-text checklist; optional if using vettingState.
+  vettingChecklist       String?
+  /// Structured vetting sections { sectionId: { done, notes } }.
+  vettingState           Json?
+  fastTrackPaidAt        DateTime?
+  membershipSubscribed   Boolean                @default(false)
+  /// Expiry for staff-recorded manual membership (copied to Member on provision / updates).
+  manualMembershipExpiresAt DateTime?
+  stripeCustomerId       String?
+  /// Plain one-time password for /join until first login or expiry (14d at provision).
+  pendingPortalPassword        String?
+  pendingPortalPasswordExpires DateTime?
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  documents              ApplicationDocument[]
+  createdMemberId        String?                @unique
+  createdMember          Member?                @relation("MemberFromApprovedApplication", fields: [createdMemberId], references: [id], onDelete: SetNull)
+}
+
+model ApplicationDocument {
+  id             String      @id @default(cuid())
+  applicationId  String
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  storedName     String
+  originalName   String
+  mimeType       String
+  sizeBytes      Int
+  createdAt      DateTime    @default(now())
+
+  @@index([applicationId])
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  source    String   @default("manual")
+  status    String   @default("NEW")
+  notes     String?
+  /// From public \"post a job\" form (optional).
+  jobTitle       String?
+  jobDescription String?
+  jobPostcode    String?
+  /// Inquiry directed at a specific verified member (public profile contact form).
+  memberId  String?
+  member    Member?  @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  /// Slug from /post-job trade selector (e.g. it, electrical) when source is job_post.
+  jobTradeCategory String?
+  /// Same id on all leads created from one posted job (staff row + per-trade copies).
+  jobPostBatchId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberJobs MemberJob[]
+
+  @@index([memberId])
+  @@index([jobPostBatchId])
+}
+
+/// Quote issued by a member to a homeowner (CRM — not Stripe subscription billing).
+model MemberQuote {
+  id             String   @id @default(cuid())
+  memberId       String
+  member         Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reference      String
+  customerName   String
+  /// Bill-to address (UK invoicing / quotes — customer name also stored separately).
+  customerAddress String  @default("")
+  customerEmail  String?
+  customerPhone  String?
+  title          String
+  lineItems      Json
+  subtotalPence  Int
+  vatPence       Int      @default(0)
+  totalPence     Int
+  status         String   @default("draft")
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([memberId])
+}
+
+/// Invoice to a customer (trade-issued document — not Stripe platform invoice).
+model MemberTradeInvoice {
+  id             String   @id @default(cuid())
+  memberId       String
+  member         Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reference      String
+  customerName   String
+  customerAddress String  @default("")
+  customerEmail  String?
+  customerPhone  String?
+  lineItems      Json
+  subtotalPence  Int
+  vatPence       Int      @default(0)
+  totalPence     Int
+  status         String   @default("unpaid")
+  dueDate        DateTime?
+  paidAt         DateTime?
+  quoteId        String?
+  notes          String?
+  /// How the customer should pay (e.g. bank transfer, card).
+  paymentMethod  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([memberId])
+}
+
+model MemberJob {
+  id          String   @id @default(cuid())
+  memberId    String
+  member      Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      String   @default("open")
+  leadId      String?
+  lead        Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  quoteId     String?
+  scheduledAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([leadId])
+}
+
+model InboxMessage {
+  id        String   @id @default(cuid())
+  subject   String
+  body      String
+  fromEmail String?
+  fromName  String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AiPrompt {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PlannerEvent {
+  id        String   @id @default(cuid())
+  title     String
+  eventDate DateTime
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DispatchTask {
+  id          String    @id @default(cuid())
+  title       String
+  status      String    @default("PENDING")
+  notes       String?
+  memberId    String?
+  scheduledAt DateTime?
+  member      Member?   @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model OrganizationSettings {
+  id                String  @id @default("default")
+  revenueMtdCents   Int     @default(0)
+  outstandingCents  Int     @default(0)
+  workspaceName     String?
+  /// White-label product name (portal, emails, public UI). Falls back to workspaceName then "TradeVerify".
+  siteDisplayName   String?
+  /// Base URL for email links (e.g. https://app.yoursite.com). Falls back to PUBLIC_SITE_URL env.
+  publicSiteUrl     String?
+  announcementEmail String?
+  /// Comma-separated ops addresses for system emails (overrides announcementEmail when set).
+  adminNotifyEmails String?
+  /// Outbound SMTP — optional; env vars override when set on the server.
+  smtpHost          String?
+  smtpPort          Int?
+  smtpSecure        Boolean @default(false)
+  smtpUser          String?
+  smtpPass          String?
+  /// Sender for system emails, e.g. "Acme Verify <noreply@acme.com>"
+  mailFrom          String?
+  /// Stripe (admin-configurable; secret also via STRIPE_SECRET_KEY env)
+  billingEnabled              Boolean @default(false)
+  stripePublishableKey        String?
+  stripeSecretKey             String?
+  stripeWebhookSecret         String?
+  /// Shown on Stripe Checkout (inline price_data — no Dashboard Price IDs required)
+  checkoutMembershipName      String?
+  checkoutFastTrackName       String?
+  checkoutMembershipPence     Int     @default(1500)
+  checkoutFastTrackPence      Int     @default(4000)
+  /// reCAPTCHA v2
+  recaptchaEnabled     Boolean @default(false)
+  recaptchaSiteKey     String?
+  recaptchaSecretKey   String?
+  /// Staff security
+  staffRequire2fa      Boolean @default(false)
+  /// PNG/JPG logo file name under org branding upload dir (served at /api/public/branding/logo).
+  brandingLogoStoredName   String?
+  /// Shown on member billing + synced context; Stripe PDFs use Dashboard branding after sync.
+  invoiceLegalName         String?
+  invoiceVatNumber         String?
+  invoiceAddress           String?
+  invoiceFooterNote        String?
+  /// Last Stripe File id used for account branding (optional).
+  stripeBrandingLogoFileId String?
+  /// GA4 Measurement ID (G-XXXXXXXXXX) — loads gtag on the public site (not /staff).
+  googleAnalyticsMeasurementId String?
+  /// GA4 numeric Property ID (Admin → Property settings) for Data API reports in Staff → Analytics.
+  googleAnalyticsPropertyId      String?
+  /// Google Cloud service account JSON (Data API). Stored encrypted-at-rest only via your own DB backups policy.
+  googleAnalyticsServiceAccountJson String?
+}
+
+model Guide {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  readTime  String
+  body      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
