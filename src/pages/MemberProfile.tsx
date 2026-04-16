@@ -17,7 +17,7 @@ import type {
 } from "../types/content";
 
 const DISCLAIMER =
-  "TradeVerify independently checks that tradespeople are local, insured, and hold the accreditations they claim. TradeVerify does not rate quality of workmanship. Always obtain multiple quotes and conduct your own due diligence.";
+  "Trader Watchdog independently checks that tradespeople are local, insured, and hold the accreditations they claim. Trader Watchdog does not rate quality of workmanship. Always obtain multiple quotes and conduct your own due diligence.";
 
 const apiBase = () =>
   (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
@@ -402,13 +402,13 @@ export function MemberProfile() {
     return (
       <main className="mx-auto max-w-lg px-4 py-24 text-center sm:px-6">
         <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-          TradeVerify
+          Trader Watchdog
         </p>
         <h1 className="mt-2 font-display text-2xl font-semibold text-white">
           Profile not found
         </h1>
         <p className="mt-3 text-slate-400">
-          There is no verified listing for that link. Check the TradeVerify ID
+          There is no verified listing for that link. Check the Trader Watchdog ID
           spelling or search from the home page.
         </p>
         <Link
@@ -434,7 +434,7 @@ export function MemberProfile() {
                 label: "Verification details",
                 status: "verified" as const,
                 detail:
-                  "This business is listed as TradeVerify checked. Detailed checklist items will appear here once configured.",
+                  "This business is listed as Trader Watchdog checked. Detailed checklist items will appear here once configured.",
               },
             ],
           },
@@ -508,7 +508,7 @@ export function MemberProfile() {
                 />
               </svg>
               <p className="text-sm font-semibold text-white">
-                This business has been TradeVerify checked.
+                This business has been Trader Watchdog checked.
               </p>
             </div>
           </div>
@@ -523,7 +523,7 @@ export function MemberProfile() {
             What we checked
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-400">
-            Each item below was independently audited by TradeVerify before this
+            Each item below was independently audited by Trader Watchdog before this
             business was approved.
           </p>
 
@@ -541,7 +541,7 @@ export function MemberProfile() {
           <p className="mt-4 text-xs text-slate-500">
             Member since {member.verifiedSince}. Information reflects checks at
             enrolment; members must keep credentials current and notify
-            TradeVerify of material changes.
+            Trader Watchdog of material changes.
           </p>
         </div>
 
@@ -551,7 +551,7 @@ export function MemberProfile() {
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-400">
             Short feedback from homeowners who hired this business. Reviews are
-            moderated and are not the same as TradeVerify&apos;s verification
+            moderated and are not the same as Trader Watchdog&apos;s verification
             checks — always get your own quotes.
           </p>
           {reviewsLoading ? (
@@ -967,7 +967,7 @@ export function MemberProfile() {
 
         <div className="mt-8 rounded-2xl border border-dashed border-white/15 bg-ink-900/20 p-6 text-center">
           <p className="text-sm text-slate-400">
-            Hiring this trade? Confirm their TradeVerify ID on this site before
+            Hiring this trade? Confirm their Trader Watchdog ID on this site before
             you pay a deposit.
           </p>
           <Link

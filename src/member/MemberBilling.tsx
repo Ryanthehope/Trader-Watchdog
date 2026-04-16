@@ -152,7 +152,7 @@ export function MemberBilling() {
         <p className="mt-6 text-sm text-slate-600">
           No Stripe billing profile is linked yet. After you pay for membership
           with a card, your invoices will appear here. If you were set up
-          manually, contact TradeVerify for copies.
+          manually, contact Trader Watchdog for copies.
         </p>
       ) : null}
 

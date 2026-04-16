@@ -15,8 +15,10 @@ node_modules/
 # production
 /build
 /dist
+server/dist
 
 # misc
+.vscode/
 .DS_Store
 *.pem
 

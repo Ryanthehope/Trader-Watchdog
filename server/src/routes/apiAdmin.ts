@@ -183,7 +183,7 @@ router.post("/members", async (req, res) => {
     console.error(e);
     const msg =
       typeof e === "object" && e && "code" in e && (e as { code?: string }).code === "P2002"
-        ? "A member with this slug or TradeVerify ID already exists"
+        ? "A member with this slug or Trader Watchdog ID already exists"
         : "Could not create member";
     res.status(400).json({ error: msg });
   }
@@ -332,7 +332,7 @@ router.put("/members/:id", async (req, res) => {
     console.error(e);
     const msg =
       typeof e === "object" && e && "code" in e && (e as { code?: string }).code === "P2002"
-        ? "Slug or TradeVerify ID conflicts with another member"
+        ? "Slug or Trader Watchdog ID conflicts with another member"
         : "Could not update member";
     res.status(400).json({ error: msg });
   }
@@ -354,6 +354,44 @@ router.delete("/members/:id", async (req, res) => {
       return;
     }
     res.status(500).json({ error: "Could not delete member" });
+  }
+});
+
+/** Insurance */
+router.get("/insurance/all", async (_req, res) => {
+  try {
+    const policies = await prisma.insurance.findMany({
+      include: {
+        member: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
+      },
+      orderBy: { updatedAt: "desc" }
+    });
+    
+    res.json({
+      policies: policies.map((p) => ({
+        id: p.id,
+        memberId: p.memberId,
+        memberName: p.member.name,
+        type: p.type,
+        provider: p.provider,
+        policyNumber: p.policyNumber,
+        expiryDate: p.expiryDate.toISOString(),
+        graceExpiryDate: p.graceExpiryDate?.toISOString() ?? null,
+        status: p.status,
+        alertsSent: p.alertsSent,
+        lastAlertSentAt: p.lastAlertSentAt?.toISOString() ?? null,
+        updatedAt: p.updatedAt.toISOString(),
+      })),
+      totalCount: policies.length,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not list insurance policies" });
   }
 });
 

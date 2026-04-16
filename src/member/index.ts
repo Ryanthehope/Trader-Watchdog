@@ -2,6 +2,7 @@ export { MemberAvailability } from "./MemberAvailability";
 export { MemberAuthProvider, useMemberAuth } from "./MemberAuthContext";
 export { MemberBadge } from "./MemberBadge";
 export { MemberDocuments } from "./MemberDocuments";
+export { MemberInsurance } from "./MemberInsurance";
 export { MemberMembership, MemberRefer } from "./MemberPlaceholder";
 export { MemberBilling } from "./MemberBilling";
 export { MemberBusiness } from "./MemberBusiness";

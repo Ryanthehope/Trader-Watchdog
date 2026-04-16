@@ -242,7 +242,7 @@ async function forwardApplicationWebhook(payload) {
         });
     }
     catch (e) {
-        console.warn("[tradeverify] application webhook forward failed", e);
+        console.warn("[Trader Watchdog] application webhook forward failed", e);
     }
 }
 router.post("/applications", (req, res, next) => {
@@ -320,7 +320,7 @@ router.post("/applications", (req, res, next) => {
             throw persistErr;
         }
         void forwardApplicationWebhook({
-            source: "tradeverify-join",
+            source: "Trader Watchdog-join",
             company,
             trade,
             email,
@@ -404,7 +404,7 @@ router.get("/members/by_slug/:slug/badge.svg", memberBadgeSvgHandler);
 router.get("/badge-preview.svg", (_req, res) => {
     const svg = buildTradeVerifyBadgeSvg({
         name: "Sample Verified Ltd",
-        tvId: "TV-2847",
+        tvId: "TW-2847",
         trade: "Electrical",
     });
     res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
@@ -578,7 +578,7 @@ async function memberReviewsPostHandler(req, res) {
                 id: row.id,
                 status: row.status,
             },
-            message: "Thanks — your review was submitted and will appear after TradeVerify moderation.",
+            message: "Thanks — your review was submitted and will appear after Trader Watchdog moderation.",
         });
     }
     catch (e) {

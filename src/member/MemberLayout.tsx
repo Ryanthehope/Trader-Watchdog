@@ -72,15 +72,15 @@ export function MemberLayout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100 md:flex-row">
+    <div className="flex min-h-screen flex-col bg-white md:flex-row">
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b border-slate-800/30 bg-[#0f172a] px-3 text-slate-100 md:hidden">
+      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-3 shadow-sm md:hidden">
         <Link
           to="/member"
           className="flex min-w-0 items-center gap-2"
           onClick={() => setMobileNavOpen(false)}
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -95,13 +95,13 @@ export function MemberLayout() {
               />
             </svg>
           </span>
-          <span className="truncate font-display text-base font-semibold text-white">
+          <span className="truncate font-display text-base font-semibold text-slate-900">
             {brandName}
           </span>
         </Link>
         <button
           type="button"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-200 hover:bg-white/10 hover:text-white"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900"
           aria-expanded={mobileNavOpen}
           aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
           onClick={() => setMobileNavOpen((o) => !o)}
@@ -121,17 +121,17 @@ export function MemberLayout() {
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,18rem)] max-w-[85vw] flex-col border-r border-slate-800/20 bg-[#0f172a] text-slate-300 transition-transform duration-200 ease-out md:relative md:z-auto md:max-w-none md:w-64 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,18rem)] max-w-[85vw] flex-col border-r border-slate-200 bg-white text-slate-900 transition-transform duration-200 ease-out md:relative md:z-auto md:max-w-none md:w-64 md:translate-x-0 ${
           mobileNavOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="border-b border-white/10 px-4 py-5 md:block">
+        <div className="border-b border-slate-200 px-4 py-5 md:block">
           <Link
             to="/member"
             className="hidden items-center gap-2 md:flex"
             onClick={() => setMobileNavOpen(false)}
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-white">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -146,7 +146,7 @@ export function MemberLayout() {
                 />
               </svg>
             </span>
-            <span className="font-display text-lg font-semibold text-white">
+            <span className="font-display text-lg font-semibold text-slate-900">
               {brandName}
             </span>
           </Link>
@@ -156,14 +156,14 @@ export function MemberLayout() {
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3 pb-2">
           {lockPortal ? (
-            <p className="rounded-lg bg-amber-500/15 px-3 py-2.5 text-xs leading-relaxed text-amber-100/95">
+            <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
               Set a new password below to unlock the rest of your portal.
             </p>
           ) : membershipLocked ? (
             <>
-              <p className="rounded-lg bg-amber-500/15 px-3 py-2.5 text-xs leading-relaxed text-amber-100/95">
+              <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
                 Your membership is not active. Open{" "}
-                <span className="font-semibold text-white">Membership</span>{" "}
+                <span className="font-semibold text-amber-900">Membership</span>{" "}
                 below to renew or start card billing.
               </p>
               <NavLink
@@ -171,7 +171,7 @@ export function MemberLayout() {
                 end
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Overview
@@ -184,7 +184,7 @@ export function MemberLayout() {
                 end
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Overview
@@ -193,7 +193,7 @@ export function MemberLayout() {
                 to="/member/business"
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Business details
@@ -202,84 +202,47 @@ export function MemberLayout() {
                 to="/member/documents"
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Documents
               </NavLink>
               <NavLink
+                to="/member/insurance"
+                onClick={() => setMobileNavOpen(false)}
+                className={({ isActive }) =>
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
+                }
+              >
+                Insurance
+              </NavLink>
+              <NavLink
                 to="/member/badge"
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                   `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Badge
               </NavLink>
               <NavLink
-                to="/member/refer"
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
-                }
-              >
-                Refer a trade
-              </NavLink>
-              <NavLink
-                to="/member/leads"
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
-                }
-              >
-                Leads
-              </NavLink>
-              <NavLink
-                to="/member/availability"
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
-                }
-              >
-                Availability
-              </NavLink>
-              <NavLink
                 to="/member/reviews"
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Reviews
               </NavLink>
-              <NavLink
-                to="/member/quotes-invoices"
-                end={false}
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
-                }
-              >
-                Quotes &amp; invoices
-              </NavLink>
-              <NavLink
-                to="/member/jobs"
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
-                }
-              >
-                Jobs
-              </NavLink>
             </>
           )}
         </nav>
-        <div className="border-t border-white/10 p-3">
-          <div className="rounded-lg bg-white/5 px-3 py-2">
-            <p className="truncate text-sm font-medium text-white">
+        <div className="border-t border-slate-200 p-3">
+          <div className="rounded-lg bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
+            <p className="truncate text-sm font-medium text-slate-900">
               {member?.name}
             </p>
-            <p className="font-mono text-xs text-emerald-400/90">{member?.tvId}</p>
+            <p className="font-mono text-xs text-brand-600">{member?.tvId}</p>
           </div>
           {!lockPortal ? (
             <>
@@ -287,7 +250,7 @@ export function MemberLayout() {
                 to="/member/membership"
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} mt-2 ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                  `${nav} mt-2 ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Membership
@@ -296,7 +259,7 @@ export function MemberLayout() {
                 to="/member/billing"
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
-                  `${nav} ${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
                 Billing & invoices
@@ -307,25 +270,32 @@ export function MemberLayout() {
             to="/member/password"
             onClick={() => setMobileNavOpen(false)}
             className={({ isActive }) =>
-              `${nav} ${lockPortal ? "mt-2 " : ""}${isActive ? "bg-white/10 text-white" : "hover:bg-white/5 hover:text-white"}`
+              `${nav} ${lockPortal ? "mt-2 " : ""}${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
             }
           >
             {lockPortal ? "Set new password" : "Change password"}
           </NavLink>
+          <Link
+            to="/"
+            onClick={() => setMobileNavOpen(false)}
+            className={`${nav} mt-1 text-slate-600 hover:bg-slate-50 hover:text-slate-900`}
+          >
+            ← Back to main site
+          </Link>
           <button
             type="button"
             onClick={() => {
               setMobileNavOpen(false);
               logout();
             }}
-            className={`${nav} mt-1 w-full text-left text-slate-400 hover:bg-white/5 hover:text-white`}
+            className={`${nav} w-full text-left text-slate-600 hover:bg-slate-50 hover:text-slate-900`}
           >
             Sign out
           </button>
         </div>
       </aside>
 
-      <div className="min-h-0 min-w-0 flex-1 bg-slate-100 text-slate-900 antialiased md:overflow-auto">
+      <div className="min-h-0 min-w-0 flex-1 bg-white text-slate-900 antialiased md:overflow-auto">
         <Outlet />
       </div>
     </div>

@@ -138,6 +138,9 @@ export function StaffLayout() {
             <NavLink to="/staff/members" className={navClass} onClick={closeNav}>
               Members
             </NavLink>
+            <NavLink to="/staff/insurance" className={navClass} onClick={closeNav}>
+              Insurance
+            </NavLink>
             <NavLink to="/staff/reviews" className={navClass} onClick={closeNav}>
               Reviews
             </NavLink>

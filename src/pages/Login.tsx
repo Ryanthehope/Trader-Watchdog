@@ -114,11 +114,11 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-ink-950 via-ink-950 to-brand-950/30 px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-4 py-20">
       <div className="mx-auto w-full max-w-md">
-        <div className="mb-8 text-center">
+        <div className="mb-10 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-white shadow-lg">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-500 text-white">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -134,13 +134,13 @@ export function Login() {
               </svg>
             </span>
             <span className="font-display text-2xl font-semibold text-white">
-              TradeVerify
+              Trader Watchdog
             </span>
           </Link>
-          <h1 className="mt-6 text-2xl font-semibold text-white">Log in</h1>
+          <h1 className="mt-8 text-3xl font-bold text-white">Log in</h1>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-ink-900/80 p-6 shadow-2xl backdrop-blur">
+        <div className="rounded-lg border border-slate-700/50 bg-slate-800/40 p-8 backdrop-blur">
           {totpPending ? (
             <form onSubmit={onTotp}>
               {error ? (
@@ -151,11 +151,11 @@ export function Login() {
                   {error}
                 </div>
               ) : null}
-              <p className="text-sm text-slate-400">Authenticator code</p>
+              <p className="text-sm text-slate-300">Authenticator code</p>
               <input
                 value={totpCode}
                 onChange={(e) => setTotpCode(e.target.value)}
-                className="mt-4 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-center font-mono text-lg tracking-widest text-white"
+                className="mt-4 w-full rounded-lg border border-slate-700/50 bg-slate-900/60 px-4 py-3 text-center font-mono text-lg tracking-widest text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                 placeholder="000000"
                 autoComplete="one-time-code"
                 inputMode="numeric"
@@ -163,7 +163,7 @@ export function Login() {
               <button
                 type="submit"
                 disabled={pending}
-                className="mt-4 w-full rounded-xl bg-white py-3 font-semibold text-ink-900 hover:bg-slate-100 disabled:opacity-50"
+                className="mt-6 w-full rounded-lg bg-brand-500 py-3 font-semibold text-white transition hover:bg-brand-600 disabled:opacity-50"
               >
                 {pending ? "Verifying…" : "Verify"}
               </button>
@@ -174,7 +174,7 @@ export function Login() {
                   setTotpCode("");
                   setError(null);
                 }}
-                className="mt-3 w-full text-sm text-slate-500 hover:text-slate-300"
+                className="mt-3 w-full text-sm text-slate-400 hover:text-slate-200"
               >
                 Back to password
               </button>
@@ -194,7 +194,7 @@ export function Login() {
                 <div>
                   <label
                     htmlFor="login-email"
-                    className="block text-sm font-medium text-slate-300"
+                    className="block text-sm font-medium text-slate-200"
                   >
                     Email
                   </label>
@@ -205,13 +205,13 @@ export function Login() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                    className="mt-2 w-full rounded-lg border border-slate-700/50 bg-slate-900/60 px-4 py-3 text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="login-password"
-                    className="block text-sm font-medium text-slate-300"
+                    className="block text-sm font-medium text-slate-200"
                   >
                     Password
                   </label>
@@ -222,7 +222,7 @@ export function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                    className="mt-2 w-full rounded-lg border border-slate-700/50 bg-slate-900/60 px-4 py-3 text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                   />
                 </div>
               </div>
@@ -230,7 +230,7 @@ export function Login() {
               <button
                 type="submit"
                 disabled={pending || !ready}
-                className="mt-6 w-full rounded-xl bg-white py-3 font-semibold text-ink-900 transition hover:bg-slate-100 disabled:opacity-50"
+                className="mt-6 w-full rounded-lg bg-brand-500 py-3 font-semibold text-white transition hover:bg-brand-600 disabled:opacity-50"
               >
                 {pending ? "Logging in…" : "Log in"}
               </button>
@@ -241,7 +241,7 @@ export function Login() {
         <p className="mt-8 text-center text-sm text-slate-500">
           Not a member yet?{" "}
           <Link to="/join" className="text-brand-400 hover:text-brand-300">
-            Apply for TradeVerify
+            Apply for Trader Watchdog
           </Link>
         </p>
         <Link

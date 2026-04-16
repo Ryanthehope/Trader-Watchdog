@@ -58,8 +58,8 @@ export function checkoutLineConfig(s: BillingRow) {
     membershipPence: clampCheckoutPence(s.checkoutMembershipPence),
     fastTrackPence: clampCheckoutPence(s.checkoutFastTrackPence),
     membershipName:
-      s.checkoutMembershipName?.trim() || "TradeVerify monthly membership",
+      s.checkoutMembershipName?.trim() || "Trader Watchdog monthly membership",
     fastTrackName:
-      s.checkoutFastTrackName?.trim() || "TradeVerify fast-track vetting",
+      s.checkoutFastTrackName?.trim() || "Trader Watchdog fast-track vetting",
   };
 }

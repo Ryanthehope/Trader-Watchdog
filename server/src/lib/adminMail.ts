@@ -70,7 +70,7 @@ export async function getBrandName(prisma: PrismaClient): Promise<string> {
     s?.siteDisplayName?.trim() ||
     s?.workspaceName?.trim() ||
     "";
-  return name || "TradeVerify";
+  return name || "Trader Watchdog";
 }
 
 async function mailFrom(prisma: PrismaClient): Promise<string> {

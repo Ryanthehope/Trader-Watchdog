@@ -394,7 +394,7 @@ export function MemberDocumentPrintLayout({
                 {kind === "invoice"
                   ? "This is an invoice issued by the business named above."
                   : "This quote is issued by the business named above."}{" "}
-                It is not a bill from TradeVerify. TradeVerify membership fees
+                It is not a bill from Trader Watchdog. Trader Watchdog membership fees
                 are billed separately in your member portal under Billing.
               </p>
               <p className="mt-2 font-mono text-[10px] text-slate-400">

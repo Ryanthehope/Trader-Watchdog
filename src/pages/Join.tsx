@@ -8,7 +8,7 @@ import {
 const apiBase = () =>
   (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
 
-const JOIN_STORAGE_KEY = "tradeverify_join_apply";
+const JOIN_STORAGE_KEY = "Trader Watchdog_join_apply";
 
 type ApplicantSummary = {
   exists: boolean;
@@ -359,7 +359,7 @@ export function Join() {
             For tradespeople
           </p>
           <h1 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">
-            Apply for TradeVerify
+            Apply for Trader Watchdog
           </h1>
           <p className="mt-4 text-slate-400">
             Independent verification for your business. We review your
@@ -380,7 +380,7 @@ export function Join() {
         ) : null}
         {paidNotice === "fast_track" ? (
           <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-            Fast-track payment received. We&apos;re creating your TradeVerify
+            Fast-track payment received. We&apos;re creating your Trader Watchdog
             listing — refresh in a moment or check your email.
           </div>
         ) : null}
@@ -413,7 +413,7 @@ export function Join() {
                   ) : (
                     <>
                       {" "}
-                      Sign in with the password you chose (or the one TradeVerify
+                      Sign in with the password you chose (or the one Trader Watchdog
                       gave you if you haven&apos;t changed it yet).
                     </>
                   )}
@@ -475,7 +475,7 @@ export function Join() {
                 {applicantSummary?.exists && applicantSummary.profileLive ? (
                   <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-6 text-sm text-emerald-100/95">
                     <p className="font-semibold text-white">
-                      Your TradeVerify profile is live
+                      Your Trader Watchdog profile is live
                     </p>
                     <p className="mt-2 text-emerald-100/85">
                       Sign in with your work email:{" "}
@@ -519,7 +519,7 @@ export function Join() {
                         >
                           Contact
                         </Link>{" "}
-                        TradeVerify.
+                        Trader Watchdog.
                       </p>
                     )}
                     <Link
@@ -554,7 +554,7 @@ export function Join() {
                     </p>
                     <p className="mt-2 text-amber-100/80">
                       Your card payment is recorded. Your listing is created
-                      after TradeVerify approves your application; this page will
+                      after Trader Watchdog approves your application; this page will
                       update when you&apos;re approved and we&apos;ve finished
                       setup.
                     </p>

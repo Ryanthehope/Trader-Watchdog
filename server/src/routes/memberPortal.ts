@@ -676,6 +676,34 @@ router.delete(
   }
 );
 
+/** Insurance */
+router.get("/insurance", requireMemberMembershipActive, async (req, res) => {
+  try {
+    const memberId = (req as unknown as { memberId: string }).memberId;
+    const policies = await prisma.insurance.findMany({
+      where: { memberId },
+      orderBy: { expiryDate: "asc" },
+    });
+    res.json({
+      policies: policies.map((p) => ({
+        id: p.id,
+        type: p.type,
+        provider: p.provider,
+        policyNumber: p.policyNumber,
+        expiryDate: p.expiryDate.toISOString(),
+        graceExpiryDate: p.graceExpiryDate?.toISOString() ?? null,
+        status: p.status,
+        alertsSent: p.alertsSent,
+        lastAlertSentAt: p.lastAlertSentAt?.toISOString() ?? null,
+        updatedAt: p.updatedAt.toISOString(),
+      })),
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not list insurance policies" });
+  }
+});
+
 router.use(memberCrmRoutes);
 
 export default router;

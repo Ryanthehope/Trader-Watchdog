@@ -8,7 +8,7 @@ export function MemberPreviewCard({ member }: { member: VerifiedMember }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-200">
-              TradeVerify
+              Trader Watchdog
             </p>
             <p className="font-display text-lg font-semibold leading-tight text-white">
               {member.name}

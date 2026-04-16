@@ -101,7 +101,7 @@ export async function submitApplication(
     return {
       ok: false,
       message:
-        "File uploads require the TradeVerify API. Check that the server is running and try again, or submit without attachments and email documents separately.",
+        "File uploads require the Trader Watchdog API. Check that the server is running and try again, or submit without attachments and email documents separately.",
     };
   }
 
@@ -118,7 +118,7 @@ export async function submitApplication(
         method: "POST",
         headers,
         body: JSON.stringify({
-          source: "tradeverify-join",
+          source: "Trader Watchdog-join",
           ...payload,
         }),
       });
@@ -139,9 +139,9 @@ export async function submitApplication(
   }
 
   if (inbox) {
-    const subject = encodeURIComponent("TradeVerify membership application");
+    const subject = encodeURIComponent("Trader Watchdog membership application");
     const body = encodeURIComponent(
-      `TradeVerify membership application\n\n` +
+      `Trader Watchdog membership application\n\n` +
         `Business name: ${payload.company}\n` +
         `Trade / specialism: ${payload.trade}\n` +
         `Work email: ${payload.email}\n` +

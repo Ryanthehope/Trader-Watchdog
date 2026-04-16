@@ -32,7 +32,7 @@ async function uniqueSlug(db, company) {
 }
 async function uniqueTvId(db) {
     for (let i = 0; i < 50; i++) {
-        const candidate = `TV-${randomInt(1000, 9999)}`;
+        const candidate = `TW-${randomInt(1000, 9999)}`;
         const clash = await db.member.findUnique({ where: { tvId: candidate } });
         if (!clash)
             return candidate;

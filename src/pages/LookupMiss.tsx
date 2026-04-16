@@ -29,14 +29,14 @@ export function LookupMiss() {
       </h1>
       {q ? (
         <p className="mt-3 text-slate-400">
-          There is no verified TradeVerify listing for{" "}
+          There is no verified Trader Watchdog listing for{" "}
           <span className="font-mono text-slate-300">&quot;{q}&quot;</span>.
           Check the ID on their badge or paperwork, or ask the business to send
           their profile link.
         </p>
       ) : (
         <p className="mt-3 text-slate-400">
-          Enter a TradeVerify ID (for example TV-2847) or search by business
+          Enter a Trader Watchdog ID (for example TW-2847) or search by business
           name as shown on their profile.
         </p>
       )}

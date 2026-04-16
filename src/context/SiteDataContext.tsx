@@ -80,7 +80,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
         setError(
           e instanceof Error
             ? e.message
-            : "Could not reach the TradeVerify API. Start the server (npm run dev) or check your connection."
+            : "Could not reach the Trader Watchdog API. Start the server (npm run dev) or check your connection."
         );
         setMembers([]);
         setGuides([]);

@@ -243,7 +243,7 @@ export function StaffMemberForm() {
               required
               value={tvId}
               onChange={(e) => setTvId(e.target.value)}
-              placeholder="TV-2847"
+              placeholder="TW-2847"
               className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 font-mono text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
             />
           </div>

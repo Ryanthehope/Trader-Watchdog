@@ -71,7 +71,7 @@ export function StaffAnalytics() {
         Analytics
       </h1>
       <p className="mt-2 text-sm text-slate-400">
-        Google Analytics for traffic; database totals for your TradeVerify
+        Google Analytics for traffic; database totals for your Trader Watchdog
         directory below.
       </p>
 
@@ -177,7 +177,7 @@ export function StaffAnalytics() {
       </div>
 
       <h2 className="mt-10 text-xs font-semibold uppercase tracking-wider text-slate-500">
-        Site database (TradeVerify)
+        Site database (Trader Watchdog)
       </h2>
       <p className="mt-2 text-sm text-slate-500">
         Counts from your app database — not from Google Analytics.

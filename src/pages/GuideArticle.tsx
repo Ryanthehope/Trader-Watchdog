@@ -76,7 +76,7 @@ export function GuideArticle() {
             Ready to verify a tradesperson?
           </p>
           <p className="mt-1 text-sm text-slate-400">
-            Look up their TradeVerify ID before you commit.
+            Look up their Trader Watchdog ID before you commit.
           </p>
           <Link
             to="/#verify"

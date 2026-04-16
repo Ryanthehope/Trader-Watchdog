@@ -464,7 +464,7 @@ async function main() {
   const members = [
     {
       slug: "riverside-electrical-2847",
-      tvId: "TV-2847",
+      tvId: "TW-2847",
       name: "Riverside Electrical Ltd",
       trade: "Electrician",
       location: "Bristol",
@@ -481,7 +481,7 @@ async function main() {
     },
     {
       slug: "oaktree-plumbing-1922",
-      tvId: "TV-1922",
+      tvId: "TW-1922",
       name: "Oaktree Plumbing & Heating",
       trade: "Plumber",
       location: "Oxford",
@@ -498,7 +498,7 @@ async function main() {
     },
     {
       slug: "summit-roofing-4401",
-      tvId: "TV-4401",
+      tvId: "TW-4401",
       name: "Summit Roofing Services",
       trade: "Roofer",
       location: "Sheffield",

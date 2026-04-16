@@ -21,7 +21,7 @@ export function MemberRefer() {
   return (
     <MemberPlaceholder title="Refer a trade">
       <p>
-        Refer another reputable trade to TradeVerify. A referral programme and
+        Refer another reputable trade to Trader Watchdog. A referral programme and
         tracking will be available here soon.
       </p>
     </MemberPlaceholder>
@@ -98,13 +98,13 @@ export function MemberMembership() {
   };
 
   const statusLine = membershipAdminUnlimited
-    ? "Your portal access is set to unlimited by TradeVerify staff."
+    ? "Your portal access is set to unlimited by Trader Watchdog staff."
     : membershipLegacyUnlimited && !membershipBillingType
-      ? "Your account predates online membership tracking — full portal access is open. Contact TradeVerify if you want to move to card billing."
+      ? "Your account predates online membership tracking — full portal access is open. Contact Trader Watchdog if you want to move to card billing."
       : membershipBillingType === "stripe"
         ? `Billed with Stripe. Subscription status: ${stripeSubscriptionStatus ?? "unknown"}.`
         : membershipBillingType === "manual"
-          ? "Recorded by TradeVerify staff (manual arrangement)."
+          ? "Recorded by Trader Watchdog staff (manual arrangement)."
           : membershipBillingType === "fast_track"
             ? "Fast-track (one-off) listing window — portal access follows the end date below unless you add monthly membership."
             : membershipAccessActive
@@ -159,7 +159,7 @@ export function MemberMembership() {
       !membershipAdminUnlimited ? (
         <p className="mt-4 text-sm text-amber-800">
           Portal sections other than this page are locked until membership is
-          active again. You can subscribe by card below, or contact TradeVerify
+          active again. You can subscribe by card below, or contact Trader Watchdog
           if you pay another way.
         </p>
       ) : null}
@@ -179,7 +179,7 @@ export function MemberMembership() {
       stripeSubscriptionStatus !== "unpaid" ? (
         <p className="mt-6 border-t border-slate-100 pt-6 text-sm text-slate-600">
           Your membership is billed through Stripe. For payment method updates
-          or cancellation, use the billing link from your TradeVerify emails or
+          or cancellation, use the billing link from your Trader Watchdog emails or
           contact the team.
         </p>
       ) : (
@@ -188,7 +188,7 @@ export function MemberMembership() {
             Pay monthly with card (Stripe)
           </p>
           <p className="mt-1 text-sm text-slate-600">
-            Secure checkout sets up a TradeVerify monthly subscription. Use
+            Secure checkout sets up a Trader Watchdog monthly subscription. Use
             this if you were on manual billing, if a subscription was cancelled,
             or if your membership has expired.
           </p>

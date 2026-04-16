@@ -7,47 +7,43 @@ import { VerifyForm } from "../components/VerifyForm";
 
 function BadgeShowcase() {
   return (
-    <section className="border-b border-white/5 py-16 sm:py-20">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:gap-12 lg:grid-cols-2 lg:items-center sm:px-6">
+    <section className="border-b border-slate-200 bg-slate-50 py-20 sm:py-24">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:gap-16 lg:grid-cols-2 lg:items-center sm:px-6">
         <div className="lg:max-w-xl">
-          <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-            The TradeVerify badge
+          <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
+            The Trader Watchdog badge
           </p>
-          <h2 className="mt-2 font-display text-2xl font-semibold text-white sm:text-3xl">
+          <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
             Spot it on vans, sites, and quotes
           </h2>
-          <p className="mt-4 text-slate-400">
-            Verified members display a unique TradeVerify ID that homeowners can
+          <p className="mt-5 text-base leading-relaxed text-slate-700">
+            Verified members display a unique Trader Watchdog ID that homeowners can
             search on this site. If there is no badge, or the number does not
             match a live profile, treat that as a red flag before you pay a
             deposit.
           </p>
-          <ul className="mt-6 space-y-2 text-sm text-slate-300">
-            <li className="flex gap-2">
-              <span className="text-brand-400">→</span>
-              Ask for their TradeVerify ID if it is not visible.
+          <ul className="mt-8 space-y-3 text-sm text-slate-700">
+            <li className="flex gap-3">
+              <span className="text-brand-600">✓</span>
+              Ask for their Trader Watchdog ID if it is not visible.
             </li>
-            <li className="flex gap-2">
-              <span className="text-brand-400">→</span>
+            <li className="flex gap-3">
+              <span className="text-brand-600">✓</span>
               Confirm the ID here before large upfront payments.
             </li>
           </ul>
         </div>
         <div className="flex justify-center lg:justify-end">
-          <div className="relative w-full max-w-[min(100%,360px)]">
-            <div
-              className="absolute -inset-6 rounded-3xl bg-emerald-500/15 blur-2xl"
-              aria-hidden
-            />
-            <div className="relative flex flex-col items-stretch sm:items-end">
+          <div className="w-full max-w-[360px]">
+            <div className="flex flex-col items-stretch sm:items-end">
               <img
                 src={publicApiUrl("/api/badge-preview.svg")}
                 width={320}
                 height={88}
-                alt="TradeVerify verified member badge: green ribbon with check, TradeVerify, member ID TV-2847"
-                className="h-auto w-full max-w-[320px] drop-shadow-2xl sm:ml-auto"
+                alt="Trader Watchdog verified member badge: green ribbon with check, Trader Watchdog, member ID TW-2847"
+                className="h-auto w-full max-w-[320px] sm:ml-auto"
               />
-              <p className="mt-5 text-center text-xs leading-relaxed text-slate-500 sm:max-w-[320px] sm:text-right">
+              <p className="mt-6 text-center text-xs leading-relaxed text-slate-600 sm:max-w-[320px] sm:text-right">
                 Same green SVG badge issued to each verified member (their name,
                 trade, and ID).
               </p>
@@ -62,21 +58,21 @@ function BadgeShowcase() {
 function Stats() {
   const items = [
     { value: "£3.5bn", label: "estimated lost to rogue traders yearly" },
-    { value: "42%", label: "of online reviews are estimated fake" },
-    { value: "1 in 3", label: "tradespeople don't have insurance" },
+    { value: "1.26mil", label: "fly-tipping incidents a year and rising" },
+    { value: "24%", label: "of traders do not have Public Liability insurance" },
   ];
   return (
-    <section className="border-b border-white/5 bg-ink-900/50 py-14">
+    <section className="border-b border-slate-200 bg-white py-16">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:grid-cols-3 sm:px-6">
         {items.map((item) => (
           <div
             key={item.label}
-            className="rounded-2xl border border-white/10 bg-ink-950/90 p-6 text-center shadow-card-lg transition-colors duration-300 hover:border-white/15"
+            className="rounded-lg border border-slate-300/60 bg-slate-50 p-8 text-center transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
           >
-            <p className="font-display text-3xl font-bold text-brand-400 sm:text-4xl">
+            <p className="font-display text-4xl font-bold text-brand-600 sm:text-5xl">
               {item.value}
             </p>
-            <p className="mt-2 text-sm leading-snug text-slate-400">
+            <p className="mt-3 text-sm leading-snug text-slate-700">
               {item.label}
             </p>
           </div>
@@ -159,7 +155,7 @@ function FeatureHighlights() {
   const cards = [
     {
       title: "Free for homeowners",
-      body: "Look up a TradeVerify ID or search the public directory before you hire. No fee to check whether a business is listed and what we hold on file.",
+      body: "Look up a Trader Watchdog ID or search the public directory before you hire. No fee to check whether a business is listed and what we hold on file.",
     },
     {
       title: "Straightforward for trades",
@@ -173,28 +169,28 @@ function FeatureHighlights() {
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-white/5 py-16 sm:py-20"
+      className="scroll-mt-24 border-b border-slate-200/10 bg-slate-900/30 py-20 sm:py-24"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-300">
-          Why TradeVerify
+        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
+          Why Choose Trader Watchdog
         </p>
-        <h2 className="mt-2 text-center font-display text-2xl font-semibold text-white sm:text-3xl">
-          Trust first — not another lead auction
+        <h2 className="mt-3 text-center font-display text-3xl font-bold text-white sm:text-4xl">
+          Verification, not lead generation
         </h2>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-14 grid gap-8 md:grid-cols-3">
           {cards.map((c) => (
             <div
               key={c.title}
-              className="rounded-2xl border border-emerald-500/25 bg-ink-900/50 p-6 shadow-card-lg transition-shadow duration-300 hover:border-emerald-500/35"
+              className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-8 transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/50"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
-                <IconCheck />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
+                <IconCheck className="h-6 w-6" />
               </div>
-              <h3 className="mt-4 font-display text-lg font-semibold text-white">
+              <h3 className="mt-5 font-display text-xl font-semibold text-white">
                 {c.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
                 {c.body}
               </p>
             </div>
@@ -267,7 +263,7 @@ function CompetitorComparison() {
           How we&apos;re different from lead directories
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-slate-500">
-          TradeVerify is a verification service with public profiles. Lead
+          Trader Watchdog is a verification service with public profiles. Lead
           marketplaces focus on connecting jobs — we focus on what&apos;s true
           before you connect. Competitor columns are a general guide; features
           vary by plan and change over time.
@@ -287,7 +283,7 @@ function CompetitorComparison() {
                   scope="col"
                   className="px-4 py-4 text-center font-display font-semibold text-brand-300 sm:px-6"
                 >
-                  TradeVerify
+                  Trader Watchdog
                 </th>
                 <th
                   scope="col"
@@ -351,21 +347,21 @@ function MembersCarousel() {
   const { members, loading } = useSiteData();
 
   return (
-    <section className="py-16 sm:py-20">
+    <section className="border-b border-slate-200 bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <h2 className="text-center font-display text-2xl font-semibold text-white sm:text-3xl">
+        <h2 className="text-center font-display text-3xl font-bold text-slate-900 sm:text-4xl">
           Verified members
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-center text-slate-400">
-          Public profiles in the TradeVerify directory. Each card links to a
+        <p className="mx-auto mt-4 max-w-xl text-center text-base text-slate-700">
+          Public profiles in the Trader Watchdog directory. Each card links to a
           full verification summary you can share with customers.
         </p>
-        <div className="mt-10 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:justify-center sm:overflow-visible sm:pb-0">
+        <div className="mt-12 flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory sm:justify-center sm:overflow-visible sm:pb-0">
           {loading
             ? [0, 1, 2].map((k) => (
                 <div
                   key={k}
-                  className="h-[280px] w-[min(100%,320px)] shrink-0 snap-center animate-pulse rounded-2xl bg-ink-800/60"
+                  className="h-[280px] w-[min(100%,320px)] shrink-0 snap-center animate-pulse rounded-lg bg-slate-200"
                   aria-hidden
                 />
               ))
@@ -383,12 +379,12 @@ function HowItWorks() {
     {
       n: "1",
       title: "Spot the badge",
-      body: "See the TradeVerify badge on a van, website, or marketing material.",
+      body: "See the Trader Watchdog badge on a van, website, or marketing material.",
     },
     {
       n: "2",
       title: "Search the company",
-      body: "Type the business TradeVerify ID into our verification tool.",
+      body: "Type the business Trader Watchdog ID into our verification tool.",
     },
     {
       n: "3",
@@ -399,28 +395,28 @@ function HowItWorks() {
   return (
     <section
       id="how"
-      className="scroll-mt-24 border-t border-white/5 bg-ink-900/30 py-16 sm:py-24"
+      className="scroll-mt-24 border-y border-slate-200/10 bg-slate-900/30 py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-300">
+        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
           How it works
         </p>
-        <h2 className="mt-2 text-center font-display text-2xl font-semibold text-white sm:text-3xl">
+        <h2 className="mt-3 text-center font-display text-3xl font-bold text-white sm:text-4xl">
           Check in seconds
         </h2>
-        <div className="mt-12 grid gap-8 md:grid-cols-3">
+        <div className="mt-14 grid gap-8 md:grid-cols-3">
           {steps.map((s) => (
             <div
               key={s.n}
-              className="relative rounded-2xl border border-white/5 bg-ink-950 p-6 pt-10"
+              className="relative rounded-lg border border-slate-700/50 bg-slate-800/30 p-8 pt-12 transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/50"
             >
-              <span className="absolute left-6 top-0 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-brand-500 font-display text-lg font-bold text-white shadow-lg">
+              <span className="absolute left-8 top-0 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-lg bg-brand-500 font-display text-xl font-bold text-white">
                 {s.n}
               </span>
               <h3 className="font-display text-lg font-semibold text-white">
                 {s.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
                 {s.body}
               </p>
             </div>
@@ -434,54 +430,53 @@ function HowItWorks() {
 function Pillars() {
   const pillars = [
     {
-      title: "Address & locality",
-      body: "Confirmed as a genuine operating address — not a virtual office, PO box, or registered address in a different area.",
+      title: "Who They Are and Where They're From",
+      body: "We check and validate the trader's name, address and details held at Companies House if the trader is a Limited Company. Confirmed as a genuine operating address — not a virtual office or PO box.",
     },
     {
-      title: "Insurance & accreditations",
-      body: "Public liability cover verified. Gas Safe, NICEIC, FENSA and other certifications checked against official registers where claimed.",
+      title: "Insurance",
+      body: "Public Liability Insurance protects you, your property and your contents from any damage caused by a trader. Employers Insurance is a legal requirement for any business with employees. Up to 50% of employers have no insurance at all and 24% of traders don't have Public Liability Insurance. We validate any insurance held by the trader and record the expiry date.",
     },
     {
-      title: "Digital footprint",
-      body: "Website, socials, and reviews checked for consistency and genuine business activity.",
+      title: "Your Waste — It's Your Responsibility",
+      body: "As a householder you are legally responsible for all waste removed from your home until it is disposed at an approved waste disposal site or collected by a registered waste carrier. If your waste is traced to an illegal site or fly-tipped, enforcement action can be taken against you. We check and validate that a trader holds the required permits or licenses and record the expiry date. You can download our report, without charge, as proof of your diligence.",
     },
     {
-      title: "Contact & public records",
-      body: "Phone number confirmed as genuine — not only a virtual “local” number. Public records reviewed.",
+      title: "Other Credentials",
+      body: "We require evidence of any claimed qualifications or trade association membership. Gas Safe, NICEIC, FENSA and other certifications are checked against official registers where claimed.",
     },
   ];
   return (
-    <section id="why" className="scroll-mt-24 py-16 sm:py-24">
+    <section id="why" className="scroll-mt-24 border-b border-slate-200 bg-slate-50 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-300">
-          Why it matters
+        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
+          What We Verify For You
         </p>
-        <h2 className="mt-2 max-w-3xl text-center font-display text-2xl font-semibold leading-tight text-white sm:mx-auto sm:text-3xl">
-          Anyone can put anything online. TradeVerify checks what&apos;s actually
-          true.
+        <h2 className="mt-3 max-w-3xl text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:mx-auto sm:text-4xl">
+          With just one click
         </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-slate-400">
-          When a tradesperson is TradeVerify checked, we&apos;ve independently
-          audited the claims they make about their business. Every member is
-          reviewed across the following:
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-700">
+          We check if they are who they say they are, they are based where they say they're based, they are insured to carry out the work and they comply with legal environmental policies for traders.
         </p>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2">
+        <div className="mt-14 grid gap-8 sm:grid-cols-2">
           {pillars.map((p) => (
             <div
               key={p.title}
-              className="flex gap-4 rounded-2xl border border-white/5 bg-ink-900/40 p-6"
+              className="flex gap-5 rounded-lg border border-slate-300/60 bg-white p-8 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
             >
               <span
-                className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500/20 text-brand-300"
+                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
                 aria-hidden
               >
-                ✓
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               </span>
               <div>
-                <h3 className="font-display font-semibold text-white">
+                <h3 className="font-display text-lg font-semibold text-slate-900">
                   {p.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                <p className="mt-3 text-sm leading-relaxed text-slate-700">
                   {p.body}
                 </p>
               </div>
@@ -495,12 +490,12 @@ function Pillars() {
 
 const faqItems = [
   {
-    q: "What is TradeVerify?",
-    a: "TradeVerify is an independent verification service for trades businesses. We check what they claim — address, insurance, registrations, and public footprint — so homeowners have a single place to confirm a business before they hire.",
+    q: "What is Trader Watchdog?",
+    a: "Trader Watchdog is an independent verification service for trades businesses. We check what they claim — address, insurance, registrations, and public footprint — so homeowners have a single place to confirm a business before they hire.",
   },
   {
     q: "What if someone fakes a badge or ID?",
-    a: "Always search the TradeVerify ID on this site. A forged number will not return a matching verified profile. If in doubt, contact us with the details they gave you.",
+    a: "Always search the Trader Watchdog ID on this site. A forged number will not return a matching verified profile. If in doubt, contact us with the details they gave you.",
   },
   {
     q: "How often are member checks updated?",
@@ -510,19 +505,19 @@ const faqItems = [
 
 function Faq() {
   return (
-    <section id="faq" className="border-y border-white/10 bg-ink-900/25 py-16 sm:py-20">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6">
-        <h2 className="text-center font-display text-2xl font-semibold tracking-tight text-white">
+    <section id="faq" className="border-y border-slate-200 bg-white py-20 sm:py-24">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Common questions
         </h2>
-        <dl className="mt-10 space-y-4 sm:space-y-5">
+        <dl className="mt-12 space-y-6">
           {faqItems.map((item) => (
             <div
               key={item.q}
-              className="rounded-2xl border border-white/10 bg-ink-950/70 px-5 py-4 shadow-card-lg"
+              className="rounded-lg border border-slate-300/60 bg-slate-50 px-6 py-6 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
             >
-              <dt className="font-medium text-white">{item.q}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-slate-400">
+              <dt className="font-semibold text-slate-900">{item.q}</dt>
+              <dd className="mt-3 text-sm leading-relaxed text-slate-700">
                 {item.a}
               </dd>
             </div>
@@ -540,37 +535,37 @@ function GuidesTeaser() {
   if (top.length === 0) return null;
 
   return (
-    <section id="guides" className="border-y border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-16 sm:py-20">
+    <section id="guides" className="border-y border-slate-200/10 bg-slate-900/20 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <h2 className="font-display text-2xl font-semibold text-white sm:text-3xl">
+            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
               Guides and advice
             </h2>
-            <p className="mt-3 max-w-xl text-slate-400">
+            <p className="mt-4 max-w-xl text-base text-slate-300">
               Protect yourself before you hire — clear guidance on quotes,
               reviews, and how to pay safely.
             </p>
           </div>
           <Link
             to="/guides"
-            className="shrink-0 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            className="shrink-0 rounded-lg border border-slate-700/50 bg-slate-800/30 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/50"
           >
             View all guides
           </Link>
         </div>
-        <ul className="mt-10 grid gap-4 sm:grid-cols-3">
+        <ul className="mt-12 grid gap-6 sm:grid-cols-3">
           {top.map((g) => (
             <li key={g.slug}>
               <Link
                 to={`/guides/${g.slug}`}
-                className="block h-full rounded-2xl border border-white/10 bg-ink-950/50 p-5 transition hover:border-brand-500/30"
+                className="block h-full rounded-lg border border-slate-700/50 bg-slate-800/30 p-6 transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/50"
               >
-                <p className="text-xs text-slate-500">{g.readTime}</p>
-                <p className="mt-2 font-display font-semibold text-white">
+                <p className="text-xs font-medium text-brand-400">{g.readTime}</p>
+                <p className="mt-3 font-display text-lg font-semibold text-white">
                   {g.title}
                 </p>
-                <p className="mt-2 line-clamp-2 text-sm text-slate-400">
+                <p className="mt-2 line-clamp-2 text-sm text-slate-300">
                   {g.excerpt}
                 </p>
               </Link>
@@ -584,28 +579,78 @@ function GuidesTeaser() {
 
 function TradesCta() {
   return (
-    <section id="join" className="py-16 sm:py-24">
+    <section id="join" className="border-t border-slate-200 bg-slate-50 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="overflow-hidden rounded-3xl border border-brand-500/25 bg-gradient-to-br from-brand-900/85 via-ink-900 to-ink-950 p-8 shadow-card-lg ring-1 ring-white/5 sm:p-12 md:flex md:items-center md:justify-between md:gap-12">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-              For tradespeople
+        <div className="overflow-hidden rounded-xl border border-slate-300/60 bg-white p-10 sm:p-14">
+          <div className="text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
+              Traders & Businesses
             </p>
-            <h2 className="mt-2 font-display text-2xl font-semibold text-white sm:text-3xl">
-              Verified. Insured. Accountable.
+            <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+              PROVE IT! Register Now
             </h2>
-            <p className="mt-4 max-w-xl text-slate-400">
-              You do the work. TradeVerify proves the rest. Give customers
-              independent proof that what you claim about your business is
-              accurate.
+            <p className="mx-auto mt-5 max-w-2xl text-base text-slate-700">
+              Are you who you say you are? Are you based where you say you're based? Do you have current Public Liability Insurance to protect your customers? Do you hold a current Environmental Waste permit or licence?
             </p>
+            <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-900">
+              Independent verification improves customers' confidence and increases conversions.
+            </p>
+
+            <div className="mx-auto mt-12 max-w-2xl rounded-lg border border-slate-300/60 bg-slate-50 p-8 text-left">
+              <h3 className="mb-6 text-center font-display text-xl font-semibold text-slate-900">
+                Registration Requirements
+              </h3>
+              <ul className="space-y-4 text-sm text-slate-700">
+                <li className="flex gap-3">
+                  <span className="mt-0.5 text-brand-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <span>Your name and trading address</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-0.5 text-brand-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <span>Photo ID and proof of address (current driving licence front or passport plus a utility bill showing your name and address in the last 3 months)</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-0.5 text-brand-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <span>A copy of your current Public Liability Insurance policy and Employers Insurance (if applicable)</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-0.5 text-brand-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <span>Proof that you hold a current Waste Permit or a current Waste Carrier Licence</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-0.5 text-brand-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <span>Proof of your claimed qualifications or trade association membership</span>
+                </li>
+              </ul>
+            </div>
+
+            <Link
+              to="/join"
+              className="mt-10 inline-flex shrink-0 items-center justify-center rounded-lg bg-brand-600 px-10 py-4 font-semibold text-white transition-all duration-200 hover:bg-brand-700"
+            >
+              Register now
+            </Link>
           </div>
-          <Link
-            to="/join"
-            className="mt-8 inline-flex shrink-0 items-center justify-center rounded-full bg-white px-8 py-3.5 font-semibold text-ink-900 transition hover:bg-slate-100 md:mt-0"
-          >
-            Apply now
-          </Link>
         </div>
       </div>
     </section>
@@ -634,27 +679,16 @@ export function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div
-          className="pointer-events-none absolute inset-0 bg-grid-faint bg-grid-sm [mask-image:linear-gradient(to_bottom,black,transparent)]"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_50%_-15%,rgba(14,165,233,0.28),transparent_55%)]"
-          aria-hidden
-        />
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-14 sm:px-6 sm:pb-24 sm:pt-20 lg:pt-28">
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-400/25 bg-brand-500/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-200 shadow-lg shadow-brand-950/40">
-            Independent checks on local tradespeople
+      <section className="relative overflow-hidden border-b border-slate-200/10 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6 sm:pb-32 sm:pt-24 lg:pt-32">
+          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-300">
+            Recommended by Police, Insurers & Environment Agencies
           </p>
-          <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
+          <h1 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4rem] lg:leading-[1.08]">
             Don&apos;t take their word for it.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-400 sm:text-xl sm:leading-relaxed">
-            Anyone can claim to be local, insured, and qualified. TradeVerify
-            independently checks that tradespeople are who they say they are,
-            based where they claim to be, and hold the credentials they
-            advertise.
+          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl sm:leading-relaxed">
+            Police, insurers, environment agencies and social protection groups recommend you verify any trader before you part with your money. Trader Watchdog is a free service protecting households against rogue traders.
           </p>
           <VerifyForm id="hero-verify" layout="hero" />
           {exampleMember ? (
@@ -666,16 +700,16 @@ export function Home() {
               or by business name.
             </p>
           ) : null}
-          <div className="mt-10 flex flex-wrap gap-3 sm:gap-4">
+          <div className="mt-12 flex flex-wrap gap-4">
             <Link
               to="/#verify"
-              className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-base font-semibold text-white ring-1 ring-white/10 transition-colors duration-200 hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-lg border border-slate-700/50 bg-slate-800/40 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/60"
             >
-              Full verify tool
+              Verify a trader now
             </Link>
             <Link
               to="/join"
-              className="inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-xl shadow-brand-900/45 transition-colors duration-200 hover:bg-brand-400"
+              className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-600"
             >
               Get verified as a tradesperson
             </Link>
@@ -686,27 +720,43 @@ export function Home() {
       <BadgeShowcase />
       <Stats />
       <FeatureHighlights />
-      <CompetitorComparison />
 
       <section
         id="verify"
-        className="scroll-mt-24 border-b border-white/5 py-16 sm:py-20"
+        className="scroll-mt-24 border-b border-slate-200 bg-slate-50 py-20 sm:py-24"
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mx-auto max-w-xl text-center">
-            <h2 className="font-display text-2xl font-semibold text-white sm:text-3xl">
-              Look up a TradeVerify number
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+              Don't take their word for it. Verify a trader now.
             </h2>
-            <p className="mt-3 text-slate-400">
-              Enter the ID from their badge, quote, or website. You will open
-              their public profile or see that they are not listed.
+            <p className="mt-4 text-base text-slate-700">
+              It's FREE, you do NOT have to register, and it's only one click away. Enter the full trading name of the trader and their postcode.
             </p>
           </div>
           <VerifyForm id="section-verify" layout="section" />
-          <p className="mx-auto mt-4 max-w-lg text-center text-sm text-slate-500">
-            Listings are managed by TradeVerify staff in the secure admin area
-            and served from the live database.
-          </p>
+          <div className="mx-auto mt-8 max-w-3xl space-y-4 text-center">
+            <div className="rounded-lg border border-emerald-600/30 bg-emerald-50 px-6 py-4">
+              <p className="text-sm text-slate-700">
+                <span className="inline-flex items-center gap-2 font-semibold text-emerald-700">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20">✓</span>
+                  GREEN flag
+                </span>
+                {' '}
+                = verified. You can download their report without charge to prove your diligence, particularly important for Environmental Waste Regulations.
+              </p>
+            </div>
+            <div className="rounded-lg border border-red-600/30 bg-red-50 px-6 py-4">
+              <p className="text-sm text-slate-700">
+                <span className="inline-flex items-center gap-2 font-semibold text-red-700">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/20">✕</span>
+                  RED flag
+                </span>
+                {' '}
+                = not verified. Do not part with any money or agree to any work unless the trader proves they comply with the essential requirements of operating a legal business.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

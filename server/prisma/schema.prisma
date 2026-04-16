@@ -18,6 +18,16 @@ model Staff {
   updatedAt  DateTime @updatedAt
 }
 
+model Category {
+  id        String @id @default(cuid())
+  name     String @unique
+  slug      String @unique
+  description String?
+  sortOrder Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Member {
   id            String         @id @default(cuid())
   slug          String         @unique
@@ -74,6 +84,39 @@ model Member {
   tradeInvoices MemberTradeInvoice[]
   memberJobs    MemberJob[]
   availabilityDays MemberAvailabilityDay[]
+  insurancePolicies Insurance[]
+}
+
+model Insurance {
+  id        String @id @default(cuid())
+  memberId  String
+  member    Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  ///Type of Insurance: "Public liability", "Employers Liability", "Personal Indemnity@, etc.
+  type      String
+  provider  String?
+  policyNumber    String?
+
+  expiryDate      DateTime
+  ///Calculated: expiryDate + grace period (7-10 days), null if not yet expired
+  graceExpiryDate DateTime?
+
+  /// "active" | "expiring_soon" | "in_grace" | "expired"
+  status    String @default("active")
+
+  /// Track when alerts were sent: {"90days": "2026-01-15T10:00:00Z", "60days": null, "30days": null}
+  alertsSent  Json?
+  lastAlertSentAt   DateTime?
+
+  /// Stored filename for uploaded policy document
+  documentStoredName  String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([status])
+  @@index([expiryDate])
 }
 
 /// Calendar marks for public profile (available vs busy).

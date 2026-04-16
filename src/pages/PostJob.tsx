@@ -130,7 +130,7 @@ export function PostJob() {
       </h1>
       <p className="mt-3 text-slate-400">
         Tell us what you need and which trade type it is. Your request is shared
-        with verified TradeVerify members in that category so they can contact
+        with verified Trader Watchdog members in that category so they can contact
         you to quote. We also keep a copy for our team. There is no charge for
         submitting this form.
       </p>

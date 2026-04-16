@@ -19,7 +19,7 @@ export function MemberBadge() {
   const embedHtml = useMemo(() => {
     if (!member?.slug) return "";
     return `<a href="${profileUrl}" target="_blank" rel="noopener noreferrer">
-  <img src="${badgeUrl}" width="320" height="88" alt="TradeVerify verified — ${member.name.replace(/"/g, "&quot;")}" />
+  <img src="${badgeUrl}" width="320" height="88" alt="Trader Watchdog verified — ${member.name.replace(/"/g, "&quot;")}" />
 </a>`;
   }, [member?.slug, member?.name, profileUrl, badgeUrl]);
 
@@ -33,7 +33,7 @@ export function MemberBadge() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `tradeverify-badge-${member.slug}.svg`;
+      a.download = `Trader Watchdog-badge-${member.slug}.svg`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -66,7 +66,7 @@ export function MemberBadge() {
       <p className="mt-2 max-w-2xl text-sm text-slate-600">
         Use this badge on your website, quotes, and van livery. The image is
         generated from your live public profile (name, ID, trade). Anyone can
-        view the SVG URL — it only confirms you have a TradeVerify listing.
+        view the SVG URL — it only confirms you have a Trader Watchdog listing.
       </p>
 
       <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -78,12 +78,12 @@ export function MemberBadge() {
             src={badgeUrl}
             width={320}
             height={88}
-            alt="TradeVerify verified badge preview"
+            alt="Trader Watchdog verified badge preview"
             className="rounded-lg shadow-md shadow-slate-200/80"
           />
           <div className="min-w-0 flex-1 space-y-3 text-sm">
             <p>
-              <span className="text-slate-500">TradeVerify ID:</span>{" "}
+              <span className="text-slate-500">Trader Watchdog ID:</span>{" "}
               <span className="font-mono font-medium text-slate-900">
                 {member.tvId}
               </span>

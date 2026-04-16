@@ -59,7 +59,7 @@ export async function getBrandName(prisma) {
     const name = s?.siteDisplayName?.trim() ||
         s?.workspaceName?.trim() ||
         "";
-    return name || "TradeVerify";
+    return name || "Trader Watchdog";
 }
 async function mailFrom(prisma) {
     const env = process.env.MAIL_FROM?.trim();

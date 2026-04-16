@@ -38,100 +38,105 @@ export function StaffDashboard() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-white">
-        Dashboard
-      </h1>
-      <p className="mt-2 max-w-2xl text-slate-400">
-        Snapshot of pipeline, publishing, and outreach. Live tools: members,
-        articles (guides), and verification IDs.
-      </p>
+      {/* Header section - dark background */}
+      <div className="border-b border-slate-700/50 bg-slate-900 px-6 py-8 sm:px-10 sm:py-10">
+        <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">
+          Dashboard
+        </h1>
+        <p className="mt-3 max-w-3xl text-base text-slate-300">
+          Snapshot of pipeline, publishing, and outreach. Live tools: members,
+          articles (guides), and verification IDs.
+        </p>
+      </div>
 
-      <section className="mt-8">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+      {/* Financial section - white background */}
+      <section className="border-b border-slate-200 bg-white px-6 py-10 sm:px-10 sm:py-12">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-600">
           Financial
         </h2>
         {data.financialError ? (
-          <p className="mt-1 text-xs text-amber-400/90">
+          <p className="mt-2 text-xs text-amber-600">
             Live totals unavailable — figures may be outdated. See Financial.
           </p>
         ) : data.financialSource !== "stripe" ? (
-          <p className="mt-1 text-xs text-slate-600">
+          <p className="mt-2 text-xs text-slate-500">
             Card payments can be connected in Integrations to keep these current.
           </p>
         ) : null}
-        <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <Link
             to="/staff/financial"
-            className="block rounded-2xl border border-white/10 bg-ink-900/50 p-5 transition hover:border-brand-500/30"
+            className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Revenue (MTD)
             </p>
-            <p className="mt-2 font-display text-2xl font-semibold text-white">
+            <p className="mt-3 font-display text-3xl font-bold text-slate-900">
               {formatGBPFromCents(data.revenueMtdCents)}
             </p>
-            <p className="mt-1 text-xs text-slate-500">Details in Financial</p>
+            <p className="mt-2 text-xs text-slate-500">Details in Financial</p>
           </Link>
           <Link
             to="/staff/financial"
-            className="block rounded-2xl border border-white/10 bg-ink-900/50 p-5 transition hover:border-brand-500/30"
+            className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Outstanding
             </p>
-            <p className="mt-2 font-display text-2xl font-semibold text-white">
+            <p className="mt-3 font-display text-3xl font-bold text-slate-900">
               {formatGBPFromCents(data.outstandingCents)}
             </p>
-            <p className="mt-1 text-xs text-slate-500">Unpaid invoices</p>
+            <p className="mt-2 text-xs text-slate-500">Unpaid invoices</p>
           </Link>
           <Link
             to="/staff/applications"
-            className="block rounded-2xl border border-white/10 bg-ink-900/50 p-5 transition hover:border-brand-500/30"
+            className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Applications
             </p>
-            <p className="mt-2 font-display text-2xl font-semibold text-white">
+            <p className="mt-3 font-display text-3xl font-bold text-slate-900">
               {data.applicationsPending}
             </p>
-            <p className="mt-1 text-xs text-slate-500">Pending review</p>
+            <p className="mt-2 text-xs text-slate-500">Pending review</p>
           </Link>
           <Link
             to="/staff/reviews"
-            className="block rounded-2xl border border-white/10 bg-ink-900/50 p-5 transition hover:border-brand-500/30"
+            className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Reviews
             </p>
-            <p className="mt-2 font-display text-2xl font-semibold text-white">
+            <p className="mt-3 font-display text-3xl font-bold text-slate-900">
               {data.reviewsPending}
             </p>
-            <p className="mt-1 text-xs text-slate-500">Awaiting moderation</p>
+            <p className="mt-2 text-xs text-slate-500">Awaiting moderation</p>
           </Link>
           <Link
             to="/staff/members"
-            className="block rounded-2xl border border-white/10 bg-ink-900/50 p-5 transition hover:border-brand-500/30"
+            className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Active members
             </p>
-            <p className="mt-2 font-display text-2xl font-semibold text-white">
+            <p className="mt-3 font-display text-3xl font-bold text-slate-900">
               {data.membersTotal}
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-500">
               {data.membersPortalEnabled} with portal login
             </p>
           </Link>
         </div>
       </section>
 
-      <section className="mt-10">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+      {/* Activity section - dark background */}
+      <section className="border-b border-slate-700/50 bg-slate-900 px-6 py-10 sm:px-10 sm:py-12">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
           Activity
         </h2>
-        <ul className="mt-3 divide-y divide-white/10 rounded-2xl border border-white/10 bg-ink-900/40">
+        <ul className="mt-6 divide-y divide-slate-700/50 rounded-lg border border-slate-700/50 bg-slate-800/40">
           {data.activity.length === 0 ? (
-            <li className="px-4 py-4 text-sm text-slate-400">
+            <li className="px-5 py-5 text-sm text-slate-300">
               No recent activity yet. Submit a join application, edit a member, or
               publish an article to see entries here.
             </li>
@@ -139,16 +144,16 @@ export function StaffDashboard() {
             data.activity.map((a, i) => (
               <li
                 key={`${a.at}-${i}`}
-                className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 text-sm"
               >
                 <Link
                   to={a.href}
-                  className="text-slate-200 hover:text-brand-200"
+                  className="font-medium text-white hover:text-brand-400"
                 >
                   {a.label}
                 </Link>
                 <time
-                  className="text-xs text-slate-600"
+                  className="text-xs text-slate-500"
                   dateTime={a.at}
                   title={a.at}
                 >
@@ -157,11 +162,11 @@ export function StaffDashboard() {
               </li>
             ))
           )}
-          <li className="px-4 py-3 text-xs text-slate-600">
+          <li className="px-5 py-4 text-xs text-slate-500">
             Guides live: {data.guidesTotal}. Inbox unread:{" "}
             <Link
               to="/staff/outreach/inbox"
-              className="text-brand-400 hover:text-brand-300"
+              className="font-semibold text-brand-400 hover:text-brand-300"
             >
               {data.inboxUnread}
             </Link>
@@ -170,31 +175,32 @@ export function StaffDashboard() {
         </ul>
       </section>
 
-      <section className="mt-10">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+      {/* Quick actions section - white background */}
+      <section className="bg-white px-6 py-10 sm:px-10 sm:py-12">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-600">
           Quick actions
         </h2>
-        <ul className="mt-3 grid gap-4 sm:grid-cols-2">
+        <ul className="mt-6 grid gap-6 sm:grid-cols-2">
           <li>
             <Link
               to="/staff/members"
-              className="block rounded-2xl border border-white/10 bg-ink-900/50 p-6 transition hover:border-brand-500/30"
+              className="block rounded-lg border border-slate-300/60 bg-slate-50 p-8 transition hover:border-brand-500/50"
             >
-              <h3 className="font-display font-semibold text-white">Members</h3>
-              <p className="mt-2 text-sm text-slate-400">
-                Verified profiles, portal access, and TradeVerify IDs.
+              <h3 className="font-display text-lg font-bold text-slate-900">Members</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Verified profiles, portal access, and Trader Watchdog IDs.
               </p>
             </Link>
           </li>
           <li>
             <Link
               to="/staff/guides"
-              className="block rounded-2xl border border-white/10 bg-ink-900/50 p-6 transition hover:border-brand-500/30"
+              className="block rounded-lg border border-slate-300/60 bg-slate-50 p-8 transition hover:border-brand-500/50"
             >
-              <h3 className="font-display font-semibold text-white">
+              <h3 className="font-display text-lg font-bold text-slate-900">
                 Articles
               </h3>
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
                 Advice pieces shown on the public Guides & advice section.
               </p>
             </Link>

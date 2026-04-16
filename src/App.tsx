@@ -26,6 +26,7 @@ import { StaffFinancial } from "./staff/StaffFinancial";
 import { StaffReviews } from "./staff/StaffReviews";
 import { StaffInbox } from "./staff/StaffInbox";
 import { StaffLeads } from "./staff/StaffLeads";
+import { StaffInsurance } from "./staff/StaffInsurance";
 import { StaffRequireAuth } from "./staff/StaffRequireAuth";
 import { StaffSettingsPage } from "./staff/StaffSettingsPage";
 import { StaffIntegrations } from "./staff/StaffIntegrations";
@@ -38,6 +39,7 @@ import {
   MemberBilling,
   MemberBusiness,
   MemberDocuments,
+  MemberInsurance,
   MemberJobs,
   MemberLayout,
   MemberLeads,
@@ -95,6 +97,7 @@ export default function App() {
           <Route index element={<MemberOverview />} />
           <Route path="business" element={<MemberBusiness />} />
           <Route path="documents" element={<MemberDocuments />} />
+          <Route path="insurance" element={<MemberInsurance />} />
           <Route path="badge" element={<MemberBadge />} />
           <Route path="refer" element={<MemberRefer />} />
           <Route path="membership" element={<MemberMembership />} />
@@ -146,6 +149,7 @@ export default function App() {
           <Route path="members" element={<StaffMembers />} />
           <Route path="members/new" element={<StaffMemberForm />} />
           <Route path="members/:id" element={<StaffMemberForm />} />
+          <Route path="insurance" element={<StaffInsurance />} />
           <Route path="dispatch" element={<StaffDispatch />} />
           <Route path="reviews" element={<StaffReviews />} />
           <Route path="guides" element={<StaffGuides />} />

@@ -21,11 +21,11 @@ export function buildTradeVerifyBadgeSvg(opts) {
     const tv = escapeXml(xmlSafeText(String(opts.tvId ?? "")));
     const trade = escapeXml(xmlSafeText(String(opts.trade ?? "")).slice(0, 28));
     return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="TradeVerify verified member">
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Trader Watchdog verified member">
   <rect width="${W}" height="${H}" rx="14" fill="#047857"/>
   <circle cx="44" cy="44" r="28" fill="#ffffff"/>
   <path d="M30 44 L38 52 L58 32" fill="none" stroke="#047857" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="84" y="32" fill="#ffffff" font-family="system-ui,Segoe UI,sans-serif" font-size="17" font-weight="800" letter-spacing="-0.02em">TradeVerify</text>
+  <text x="84" y="32" fill="#ffffff" font-family="system-ui,Segoe UI,sans-serif" font-size="17" font-weight="800" letter-spacing="-0.02em">Trader Watchdog</text>
   <text x="84" y="48" fill="#d1fae5" font-family="system-ui,Segoe UI,sans-serif" font-size="9.5" font-weight="700" letter-spacing="0.14em">VERIFIED MEMBER</text>
   <text x="84" y="70" fill="#ffffff" font-family="ui-monospace,Cascadia Code,Consolas,monospace" font-size="12.5" font-weight="700">${tv}</text>
   <text x="${W - 16}" y="30" fill="#a7f3d0" font-family="system-ui,Segoe UI,sans-serif" font-size="9.5" font-weight="600" text-anchor="end">${trade}</text>
@@ -35,9 +35,9 @@ export function buildTradeVerifyBadgeSvg(opts) {
 /** Minimal SVG if full badge generation throws (never throws). */
 export function fallbackMemberBadgeSvg() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="TradeVerify">
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Trader Watchdog">
   <rect width="${W}" height="${H}" rx="14" fill="#047857"/>
-  <text x="160" y="52" fill="#ffffff" font-family="system-ui,sans-serif" font-size="18" font-weight="800" text-anchor="middle">TradeVerify</text>
+  <text x="160" y="52" fill="#ffffff" font-family="system-ui,sans-serif" font-size="18" font-weight="800" text-anchor="middle">Trader Watchdog</text>
 </svg>`;
 }
 /** Coerces DB values and never throws — returns full badge or fallback SVG. */

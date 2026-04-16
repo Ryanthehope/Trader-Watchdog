@@ -17,6 +17,9 @@ import authRouter from "./routes/auth.js";
 import billingRouter from "./routes/billing.js";
 import memberAuthRouter from "./routes/memberAuth.js";
 import memberPortalRouter from "./routes/memberPortal.js";
+import categoriesRouter from "./routes/categories.js";
+import insuranceRouter from "./routes/insurance.js";
+import cronRouter from "./routes/cron.js";
 import { stripeWebhookHandler } from "./routes/stripeWebhook.js";
 import { prisma } from "./db.js";
 import { deleteMembersExpiredBeyondGrace } from "./lib/memberMembership.js";
@@ -33,6 +36,9 @@ app.use("/api/member-auth", memberAuthRouter);
 app.use("/api/member/portal", memberPortalRouter);
 app.use("/api/admin", apiAdmin);
 app.use("/api/billing", billingRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/insurance", insuranceRouter);
+app.use("/api/cron", cronRouter);
 app.use("/api", apiPublic);
 if (fs.existsSync(distDir)) {
     app.use(express.static(distDir, {

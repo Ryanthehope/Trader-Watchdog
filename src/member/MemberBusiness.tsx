@@ -126,7 +126,7 @@ export function MemberBusiness() {
     <div className="p-6 sm:p-10">
       <h1 className="text-2xl font-semibold text-slate-900">Business details</h1>
       <p className="mt-1 text-slate-500">
-        Update how your business appears on your public profile. TradeVerify ID,
+        Update how your business appears on your public profile. Trader Watchdog ID,
         URL slug, and verification checks are managed by our team.
       </p>
 
@@ -134,7 +134,7 @@ export function MemberBusiness() {
         <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <h2 className="text-sm font-semibold text-slate-900">Profile logo</h2>
           <p className="mt-1 text-xs text-slate-500">
-            Optional image shown on your public TradeVerify profile (PNG, JPEG, or
+            Optional image shown on your public Trader Watchdog profile (PNG, JPEG, or
             WebP, max 2 MB).
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-4">
@@ -253,7 +253,7 @@ export function MemberBusiness() {
                 Business profile
               </h2>
               <p className="mt-1 text-xs text-slate-500">
-                How your business appears on your public TradeVerify listing.
+                How your business appears on your public Trader Watchdog listing.
               </p>
               <div className="mt-4 space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2">

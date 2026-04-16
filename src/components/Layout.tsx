@@ -4,7 +4,7 @@ import { useSiteData } from "../context/SiteDataContext";
 
 function Logo({
   className = "",
-  title = "TradeVerify",
+  title = "Trader Watchdog",
 }: {
   className?: string;
   title?: string;
@@ -127,7 +127,7 @@ export function Layout() {
               to="/join"
               className="rounded-full bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-900/35 transition-colors duration-200 hover:bg-brand-400"
             >
-              Join TradeVerify
+              Join Trader Watchdog
             </Link>
           </div>
 
@@ -227,7 +227,7 @@ export function Layout() {
                 className="mt-2 rounded-lg bg-brand-500 px-3 py-2.5 text-center font-semibold text-white"
                 onClick={() => setMenuOpen(false)}
               >
-                Join TradeVerify
+                Join Trader Watchdog
               </Link>
             </nav>
           </div>
