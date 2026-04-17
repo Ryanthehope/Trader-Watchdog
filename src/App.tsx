@@ -87,6 +87,17 @@ export default function App() {
           <Route path="settings" element={<StaffSettingsPage />} />
         </Route>
 
+        <Route
+          path="staff"
+          element={
+            <StaffRequireAuth>
+              <StaffLayout />
+            </StaffRequireAuth>
+          }
+        >
+          <Route index element={<StaffDashboard />} />
+        </Route>
+
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="m/:slug" element={<MemberProfile />} />

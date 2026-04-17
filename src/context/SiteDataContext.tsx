@@ -15,12 +15,8 @@ type SiteDataContextValue = {
   loading: boolean;
   error: string | null;
   members: VerifiedMember[];
-  guides: Guide[];
-  /** White-label name from Staff → Settings (defaults to TradeVerify). */
   brandName: string;
-  /** Public site base URL for links (from settings or env). */
   publicSiteUrl: string;
-  /** GA4 Measurement ID for the public site (empty if not configured). */
   googleAnalyticsMeasurementId: string;
   findMember: (query: string) => VerifiedMember | undefined;
   reload: () => void;
@@ -32,7 +28,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<VerifiedMember[]>([]);
-  const [guides, setGuides] = useState<Guide[]>([]);
+  // Guides state removed
   const [brandName, setBrandName] = useState("TradeVerify");
   const [publicSiteUrl, setPublicSiteUrl] = useState("http://localhost:5173");
   const [googleAnalyticsMeasurementId, setGoogleAnalyticsMeasurementId] =
@@ -46,9 +42,8 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const [membersRes, guidesRes, metaRes] = await Promise.all([
+        const [membersRes, metaRes] = await Promise.all([
           apiGet<{ members: VerifiedMember[] }>("/api/members"),
-          apiGet<{ guides: Guide[] }>("/api/guides"),
           apiGet<{
             brandName: string;
             publicSiteUrl: string;
@@ -61,7 +56,6 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
         ]);
         if (cancelled) return;
         setMembers(Array.isArray(membersRes.members) ? membersRes.members : []);
-        setGuides(Array.isArray(guidesRes.guides) ? guidesRes.guides : []);
         setBrandName(
           metaRes.brandName?.trim() ? metaRes.brandName.trim() : "TradeVerify"
         );
@@ -83,7 +77,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
             : "Could not reach the Trader Watchdog API. Start the server (npm run dev) or check your connection."
         );
         setMembers([]);
-        setGuides([]);
+        // setGuides([]); // guides removed
         setGoogleAnalyticsMeasurementId("");
       } finally {
         if (!cancelled) setLoading(false);
@@ -107,7 +101,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       members,
-      guides,
+      // guides removed
       brandName,
       publicSiteUrl,
       googleAnalyticsMeasurementId,
@@ -118,7 +112,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       members,
-      guides,
+      // guides removed
       brandName,
       publicSiteUrl,
       googleAnalyticsMeasurementId,
