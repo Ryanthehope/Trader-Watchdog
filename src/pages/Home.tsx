@@ -528,54 +528,7 @@ function Faq() {
   );
 }
 
-function GuidesTeaser() {
-  const { guides } = useSiteData();
-  const top = guides.slice(0, 3);
-
-  if (top.length === 0) return null;
-
-  return (
-    <section id="guides" className="border-y border-slate-200/10 bg-slate-900/20 py-20 sm:py-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
-          <div>
-            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
-              Guides and advice
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-slate-300">
-              Protect yourself before you hire — clear guidance on quotes,
-              reviews, and how to pay safely.
-            </p>
-          </div>
-          <Link
-            to="/guides"
-            className="shrink-0 rounded-lg border border-slate-700/50 bg-slate-800/30 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/50"
-          >
-            View all guides
-          </Link>
-        </div>
-        <ul className="mt-12 grid gap-6 sm:grid-cols-3">
-          {top.map((g) => (
-            <li key={g.slug}>
-              <Link
-                to={`/guides/${g.slug}`}
-                className="block h-full rounded-lg border border-slate-700/50 bg-slate-800/30 p-6 transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/50"
-              >
-                <p className="text-xs font-medium text-brand-400">{g.readTime}</p>
-                <p className="mt-3 font-display text-lg font-semibold text-white">
-                  {g.title}
-                </p>
-                <p className="mt-2 line-clamp-2 text-sm text-slate-300">
-                  {g.excerpt}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
+// GuidesTeaser removed
 
 function TradesCta() {
   return (
@@ -765,7 +718,7 @@ export function Home() {
       <HowItWorks />
       <Pillars />
       <Faq />
-      <GuidesTeaser />
+      {/* GuidesTeaser removed */}
       <TradesCta />
     </>
   );

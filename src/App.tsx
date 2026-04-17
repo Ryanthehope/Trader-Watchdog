@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { Layout } from "./components/Layout";
-import { GuideArticle } from "./pages/GuideArticle";
-import { GuidesIndex } from "./pages/GuidesIndex";
+// import { GuideArticle } from "./pages/GuideArticle";
+// import { GuidesIndex } from "./pages/GuidesIndex";
 import { Contact } from "./pages/Contact";
 import { Home } from "./pages/Home";
 import { Join } from "./pages/Join";
@@ -93,8 +93,7 @@ export default function App() {
           <Route path="lookup/miss" element={<LookupMiss />} />
           <Route path="join" element={<Join />} />
           {/* Removed post-job route */}
-          <Route path="guides" element={<GuidesIndex />} />
-          <Route path="guides/:slug" element={<GuideArticle />} />
+          {/* Guides/advice routes removed */}
           <Route path="privacy" element={<Privacy />} />
           <Route path="terms" element={<Terms />} />
           <Route path="contact" element={<Contact />} />

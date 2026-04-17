@@ -76,16 +76,7 @@ export function Layout() {
             >
               Compare
             </Link>
-            <NavLink
-              to="/guides"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-white"
-                  : "transition-colors duration-200 hover:text-white"
-              }
-            >
-              Advice
-            </NavLink>
+            {/* Advice link removed */}
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
@@ -180,13 +171,7 @@ export function Layout() {
                 Compare
               </Link>
               {/* Post a job link removed from mobile menu */}
-              <Link
-                to="/guides"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
-                onClick={() => setMenuOpen(false)}
-              >
-                Guides & advice
-              </Link>
+              {/* Guides & advice link removed from mobile menu */}
               <Link
                 to="/login"
                 className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
@@ -226,12 +211,7 @@ export function Layout() {
               className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-slate-400"
               aria-label="Footer"
             >
-              <Link
-                to="/guides"
-                className="transition-colors hover:text-white"
-              >
-                Guides
-              </Link>
+              {/* Guides link removed from footer */}
               {/* Post a job link removed from footer */}
               <Link
                 to="/join"
