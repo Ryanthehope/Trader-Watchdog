@@ -89,12 +89,8 @@ export default function App() {
             element={<MemberRedirectInvoicePrint />}
           />
           {/* leads, reviews, quotes, invoices, jobs, availability removed */}
-          <Route path="guides/:id" element={<StaffGuideForm />} />
-          <Route path="analytics" element={<StaffAnalytics />} />
-          <Route path="team" element={<StaffTeam />} />
-          <Route path="integrations" element={<StaffIntegrations />} />
           <Route path="settings" element={<StaffSettingsPage />} />
-          <Route path="system" element={<StaffSystem />} />
+            {/* team, integrations, system routes removed */}
         </Route>
 
         <Route element={<Layout />}>
