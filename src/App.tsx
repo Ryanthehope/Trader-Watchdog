@@ -80,24 +80,7 @@ export default function App() {
           {/* badge, refer, membership removed */}
           <Route path="billing" element={<MemberBilling />} />
           <Route path="password" element={<MemberPassword />} />
-          <Route path="leads" element={<MemberLeads />} />
-          <Route path="reviews" element={<MemberReviews />} />
-          <Route path="quotes-invoices" element={<MemberQuotesInvoicesShell />}>
-            <Route
-              index
-              element={<Navigate to="/member/quotes-invoices/quotes" replace />}
-            />
-            <Route path="quotes" element={<MemberQuotes />} />
-            <Route path="invoices" element={<MemberTradeInvoices />} />
-          </Route>
-          <Route
-            path="quotes-invoices/quotes/:id/print"
-            element={<MemberQuotePrint />}
-          />
-          <Route
-            path="quotes-invoices/invoices/:id/print"
-            element={<MemberInvoicePrint />}
-          />
+          {/* leads, reviews, quotes, invoices removed */}
           <Route path="quotes" element={<MemberRedirectQuotes />} />
           <Route path="quotes/:id/print" element={<MemberRedirectQuotePrint />} />
           <Route path="trade-invoices" element={<MemberRedirectInvoices />} />
