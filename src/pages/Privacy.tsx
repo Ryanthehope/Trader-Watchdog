@@ -45,7 +45,7 @@ export function Privacy() {
             <li>
               <strong className="text-slate-300">Identity and contact details</strong>{" "}
               — for example name, email address, telephone number, and postcode
-              when you submit an application, post a job request, contact a
+              when you submit an application, contact a
               verified member through our site, sign in to an account, or
               contact us.
             </li>

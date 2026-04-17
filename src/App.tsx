@@ -10,7 +10,7 @@ import { Privacy } from "./pages/Privacy";
 import { Terms } from "./pages/Terms";
 import { LookupMiss } from "./pages/LookupMiss";
 import { MemberProfile } from "./pages/MemberProfile";
-import { PostJob } from "./pages/PostJob";
+// import { PostJob } from "./pages/PostJob";
 import { StaffAuthProvider } from "./staff/StaffAuthContext";
 import { StaffDashboard } from "./staff/StaffDashboard";
 import { StaffGuideForm } from "./staff/StaffGuideForm";
@@ -98,7 +98,7 @@ export default function App() {
           <Route path="m/:slug" element={<MemberProfile />} />
           <Route path="lookup/miss" element={<LookupMiss />} />
           <Route path="join" element={<Join />} />
-          <Route path="post-job" element={<PostJob />} />
+          {/* <Route path="post-job" element={<PostJob />} /> removed */}
           <Route path="guides" element={<GuidesIndex />} />
           <Route path="guides/:slug" element={<GuideArticle />} />
           <Route path="privacy" element={<Privacy />} />

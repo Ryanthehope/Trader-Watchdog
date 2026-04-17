@@ -76,12 +76,6 @@ export function Layout() {
             >
               Compare
             </Link>
-            <Link
-              to="/post-job"
-              className="transition-colors duration-200 hover:text-white"
-            >
-              Post a job
-            </Link>
             <NavLink
               to="/guides"
               className={({ isActive }) =>
@@ -243,12 +237,6 @@ export function Layout() {
                 className="transition-colors hover:text-white"
               >
                 Guides
-              </Link>
-              <Link
-                to="/post-job"
-                className="transition-colors hover:text-white"
-              >
-                Post a job
               </Link>
               <Link
                 to="/join"
