@@ -76,12 +76,6 @@ export function Layout() {
             >
               Compare
             </Link>
-            <Link
-              to="/post-job"
-              className="transition-colors duration-200 hover:text-white"
-            >
-              Post a job
-            </Link>
             <NavLink
               to="/guides"
               className={({ isActive }) =>
@@ -185,13 +179,7 @@ export function Layout() {
               >
                 Compare
               </Link>
-              <Link
-                to="/post-job"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
-                onClick={() => setMenuOpen(false)}
-              >
-                Post a job
-              </Link>
+              {/* Post a job link removed from mobile menu */}
               <Link
                 to="/guides"
                 className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
@@ -244,12 +232,7 @@ export function Layout() {
               >
                 Guides
               </Link>
-              <Link
-                to="/post-job"
-                className="transition-colors hover:text-white"
-              >
-                Post a job
-              </Link>
+              {/* Post a job link removed from footer */}
               <Link
                 to="/join"
                 className="transition-colors hover:text-white"
