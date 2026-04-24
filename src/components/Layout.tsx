@@ -26,6 +26,10 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Under Construction Banner */}
+      <div className="w-full bg-yellow-400 text-yellow-900 text-center py-2.5 font-semibold text-sm z-50">
+        🚧 This site is currently under construction. Some features may not be available. 🚧
+      </div>
       {error ? (
         <div
           className="border-b border-amber-500/20 bg-amber-950/40 px-4 py-2.5 text-center text-sm text-amber-100"
