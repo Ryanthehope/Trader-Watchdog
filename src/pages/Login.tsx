@@ -13,6 +13,14 @@ function errorMessage(error: unknown): string {
   return "Login failed. Try again.";
 }
 
+function normalizeEmail(value: string): string {
+  return value.trim();
+}
+
+function normalizePassword(value: string): string {
+  return value.replace(/[\r\n]+/g, "").trim();
+}
+
 export function Login() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -59,18 +67,19 @@ export function Login() {
     e.preventDefault();
     setError(null);
     setPending(true);
-    const em = email.trim();
+    const em = normalizeEmail(email);
+    const pw = normalizePassword(password);
 
     try {
       if (role === "staff") {
-        const r = await loginStaff(em, password);
+        const r = await loginStaff(em, pw);
         if ("requires2fa" in r && r.requires2fa) {
           setTotpPending(r.pendingToken);
           setPending(false);
           return;
         }
       } else {
-        await memberLogin(em, password);
+        await memberLogin(em, pw);
       }
     } catch (err) {
       setError(errorMessage(err));
@@ -216,7 +225,7 @@ export function Login() {
                     autoComplete="username"
                     required
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(normalizeEmail(e.target.value))}
                     className="mt-2 w-full rounded-lg border border-slate-700/50 bg-slate-900/60 px-4 py-3 text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                   />
                 </div>
@@ -233,7 +242,7 @@ export function Login() {
                     autoComplete="current-password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(normalizePassword(e.target.value))}
                     className="mt-2 w-full rounded-lg border border-slate-700/50 bg-slate-900/60 px-4 py-3 text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                   />
                 </div>
