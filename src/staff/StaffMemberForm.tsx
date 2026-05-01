@@ -1,12 +1,19 @@
-import { FormEvent, useEffect, useState } from "react";
+ import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiGetAuth, apiSend } from "../lib/api";
+
+type CategoryOption = {
+  id: string;
+  name: string;
+  slug: string;
+};
 
 export function StaffMemberForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isNew = id === "new" || !id;
-
+  const [allCategories, setAllCategories] = useState<CategoryOption[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [slug, setSlug] = useState("");
   const [tvId, setTvId] = useState("");
   const [name, setName] = useState("");
@@ -52,6 +59,7 @@ export function StaffMemberForm() {
             checks: string[];
             verifiedSince: string;
             blurb: string;
+            categories: CategoryOption[];
             loginEmail: string | null;
             portalEnabled?: boolean;
             membershipUnlimited?: boolean;
@@ -70,6 +78,7 @@ export function StaffMemberForm() {
         setChecksText(m.checks.join("\n"));
         setVerifiedSince(m.verifiedSince);
         setBlurb(m.blurb);
+        setSelectedCategoryIds(m.categories.map((category) => category.id));
         setLoginEmail(m.loginEmail ?? "");
         setPortalEnabled(Boolean(m.portalEnabled));
         setPortalMembershipUnlimited(Boolean(m.membershipUnlimited));
@@ -101,6 +110,26 @@ export function StaffMemberForm() {
     };
   }, [id, isNew]);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await apiGetAuth<CategoryOption[]>("/api/categories");
+        if (!cancelled) setAllCategories(data);
+      } catch (e) {
+        if (!cancelled) {
+          setError((prev) =>
+            prev ??
+            (e instanceof Error ? e.message : "Could not load categories")
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -121,6 +150,7 @@ export function StaffMemberForm() {
       checks,
       verifiedSince,
       blurb,
+      categoryIds: selectedCategoryIds,
     };
     const portalPw = portalPassword.trim();
     const emailTrim = loginEmail.trim().toLowerCase();
@@ -291,6 +321,42 @@ export function StaffMemberForm() {
               onChange={(e) => setLocation(e.target.value)}
               className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
             />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-300">
+              Categories
+            </label>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {allCategories.length === 0 ? (
+                <p className="text-sm text-slate-500">
+                  No categories available yet.
+                </p>
+              ) : (
+                allCategories.map((category) => {
+                  const checked = selectedCategoryIds.includes(category.id);
+                  return (
+                    <label
+                      key={category.id}
+                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-sm text-slate-200"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          setSelectedCategoryIds((current) =>
+                            e.target.checked
+                              ? [...current, category.id]
+                              : current.filter((id) => id !== category.id)
+                          );
+                        }}
+                        className="h-4 w-4 rounded border-white/20 bg-ink-950 text-brand-500 focus:ring-brand-500/40"
+                      />
+                      <span>{category.name}</span>
+                    </label>
+                  );
+                })
+              )}
+            </div>
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-slate-300">

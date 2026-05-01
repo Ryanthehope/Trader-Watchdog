@@ -1,17 +1,16 @@
-# TradeVerify - MVP Project
+# TradeVerify
 
-A trader verification platform with subscription management and insurance expiry tracking.
+A trader verification platform with a public directory, staff portal, trader portal, subscription billing, and insurance expiry tracking.
 
-## Tech Stack
+## Actual Stack
 
-- **Frontend/Backend:** Next.js 14 with App Router (TypeScript)
-- **Database:** PostgreSQL (via Neon/PlanetScale)
-- **ORM:** Prisma
-- **Authentication:** NextAuth.js v5
+- **Frontend:** React 18 + Vite + React Router + TypeScript
+- **Backend:** Express + TypeScript
+- **Database:** PostgreSQL via Prisma
+- **Authentication:** Custom JWT auth for staff and member portals
 - **Payments:** Stripe
-- **Email:** Resend
 - **Styling:** Tailwind CSS
-- **Hosting:** Vercel
+- **Hosting:** Vercel (frontend) + Railway (backend/database)
 
 ## Quick Start
 
@@ -21,29 +20,48 @@ A trader verification platform with subscription management and insurance expiry
 npm install
 ```
 
-### 2. Setup Environment Variables
+### 2. Configure Environment Variables
 
-Copy `.env.example` to `.env` and fill in your credentials:
+Important variables used by the current app:
 
-```bash
-cp .env.example .env
-```
-
-**Required:**
-- `DATABASE_URL` - Get from [Neon](https://neon.tech) or [PlanetScale](https://planetscale.com)
-- `NEXTAUTH_SECRET` - Generate with `openssl rand -base64 32`
-- `STRIPE_SECRET_KEY` - From [Stripe Dashboard](https://dashboard.stripe.com/test/apikeys)
-- `RESEND_API_KEY` - From [Resend](https://resend.com)
+- Frontend: `VITE_API_URL`
+- Backend: `DATABASE_URL`, `JWT_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+- Staff bootstrap: `STAFF_SEED_EMAIL`, `STAFF_SEED_PASSWORD`, `STAFF_SEED_NAME`
+- Scheduled tasks: `CRON_SECRET`
 
 ### 3. Setup Database
 
 ```bash
-npm run db:push
+cd server
+npx prisma migrate deploy
 ```
 
-This creates all tables in your database.
+### 4. Run The App
 
-### 4. Setup Stripe
+Frontend:
+
+```bash
+npm install
+npm run dev
+```
+
+Backend:
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+The frontend expects the API at `VITE_API_URL` in production. In local development, Vite proxies `/api` to `http://localhost:3001`.
+
+### 5. Staff Login Bootstrap
+
+If `STAFF_SEED_EMAIL`, `STAFF_SEED_PASSWORD`, and `STAFF_SEED_NAME` are set on the backend, startup will create or update the staff account automatically.
+
+This was added so the live admin portal can recover from an empty `staff` table without running a manual seed script.
+
+### 6. Stripe And Billing
 
 1. Create a product in Stripe Dashboard (e.g., "Annual Trader Verification")
 2. Create a recurring price (12 months, £XX)
@@ -51,140 +69,78 @@ This creates all tables in your database.
 4. Setup webhook endpoint: `https://yourdomain.com/api/webhooks/stripe`
 5. Copy webhook secret to `.env` as `STRIPE_WEBHOOK_SECRET`
 
-### 5. Run Development Server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
-
 ## Project Structure
 
 See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architecture.
 
 **Quick Overview:**
 ```
-/app
-  /(public)        # Public pages - landing, verify, etc.
-  /(auth)          # Login, register, password reset
-  /(dashboard)     # Protected trader portal
-  /(admin)         # Admin-only area
-  /api             # API routes & webhooks
+/src
+  /pages           # Public pages
+  /member          # Trader portal screens and auth
+  /staff           # Staff portal screens and auth
+  /components      # Shared UI and forms
+  /lib             # Frontend API helpers and utilities
 
-/components
-  /ui              # Base UI components (Button, Card, etc.)
-  /auth            # Authentication components
-  /dashboard       # Dashboard-specific components
-  /admin           # Admin components
-  /forms           # Form components
+/server/src
+  /routes          # Express route handlers
+  /lib             # Server-side helpers
+  /middleware      # Auth and request middleware
 
-/lib
-  /actions         # Server Actions for data mutations
-  /hooks           # Custom React hooks
-  /validations     # Zod validation schemas
-  prisma.ts        # Database client
-  stripe.ts        # Stripe client
-
-/types             # TypeScript type definitions
-/prisma            # Database schema
+/server/prisma     # Backend Prisma schema and migrations
+/public            # Static public assets
 ```
 
-## Database Schema
+## Current Status
 
-**Key Models:**
-- `User` - Authentication & base user data
-- `Trader` - Business details & verification status
-- `Subscription` - Stripe subscription tracking
-- `InsurancePolicy` - Insurance documents with expiry tracking
-- `Certification` - Professional certifications
+### Working now
+- Public marketing site and member profile pages
+- Separate staff and trader login routes
+- Staff portal authentication against live Railway database
+- Member portal authentication and billing screens
+- Insurance CRUD and expiry tracking flows
+- Categories CRUD endpoints and staff UI foundations
+- Guides content management and public guide pages
+- Stripe billing and invoice-related flows already present in the codebase
 
-## Features Implemented
+### Fixed in recent sessions
+- Repaired a broken backend route in `server/src/routes/apiPublic.ts`
+- Restored membership visibility helper logic used by the member and public APIs
+- Unblocked server builds where legacy admin routes referenced removed Prisma models
+- Added automatic staff seeding on server startup from environment variables
+- Restored `/staff/login` and separated staff vs trader login UX
+- Fixed copied login credentials failing because of trailing whitespace or newline characters
 
-✅ Landing page with features
-✅ Database schema
-✅ Stripe webhook handling
-✅ Insurance expiry cron job
-✅ Email notification system
+### Still to do
+- Add proper member-to-category relationships and category assignment workflow
+- Build the full address verification workflow and staff review tools
+- Improve public search beyond the current simpler lookup flow
+- Replace or remove legacy `adminOps` surfaces that still do not match the current schema cleanly
+- Add broader regression testing for auth, billing, cron jobs, and member/staff flows
 
-## Development Status
+## Current Priorities
 
-### ✅ Phase 0 - Foundation (COMPLETE)
-- Database schema with all core models
-- Stripe integration & webhook handling
-- Insurance expiry cron job
-- Email notification system (Resend)
-- Basic Next.js 14 setup
-- Folder structure organized
-
-### 🔨 Phase 1 - Authentication & Onboarding (IN PROGRESS)
-- [ ] NextAuth configuration
-- [ ] Login/Register pages
-- [ ] Trader onboarding flow
-- [ ] Email verification
-- [ ] Base UI component library
-
-### 📋 Phase 2 - Trader Portal (PENDING)
-- [ ] Dashboard overview with stats
-- [ ] Profile management
-- [ ] Insurance policy CRUD
-- [ ] Certification CRUD
-- [ ] Subscription management interface
-- [ ] Document upload (Vercel Blob)
-
-### 📋 Phase 3 - Admin Area (PENDING)
-- [ ] Admin dashboard
-- [ ] User & trader management
-- [ ] Verification workflow
-- [ ] Expiring insurance monitor UI
-- [ ] Platform settings
-
-### 📋 Phase 4 - Polish & Deploy (PENDING)
-- [ ] Enhanced public site design
-- [ ] Mobile optimization
-- [ ] Performance optimization
-- [ ] Production deployment
-- [ ] Domain & email setup
-
-## TODO - MVP Features (Legacy Note)
-
-### Authentication
-- [ ] Setup NextAuth.js with email/password
-- [ ] Registration flow for traders
-- [ ] Login/logout functionality
-
-### Dashboard
-- [ ] Trader dashboard layout
-- [ ] Profile management
-- [ ] Insurance upload interface
-- [ ] Certification management
-
-### Subscription
-- [ ] Stripe Checkout integration
-- [ ] Subscription status display
-- [ ] Customer portal link
-
-### File Upload
-- [ ] Vercel Blob integration for PDFs
-- [ ] Insurance document upload
-- [ ] Document preview
-
-### Admin
-- [ ] Admin panel for verification
-- [ ] Trader approval workflow
+1. Finish category assignment so categories drive the public directory and search.
+2. Build address verification for members and staff.
+3. Tighten admin technical debt, especially legacy routes not represented in the Prisma schema.
+4. Expand test coverage around production-critical flows.
 
 ## Deployment
 
-### Deploy to Vercel
+### Frontend Deployment
 
 ```bash
 npm install -g vercel
 vercel
 ```
 
+### Backend Deployment
+
+Deploy the server to Railway and ensure the frontend `VITE_API_URL` points at the Railway base URL.
+
 ### Setup Cron Job
 
-Add to `vercel.json`:
+Protect cron endpoints with `CRON_SECRET` and trigger the server cron route rather than relying on an old App Router path.
 
 ```json
 {
@@ -195,20 +151,17 @@ Add to `vercel.json`:
 }
 ```
 
-This runs daily at 9 AM to check insurance expiries.
+The insurance check route currently lives on the backend API.
 
-### Environment Variables on Vercel
+### Environment Variables
 
-Add all `.env` variables to Vercel dashboard under Settings → Environment Variables.
+Set frontend variables in Vercel and backend variables in Railway. `NEXTAUTH_*` variables are not part of the active login flow.
 
-## Email Templates
+## Insurance Alerts
 
-Insurance expiry emails are sent at:
-- 90 days before expiry
-- 60 days before expiry
-- 30 days before expiry
+Insurance visibility includes a 14-day grace period after expiry before a member is removed from the public directory.
 
-Customize templates in `/app/api/cron/check-expiry/route.ts`
+See the repo memory note at `/memories/repo/insurance-grace-period.md` for the current rule.
 
 ## Stripe Testing
 
@@ -216,49 +169,11 @@ Use test cards:
 - Success: `4242 4242 4242 4242`
 - Decline: `4000 0000 0000 0002`
 
-## Cost Estimates
-
-### Development Costs
-- **Initial Build:** £4,000 - £6,000
-- **4-8 weeks** of development
-
-### Monthly Running Costs (Initial)
-- Hosting (Vercel): £0 (Hobby) → £20 (Pro when needed)
-- Database (Neon): £0 → £10/month
-- Email (Resend): £0 (3,000 emails/month)
-- Stripe: 1.5% + 20p per transaction
-- **Total: £0-50/month**
-
-### Scaling (500+ subscribers)
-- Vercel Pro: £20/month
-- Database: £25/month
-- Email: £20/month
-- **Total: £65/month + transaction fees**
-
-## Support
-
-For questions, contact: ryan@yoursite.com
-
-## Client Details
-
-**Client:** Nigel Broderick
-**Email:** ngb@thebrodericks.com
-**Phone:** 078910 456 43
-**Domain:** tradeverify.today
-
 ## Next Steps
 
-1. ✅ **Project Setup** - Done!
-2. **Get Credentials** - Neon DB, Stripe, Resend
-3. **Build Auth** - Registration & login
-4. **Build Dashboard** - Trader profile management
-5. **Integrate Stripe** - Subscription checkout
-6. **Add File Upload** - Insurance documents
-7. **Test End-to-End**
-8. **Deploy to Vercel**
-9. **Connect Domain**
-10. **Client Review**
+1. Finish category assignment in the schema, APIs, and staff UI.
+2. Build the address verification member flow and staff review flow.
+3. Replace or retire legacy admin routes that do not match the current Prisma models.
+4. Run full regression checks across login, billing, insurance alerts, and public visibility rules.
 
 ---
-
-Built with ❤️ for TradeVerify MVP

@@ -100,10 +100,7 @@ export function StaffDashboard() {
             </p>
             <p className="mt-2 text-xs text-slate-500">Pending review</p>
           </Link>
-          <Link
-            to="/staff/reviews"
-            className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"
-          >
+          <div className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Reviews
             </p>
@@ -111,7 +108,7 @@ export function StaffDashboard() {
               {data.reviewsPending}
             </p>
             <p className="mt-2 text-xs text-slate-500">Awaiting moderation</p>
-          </Link>
+          </div>
           <Link
             to="/staff/members"
             className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"
@@ -164,13 +161,7 @@ export function StaffDashboard() {
           )}
           <li className="px-5 py-4 text-xs text-slate-500">
             Guides live: {data.guidesTotal}. Inbox unread:{" "}
-            <Link
-              to="/staff/outreach/inbox"
-              className="font-semibold text-brand-400 hover:text-brand-300"
-            >
-              {data.inboxUnread}
-            </Link>
-            .
+            <span className="font-semibold text-slate-300">{data.inboxUnread}</span>.
           </li>
         </ul>
       </section>

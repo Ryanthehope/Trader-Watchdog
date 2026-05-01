@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 // import { GuideArticle } from "./pages/GuideArticle";
 // import { GuidesIndex } from "./pages/GuidesIndex";
@@ -35,28 +35,6 @@ import {  MemberAuthProvider,
   MemberPassword,
   MemberRequireAuth,
 } from "./member";
-
-function MemberRedirectQuotes() {
-  return <Navigate to="/member/quotes-invoices/quotes" replace />;
-}
-
-function MemberRedirectInvoices() {
-  return <Navigate to="/member/quotes-invoices/invoices" replace />;
-}
-
-function MemberRedirectQuotePrint() {
-  const { id } = useParams();
-  return (
-    <Navigate to={`/member/quotes-invoices/quotes/${id}/print`} replace />
-  );
-}
-
-function MemberRedirectInvoicePrint() {
-  const { id } = useParams();
-  return (
-    <Navigate to={`/member/quotes-invoices/invoices/${id}/print`} replace />
-  );
-}
 
 export default function App() {
   return (
@@ -100,7 +78,12 @@ export default function App() {
           <Route path="financial" element={<div>Financial section coming soon</div>} />
           <Route path="applications" element={<StaffApplications />} />
           <Route path="members" element={<StaffMembers />} />
+          <Route path="members/new" element={<StaffMemberForm />} />
+          <Route path="members/:id" element={<StaffMemberForm />} />
           <Route path="insurance" element={<StaffInsurance />} />
+            <Route path="guides" element={<StaffGuides />} />
+          <Route path="guides/new" element={<StaffGuideForm />} />
+          <Route path="guides/:id" element={<StaffGuideForm />} />
           <Route path="analytics" element={<StaffAnalytics />} />
           <Route path="settings" element={<StaffSettingsPage />} />
           <Route path="team" element={<div>Staff team section coming soon</div>} />

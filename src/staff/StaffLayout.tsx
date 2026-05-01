@@ -128,6 +128,9 @@ export function StaffLayout() {
             </NavLink>
 
             <NavGroup label="Content" />
+            <NavLink to="/staff/guides" className={navClass} onClick={closeNav}>
+              Guides
+            </NavLink>
             <NavLink to="/staff/analytics" className={navClass} onClick={closeNav}>
               Analytics
             </NavLink>

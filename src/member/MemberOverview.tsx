@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import type { VerifiedMember } from "../types/content";
 import { apiGetMember } from "../lib/api";
 import { formatGBPFromCents } from "../lib/formatGBP";
@@ -93,10 +92,7 @@ export function MemberOverview() {
       {crm ? (
         <div className="border-b border-slate-200 bg-slate-50 px-6 py-10 sm:px-10 sm:py-12">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Link
-              to="/member/quotes-invoices/quotes"
-              className="rounded-lg border border-slate-300/60 bg-white p-6 transition hover:border-brand-500/50 hover:shadow-sm"
-            >
+            <div className="rounded-lg border border-slate-300/60 bg-white p-6">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Quotes
               </p>
@@ -104,11 +100,8 @@ export function MemberOverview() {
               <p className="mt-2 text-sm text-slate-600">
                 {formatGBPFromCents(crm.quotes.totalPence)} total
               </p>
-            </Link>
-            <Link
-              to="/member/trade-invoices"
-              className="rounded-lg border border-slate-300/60 bg-white p-6 transition hover:border-amber-500/50 hover:shadow-sm"
-            >
+            </div>
+            <div className="rounded-lg border border-slate-300/60 bg-white p-6">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Outstanding invoices
               </p>
@@ -116,11 +109,8 @@ export function MemberOverview() {
                 {formatGBPFromCents(crm.customerInvoices.outstandingPence)}
               </p>
               <p className="mt-2 text-sm text-slate-600">Customer balances due</p>
-            </Link>
-            <Link
-              to="/member/quotes-invoices/invoices"
-              className="rounded-lg border border-slate-300/60 bg-white p-6 transition hover:border-emerald-500/50 hover:shadow-sm"
-            >
+            </div>
+            <div className="rounded-lg border border-slate-300/60 bg-white p-6">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Paid (customers)
               </p>
@@ -128,17 +118,14 @@ export function MemberOverview() {
                 {formatGBPFromCents(crm.customerInvoices.paidTotalPence)}
               </p>
               <p className="mt-2 text-sm text-slate-600">Recorded as received</p>
-            </Link>
-            <Link
-              to="/member/leads"
-              className="rounded-lg border border-slate-300/60 bg-white p-6 transition hover:border-sky-500/50 hover:shadow-sm"
-            >
+            </div>
+            <div className="rounded-lg border border-slate-300/60 bg-white p-6">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Profile leads
               </p>
               <p className="mt-3 text-3xl font-bold text-sky-700">{crm.leads.count}</p>
               <p className="mt-2 text-sm text-slate-600">From your public page</p>
-            </Link>
+            </div>
           </div>
         </div>
       ) : null}
@@ -168,12 +155,12 @@ export function MemberOverview() {
                 <dd className="font-semibold text-slate-900">{p.verifiedSince}</dd>
               </div>
             </dl>
-            <Link
-              to={data.publicProfileUrl}
+            <a
+              href={data.publicProfileUrl}
               className="mt-6 inline-block text-sm font-semibold text-brand-600 hover:text-brand-700 hover:underline"
             >
               View public profile →
-            </Link>
+            </a>
           </div>
 
           <div className="rounded-lg border border-slate-300/60 bg-slate-50 p-8">

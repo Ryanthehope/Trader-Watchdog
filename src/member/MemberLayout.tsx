@@ -47,12 +47,11 @@ export function MemberLayout() {
     if (
       !member?.mustChangePassword &&
       membershipLocked &&
-      location.pathname !== "/member/membership" &&
       location.pathname !== "/member/billing" &&
       location.pathname !== "/member/password" &&
       location.pathname !== "/member"
     ) {
-      navigate("/member/membership", { replace: true });
+      navigate("/member/billing", { replace: true });
     }
   }, [
     member?.mustChangePassword,
@@ -163,7 +162,7 @@ export function MemberLayout() {
             <>
               <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
                 Your membership is not active. Open{" "}
-                <span className="font-semibold text-amber-900">Membership</span>{" "}
+                <span className="font-semibold text-amber-900">Billing</span>{" "}
                 below to renew or start card billing.
               </p>
               <NavLink
@@ -216,15 +215,6 @@ export function MemberLayout() {
               >
                 Insurance
               </NavLink>
-              <NavLink
-                to="/member/badge"
-                onClick={() => setMobileNavOpen(false)}
-                className={({ isActive }) =>
-                   `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
-                }
-              >
-                Badge
-              </NavLink>
             </>
           )}
         </nav>
@@ -238,13 +228,13 @@ export function MemberLayout() {
           {!lockPortal ? (
             <>
               <NavLink
-                to="/member/membership"
+                to="/member/billing"
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
                   `${nav} mt-2 ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
                 }
               >
-                Membership
+                Billing
               </NavLink>
             </>
           ) : null}

@@ -8,104 +8,108 @@ datasource db {
 }
 
 model Staff {
-  id         String   @id @default(cuid())
-  email      String   @unique
-  password   String
-  name       String?
-  totpSecret String?
-  totpEnabled Boolean @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String?
+  totpSecret  String?
+  totpEnabled Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Category {
-  id        String @id @default(cuid())
-  name     String @unique
-  slug      String @unique
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
   description String?
-  sortOrder Int @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members Member[]
 }
 
 model Member {
-  id            String         @id @default(cuid())
-  slug          String         @unique
-  tvId          String         @unique
-  name          String
-  trade         String
-  location      String
-  checks        Json
+  id                       String           @id @default(cuid())
+  slug                     String           @unique
+  tvId                     String           @unique
+  name                     String
+  trade                    String
+  location                 String
+  checks                   Json
   /// Optional structured vetting UI for the public profile (categories + accordion items).
-  vettingItems  Json?
-  verifiedSince String
-  blurb         String
+  vettingItems             Json?
+  verifiedSince            String
+  blurb                    String
   /// Optional logo under uploads/member-profile-logos/{id}/ (public /api/members/.../profile-logo).
-  profileLogoStoredName String?
+  profileLogoStoredName    String?
   /// Multiline address on quotes & customer invoices (your business — not TradeVerify billing).
-  invoiceAddress    String?
+  invoiceAddress           String?
   /// Shown on customer invoices for bank transfer (account name, sort code, account no., reference).
-  invoiceBankDetails String?
-  invoicePhone      String?
+  invoiceBankDetails       String?
+  invoicePhone             String?
   /// Shown on quotes/invoices; if empty, login email is used when present.
-  invoiceEmail      String?
-  vatNumber         String?
+  invoiceEmail             String?
+  vatNumber                String?
   /// When false, customer invoices hide VAT fields and store vatPence as 0.
-  vatRegistered     Boolean @default(false)
+  vatRegistered            Boolean          @default(false)
   /// Brand accent for quote/invoice PDFs (hex, e.g. #0d9488).
-  documentAccentHex String?
+  documentAccentHex        String?
   /// "standard" | "bold" — PDF layout density.
-  documentLayout    String?
+  documentLayout           String?
   /// Login email for the member portal (set by staff)
-  loginEmail    String?        @unique
+  loginEmail               String?          @unique
   /// bcrypt hash; null = portal access not enabled
-  passwordHash  String?
+  passwordHash             String?
   /// After provisioning with a temp password; cleared when they set a new password.
-  mustChangePassword Boolean     @default(false)
+  mustChangePassword       Boolean          @default(false)
   /// When set with membershipBillingType, access ends after this instant (Stripe period end or manual term).
-  membershipExpiresAt   DateTime?
+  membershipExpiresAt      DateTime?
   /// "stripe" | "manual" | "fast_track" — null with null expiry = legacy grandfathered access.
-  membershipBillingType String?
-  stripeCustomerId      String?
-  stripeSubscriptionId  String?
+  membershipBillingType    String?
+  stripeCustomerId         String?
+  stripeSubscriptionId     String?
   /// Mirrors Stripe subscription.status (active, canceled, past_due, …).
   stripeSubscriptionStatus String?
   /// Staff-only: portal membership never expires (overrides billing/expiry).
-  membershipUnlimited   Boolean @default(false)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  documents     MemberDocument[]
+  membershipUnlimited      Boolean          @default(false)
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+  documents                MemberDocument[]
   /// Filled when this profile was auto-created from an approved application.
-  sourceApplication Application? @relation("MemberFromApprovedApplication")
-  insurancePolicies Insurance[]
+  sourceApplication        Application?     @relation("MemberFromApprovedApplication")
+  insurancePolicies        Insurance[]
+
+  categories Category[]
 }
 
 model Insurance {
-  id        String @id @default(cuid())
-  memberId  String
-  member    Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   ///Type of Insurance: "Public liability", "Employers Liability", "Personal Indemnity@, etc.
-  type      String
-  provider  String?
-  policyNumber    String?
+  type         String
+  provider     String?
+  policyNumber String?
 
   expiryDate      DateTime
   ///Calculated: expiryDate + grace period (7-10 days), null if not yet expired
   graceExpiryDate DateTime?
 
   /// "active" | "expiring_soon" | "in_grace" | "expired"
-  status    String @default("active")
+  status String @default("active")
 
   /// Track when alerts were sent: {"90days": "2026-01-15T10:00:00Z", "60days": null, "30days": null}
-  alertsSent  Json?
-  lastAlertSentAt   DateTime?
+  alertsSent      Json?
+  lastAlertSentAt DateTime?
 
   /// Stored filename for uploaded policy document
-  documentStoredName  String?
+  documentStoredName String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([memberId])
   @@index([status])
@@ -117,7 +121,6 @@ enum ReviewStatus {
   APPROVED
   REJECTED
 }
-
 
 model MemberDocument {
   id           String   @id @default(cuid())
@@ -141,96 +144,96 @@ enum ApplicationStatus {
 }
 
 model Application {
-  id                     String                 @id @default(cuid())
-  company                String
-  trade                  String
-  email                  String
-  postcode               String
-  status                 ApplicationStatus      @default(PENDING)
+  id                           String                @id @default(cuid())
+  company                      String
+  trade                        String
+  email                        String
+  postcode                     String
+  status                       ApplicationStatus     @default(PENDING)
   /// Set when staff first marks the application APPROVED (used for payment window).
-  approvedAt             DateTime?
-  notes                  String?
+  approvedAt                   DateTime?
+  notes                        String?
   /// Legacy free-text checklist; optional if using vettingState.
-  vettingChecklist       String?
+  vettingChecklist             String?
   /// Structured vetting sections { sectionId: { done, notes } }.
-  vettingState           Json?
-  fastTrackPaidAt        DateTime?
-  membershipSubscribed   Boolean                @default(false)
+  vettingState                 Json?
+  fastTrackPaidAt              DateTime?
+  membershipSubscribed         Boolean               @default(false)
   /// Expiry for staff-recorded manual membership (copied to Member on provision / updates).
-  manualMembershipExpiresAt DateTime?
-  stripeCustomerId       String?
+  manualMembershipExpiresAt    DateTime?
+  stripeCustomerId             String?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?
   pendingPortalPasswordExpires DateTime?
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  documents              ApplicationDocument[]
-  createdMemberId        String?                @unique
-  createdMember          Member?                @relation("MemberFromApprovedApplication", fields: [createdMemberId], references: [id], onDelete: SetNull)
+  createdAt                    DateTime              @default(now())
+  updatedAt                    DateTime              @updatedAt
+  documents                    ApplicationDocument[]
+  createdMemberId              String?               @unique
+  createdMember                Member?               @relation("MemberFromApprovedApplication", fields: [createdMemberId], references: [id], onDelete: SetNull)
 }
 
 model ApplicationDocument {
-  id             String      @id @default(cuid())
-  applicationId  String
-  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  storedName     String
-  originalName   String
-  mimeType       String
-  sizeBytes      Int
-  createdAt      DateTime    @default(now())
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  storedName    String
+  originalName  String
+  mimeType      String
+  sizeBytes     Int
+  createdAt     DateTime    @default(now())
 
   @@index([applicationId])
 }
 
 model OrganizationSettings {
-  id                String  @id @default("default")
-  revenueMtdCents   Int     @default(0)
-  outstandingCents  Int     @default(0)
-  workspaceName     String?
+  id                                String  @id @default("default")
+  revenueMtdCents                   Int     @default(0)
+  outstandingCents                  Int     @default(0)
+  workspaceName                     String?
   /// White-label product name (portal, emails, public UI). Falls back to workspaceName then "TradeVerify".
-  siteDisplayName   String?
+  siteDisplayName                   String?
   /// Base URL for email links (e.g. https://app.yoursite.com). Falls back to PUBLIC_SITE_URL env.
-  publicSiteUrl     String?
-  announcementEmail String?
+  publicSiteUrl                     String?
+  announcementEmail                 String?
   /// Comma-separated ops addresses for system emails (overrides announcementEmail when set).
-  adminNotifyEmails String?
+  adminNotifyEmails                 String?
   /// Outbound SMTP — optional; env vars override when set on the server.
-  smtpHost          String?
-  smtpPort          Int?
-  smtpSecure        Boolean @default(false)
-  smtpUser          String?
-  smtpPass          String?
+  smtpHost                          String?
+  smtpPort                          Int?
+  smtpSecure                        Boolean @default(false)
+  smtpUser                          String?
+  smtpPass                          String?
   /// Sender for system emails, e.g. "Acme Verify <noreply@acme.com>"
-  mailFrom          String?
+  mailFrom                          String?
   /// Stripe (admin-configurable; secret also via STRIPE_SECRET_KEY env)
-  billingEnabled              Boolean @default(false)
-  stripePublishableKey        String?
-  stripeSecretKey             String?
-  stripeWebhookSecret         String?
+  billingEnabled                    Boolean @default(false)
+  stripePublishableKey              String?
+  stripeSecretKey                   String?
+  stripeWebhookSecret               String?
   /// Shown on Stripe Checkout (inline price_data — no Dashboard Price IDs required)
-  checkoutMembershipName      String?
-  checkoutFastTrackName       String?
-  checkoutMembershipPence     Int     @default(1500)
-  checkoutFastTrackPence      Int     @default(4000)
+  checkoutMembershipName            String?
+  checkoutFastTrackName             String?
+  checkoutMembershipPence           Int     @default(1500)
+  checkoutFastTrackPence            Int     @default(4000)
   /// reCAPTCHA v2
-  recaptchaEnabled     Boolean @default(false)
-  recaptchaSiteKey     String?
-  recaptchaSecretKey   String?
+  recaptchaEnabled                  Boolean @default(false)
+  recaptchaSiteKey                  String?
+  recaptchaSecretKey                String?
   /// Staff security
-  staffRequire2fa      Boolean @default(false)
+  staffRequire2fa                   Boolean @default(false)
   /// PNG/JPG logo file name under org branding upload dir (served at /api/public/branding/logo).
-  brandingLogoStoredName   String?
+  brandingLogoStoredName            String?
   /// Shown on member billing + synced context; Stripe PDFs use Dashboard branding after sync.
-  invoiceLegalName         String?
-  invoiceVatNumber         String?
-  invoiceAddress           String?
-  invoiceFooterNote        String?
+  invoiceLegalName                  String?
+  invoiceVatNumber                  String?
+  invoiceAddress                    String?
+  invoiceFooterNote                 String?
   /// Last Stripe File id used for account branding (optional).
-  stripeBrandingLogoFileId String?
+  stripeBrandingLogoFileId          String?
   /// GA4 Measurement ID (G-XXXXXXXXXX) — loads gtag on the public site (not /staff).
-  googleAnalyticsMeasurementId String?
+  googleAnalyticsMeasurementId      String?
   /// GA4 numeric Property ID (Admin → Property settings) for Data API reports in Staff → Analytics.
-  googleAnalyticsPropertyId      String?
+  googleAnalyticsPropertyId         String?
   /// Google Cloud service account JSON (Data API). Stored encrypted-at-rest only via your own DB backups policy.
   googleAnalyticsServiceAccountJson String?
 }
