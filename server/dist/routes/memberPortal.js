@@ -7,12 +7,12 @@ import multer from "multer";
 import { prisma } from "../db.js";
 import { billingReady, checkoutLineConfig, getOrgBilling, getStripeClient, } from "../lib/billingSettings.js";
 import { documentIssuerFromMember } from "../lib/documentIssuer.js";
+import { isMemberPublicListingVisible, membershipSummaryForMember, } from "../lib/memberMembership.js";
 import { memberProfileLogoFilePath, memberProfileLogoDir } from "../lib/memberProfileLogoPaths.js";
 import { memberToPublic } from "../lib/memberSerialize.js";
-import { isMemberPublicListingVisible, membershipSummaryForMember, } from "../lib/memberMembership.js";
 import { requireMember } from "../middleware/requireMember.js";
 import { requireMemberMembershipActive } from "../middleware/requireMemberMembershipActive.js";
-import memberCrmRoutes from "./memberCrmRoutes.js";
+// import memberCrmRoutes from "./memberCrmRoutes.js";
 const UPLOAD_ROOT = process.env.MEMBER_UPLOAD_DIR?.trim() ||
     path.join(process.cwd(), "uploads", "member-documents");
 const ALLOWED_DOC_MIME = new Set([
@@ -637,5 +637,5 @@ router.get("/insurance", requireMemberMembershipActive, async (req, res) => {
         res.status(500).json({ error: "Could not list insurance policies" });
     }
 });
-router.use(memberCrmRoutes);
+// router.use(memberCrmRoutes);
 export default router;

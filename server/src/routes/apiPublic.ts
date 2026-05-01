@@ -18,10 +18,10 @@ import {
   getStripeSecretKey,
 } from "../lib/billingSettings.js";
 // import { buildMemberBadgeSvgFromRow, buildTradeVerifyBadgeSvg } from "../lib/memberBadgeSvg.js";
+import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
 import { memberProfileLogoFilePath } from "../lib/memberProfileLogoPaths.js";
 import { orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
 // import { findMembersMatchingJobTrade, isValidJobTradeSlug, jobTradeLabelForSlug, JOB_TRADE_CATEGORIES } from "../lib/jobPostTradeRouting.js";
-// import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { verifyRecaptchaV2 } from "../lib/verifyRecaptcha.js";
 import {
@@ -394,7 +394,11 @@ router.post(
 router.get("/members", async (_req, res) => {
   try {
     const rows = await prisma.member.findMany({ orderBy: { name: "asc" } });
-    res.json({ members: rows.map(memberToPublic) });
+    res.json({
+      members: rows
+        .filter((member) => isMemberPublicListingVisible(member))
+        .map(memberToPublic),
+    });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Could not load members" });
@@ -418,13 +422,45 @@ async function memberProfileLogoGetHandler(
   res: Response
 ): Promise<void> {
   try {
-    // Member reviews endpoints removed
-        return;
-      }
-      // recaptcha check removed
+    const slug = decodeSlugParam(req.params.slug);
+    if (!slug) {
+      res.status(404).end();
+      return;
+    }
+    const member = await prisma.member.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        profileLogoStoredName: true,
+        ...MEMBER_PUBLIC_VISIBILITY_SELECT,
+      },
+    });
+    if (
+      !member ||
+      !isMemberPublicListingVisible(member) ||
+      !member.profileLogoStoredName
+    ) {
+      res.status(404).end();
+      return;
     }
 
-    // removed unreachable review handler code
+    const abs = memberProfileLogoFilePath(member.id, member.profileLogoStoredName);
+    if (!fs.existsSync(abs)) {
+      res.status(404).end();
+      return;
+    }
+
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    const ext = path.extname(abs).toLowerCase();
+    if (ext === ".png") res.type("image/png");
+    else if (ext === ".webp") res.type("image/webp");
+    else res.type("image/jpeg");
+    res.sendFile(abs);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+}
 
 // removed unreachable review endpoints
 
@@ -458,6 +494,8 @@ async function memberBySlugHandler(
 
 router.get("/members/by-slug/:slug", memberBySlugHandler);
 router.get("/members/by_slug/:slug", memberBySlugHandler);
+router.get("/members/by-slug/:slug/profile-logo", memberProfileLogoGetHandler);
+router.get("/members/by_slug/:slug/profile-logo", memberProfileLogoGetHandler);
 
 router.get("/guides", async (_req, res) => {
   try {

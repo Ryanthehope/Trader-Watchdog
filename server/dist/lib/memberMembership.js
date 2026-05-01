@@ -1,74 +1,38 @@
-function normalizeBillingType(raw) {
-    const t = String(raw ?? "").trim().toLowerCase();
-    return t === "" ? null : t;
+function nowUtc() {
+    return new Date();
 }
-/** Safe millis from DB Date or ISO string (SQLite edge cases). */
-function membershipExpiresAtToMs(d) {
-    if (d == null)
-        return null;
-    const ms = d instanceof Date ? d.getTime() : new Date(d).getTime();
-    return Number.isFinite(ms) ? ms : null;
+function isStripeMembershipActive(status) {
+    return status === "active" || status === "trialing";
 }
-/** Null billing + null expiry = members created before membership tracking. */
-export function isLegacyUnlimitedMember(m) {
-    return (normalizeBillingType(m.membershipBillingType) == null &&
-        membershipExpiresAtToMs(m.membershipExpiresAt) == null);
-}
-/**
- * Portal CRM + public listing: staff unlimited, or legacy (no billing record),
- * or an access window that has not ended yet.
- */
-export function isMemberMembershipAccessActive(m) {
-    if (m.membershipUnlimited)
+export function isMemberMembershipAccessActive(member, now = nowUtc()) {
+    if (member.membershipUnlimited)
         return true;
-    const billing = normalizeBillingType(m.membershipBillingType);
-    const expMs = membershipExpiresAtToMs(m.membershipExpiresAt);
-    const now = Date.now();
-    /** Grandfathered: no billing type and no expiry stored — full access. */
-    if (billing == null && expMs == null) {
+    if (!member.membershipBillingType)
         return true;
+    if (!member.membershipExpiresAt) {
+        return (member.membershipBillingType !== "stripe" ||
+            isStripeMembershipActive(member.stripeSubscriptionStatus));
     }
-    /** Any recorded end date in the past ends access (manual, Stripe, fast-track). */
-    if (expMs != null && expMs <= now) {
+    return member.membershipExpiresAt > now;
+}
+export function isMemberPublicListingVisible(member, now = nowUtc()) {
+    if (isMemberMembershipAccessActive(member, now))
+        return true;
+    if (!member.membershipExpiresAt)
         return false;
-    }
-    if (billing === "stripe") {
-        const st = String(m.stripeSubscriptionStatus ?? "")
-            .trim()
-            .toLowerCase();
-        if (st === "active" || st === "trialing")
-            return true;
-        return expMs != null && expMs > now;
-    }
-    if (billing === "manual" || billing === "fast_track") {
-        return expMs != null && expMs > now;
-    }
-    /** Unknown billing type but an expiry is set — trust the date only. */
-    return expMs != null && expMs > now;
+    const graceEndsAt = new Date(member.membershipExpiresAt.getTime() + 14 * 24 * 60 * 60 * 1000);
+    return now <= graceEndsAt;
 }
-export function isMemberPublicListingVisible(m) {
-    return isMemberMembershipAccessActive(m);
-}
-export function membershipSummaryForMember(m) {
-    const legacyUnlimited = !m.membershipUnlimited && isLegacyUnlimitedMember(m);
-    const accessActive = isMemberMembershipAccessActive(m);
+export function membershipSummaryForMember(member, now = nowUtc()) {
+    const accessActive = isMemberMembershipAccessActive(member, now);
+    const publicVisible = isMemberPublicListingVisible(member, now);
     return {
-        billingType: m.membershipBillingType,
-        expiresAt: m.membershipExpiresAt?.toISOString() ?? null,
-        subscriptionStatus: m.stripeSubscriptionStatus,
         accessActive,
-        legacyUnlimited,
-        adminUnlimited: m.membershipUnlimited,
+        publicVisible,
+        membershipUnlimited: member.membershipUnlimited,
+        billingType: member.membershipBillingType,
+        expiresAt: member.membershipExpiresAt?.toISOString() ?? null,
+        stripeSubscriptionStatus: member.stripeSubscriptionStatus,
+        inGracePeriod: !accessActive && publicVisible && Boolean(member.membershipExpiresAt),
     };
-}
-/** Deletes members whose paid term ended more than `graceDays` ago (listing removed). */
-export async function deleteMembersExpiredBeyondGrace(prisma, graceDays = 30) {
-    const cutoff = new Date(Date.now() - graceDays * 24 * 60 * 60 * 1000);
-    const result = await prisma.member.deleteMany({
-        where: {
-            membershipUnlimited: false,
-            membershipExpiresAt: { not: null, lte: cutoff },
-        },
-    });
-    return result.count;
 }

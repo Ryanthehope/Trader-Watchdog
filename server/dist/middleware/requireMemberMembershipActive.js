@@ -17,14 +17,12 @@ export const requireMemberMembershipActive = async (req, res, next) => {
             res.status(404).json({ error: "Account not found" });
             return;
         }
-        if (isMemberMembershipAccessActive(m)) {
-            next();
+        if (!isMemberMembershipAccessActive(m)) {
+            res.status(403).json({ error: "Membership is not active" });
             return;
         }
-        res.status(403).json({
-            error: "Your membership has expired. Open Membership to renew or subscribe with card.",
-            code: "MEMBERSHIP_EXPIRED",
-        });
+        next();
+        return;
     }
     catch (e) {
         console.error(e);

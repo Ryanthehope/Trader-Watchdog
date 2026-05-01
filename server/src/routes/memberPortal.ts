@@ -12,9 +12,12 @@ import {
   getStripeClient,
 } from "../lib/billingSettings.js";
 import { documentIssuerFromMember } from "../lib/documentIssuer.js";
+import {
+  isMemberPublicListingVisible,
+  membershipSummaryForMember,
+} from "../lib/memberMembership.js";
 import { memberProfileLogoFilePath, memberProfileLogoDir } from "../lib/memberProfileLogoPaths.js";
 import { memberToPublic } from "../lib/memberSerialize.js";
-// import { isMemberPublicListingVisible, membershipSummaryForMember } from "../lib/memberMembership.js";
 import { requireMember } from "../middleware/requireMember.js";
 import { requireMemberMembershipActive } from "../middleware/requireMemberMembershipActive.js";
 // import memberCrmRoutes from "./memberCrmRoutes.js";

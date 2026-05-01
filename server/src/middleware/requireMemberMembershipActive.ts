@@ -1,6 +1,6 @@
 import type { Request, RequestHandler } from "express";
 import { prisma } from "../db.js";
-// import { isMemberMembershipAccessActive } from "../lib/memberMembership.js";
+import { isMemberMembershipAccessActive } from "../lib/memberMembership.js";
 
 /** Blocks portal routes when membership has lapsed (after requireMember). */
 export const requireMemberMembershipActive: RequestHandler = async (
@@ -23,7 +23,10 @@ export const requireMemberMembershipActive: RequestHandler = async (
       res.status(404).json({ error: "Account not found" });
       return;
     }
-    // Membership check removed; always allow
+    if (!isMemberMembershipAccessActive(m)) {
+      res.status(403).json({ error: "Membership is not active" });
+      return;
+    }
     next();
     return;
   } catch (e) {
