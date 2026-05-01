@@ -85,10 +85,16 @@ export function Layout() {
 
           <div className="hidden items-center gap-3 md:flex">
             <Link
-              to="/login"
+              to="/staff/login"
               className="text-sm font-medium text-slate-500 transition-colors duration-200 hover:text-white"
             >
-              Log in
+              Staff log in
+            </Link>
+            <Link
+              to="/member/login"
+              className="text-sm font-medium text-slate-500 transition-colors duration-200 hover:text-white"
+            >
+              Trader log in
             </Link>
             <Link
               to="/#verify"
@@ -177,11 +183,18 @@ export function Layout() {
               {/* Post a job link removed from mobile menu */}
               {/* Guides & advice link removed from mobile menu */}
               <Link
-                to="/login"
+                to="/staff/login"
                 className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
-                Log in
+                Staff log in
+              </Link>
+              <Link
+                to="/member/login"
+                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+                onClick={() => setMenuOpen(false)}
+              >
+                Trader log in
               </Link>
               <Link
                 to="/join"
@@ -242,10 +255,16 @@ export function Layout() {
                 Contact
               </Link>
               <Link
-                to="/login"
+                to="/staff/login"
                 className="text-slate-600 transition-colors hover:text-slate-400"
               >
-                Log in
+                Staff log in
+              </Link>
+              <Link
+                to="/member/login"
+                className="text-slate-600 transition-colors hover:text-slate-400"
+              >
+                Trader log in
               </Link>
             </nav>
           </div>

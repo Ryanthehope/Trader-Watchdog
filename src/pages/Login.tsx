@@ -13,6 +13,8 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
+  const role = searchParams.get("as") === "staff" ? "staff" : "member";
+  const roleLabel = role === "staff" ? "Staff" : "Trader";
 
   const {
     loginStaff,
@@ -53,7 +55,7 @@ export function Login() {
     setError(null);
     setPending(true);
     const em = email.trim();
-    const preferStaff = searchParams.get("as") === "staff";
+    const preferStaff = role === "staff";
 
     try {
       if (preferStaff) {
@@ -137,7 +139,34 @@ export function Login() {
               Trader Watchdog
             </span>
           </Link>
-          <h1 className="mt-8 text-3xl font-bold text-white">Log in</h1>
+          <div className="mt-8 flex items-center justify-center gap-2 rounded-full border border-slate-700/50 bg-slate-900/50 p-1">
+            <Link
+              to="/staff/login"
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                role === "staff"
+                  ? "bg-brand-500 text-white"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Staff log in
+            </Link>
+            <Link
+              to="/member/login"
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                role === "member"
+                  ? "bg-brand-500 text-white"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Trader log in
+            </Link>
+          </div>
+          <h1 className="mt-6 text-3xl font-bold text-white">{roleLabel} log in</h1>
+          <p className="mt-3 text-sm text-slate-400">
+            {role === "staff"
+              ? "For administrators managing applications, members, and insurance."
+              : "For traders managing their verified profile, documents, and billing."}
+          </p>
         </div>
 
         <div className="rounded-lg border border-slate-700/50 bg-slate-800/40 p-8 backdrop-blur">
@@ -239,7 +268,7 @@ export function Login() {
         </div>
 
         <p className="mt-8 text-center text-sm text-slate-500">
-          Not a member yet?{" "}
+          Not a trader yet?{" "}
           <Link to="/join" className="text-brand-400 hover:text-brand-300">
             Apply for Trader Watchdog
           </Link>
