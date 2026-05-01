@@ -22,6 +22,7 @@ import memberPortalRouter from "./routes/memberPortal.js";
 import categoriesRouter from "./routes/categories.js";
 import insuranceRouter from "./routes/insurance.js";
 import cronRouter from "./routes/cron.js";
+import { ensureSeedStaffFromEnv } from "./lib/ensureSeedStaff.js";
 import { stripeWebhookHandler } from "./routes/stripeWebhook.js";
 import { prisma } from "./db.js";
 // import { deleteMembersExpiredBeyondGrace } from "./lib/memberMembership.js";
@@ -118,10 +119,25 @@ const onListen = () => {
   // Removed: periodic deleteMembersExpiredBeyondGrace cleanup
 };
 
-if (useTls) {
-  const key = fs.readFileSync(sslKeyPath);
-  const cert = fs.readFileSync(sslCertPath);
-  https.createServer({ key, cert }, app).listen(port, onListen);
-} else {
-  http.createServer(app).listen(port, onListen);
+async function startServer() {
+  try {
+    const seedResult = await ensureSeedStaffFromEnv();
+    if (seedResult.configured) {
+      console.log(
+        `[tradeverify] ensured seed staff account for ${seedResult.email}`
+      );
+    }
+  } catch (e) {
+    console.error("[tradeverify] failed to ensure seed staff account", e);
+  }
+
+  if (useTls) {
+    const key = fs.readFileSync(sslKeyPath);
+    const cert = fs.readFileSync(sslCertPath);
+    https.createServer({ key, cert }, app).listen(port, onListen);
+  } else {
+    http.createServer(app).listen(port, onListen);
+  }
 }
+
+void startServer();
