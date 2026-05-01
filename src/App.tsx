@@ -64,6 +64,7 @@ export default function App() {
       <MemberAuthProvider>
       <Routes>
         <Route path="login" element={<Login />} />
+        <Route path="staff/login" element={<StaffLogin />} />
         <Route path="member/login" element={<MemberLogin />} />
         <Route
           path="member"
