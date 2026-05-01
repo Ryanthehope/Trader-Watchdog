@@ -8,6 +8,11 @@ import {
 import { useMemberAuth } from "../member/MemberAuthContext";
 import { useStaffAuth } from "../staff/StaffAuthContext";
 
+function errorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) return error.message;
+  return "Login failed. Try again.";
+}
+
 export function Login() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -55,42 +60,20 @@ export function Login() {
     setError(null);
     setPending(true);
     const em = email.trim();
-    const preferStaff = role === "staff";
 
     try {
-      if (preferStaff) {
-        try {
-          const r = await loginStaff(em, password);
-          if ("requires2fa" in r && r.requires2fa) {
-            setTotpPending(r.pendingToken);
-            setPending(false);
-            return;
-          }
-        } catch {
-          try {
-            await memberLogin(em, password);
-          } catch {
-            setError("Invalid email or password");
-          }
+      if (role === "staff") {
+        const r = await loginStaff(em, password);
+        if ("requires2fa" in r && r.requires2fa) {
+          setTotpPending(r.pendingToken);
+          setPending(false);
+          return;
         }
       } else {
-        try {
-          await memberLogin(em, password);
-        } catch {
-          try {
-            const r = await loginStaff(em, password);
-            if ("requires2fa" in r && r.requires2fa) {
-              setTotpPending(r.pendingToken);
-              setPending(false);
-              return;
-            }
-          } catch {
-            setError("Invalid email or password");
-          }
-        }
+        await memberLogin(em, password);
       }
-    } catch {
-      setError("Invalid email or password");
+    } catch (err) {
+      setError(errorMessage(err));
     } finally {
       setPending(false);
     }
