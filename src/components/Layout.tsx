@@ -21,7 +21,7 @@ function Logo({
 }
 
 const desktopActionClass =
-  "inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.14]";
+  "inline-flex min-h-[52px] min-w-[132px] items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-semibold text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.14]";
 
 const mobileLinkClass =
   "rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white";
@@ -61,7 +61,7 @@ export function Layout() {
             <Logo title={brandName} />
           </Link>
 
-          <nav className="hidden flex-1 items-center justify-center gap-2 md:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-3 md:flex">
             <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
               Verify
             </Link>
