@@ -14,7 +14,7 @@ function Logo({
       <img 
         src="/trader-watchdog-logo.jpg" 
         alt={title}
-        className="h-12 w-auto rounded-sm sm:h-14"
+        className="h-14 w-auto rounded-sm sm:h-16 lg:h-18"
       />
     </div>
   );
@@ -46,7 +46,7 @@ export function Layout() {
         </div>
       ) : null}
       <header className="sticky top-0 z-50 border-b border-brand-800/70 bg-brand-950/95 backdrop-blur-xl supports-[backdrop-filter]:bg-brand-950/90">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Link
             to="/"
             className="outline-none ring-brand-500 focus-visible:ring-2"

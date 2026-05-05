@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSiteData } from "../context/SiteDataContext";
-import { publicApiUrl } from "../lib/api";
 import { MemberPreviewCard } from "../components/MemberPreviewCard";
 import { VerifyForm } from "../components/VerifyForm";
 
@@ -37,15 +36,15 @@ function BadgeShowcase() {
           <div className="w-full max-w-[360px]">
             <div className="flex flex-col items-stretch sm:items-end">
               <img
-                src={publicApiUrl("/api/badge-preview.svg")}
+                src="/badge-preview.svg"
                 width={320}
                 height={88}
-                alt="Trader Watchdog verified member badge: green ribbon with check, Trader Watchdog, member ID TW-2847"
+                alt="Trader Watchdog verified badge preview"
                 className="h-auto w-full max-w-[320px] sm:ml-auto"
               />
               <p className="mt-6 text-center text-xs leading-relaxed text-slate-600 sm:max-w-[320px] sm:text-right">
-                Same green SVG badge issued to each verified member (their name,
-                trade, and ID).
+                Same uniform badge issued to verified traders for vans, websites,
+                and printed materials.
               </p>
             </div>
           </div>
