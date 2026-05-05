@@ -12,9 +12,9 @@ function Logo({
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <img 
-        src="/trader-watchdog-logo.jpg" 
+        src="/logo.png" 
         alt={title}
-        className="h-14 w-auto rounded-sm sm:h-16 lg:h-18"
+        className="h-12 w-auto rounded-md bg-white px-2 py-1 shadow-sm sm:h-14"
       />
     </div>
   );
