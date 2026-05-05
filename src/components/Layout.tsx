@@ -14,7 +14,7 @@ function Logo({
       <img 
         src="/logo.png" 
         alt={title}
-        className="block h-12 w-auto max-w-none rounded-md bg-white px-2 py-1 shadow-sm sm:h-14"
+        className="block h-16 md:h-18 lg:h-20 w-auto max-w-none rounded-md bg-white px-2 py-1 shadow-sm"
       />
     </div>
   );
@@ -52,7 +52,7 @@ export function Layout() {
         </div>
       ) : null}
       <header className="sticky top-0 z-50 border-b border-brand-800/70 bg-brand-950/95 backdrop-blur-xl supports-[backdrop-filter]:bg-brand-950/90">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-1 sm:px-6">
           <Link
             to="/"
             className="shrink-0 outline-none ring-brand-500 focus-visible:ring-2"
