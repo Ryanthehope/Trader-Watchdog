@@ -43,8 +43,7 @@ function BadgeShowcase() {
                 className="h-auto w-full max-w-[420px] sm:ml-auto"
               />
               <p className="mt-5 max-w-[380px] text-sm leading-relaxed text-slate-600">
-                Same uniform badge issued to verified traders for vans, websites,
-                and printed materials.
+                See this sign on a trader&apos;s van, paperwork, or website? It means they are verified on Trader Watchdog and you can check their profile before work starts.
               </p>
             </div>
           </div>
