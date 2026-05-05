@@ -19,7 +19,7 @@ function Logo({
   return (
     <div className={`flex shrink-0 items-center gap-3 ${className}`}>
       <img
-        src="/logo-with-text-on-blue.jpg"
+        src="/traderwatchdog-logo.svg"
         alt={title}
         className={`block ${sizeClass} w-auto max-w-none rounded-md shadow-sm`}
       />

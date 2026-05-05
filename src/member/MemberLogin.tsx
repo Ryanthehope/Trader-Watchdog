@@ -98,9 +98,9 @@ export function MemberLogin() {
           <div className="mb-8">
             <Link to="/" className="inline-flex items-center gap-3 text-white">
               <img
-                src="/logo.png"
+                src="/traderwatchdog-logo.svg"
                 alt="Trader Watchdog"
-                className="h-11 w-auto rounded-md bg-white px-2 py-1 shadow-sm"
+                className="h-11 w-auto rounded-md shadow-sm"
               />
               <span className="font-display text-2xl font-semibold">
                 Trader log in
