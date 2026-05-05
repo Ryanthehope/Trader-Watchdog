@@ -13,13 +13,13 @@ function Logo({
 }) {
   const sizeClass =
     variant === "header"
-      ? "h-12 md:h-14 xl:h-16"
-      : "h-12 md:h-14";
+      ? "h-16 md:h-20 xl:h-24"
+      : "h-14 md:h-16";
 
   return (
     <div className={`flex shrink-0 items-center gap-3 ${className}`}>
       <img
-        src="/traderwatchdog-logo.svg"
+        src="/traderwatchdog_logo.png"
         alt={title}
         className={`block ${sizeClass} w-auto max-w-none rounded-md shadow-sm`}
       />
