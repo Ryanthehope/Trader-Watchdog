@@ -7,7 +7,7 @@ import { VerifyForm } from "../components/VerifyForm";
 function BadgeShowcase() {
   return (
     <section className="border-b border-slate-200 bg-slate-50 py-20 sm:py-24">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:gap-16 lg:grid-cols-2 lg:items-center sm:px-6">
+      <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:gap-20 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center sm:px-6">
         <div className="lg:max-w-xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
             The Trader Watchdog badge
@@ -33,16 +33,16 @@ function BadgeShowcase() {
           </ul>
         </div>
         <div className="flex justify-center lg:justify-end">
-          <div className="w-full max-w-[360px]">
-            <div className="flex flex-col items-stretch sm:items-end">
+          <div className="w-full max-w-[420px] rounded-3xl border border-brand-100 bg-white p-8 shadow-[0_24px_60px_-35px_rgba(30,68,153,0.35)]">
+            <div className="flex flex-col items-center text-center sm:items-end sm:text-right">
               <img
                 src="/badge-preview.svg"
                 width={320}
                 height={88}
                 alt="Trader Watchdog verified badge preview"
-                className="h-auto w-full max-w-[320px] sm:ml-auto"
+                className="h-auto w-full max-w-[340px] sm:ml-auto"
               />
-              <p className="mt-6 text-center text-xs leading-relaxed text-slate-600 sm:max-w-[320px] sm:text-right">
+              <p className="mt-5 max-w-[340px] text-sm leading-relaxed text-slate-600">
                 Same uniform badge issued to verified traders for vans, websites,
                 and printed materials.
               </p>

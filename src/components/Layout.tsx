@@ -20,6 +20,12 @@ function Logo({
   );
 }
 
+const desktopActionClass =
+  "inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.14]";
+
+const mobileLinkClass =
+  "rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white";
+
 export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { error, reload, brandName } = useSiteData();
@@ -46,7 +52,7 @@ export function Layout() {
         </div>
       ) : null}
       <header className="sticky top-0 z-50 border-b border-brand-800/70 bg-brand-950/95 backdrop-blur-xl supports-[backdrop-filter]:bg-brand-950/90">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3 sm:px-6">
           <Link
             to="/"
             className="outline-none ring-brand-500 focus-visible:ring-2"
@@ -55,61 +61,42 @@ export function Layout() {
             <Logo title={brandName} />
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm font-medium text-slate-400 md:flex">
-            <Link
-              to="/#verify"
-              className="transition-colors duration-200 hover:text-white"
-            >
+          <nav className="hidden flex-1 items-center justify-center gap-2 md:flex">
+            <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
               Verify
             </Link>
-            <Link
-              to="/#how"
-              className="transition-colors duration-200 hover:text-white"
-            >
+            <Link to="/#how" className={`${desktopActionClass} bg-white/5`}>
               How it works
             </Link>
-            <Link
-              to="/#why"
-              className="transition-colors duration-200 hover:text-white"
-            >
+            <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
               What we check
             </Link>
-            <Link
-              to="/#compare"
-              className="transition-colors duration-200 hover:text-white"
-            >
+            <Link to="/#compare" className={`${desktopActionClass} bg-white/5`}>
               Compare
             </Link>
-            {/* Advice link removed */}
+            <Link to="/#verify" className={`${desktopActionClass} bg-white/10`}>
+              Verify a trade
+            </Link>
+            <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
+              Join Trader Watchdog
+            </Link>
+            <Link to="/categories" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
+              Categories
+            </Link>
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-5 md:flex md:shrink-0">
             <Link
               to="/staff/login"
-              className="text-sm font-medium text-slate-500 transition-colors duration-200 hover:text-white"
+              className="text-sm font-medium text-slate-400 transition-colors duration-200 hover:text-white"
             >
               Staff log in
             </Link>
             <Link
               to="/member/login"
-              className="text-sm font-medium text-slate-500 transition-colors duration-200 hover:text-white"
+              className="text-sm font-medium text-slate-400 transition-colors duration-200 hover:text-white"
             >
               Trader log in
-            </Link>
-            <Link
-              to="/#verify"
-              className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/15 transition-colors duration-200 hover:bg-white/[0.14]"
-            >
-              Verify a trade
-            </Link>
-            <Link
-              to="/join"
-              className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-900/35 transition-colors duration-200 hover:bg-brand-500"
-            >
-              Join Trader Watchdog
-            </Link>
-            <Link to="/categories" className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-900/35 transition-colors duration-200 hover:bg-brand-500">
-              Categories
             </Link>
           </div>
 
@@ -157,47 +144,45 @@ export function Layout() {
             <nav className="flex flex-col gap-1 text-sm font-medium text-slate-300">
               <Link
                 to="/#verify"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+                className={mobileLinkClass}
                 onClick={() => setMenuOpen(false)}
               >
-                Verify a trade
+                Verify
               </Link>
               <Link
                 to="/#how"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+                className={mobileLinkClass}
                 onClick={() => setMenuOpen(false)}
               >
                 How it works
               </Link>
               <Link
                 to="/#why"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+                className={mobileLinkClass}
                 onClick={() => setMenuOpen(false)}
               >
                 What we check
               </Link>
               <Link
                 to="/#compare"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+                className={mobileLinkClass}
                 onClick={() => setMenuOpen(false)}
               >
                 Compare
               </Link>
-              {/* Post a job link removed from mobile menu */}
-              {/* Guides & advice link removed from mobile menu */}
               <Link
-                to="/staff/login"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+                to="/categories"
+                className={mobileLinkClass}
                 onClick={() => setMenuOpen(false)}
               >
-                Staff log in
+                Categories
               </Link>
               <Link
-                to="/member/login"
-                className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+                to="/#verify"
+                className="mt-2 rounded-lg bg-white/10 px-3 py-2.5 text-center font-semibold text-white hover:bg-white/[0.14]"
                 onClick={() => setMenuOpen(false)}
               >
-                Trader log in
+                Verify a trade
               </Link>
               <Link
                 to="/join"
@@ -207,11 +192,18 @@ export function Layout() {
                 Join Trader Watchdog
               </Link>
               <Link
-              to="/categories"
-              className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
-              onClick={() => setMenuOpen(false)}
+                to="/staff/login"
+                className="mt-3 rounded-lg border border-white/10 px-3 py-2.5 text-center hover:bg-white/5 hover:text-white"
+                onClick={() => setMenuOpen(false)}
               >
-              Categories
+                Staff log in
+              </Link>
+              <Link
+                to="/member/login"
+                className="rounded-lg border border-white/10 px-3 py-2.5 text-center hover:bg-white/5 hover:text-white"
+                onClick={() => setMenuOpen(false)}
+              >
+                Trader log in
               </Link>
             </nav>
           </div>
