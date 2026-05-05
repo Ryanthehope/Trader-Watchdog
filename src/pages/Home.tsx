@@ -14,13 +14,13 @@ function BadgeShowcase() {
             The Trader Watchdog badge
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-            Spot it on vans, sites, and quotes
+            See if they&apos;re legit with one click
           </h2>
           <p className="mt-5 text-base leading-relaxed text-slate-700">
-            Verified members display a unique Trader Watchdog ID that homeowners can
-            search on this site. If there is no badge, or the number does not
-            match a live profile, treat that as a red flag before you pay a
-            deposit.
+            Verified traders display a unique Trader Watchdog ID that householders
+            can search on this site. If there is no badge, or the result does not
+            match a live profile, treat that as a red flag before agreeing work or
+            parting with money.
           </p>
           <ul className="mt-8 space-y-3 text-sm text-slate-700">
             <li className="flex gap-3">
@@ -29,7 +29,7 @@ function BadgeShowcase() {
             </li>
             <li className="flex gap-3">
               <span className="text-brand-600">✓</span>
-              Confirm the ID here before large upfront payments.
+              Save their live profile link for your records if the trader is listed.
             </li>
           </ul>
         </div>
@@ -57,9 +57,9 @@ function BadgeShowcase() {
 
 function Stats() {
   const items = [
-    { value: "£3.5bn", label: "estimated lost to rogue traders yearly" },
-    { value: "1.26mil", label: "fly-tipping incidents a year and rising" },
-    { value: "24%", label: "of traders do not have Public Liability insurance" },
+    { value: "£3.5bn", label: "estimated lost to rogue traders each year" },
+    { value: "1.26m", label: "fly-tipping incidents reported every year" },
+    { value: "24%", label: "of traders may have no Public Liability insurance" },
   ];
   return (
     <section className="border-b border-slate-200 bg-white py-16">
@@ -154,16 +154,16 @@ function CompareCell({ value }: { value: CompareCell }) {
 function FeatureHighlights() {
   const cards = [
     {
-      title: "Free for homeowners",
-      body: "Look up a Trader Watchdog ID or search the public directory before you hire. No fee to check whether a business is listed and what we hold on file.",
+      title: "Free and confidential",
+      body: "Checking a trader is free to householders. You do not need to register, and traders are not told who searched for them.",
     },
     {
-      title: "Straightforward for trades",
-      body: "Membership covers verification and your live public profile — we focus on proof, not selling you leads job-by-job.",
+      title: "Verification, not lead generation",
+      body: "Trader Watchdog does not sell leads to traders. We focus on proof, diligence, and consumer protection rather than pay-to-win listings.",
     },
     {
-      title: "Proof in one link",
-      body: "Structured vetting summary, badge artwork, and profile details — so customers see independent checks in one place, not scattered claims.",
+      title: "Proof in one place",
+      body: "Structured vetting summary, badge artwork, and profile details give householders one place to check whether a trader is operating responsibly and legally.",
     },
   ];
   return (
@@ -378,18 +378,18 @@ function HowItWorks() {
   const steps = [
     {
       n: "1",
-      title: "Spot the badge",
-      body: "See the Trader Watchdog badge on a van, website, or marketing material.",
+      title: "Search the business",
+      body: "Enter the trader&apos;s business name or Trader Watchdog ID into the free verification tool.",
     },
     {
       n: "2",
-      title: "Search the company",
-      body: "Type the business Trader Watchdog ID into our verification tool.",
+      title: "See the listing",
+      body: "If the trader is listed, you will open their live Trader Watchdog profile. If they are not listed, you should use caution and ask for evidence directly.",
     },
     {
       n: "3",
-      title: "Checked or not",
-      body: "Instantly see whether they have been independently checked.",
+      title: "Review the checks",
+      body: "Use the live profile to review the checks we display before work starts or waste leaves your property.",
     },
   ];
   return (
@@ -430,20 +430,20 @@ function HowItWorks() {
 function Pillars() {
   const pillars = [
     {
-      title: "Who They Are and Where They're From",
-      body: "We check and validate the trader's name, address and details held at Companies House if the trader is a Limited Company. Confirmed as a genuine operating address — not a virtual office or PO box.",
+      title: "Identity",
+      body: "We verify a trader is who they say they are and, where relevant, check business details against official company records.",
     },
     {
       title: "Insurance",
-      body: "Public Liability Insurance protects you, your property and your contents from any damage caused by a trader. Employers Insurance is a legal requirement for any business with employees. Up to 50% of employers have no insurance at all and 24% of traders don't have Public Liability Insurance. We validate any insurance held by the trader and record the expiry date.",
+      body: "Public Liability insurance helps protect your property from accidental damage. Employers Insurance is a legal requirement for many businesses. We verify the insurance held and the expiry dates we have been given.",
     },
     {
-      title: "Your Waste — It's Your Responsibility",
-      body: "As a householder you are legally responsible for all waste removed from your home until it is disposed at an approved waste disposal site or collected by a registered waste carrier. If your waste is traced to an illegal site or fly-tipped, enforcement action can be taken against you. We check and validate that a trader holds the required permits or licenses and record the expiry date. You can download our report, without charge, as proof of your diligence.",
+      title: "Your waste",
+      body: "If a trader removes waste from your property, the correct Environment Agency registration matters. We help you check whether the trader holds the licence or permit required for the work they carry out.",
     },
     {
-      title: "Other Credentials",
-      body: "We require evidence of any claimed qualifications or trade association membership. Gas Safe, NICEIC, FENSA and other certifications are checked against official registers where claimed.",
+      title: "Personal data and trade registers",
+      body: "Where relevant, we check ICO registration for GDPR, and we verify claimed trade memberships or registers such as Gas Safe and Competent Person schemes.",
     },
   ];
   return (
@@ -491,15 +491,15 @@ function Pillars() {
 const faqItems = [
   {
     q: "What is Trader Watchdog?",
-    a: "Trader Watchdog is an independent verification service for trades businesses. We check what they claim — address, insurance, registrations, and public footprint — so homeowners have a single place to confirm a business before they hire.",
+    a: "Trader Watchdog is an independent consumer protection platform. We help householders check whether a trader can be verified before agreeing work or paying money.",
   },
   {
-    q: "What if someone fakes a badge or ID?",
-    a: "Always search the Trader Watchdog ID on this site. A forged number will not return a matching verified profile. If in doubt, contact us with the details they gave you.",
+    q: "What happens when I search for a trader?",
+    a: "If the trader is listed, you are taken to their live Trader Watchdog profile so you can review the checks we show there. If they are not listed, you will see a no-match page and should ask the trader for evidence directly.",
   },
   {
-    q: "How often are member checks updated?",
-    a: "Members agree to notify us of material changes. We also run scheduled renewals according to your published policy — for example annual proof of insurance — so profiles stay meaningful over time.",
+    q: "Can I download a report?",
+    a: "Not yet. Today the service shows the trader's live profile and verification details on site. If downloadable reports are added later, the public wording should be updated at the same time.",
   },
 ];
 
@@ -540,13 +540,13 @@ function TradesCta() {
               Traders & Businesses
             </p>
             <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-              PROVE IT! Register Now
+              Join Trader Watchdog and show customers you&apos;re legit
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base text-slate-700">
-              Are you who you say you are? Are you based where you say you're based? Do you have current Public Liability Insurance to protect your customers? Do you hold a current Environmental Waste permit or licence?
+              Trader Watchdog does not sell leads, does not cap the number of traders in an area, and gives customers one place to check that your business is insured, compliant, and real.
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-900">
-              Independent verification improves customers' confidence and increases conversions.
+              One fee, fair visibility, renewal reminders, and a public profile that builds trust.
             </p>
 
             <div className="mx-auto mt-12 max-w-2xl rounded-lg border border-slate-300/60 bg-slate-50/50 p-8 text-left">
@@ -560,7 +560,7 @@ function TradesCta() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </span>
-                  <span>Your name and trading address</span>
+                  <span>Your business name and the telephone number you advertise</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="mt-0.5 text-brand-600">
@@ -568,7 +568,7 @@ function TradesCta() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </span>
-                  <span>Photo ID and proof of address (current driving licence front or passport plus a utility bill showing your name and address in the last 3 months)</span>
+                  <span>Identity and liveness checks through our verification provider when requested</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="mt-0.5 text-brand-600">
@@ -576,7 +576,7 @@ function TradesCta() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </span>
-                  <span>A copy of your current Public Liability Insurance policy and Employers Insurance (if applicable)</span>
+                  <span>Current insurance documents showing cover, provider, and renewal dates</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="mt-0.5 text-brand-600">
@@ -584,7 +584,7 @@ function TradesCta() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </span>
-                  <span>Proof that you hold a current Waste Permit or a current Waste Carrier Licence</span>
+                  <span>Waste carrier details, ICO registration, and any trade-register evidence relevant to your work</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="mt-0.5 text-brand-600">
@@ -592,7 +592,7 @@ function TradesCta() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </span>
-                  <span>Proof of your claimed qualifications or trade association membership</span>
+                  <span>Proof of claimed qualifications, memberships, or scheme registration where applicable</span>
                 </li>
               </ul>
             </div>
@@ -632,16 +632,16 @@ export function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-slate-200/10 bg-gradient-to-b from-slate-900 to-slate-950">
+      <section className="relative overflow-hidden border-b border-brand-900/40 bg-gradient-to-b from-brand-900 via-brand-800 to-brand-950">
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6 sm:pb-32 sm:pt-24 lg:pt-32">
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-300">
-            Recommended by Police, Insurers & Environment Agencies
+          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/85">
+            Recommended by Police, Trading Standards, Councils and community groups
           </p>
           <h1 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4rem] lg:leading-[1.08]">
-            Don&apos;t take their word for it.
+            Don&apos;t take their word for it. See if they&apos;re legit.
           </h1>
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl sm:leading-relaxed">
-            Police, insurers, environment agencies and social protection groups recommend you verify any trader before you part with your money. Trader Watchdog is a free service protecting households against rogue traders.
+            Verifying a trader is one click away. It&apos;s free, confidential, and you do not have to register. Search by business name or Trader Watchdog ID and view the result before work starts.
           </p>
           <VerifyForm id="hero-verify" layout="hero" />
           {exampleMember ? (
@@ -664,7 +664,7 @@ export function Home() {
               to="/join"
               className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-500"
             >
-              Get verified as a tradesperson
+              Register your business
             </Link>
           </div>
         </div>
@@ -681,10 +681,10 @@ export function Home() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-              Don't take their word for it. Verify a trader now.
+              Verify a trader now
             </h2>
             <p className="mt-4 text-base text-slate-700">
-              It's FREE, you do NOT have to register, and it's only one click away. Enter the full trading name of the trader and their postcode.
+              It&apos;s free, you do not have to register, and you can review the trader&apos;s live profile immediately if they are listed.
             </p>
           </div>
           <VerifyForm id="section-verify" layout="section" />
@@ -693,22 +693,25 @@ export function Home() {
               <p className="text-sm text-slate-700">
                 <span className="inline-flex items-center gap-2 font-semibold text-emerald-700">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20">✓</span>
-                  GREEN flag
+                  Verified listing
                 </span>
                 {' '}
-                = verified. You can download their report without charge to prove your diligence, particularly important for Environmental Waste Regulations.
+                = found on Trader Watchdog. Review the live profile and the checks shown there before agreeing work.
               </p>
             </div>
             <div className="rounded-lg border border-red-600/30 bg-red-50 px-6 py-4">
               <p className="text-sm text-slate-700">
                 <span className="inline-flex items-center gap-2 font-semibold text-red-700">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/20">✕</span>
-                  RED flag
+                  No verified listing
                 </span>
                 {' '}
-                = not verified. Do not part with any money or agree to any work unless the trader proves they comply with the essential requirements of operating a legal business.
+                = not verified. Do not agree work or part with money unless the trader proves they comply with the essential requirements of operating a legal business.
               </p>
             </div>
+            <p className="text-sm text-slate-600">
+              If you contact the trader after checking their profile, please mention Trader Watchdog.
+            </p>
           </div>
         </div>
       </section>

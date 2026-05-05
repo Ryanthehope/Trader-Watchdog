@@ -474,6 +474,18 @@ export function MemberProfile() {
                 <p className="mt-2 text-lg text-slate-400">
                   {member.trade} · {member.location}
                 </p>
+                {member.categories.length ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {member.categories.map((category) => (
+                      <span
+                        key={category.id}
+                        className="rounded-full border border-brand-400/20 bg-brand-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-100"
+                      >
+                        {category.name}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
                 <p className="mt-1 text-sm text-slate-500">
                   Checked since {member.verifiedSince}
                 </p>

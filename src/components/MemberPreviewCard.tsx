@@ -16,6 +16,18 @@ export function MemberPreviewCard({ member }: { member: VerifiedMember }) {
             <p className="mt-0.5 text-sm text-slate-400">
               {member.trade} · {member.location}
             </p>
+            {member.categories.length ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {member.categories.slice(0, 2).map((category) => (
+                  <span
+                    key={category.id}
+                    className="rounded-full border border-brand-400/20 bg-brand-500/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-100"
+                  >
+                    {category.name}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
           <span className="shrink-0 rounded-full bg-brand-500/30 px-2.5 py-1 text-[11px] font-bold text-brand-100">
             {member.tvId}

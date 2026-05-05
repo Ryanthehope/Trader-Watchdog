@@ -36,12 +36,12 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
       onSubmit={onSubmit}
     >
       <label className="sr-only" htmlFor={`${id}-input`}>
-        Trader Watchdog ID or business name
+        Business name or Trader Watchdog ID
       </label>
       <input
         id={`${id}-input`}
         type="search"
-        placeholder="Trader Watchdog ID or business name"
+        placeholder="Business name or Trader Watchdog ID"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         autoComplete="off"

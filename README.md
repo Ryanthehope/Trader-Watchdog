@@ -99,7 +99,7 @@ See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architectur
 - Staff portal authentication against live Railway database
 - Member portal authentication and billing screens
 - Insurance CRUD and expiry tracking flows
-- Categories CRUD endpoints and staff UI foundations
+- Categories CRUD endpoints plus staff-side category assignment for members
 - Guides content management and public guide pages
 - Stripe billing and invoice-related flows already present in the codebase
 
@@ -112,7 +112,7 @@ See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architectur
 - Fixed copied login credentials failing because of trailing whitespace or newline characters
 
 ### Still to do
-- Add proper member-to-category relationships and category assignment workflow
+- Expose categories properly in the public directory, public profiles, and search
 - Build the full address verification workflow and staff review tools
 - Improve public search beyond the current simpler lookup flow
 - Replace or remove legacy `adminOps` surfaces that still do not match the current schema cleanly
@@ -120,7 +120,7 @@ See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architectur
 
 ## Current Priorities
 
-1. Finish category assignment so categories drive the public directory and search.
+1. Finish public category browsing and make categories drive the public directory and search.
 2. Build address verification for members and staff.
 3. Tighten admin technical debt, especially legacy routes not represented in the Prisma schema.
 4. Expand test coverage around production-critical flows.

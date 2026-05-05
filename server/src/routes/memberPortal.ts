@@ -141,26 +141,35 @@ router.get("/me", async (req, res) => {
       stripeSubscriptionStatus: m.stripeSubscriptionStatus,
     });
     res.json({
-      memberId: m.id,
-      profile,
-      profileLive,
-      loginEmail: m.loginEmail,
-      publicProfileUrl: `/m/${m.slug}`,
-      mustChangePassword: m.mustChangePassword,
-      membership,
-      documentBranding: {
-        ...documentIssuerFromMember(m),
-        documentAccentHex: m.documentAccentHex?.trim() || null,
-        documentLayout:
-          m.documentLayout === "bold" ? "bold" : "standard",
-        invoiceAddress: m.invoiceAddress ?? "",
-        invoiceBankDetails: m.invoiceBankDetails ?? "",
-        invoicePhone: m.invoicePhone ?? "",
-        invoiceEmail: m.invoiceEmail ?? "",
-        vatNumber: m.vatNumber ?? "",
-        vatRegistered: Boolean(m.vatRegistered),
-      },
-    });
+  memberId: m.id,
+  profile,
+  profileLive,
+  loginEmail: m.loginEmail,
+  publicProfileUrl: `/m/${m.slug}`,
+  mustChangePassword: m.mustChangePassword,
+  membership,
+  verification: {
+    provider: m.verificationProvider,
+    status: m.verificationStatus,
+    submittedAt: m.verificationSubmittedAt?.toISOString() ?? null,
+    approvedAt: m.verificationApprovedAt?.toISOString() ?? null,
+    rejectedAt: m.verificationRejectedAt?.toISOString() ?? null,
+    providerApplicantId: m.verificationProviderApplicantId,
+    providerSessionId: m.verificationProviderSessionId,
+    failureReason: m.verificationFailureReason,
+  },
+  documentBranding: {
+    ...documentIssuerFromMember(m),
+    documentAccentHex: m.documentAccentHex?.trim() || null,
+    documentLayout: m.documentLayout === "bold" ? "bold" : "standard",
+    invoiceAddress: m.invoiceAddress ?? "",
+    invoiceBankDetails: m.invoiceBankDetails ?? "",
+    invoicePhone: m.invoicePhone ?? "",
+    invoiceEmail: m.invoiceEmail ?? "",
+    vatNumber: m.vatNumber ?? "",
+    vatRegistered: Boolean(m.vatRegistered),
+  },
+});
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Could not load profile" });

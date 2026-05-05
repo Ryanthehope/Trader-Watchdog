@@ -126,6 +126,16 @@ router.get("/me", async (req, res) => {
             publicProfileUrl: `/m/${m.slug}`,
             mustChangePassword: m.mustChangePassword,
             membership,
+            verification: {
+                provider: m.verificationProvider,
+                status: m.verificationStatus,
+                submittedAt: m.verificationSubmittedAt?.toISOString() ?? null,
+                approvedAt: m.verificationApprovedAt?.toISOString() ?? null,
+                rejectedAt: m.verificationRejectedAt?.toISOString() ?? null,
+                providerApplicantId: m.verificationProviderApplicantId,
+                providerSessionId: m.verificationProviderSessionId,
+                failureReason: m.verificationFailureReason,
+            },
             documentBranding: {
                 ...documentIssuerFromMember(m),
                 documentAccentHex: m.documentAccentHex?.trim() || null,

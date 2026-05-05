@@ -1,5 +1,15 @@
 import type { Member } from "@prisma/client";
 
+type MemberCategoryPublic = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+type MemberWithOptionalCategories = Member & {
+  categories?: MemberCategoryPublic[];
+};
+
 export type VettingItemStatus = "verified" | "pending";
 
 export type VettingFactPublic = {
@@ -30,6 +40,7 @@ export type PublicMember = {
   name: string;
   trade: string;
   location: string;
+  categories: MemberCategoryPublic[];
   checks: string[];
   vettingCategories: VettingCategoryPublic[];
   verifiedSince: string;
@@ -129,7 +140,7 @@ function checksToFallbackCategories(checks: string[]): VettingCategoryPublic[] {
   ];
 }
 
-export function memberToPublic(m: Member): PublicMember {
+export function memberToPublic(m: MemberWithOptionalCategories): PublicMember {
   const checks = parseChecksJson(m.checks);
   const parsed = parseVettingItems(m.vettingItems);
   const vettingCategories =
@@ -140,6 +151,7 @@ export function memberToPublic(m: Member): PublicMember {
     name: m.name,
     trade: m.trade,
     location: m.location,
+    categories: Array.isArray(m.categories) ? m.categories : [],
     checks,
     vettingCategories,
     verifiedSince: m.verifiedSince,

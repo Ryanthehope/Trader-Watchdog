@@ -215,6 +215,15 @@ export function MemberLayout() {
               >
                 Insurance
               </NavLink>
+              <NavLink
+                to="/member/verification"
+                onClick={() => setMobileNavOpen(false)}
+                className={({ isActive }) =>
+                  `${nav} ${isActive ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"}`
+                }
+              >
+                Verification
+              </NavLink>
             </>
           )}
         </nav>

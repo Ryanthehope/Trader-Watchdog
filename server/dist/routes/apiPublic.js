@@ -357,7 +357,18 @@ router.post("/applications", (req, res, next) => {
 });
 router.get("/members", async (_req, res) => {
     try {
-        const rows = await prisma.member.findMany({ orderBy: { name: "asc" } });
+        const rows = await prisma.member.findMany({
+            include: {
+                categories: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                    },
+                },
+            },
+            orderBy: { name: "asc" },
+        });
         res.json({
             members: rows
                 .filter((member) => isMemberPublicListingVisible(member))
@@ -432,6 +443,15 @@ async function memberBySlugHandler(req, res) {
     try {
         const m = await prisma.member.findUnique({
             where: { slug: req.params.slug },
+            include: {
+                categories: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                    },
+                },
+            },
         });
         if (!m || !isMemberPublicListingVisible(m)) {
             res.status(404).json({ error: "Not found" });

@@ -101,6 +101,7 @@ export function memberToPublic(m) {
         name: m.name,
         trade: m.trade,
         location: m.location,
+        categories: Array.isArray(m.categories) ? m.categories : [],
         checks,
         vettingCategories,
         verifiedSince: m.verifiedSince,

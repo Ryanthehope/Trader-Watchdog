@@ -68,6 +68,14 @@ model Member {
   membershipExpiresAt      DateTime?
   /// "stripe" | "manual" | "fast_track" — null with null expiry = legacy grandfathered access.
   membershipBillingType    String?
+  verificationProvider            String?
+  verificationStatus              VerificationStatus @default(NOT_STARTED)
+  verificationSubmittedAt         DateTime?
+  verificationApprovedAt          DateTime?
+  verificationRejectedAt          DateTime?
+  verificationProviderApplicantId String?
+  verificationProviderSessionId   String?
+  verificationFailureReason       String?
   stripeCustomerId         String?
   stripeSubscriptionId     String?
   /// Mirrors Stripe subscription.status (active, canceled, past_due, …).
@@ -141,6 +149,13 @@ enum ApplicationStatus {
   CONTACTED
   APPROVED
   DECLINED
+}
+
+enum VerificationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  APPROVED
+  REJECTED
 }
 
 model Application {

@@ -20,12 +20,19 @@ export type VettingCategoryPublic = {
   items: VettingItemPublic[];
 };
 
+export type MemberCategoryPublic = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 export type VerifiedMember = {
   slug: string;
   tvId: string;
   name: string;
   trade: string;
   location: string;
+  categories: MemberCategoryPublic[];
   checks: string[];
   vettingCategories: VettingCategoryPublic[];
   verifiedSince: string;

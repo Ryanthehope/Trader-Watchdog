@@ -359,14 +359,13 @@ export function Join() {
             For tradespeople
           </p>
           <h1 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">
-            Apply for Trader Watchdog
+            Apply to become a verified Trader Watchdog business
           </h1>
           <p className="mt-4 text-slate-400">
-            Independent verification for your business. We review your
-            application first; once approved, you can pay here to go live —{" "}
-            <strong className="text-white">£15/month</strong> membership or a
-            one-off <strong className="text-white">£40 fast-track</strong> if
-            you want your listing prioritised at that stage.
+            Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.
+          </p>
+          <p className="mt-4 text-sm text-slate-500">
+            One fee regardless of employee count, fair visibility for all, and renewal reminders for insurance, licences, memberships, and your Trader Watchdog subscription.
           </p>
         </div>
       </div>
@@ -659,7 +658,7 @@ export function Join() {
                 htmlFor="company"
                 className="block text-sm font-medium text-slate-300"
               >
-                Business name
+                Trading name
               </label>
               <input
                 id="company"
@@ -674,14 +673,14 @@ export function Join() {
                 htmlFor="trade"
                 className="block text-sm font-medium text-slate-300"
               >
-                Trade / specialism
+                Business type / specialism
               </label>
               <input
                 id="trade"
                 name="trade"
                 required
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
-                placeholder="Gas engineer"
+                placeholder="Plumber, roofer, gas engineer"
               />
             </div>
             <div>
@@ -705,7 +704,7 @@ export function Join() {
                 htmlFor="postcode"
                 className="block text-sm font-medium text-slate-300"
               >
-                Main operating postcode
+                Main trading postcode
               </label>
               <input
                 id="postcode"
@@ -723,8 +722,7 @@ export function Join() {
                 Supporting documents (optional)
               </label>
               <p className="mt-1 text-xs text-slate-500">
-                PDF or images, up to 8 files, 10 MB each — e.g. insurance
-                certificate, accreditations.
+                PDF or images, up to 8 files, 10 MB each — for example insurance documents, qualifications, memberships, or scheme registrations. Identity and liveness checks will be handled separately during verification.
               </p>
               <input
                 id="files"
@@ -746,7 +744,7 @@ export function Join() {
               disabled={submitting}
               className="w-full rounded-xl bg-brand-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/30 hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? "Submitting…" : "Submit application"}
+              {submitting ? "Submitting…" : "Apply now"}
             </button>
           </form>
         )}

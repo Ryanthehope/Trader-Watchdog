@@ -12,9 +12,9 @@ function Logo({
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <img 
-        src="/logo.png" 
+        src="/trader-watchdog-logo.jpg" 
         alt={title}
-        className="h-14 w-auto"
+        className="h-12 w-auto rounded-sm sm:h-14"
       />
     </div>
   );
@@ -45,7 +45,7 @@ export function Layout() {
           </button>
         </div>
       ) : null}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-ink-950/85 backdrop-blur-xl supports-[backdrop-filter]:bg-ink-950/75">
+      <header className="sticky top-0 z-50 border-b border-brand-800/70 bg-brand-950/95 backdrop-blur-xl supports-[backdrop-filter]:bg-brand-950/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
           <Link
             to="/"
@@ -107,6 +107,9 @@ export function Layout() {
               className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-900/35 transition-colors duration-200 hover:bg-brand-500"
             >
               Join Trader Watchdog
+            </Link>
+            <Link to="/categories" className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-900/35 transition-colors duration-200 hover:bg-brand-500">
+              Categories
             </Link>
           </div>
 
@@ -203,6 +206,13 @@ export function Layout() {
               >
                 Join Trader Watchdog
               </Link>
+              <Link
+              to="/categories"
+              className="rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white"
+              onClick={() => setMenuOpen(false)}
+              >
+              Categories
+              </Link>
             </nav>
           </div>
         ) : null}
@@ -265,6 +275,9 @@ export function Layout() {
                 className="text-slate-600 transition-colors hover:text-slate-400"
               >
                 Trader log in
+              </Link>
+              <Link to="/categories" className="text-slate-600 transition-colors hover:text-slate-400">
+                Categories
               </Link>
             </nav>
           </div>

@@ -5,32 +5,30 @@ export default {
     extend: {
       colors: {
         brand: {
-          // Dark Blue - Primary color from Nigel (#0C2389)
-          50: "#eff3ff",
-          100: "#dbe4ff",
-          200: "#bac8ff",
-          300: "#8ba5ff",
-          400: "#5a78ff",
-          500: "#3354ff",
-          600: "#0C2389", // Main brand color
-          700: "#0a1d6f",
-          800: "#081755",
-          900: "#06113b",
-          950: "#040b21",
+          50: "#eef3ff",
+          100: "#dbe6ff",
+          200: "#b8cbff",
+          300: "#8aa8f5",
+          400: "#5e7fda",
+          500: "#325ebd",
+          600: "#1E4499",
+          700: "#17377b",
+          800: "#102959",
+          900: "#091b38",
+          950: "#040d1f",
         },
         accent: {
-          // Green - Accent color from Nigel (#7AD801)
-          50: "#f7fee7",
-          100: "#ecfccb",
-          200: "#d9f99d",
-          300: "#bef264",
-          400: "#a3e635",
-          500: "#7AD801", // Main accent color
-          600: "#65b801",
-          700: "#4d8b01",
-          800: "#3d6e01",
-          900: "#2e5201",
-          950: "#1f3601",
+          50: "#f2ffe9",
+          100: "#e0ffc8",
+          200: "#c2ff93",
+          300: "#9df95a",
+          400: "#6ef126",
+          500: "#39e600",
+          600: "#2eb900",
+          700: "#248d00",
+          800: "#1d6b02",
+          900: "#185504",
+          950: "#0b2f00",
         },
         ink: {
           50: "#f8fafc",
@@ -51,7 +49,7 @@ export default {
         display: ["Outfit", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        "glow-brand": "0 0 80px -12px rgba(14, 165, 233, 0.35)",
+        "glow-brand": "0 0 80px -12px rgba(30, 68, 153, 0.45)",
         "card-lg": "0 25px 50px -12px rgba(0, 0, 0, 0.45)",
       },
       backgroundImage: {

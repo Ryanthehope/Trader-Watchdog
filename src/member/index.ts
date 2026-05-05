@@ -8,3 +8,4 @@ export { MemberLogin } from "./MemberLogin";
 export { MemberOverview } from "./MemberOverview";
 export { MemberPassword } from "./MemberPassword";
 export { MemberRequireAuth } from "./MemberRequireAuth";
+export { MemberVerification } from "./MemberVerification";

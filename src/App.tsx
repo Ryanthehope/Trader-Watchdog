@@ -2,6 +2,8 @@ import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 // import { GuideArticle } from "./pages/GuideArticle";
 // import { GuidesIndex } from "./pages/GuidesIndex";
+import { Categories } from "./pages/Categories";
+import { CategoryView } from "./pages/CategoryView";
 import { Contact } from "./pages/Contact";
 import { Home } from "./pages/Home";
 import { Join } from "./pages/Join";
@@ -33,6 +35,7 @@ import {  MemberAuthProvider,
   MemberLogin,
   MemberOverview,
   MemberPassword,
+  MemberVerification,
   MemberRequireAuth,
 } from "./member";
 
@@ -58,10 +61,8 @@ export default function App() {
           <Route path="insurance" element={<MemberInsurance />} />
           {/* badge, refer, membership removed */}
           <Route path="billing" element={<MemberBilling />} />
+          <Route path="verification" element={<MemberVerification />} />
           <Route path="password" element={<MemberPassword />} />
-          {/* Removed leads, reviews, quotes, invoices, jobs, availability routes */}
-          {/* leads, reviews, quotes, invoices, jobs, availability removed */}
-          {/* Removed staff guides route */}
           <Route path="analytics" element={<StaffAnalytics />} />
           <Route path="settings" element={<StaffSettingsPage />} />
         </Route>
@@ -93,6 +94,8 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="m/:slug" element={<MemberProfile />} />
           <Route path="lookup/miss" element={<LookupMiss />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path="categories/:slug" element={<CategoryView />} />
           <Route path="join" element={<Join />} />
           {/* Removed post-job route */}
           {/* Guides/advice routes removed */}

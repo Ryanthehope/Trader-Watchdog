@@ -31,13 +31,13 @@ export function LookupMiss() {
         <p className="mt-3 text-slate-400">
           There is no verified Trader Watchdog listing for{" "}
           <span className="font-mono text-slate-300">&quot;{q}&quot;</span>.
-          Check the ID on their badge or paperwork, or ask the business to send
-          their profile link.
+          Check the business name or Trader Watchdog ID and try again, or ask the
+          business to send their profile link.
         </p>
       ) : (
         <p className="mt-3 text-slate-400">
-          Enter a Trader Watchdog ID (for example TW-2847) or search by business
-          name as shown on their profile.
+          Enter a business name as it is advertised, or search by Trader Watchdog
+          ID if you have it.
         </p>
       )}
       {!loading && hints.length > 0 ? (
