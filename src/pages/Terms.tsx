@@ -4,7 +4,7 @@ export function Terms() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
       <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-        TradeVerify
+        Trader Watchdog
       </p>
       <h1 className="mt-2 font-display text-3xl font-bold text-white">
         Terms of use
@@ -13,7 +13,7 @@ export function Terms() {
 
       <div className="prose prose-invert mt-10 max-w-none space-y-8 text-sm leading-relaxed text-slate-400">
         <p>
-          These terms govern your access to and use of the TradeVerify website
+          These terms govern your access to and use of the Trader Watchdog website
           and related services. By using the site you agree to them. If you do
           not agree, please do not use the service.
         </p>
@@ -23,7 +23,7 @@ export function Terms() {
             The service
           </h2>
           <p className="mt-2">
-            TradeVerify provides information about trades businesses that have
+            Trader Watchdog provides information about trades businesses that have
             gone through our verification process, tools for members (such as the
             member portal), and public profile pages. Verification reflects checks
             at a point in time and ongoing membership rules — it is not a
@@ -79,7 +79,7 @@ export function Terms() {
             Listings, reviews, and content
           </h2>
           <p className="mt-2">
-            Public profile content is provided by members and TradeVerify staff as
+            Public profile content is provided by members and Trader Watchdog staff as
             applicable. Reviews may be moderated. We may remove or refuse content
             that breaches law, these terms, or our moderation standards. You grant
             us a licence to host, display, and process content you submit for the
@@ -103,7 +103,7 @@ export function Terms() {
             Intellectual property
           </h2>
           <p className="mt-2">
-            The TradeVerify name, branding, site design, and original content are
+            The Trader Watchdog name, branding, site design, and original content are
             protected by intellectual property laws. You may not copy or reuse
             them except as allowed by law or with our permission. Member-provided
             logos and text remain yours, subject to the licence above.
@@ -117,7 +117,7 @@ export function Terms() {
           <p className="mt-2">
             The service is provided &quot;as is&quot; to the fullest extent
             permitted by law. We do not warrant that the site will be uninterrupted
-            or error-free. To the extent permitted by applicable law, TradeVerify
+            or error-free. To the extent permitted by applicable law, Trader Watchdog
             and its operators exclude liability for indirect or consequential
             losses, loss of profit, or loss of data arising from your use of the
             site or reliance on information on it. Nothing in these terms excludes
@@ -137,7 +137,7 @@ export function Terms() {
           <p className="mt-2">
             The site may link to third-party websites or services. We are not
             responsible for their content or practices. Contracts you enter with
-            trades are between you and them; TradeVerify is not a party to those
+            trades are between you and them; Trader Watchdog is not a party to those
             contracts unless we expressly say otherwise in writing.
           </p>
         </section>

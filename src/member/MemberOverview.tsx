@@ -13,21 +13,43 @@ type CrmSummary = {
   leads: { count: number };
 };
 
+type MembershipSummary = {
+  accessActive: boolean;
+  legacyUnlimited: boolean;
+  adminUnlimited: boolean;
+  billingType: string | null;
+  expiresAt: string | null;
+  subscriptionStatus: string | null;
+};
+
+type VerificationSummary = {
+  provider: string | null;
+  status: string | null;
+  submittedAt: string | null;
+  approvedAt: string | null;
+  rejectedAt: string | null;
+  providerApplicantId: string | null;
+  providerSessionId: string | null;
+  failureReason: string | null;
+};
+
+type MemberOverviewData = {
+  profile: VerifiedMember;
+  publicProfileUrl: string;
+  profileLive: boolean;
+  membership: MembershipSummary;
+  verification: VerificationSummary;
+};
+
 export function MemberOverview() {
   const { member } = useMemberAuth();
-  const [data, setData] = useState<{
-    profile: VerifiedMember;
-    publicProfileUrl: string;
-  } | null>(null);
+  const [data, setData] = useState<MemberOverviewData | null>(null);
   const [crm, setCrm] = useState<CrmSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    apiGetMember<{
-      profile: VerifiedMember;
-      publicProfileUrl: string;
-    }>("/api/member/portal/me")
+    apiGetMember<MemberOverviewData>("/api/member/portal/me")
       .then((d) => {
         if (!cancelled) setData(d);
       })
@@ -70,6 +92,30 @@ export function MemberOverview() {
   }
 
   const p = data.profile;
+  const profileBadgeClass = data.profileLive
+    ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200"
+    : "bg-amber-100 text-amber-800 ring-1 ring-amber-200";
+  const profileBadgeText = data.profileLive
+    ? "Your profile is live"
+    : "Your profile is not currently public";
+    const membershipLabel = data.membership.accessActive
+  ? "Active"
+  : "Inactive";
+
+  const membershipTone = data.membership.accessActive
+  ? "text-emerald-700"
+  : "text-amber-700";
+
+  const verificationLabel =
+  data.verification.status?.replace(/_/g, " ") ?? "Not started";
+
+  const nextAction = !data.membership.accessActive
+  ? "Renew your membership to restore full portal access and public visibility."
+  : data.verification.status === "rejected"
+    ? "Your verification needs attention. Contact Trader Watchdog support."
+    : data.verification.status === "pending" || data.verification.status === "submitted"
+      ? "Your verification is in progress."
+      : "Your account is in good standing.";
 
   return (
     <div>
@@ -82,8 +128,10 @@ export function MemberOverview() {
             </h1>
             <p className="mt-2 text-base text-slate-600">Your Trader Watchdog membership overview</p>
           </div>
-          <span className="inline-flex items-center rounded-lg bg-emerald-100 px-5 py-2 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200">
-            Trader Watchdog checked — your profile is live
+          <span
+            className={`inline-flex items-center rounded-lg px-5 py-2 text-sm font-semibold ${profileBadgeClass}`}
+          >
+            {profileBadgeText}
           </span>
         </div>
       </div>
@@ -162,7 +210,38 @@ export function MemberOverview() {
               View public profile →
             </a>
           </div>
+      <div className="rounded-lg border border-slate-300/60 bg-slate-50 p-8">
+  <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-600">
+    Account status
+  </h2>
 
+  <dl className="mt-6 space-y-4 text-sm">
+    <div className="flex justify-between gap-4 border-b border-slate-200 pb-3">
+      <dt className="text-slate-600">Public profile</dt>
+      <dd className={`font-semibold ${data.profileLive ? "text-emerald-700" : "text-amber-700"}`}>
+        {data.profileLive ? "Live" : "Hidden"}
+      </dd>
+    </div>
+
+    <div className="flex justify-between gap-4 border-b border-slate-200 pb-3">
+      <dt className="text-slate-600">Membership</dt>
+      <dd className={`font-semibold ${membershipTone}`}>
+        {membershipLabel}
+      </dd>
+    </div>
+
+    <div className="flex justify-between gap-4 pb-1">
+      <dt className="text-slate-600">Verification</dt>
+      <dd className="font-semibold capitalize text-slate-900">
+        {verificationLabel}
+      </dd>
+    </div>
+  </dl>
+
+  <p className="mt-6 text-sm leading-relaxed text-slate-600">
+    {nextAction}
+  </p>
+</div>
           <div className="rounded-lg border border-slate-300/60 bg-slate-50 p-8">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-600">

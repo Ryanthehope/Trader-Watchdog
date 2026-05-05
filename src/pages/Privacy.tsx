@@ -4,7 +4,7 @@ export function Privacy() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
       <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-        TradeVerify
+        Trader Watchdog
       </p>
       <h1 className="mt-2 font-display text-3xl font-bold text-white">
         Privacy policy
@@ -13,7 +13,7 @@ export function Privacy() {
 
       <div className="prose prose-invert mt-10 max-w-none space-y-8 text-sm leading-relaxed text-slate-400">
         <p>
-          This policy explains how TradeVerify collects, uses, stores, and
+          This policy explains how Trader Watchdog collects, uses, stores, and
           protects personal information when you use our website, apply to
           become a verified member, use the member portal, or interact with
           verified business profiles. We process personal data in line with UK
@@ -26,7 +26,7 @@ export function Privacy() {
             Who we are
           </h2>
           <p className="mt-2">
-            TradeVerify operates the verification and directory service
+            Trader Watchdog operates the verification and directory service
             available at this website. For data protection purposes, we act as
             the controller of personal data described in this policy (except
             where trades process homeowner data themselves — for example when

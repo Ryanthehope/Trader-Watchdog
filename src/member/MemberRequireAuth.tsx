@@ -17,7 +17,7 @@ export function MemberRequireAuth({ children }: { children: ReactNode }) {
   if (!member) {
     return (
       <Navigate
-        to="/login?as=member"
+        to="/member/login"
         replace
         state={{ from: location.pathname + location.search }}
       />

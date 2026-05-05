@@ -5,23 +5,33 @@ import { useSiteData } from "../context/SiteDataContext";
 function Logo({
   className = "",
   title = "Trader Watchdog",
+  variant = "header",
 }: {
   className?: string;
   title?: string;
+  variant?: "header" | "footer";
 }) {
+  const sizeClass =
+    variant === "header"
+      ? "h-12 md:h-14 xl:h-16"
+      : "h-12 md:h-14";
+
   return (
     <div className={`flex shrink-0 items-center gap-3 ${className}`}>
-      <img 
-        src="/logo.png" 
+      <img
+        src="/logo-with-text-on-blue.jpg"
         alt={title}
-        className="block h-16 md:h-18 lg:h-20 w-auto max-w-none rounded-md bg-white px-2 py-1 shadow-sm"
+        className={`block ${sizeClass} w-auto max-w-none rounded-md shadow-sm`}
       />
     </div>
   );
 }
 
 const desktopActionClass =
-  "inline-flex min-h-[52px] min-w-[132px] items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-semibold text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.14]";
+  "inline-flex min-h-[46px] items-center justify-center whitespace-nowrap rounded-full px-4 py-2.5 text-[13px] font-semibold text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.14]";
+
+const desktopLoginClass =
+  "inline-flex min-h-[40px] items-center justify-center whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.08]";
 
 const mobileLinkClass =
   "rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white";
@@ -52,95 +62,93 @@ export function Layout() {
         </div>
       ) : null}
       <header className="sticky top-0 z-50 border-b border-brand-800/70 bg-brand-950/95 backdrop-blur-xl supports-[backdrop-filter]:bg-brand-950/90">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-1 sm:px-6">
-          <Link
-            to="/"
-            className="shrink-0 outline-none ring-brand-500 focus-visible:ring-2"
-            onClick={() => setMenuOpen(false)}
-          >
-            <Logo title={brandName} />
-          </Link>
-
-          <nav className="hidden flex-1 items-center justify-center gap-3 md:flex">
-            <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
-              Verify
-            </Link>
-            <Link to="/#how" className={`${desktopActionClass} bg-white/5`}>
-              How it works
-            </Link>
-            <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
-              What we check
-            </Link>
-            <Link to="/#compare" className={`${desktopActionClass} bg-white/5`}>
-              Compare
-            </Link>
-            <Link to="/#verify" className={`${desktopActionClass} bg-white/10`}>
-              Verify a trade
-            </Link>
-            <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
-              Join Trader Watchdog
-            </Link>
-            <Link to="/categories" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
-              Categories
-            </Link>
-          </nav>
-
-          <div className="hidden items-center gap-5 md:flex md:shrink-0">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4 py-2">
             <Link
-              to="/staff/login"
-              className="text-sm font-medium text-slate-400 transition-colors duration-200 hover:text-white"
+              to="/"
+              className="shrink-0 outline-none ring-brand-500 focus-visible:ring-2"
+              onClick={() => setMenuOpen(false)}
             >
-              Staff log in
+              <Logo title={brandName} variant="header" />
             </Link>
-            <Link
-              to="/member/login"
-              className="text-sm font-medium text-slate-400 transition-colors duration-200 hover:text-white"
+
+            <div className="hidden items-center gap-3 xl:flex xl:shrink-0">
+              <Link to="/staff/login" className={`${desktopLoginClass} bg-white/5`}>
+                Staff log in
+              </Link>
+              <Link to="/member/login" className={`${desktopLoginClass} bg-white/10`}>
+                Trader log in
+              </Link>
+            </div>
+
+            <button
+              type="button"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-white xl:hidden"
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              onClick={() => setMenuOpen((o) => !o)}
             >
-              Trader log in
-            </Link>
+              {menuOpen ? (
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
           </div>
 
-          <button
-            type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-white md:hidden"
-            aria-expanded={menuOpen}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            onClick={() => setMenuOpen((o) => !o)}
-          >
-            {menuOpen ? (
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            )}
-          </button>
+          <div className="hidden border-t border-white/5 xl:block">
+            <nav className="flex items-center justify-center gap-2 py-3">
+              <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
+                Verify
+              </Link>
+              <Link to="/#how" className={`${desktopActionClass} bg-white/5`}>
+                How it works
+              </Link>
+              <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
+                What we check
+              </Link>
+              <Link to="/#compare" className={`${desktopActionClass} bg-white/5`}>
+                Compare
+              </Link>
+              <Link to="/categories" className={`${desktopActionClass} bg-white/5`}>
+                Categories
+              </Link>
+              <Link to="/#verify" className={`${desktopActionClass} bg-white/10`}>
+                Verify a trade
+              </Link>
+              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
+                Join Trader Watchdog
+              </Link>
+            </nav>
+          </div>
         </div>
 
         {menuOpen ? (
-          <div className="border-t border-white/5 bg-ink-950 px-4 py-4 md:hidden">
+          <div className="border-t border-white/5 bg-ink-950 px-4 py-4 xl:hidden">
             <nav className="flex flex-col gap-1 text-sm font-medium text-slate-300">
               <Link
                 to="/#verify"
@@ -219,7 +227,7 @@ export function Layout() {
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-sm">
               <Link to="/" className="inline-block outline-none ring-brand-500 focus-visible:ring-2">
-                <Logo title={brandName} />
+                <Logo title={brandName} variant="footer" />
               </Link>
               <p className="mt-4 text-sm leading-relaxed text-slate-500">
                 Independent verification for trades and homeowners — confirm
