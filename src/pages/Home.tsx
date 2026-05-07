@@ -679,11 +679,11 @@ export function Home() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-brand-900/40 bg-gradient-to-b from-brand-900 via-brand-800 to-brand-950">
-        <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6 sm:pb-32 sm:pt-24 lg:pt-32">
+        <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-16 text-center sm:px-6 sm:pb-32 sm:pt-24 lg:pt-32">
           <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/85">
             Recommended by Police, Trading Standards, Councils and community groups
           </p>
-          <div className="mb-8 max-w-xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-[0_25px_60px_-35px_rgba(15,23,42,0.8)]">
+          <div className="mx-auto mb-8 max-w-xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-[0_25px_60px_-35px_rgba(15,23,42,0.8)]">
             <img
               src={ghostTradersImage}
               alt="Tradespeople illustration used in the Trader Watchdog hero"
@@ -691,16 +691,16 @@ export function Home() {
             />
           </div>
           <h1 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4rem] lg:leading-[1.08]">
-            <span className="text-red-700">ROGUE</span> OR <span className="text-emerald-700">LEGIT?</span>
+            <span className="text-orange-400">ROGUE</span> OR <span className="text-orange-400">LEGIT?</span>
           </h1>
           <h2 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4rem] lg:leading-[1.08]">
             Don&apos;t take their word for it.
           </h2>
-          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl sm:leading-relaxed">
+          <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl sm:leading-relaxed">
             {heroBody}
           </p>
           <VerifyForm id="hero-verify" layout="hero" />
-          <div className="mt-12 flex flex-wrap gap-4">
+          <div className="mt-12 flex flex-wrap justify-center gap-4">
             <Link
               to="/#verify"
               className="inline-flex items-center justify-center rounded-lg border border-slate-700/50 bg-slate-800/40 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/60"

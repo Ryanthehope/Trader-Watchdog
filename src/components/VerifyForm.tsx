@@ -36,7 +36,7 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
       id={id}
       className={
         isHero
-          ? "mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:items-stretch"
+          ? "mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:items-stretch"
           : "mx-auto mt-8 flex max-w-lg flex-col gap-3 sm:flex-row sm:items-stretch"
       }
       onSubmit={onSubmit}
