@@ -657,7 +657,7 @@ export function Home() {
   const { publicSearchEnabled } = getLaunchWindow();
 
   const heroBody = publicSearchEnabled
-    ? "Verifying a trader is one click away. It&apos;s free, confidential, and you do not have to register. Search their business name or telephone number and view the result before even speaking to them."
+    ? "Verifying a trader is one click away. It's free, confidential, and you do not have to register. Search their business name or telephone number and view the result before even speaking to them."
     : "Trader registration is open now. Public business search will be available soon."
     ;
 
@@ -691,8 +691,11 @@ export function Home() {
             />
           </div>
           <h1 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4rem] lg:leading-[1.08]">
-            Don&apos;t take their word for it.
+            <span className="text-red-700">ROGUE</span> OR <span className="text-emerald-700">LEGIT?</span>
           </h1>
+          <h2 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4rem] lg:leading-[1.08]">
+            Don&apos;t take their word for it.
+          </h2>
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl sm:leading-relaxed">
             {heroBody}
           </p>
