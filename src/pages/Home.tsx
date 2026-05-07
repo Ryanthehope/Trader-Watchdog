@@ -57,22 +57,51 @@ function BadgeShowcase() {
 
 function Stats() {
   const items = [
-    { value: "£3.5bn", label: "estimated lost to rogue traders each year" },
-    { value: "1.26m", label: "fly-tipping incidents reported every year" },
-    { value: "24%", label: "of traders may have no Public Liability insurance" },
+    {
+      value: "£3.5bn",
+      label: "estimated lost to rogue traders each year",
+      cardClass:
+        "border-slate-300/60 bg-white text-slate-900 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.16)]",
+      valueClass: "text-brand-700",
+      labelClass: "text-slate-700",
+    },
+    {
+      value: "1.26m",
+      label: "fly-tipping incidents reported every year",
+      cardClass:
+        "border-slate-300/60 bg-slate-50 text-slate-900 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.14)]",
+      valueClass: "text-brand-700",
+      labelClass: "text-slate-700",
+    },
+    {
+      value: "24%",
+      label: "of traders may have no Public Liability insurance",
+      cardClass:
+        "border-slate-300/60 bg-slate-100 text-slate-900 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.14)]",
+      valueClass: "text-brand-700",
+      labelClass: "text-slate-700",
+    },
+    {
+      value: "Upto 30%",
+      label: "of online reviews are fake using AI instead",
+      cardClass:
+        "border-slate-700/70 bg-slate-900 text-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.45)]",
+      valueClass: "text-white",
+      labelClass: "text-white/80",
+    },
   ];
   return (
     <section className="border-b border-slate-200 bg-white py-16">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:grid-cols-3 sm:px-6">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 md:grid-cols-2 xl:grid-cols-4 sm:px-6">
         {items.map((item) => (
           <div
             key={item.label}
-            className="rounded-lg border border-slate-300/60 bg-slate-50 p-8 text-center transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
+            className={`rounded-[1.75rem] border p-8 text-center transition-all duration-200 hover:-translate-y-1 ${item.cardClass}`}
           >
-            <p className="font-display text-4xl font-bold text-brand-600 sm:text-5xl">
+            <p className={`font-display text-4xl font-bold sm:text-5xl ${item.valueClass}`}>
               {item.value}
             </p>
-            <p className="mt-3 text-sm leading-snug text-slate-700">
+            <p className={`mt-3 text-sm leading-snug ${item.labelClass}`}>
               {item.label}
             </p>
           </div>
@@ -169,7 +198,7 @@ function FeatureHighlights() {
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-slate-200/10 bg-slate-900/30 py-20 sm:py-24"
+      className="scroll-mt-24 border-b border-slate-800/60 bg-slate-900 py-20 sm:py-24"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
@@ -444,25 +473,25 @@ function Pillars() {
     },
   ];
   return (
-    <section id="why" className="scroll-mt-24 border-b border-slate-200 bg-white py-20 sm:py-28">
+    <section id="why" className="scroll-mt-24 border-b border-slate-800/60 bg-slate-900 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
+        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
           What We Verify For You
         </p>
-        <h2 className="mt-3 max-w-3xl text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:mx-auto sm:text-4xl">
+        <h2 className="mt-3 max-w-3xl text-center font-display text-3xl font-bold leading-tight text-white sm:mx-auto sm:text-4xl">
           With just one click
         </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-700">
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-300">
           We check if they are who they say they are, they are based where they say they&apos;re based, they are insured to carry out the work, and they comply with legal environmental and data requirements for traders working at domestic properties.
         </p>
         <div className="mt-14 grid gap-8 sm:grid-cols-2">
           {pillars.map((p) => (
             <div
               key={p.title}
-              className="flex gap-5 rounded-lg border border-slate-300/60 bg-slate-50 p-8 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
+              className="flex gap-5 rounded-lg border border-slate-700/60 bg-slate-800/50 p-8 transition-all duration-200 hover:border-slate-500 hover:bg-slate-800/70"
             >
               <span
-                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
+                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-brand-300"
                 aria-hidden
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -470,10 +499,10 @@ function Pillars() {
                 </svg>
               </span>
               <div>
-                <h3 className="font-display text-lg font-semibold text-slate-900">
+                <h3 className="font-display text-lg font-semibold text-white">
                   {p.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-700">
+                <p className="mt-3 text-sm leading-relaxed text-slate-300">
                   {p.body}
                 </p>
               </div>

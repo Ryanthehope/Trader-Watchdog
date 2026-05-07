@@ -379,16 +379,16 @@ export function Join() {
   const membershipPriceLabel = formatPence(membershipPricePence);
   const baseMembershipPriceLabel = formatPence(baseMembershipPricePence);
   const introBody = beforeLaunch
-    ? "Trader Watchdog registration opens on 1 June 2026. We validate credentials before any payment is taken, and public business search goes live on 1 July 2026."
+    ? "Trader Watchdog registration opens on 1 June 2026. We validate credentials before any payment is taken, and approved businesses can be found by business name or telephone number once their profile is live."
     : launchWindowDiscountActive
-      ? "Trader registration is now open at a launch discount until 1 July 2026. We validate credentials before any payment is taken, and public business search goes live on 1 July 2026."
+      ? "Trader registration is now open at a launch discount until 1 July 2026. We validate credentials before any payment is taken, and approved businesses can be found by business name or telephone number once their profile is live."
       : "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
   const introSupport = beforeLaunch
-    ? "Be ready for launch day: one fee regardless of employee count, fair visibility for all, and renewal reminders for insurance, licences, memberships, and your Trader Watchdog subscription."
+    ? "Be ready for launch day: one fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and a searchable public profile using your business name and advertised telephone number."
     : launchWindowDiscountActive
-      ? "Launch-period registrations receive discounted membership until 1 July 2026, with one fee regardless of employee count and the same fair visibility for all traders."
+      ? "Launch-period registrations receive discounted membership until 1 July 2026, with one fee regardless of employee count, the same fair visibility for all traders, and public search by business name or telephone number once approved."
       : publicSearchEnabled
-        ? "One fee regardless of employee count, fair visibility for all, and renewal reminders for insurance, licences, memberships, and your Trader Watchdog subscription."
+        ? "One fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and public search by business name or telephone number once your profile is approved."
         : "One fee regardless of employee count, fair visibility for all, and public business search opening on 1 July 2026.";
   const pricingHeading = launchWindowDiscountActive
     ? "Launch pricing"
@@ -805,7 +805,7 @@ export function Join() {
                 Supporting documents
               </label>
               <p className="mt-1 text-xs text-slate-500">
-                PDF or images, up to 8 files, 10 MB each. Insurance evidence will be required before approval, so upload it here if you have it ready. Other documents such as qualifications, memberships, or scheme registrations are optional and help support your application. Identity and liveness checks will be handled separately during verification.
+                PDF or images, up to 8 files, 10 MB each. Insurance evidence will be required before approval, so upload it here if you have it ready. Other documents such as qualifications, memberships, or scheme registrations are optional and help support your application. Identity, address, and liveness checks will be handled separately during verification.
               </p>
               <input
                 id="files"
