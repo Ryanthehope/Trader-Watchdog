@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { useSiteData } from "../context/SiteDataContext";
 import { MemberPreviewCard } from "../components/MemberPreviewCard";
 import { VerifyForm } from "../components/VerifyForm";
+import { getLaunchWindow } from "../lib/launchWindow";
+import ghostTradersImage from "../../ghost traders.jpg";
 
 function BadgeShowcase() {
   return (
@@ -221,13 +223,6 @@ function CompetitorComparison() {
       other2: "partial",
     },
     {
-      feature: "Unique ID & official badge artwork",
-      detail: "Homeowners can confirm the ID matches a live listing.",
-      tv: "yes",
-      other: "partial",
-      other2: "partial",
-    },
-    {
       feature: "Verification-first listings",
       detail: "Public profile is built around what we checked — not just ads.",
       tv: "yes",
@@ -429,11 +424,15 @@ function Pillars() {
   const pillars = [
     {
       title: "Identity",
-      body: "We verify a trader is who they say they are and, where relevant, check business details against official company records.",
+      body: "We verify a trader is who they say they are and, where relevant, check business details against official company records. If a trader maintains, installs, or repairs gas appliances on domestic properties, they must be registered with Gas Safe, and we check that where relevant.",
     },
     {
       title: "Insurance",
       body: "Public Liability insurance helps protect your property from accidental damage. Employers Insurance is a legal requirement for many businesses. We verify the insurance held and the expiry dates we have been given.",
+    },
+    {
+      title: "Qualifications and memberships",
+      body: "Traders can display their qualifications and memberships on their profile for your inspection where they are relevant to the work they carry out.",
     },
     {
       title: "Your waste",
@@ -441,7 +440,7 @@ function Pillars() {
     },
     {
       title: "Personal data and trade registers",
-      body: "Where relevant, we check ICO registration for GDPR, and we verify claimed trade memberships or registers such as Gas Safe and Competent Person schemes.",
+      body: "If a trader stores your personal data, even just your name, they are legally required to protect it and register with the ICO where required for GDPR compliance. We also check claimed trade registers where relevant.",
     },
   ];
   return (
@@ -454,7 +453,7 @@ function Pillars() {
           With just one click
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-700">
-          We check if they are who they say they are, they are based where they say they're based, they are insured to carry out the work and they comply with legal environmental policies for traders.
+          We check if they are who they say they are, they are based where they say they&apos;re based, they are insured to carry out the work, and they comply with legal environmental and data requirements for traders working at domestic properties.
         </p>
         <div className="mt-14 grid gap-8 sm:grid-cols-2">
           {pillars.map((p) => (
@@ -625,8 +624,37 @@ function useHashScroll() {
 
 export function Home() {
   useHashScroll();
-  const { members } = useSiteData();
-  const exampleMember = members[0];
+  useSiteData();
+  const { beforeLaunch, launchDiscountActive, publicSearchEnabled } =
+    getLaunchWindow();
+
+  const heroBody = publicSearchEnabled
+    ? "Verifying a trader is one click away. It&apos;s free, confidential, and you do not have to register. Search their business name or telephone number and view the result before even speaking to them."
+    : launchDiscountActive
+      ? "Trader registration is now open at a launch discount until 1 July 2026. Public business search is not live yet and will open on 1 July 2026."
+      : "Trader registration opens on 1 June 2026. Public business search is not live yet and will open on 1 July 2026."
+    ;
+
+  const heroSecondaryCta = publicSearchEnabled
+    ? "Verify a trader now"
+    : "Public search opens 1 July";
+
+  const joinCta = launchDiscountActive
+    ? "Register with launch discount"
+    : beforeLaunch
+      ? "Register from 1 June"
+      : "Register your business";
+
+  const verifyHeading = publicSearchEnabled
+    ? "See if they are legit with one click"
+    : "Public trader search opens 1 July 2026";
+
+  const verifyIntro = publicSearchEnabled
+    ? "Search their business name or telephone number and you will immediately see whether there is a verified Trader Watchdog listing for that business."
+    : launchDiscountActive
+      ? "Trader registration is open now, but public business search remains locked until 1 July 2026 while the launch period is running."
+      : "Trader registration opens on 1 June 2026. Public business search will go live on 1 July 2026."
+    ;
 
   return (
     <>
@@ -635,40 +663,37 @@ export function Home() {
           <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/85">
             Recommended by Police, Trading Standards, Councils and community groups
           </p>
+          <div className="mb-8 max-w-xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-[0_25px_60px_-35px_rgba(15,23,42,0.8)]">
+            <img
+              src={ghostTradersImage}
+              alt="Tradespeople illustration used in the Trader Watchdog hero"
+              className="h-auto w-full object-cover"
+            />
+          </div>
           <h1 className="font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[4rem] lg:leading-[1.08]">
-            Don&apos;t take their word for it. See if they&apos;re legit.
+            Don&apos;t take their word for it.
           </h1>
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl sm:leading-relaxed">
-            Verifying a trader is one click away. It&apos;s free, confidential, and you do not have to register. Search by business name or Trader Watchdog ID and view the result before work starts.
+            {heroBody}
           </p>
           <VerifyForm id="hero-verify" layout="hero" />
-          {exampleMember ? (
-            <p className="mt-3 max-w-xl text-sm text-slate-500">
-              Search by ID{" "}
-              <span className="font-mono text-slate-400">
-                {exampleMember.tvId}
-              </span>{" "}
-              or by business name.
-            </p>
-          ) : null}
           <div className="mt-12 flex flex-wrap gap-4">
             <Link
               to="/#verify"
               className="inline-flex items-center justify-center rounded-lg border border-slate-700/50 bg-slate-800/40 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/60"
             >
-              Verify a trader now
+              {heroSecondaryCta}
             </Link>
             <Link
               to="/join"
               className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-500"
             >
-              Register your business
+              {joinCta}
             </Link>
           </div>
         </div>
       </section>
 
-      <BadgeShowcase />
       <Stats />
       <FeatureHighlights />
 
@@ -679,44 +704,53 @@ export function Home() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-              Verify a trader now
+              {verifyHeading}
             </h2>
             <p className="mt-4 text-base text-slate-700">
-              It&apos;s free, you do not have to register, and you can review the trader&apos;s live profile immediately if they are listed.
+              {verifyIntro}
             </p>
           </div>
           <VerifyForm id="section-verify" layout="section" />
-          <div className="mx-auto mt-8 max-w-3xl space-y-4 text-center">
-            <div className="rounded-lg border border-emerald-600/30 bg-emerald-50 px-6 py-4">
+          <div className="mx-auto mt-8 max-w-3xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
+              What you will see
+            </p>
+          </div>
+          <div className="mx-auto mt-6 max-w-3xl space-y-4 text-center">
+            <div className="rounded-xl border-2 border-emerald-500/40 bg-emerald-50 px-6 py-5 shadow-sm">
               <p className="text-sm text-slate-700">
                 <span className="inline-flex items-center gap-2 font-semibold text-emerald-700">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20">✓</span>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-base">✓</span>
                   Verified listing
                 </span>
                 {' '}
-                = found on Trader Watchdog. Review the live profile and the checks shown there before agreeing work.
+                = found on Trader Watchdog. Review the live profile and the checks shown there before agreeing work. This shows a verified trader and their profile, which you can use as part of your own due diligence.
               </p>
             </div>
-            <div className="rounded-lg border border-red-600/30 bg-red-50 px-6 py-4">
+            <div className="rounded-xl border-2 border-red-500/40 bg-red-50 px-6 py-5 shadow-sm">
               <p className="text-sm text-slate-700">
                 <span className="inline-flex items-center gap-2 font-semibold text-red-700">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/20">✕</span>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500/20 text-base">✕</span>
                   No verified listing
                 </span>
                 {' '}
-                = not verified. Do not agree work or part with money unless the trader proves they comply with the essential requirements of operating a legal business.
+                = not verified. Be cautious. Do not enter an agreement without a visual check of their insurance, licences, and other supporting evidence.
               </p>
             </div>
-            <p className="text-sm text-slate-600">
-              If you contact the trader after checking their profile, please mention Trader Watchdog.
-            </p>
+            {publicSearchEnabled ? (
+              <p className="text-sm text-slate-600">
+                If you contact the trader after checking their profile, please mention Trader Watchdog.
+              </p>
+            ) : (
+              <p className="text-sm text-slate-600">
+                During the launch period, traders can register first and the public search experience opens on 1 July 2026.
+              </p>
+            )}
           </div>
         </div>
       </section>
 
       <CompetitorComparison />
-      <MembersCarousel />
-      <HowItWorks />
       <Pillars />
       <Faq />
       {/* GuidesTeaser removed */}

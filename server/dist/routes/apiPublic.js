@@ -13,6 +13,9 @@ import { orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { verifyRecaptchaV2 } from "../lib/verifyRecaptcha.js";
 import { getBrandName, notifyNewApplication, publicSiteBase, } from "../lib/adminMail.js";
+import { checkoutLineConfig } from "../lib/billingSettings.js";
+import { clampCheckoutPence } from "../lib/billingSettings.js";
+import { getLaunchWindow } from "../lib/launchWindow.js";
 const router = Router();
 router.get("/site-meta", async (_req, res) => {
     try {
@@ -97,6 +100,9 @@ router.get("/public-config", async (_req, res) => {
     try {
         const s = await getOrgBilling();
         const stripeOk = Boolean(await getStripeSecretKey());
+        const lines = checkoutLineConfig(s);
+        const { launchDiscountActive } = getLaunchWindow();
+        const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
         res.json({
             recaptchaSiteKey: s.recaptchaEnabled && s.recaptchaSiteKey?.trim()
                 ? s.recaptchaSiteKey.trim()
@@ -105,6 +111,9 @@ router.get("/public-config", async (_req, res) => {
             contactEmail,
             hasBrandingLogo: Boolean(s.brandingLogoStoredName?.trim()),
             invoiceLegalName: s.invoiceLegalName?.trim() || null,
+            membershipPricePence: lines.membershipPence,
+            baseMembershipPricePence: baseMembershipPence,
+            launchDiscountActive,
             // jobTradeCategories: JOB_TRADE_CATEGORIES, // removed
         });
     }
@@ -279,11 +288,12 @@ router.post("/applications", (req, res, next) => {
         const company = String(req.body?.company ?? "").trim();
         const trade = String(req.body?.trade ?? "").trim();
         const email = String(req.body?.email ?? "").trim().toLowerCase();
+        const phone = String(req.body?.phone ?? "").trim();
         const postcode = String(req.body?.postcode ?? "").trim();
         const recaptchaToken = req.body?.recaptchaToken;
-        if (!company || !trade || !email || !postcode) {
+        if (!company || !trade || !email || !phone || !postcode) {
             res.status(400).json({
-                error: "company, trade, email, and postcode are required",
+                error: "company, trade, email, phone, and postcode are required",
             });
             return;
         }
@@ -307,7 +317,7 @@ router.post("/applications", (req, res, next) => {
         let row = null;
         try {
             row = await prisma.application.create({
-                data: { company, trade, email, postcode },
+                data: { company, trade, email, phone, postcode },
             });
             await persistApplicationDocuments(row.id, files);
         }
@@ -323,6 +333,7 @@ router.post("/applications", (req, res, next) => {
             company,
             trade,
             email,
+            phone,
             postcode,
             submittedAt: row.createdAt.toISOString(),
             id: row.id,
@@ -333,6 +344,7 @@ router.post("/applications", (req, res, next) => {
             company: row.company,
             trade: row.trade,
             email: row.email,
+            phone: row.phone,
             postcode: row.postcode,
         });
         const stripeOk = Boolean(await getStripeSecretKey());
@@ -343,6 +355,7 @@ router.post("/applications", (req, res, next) => {
                 company: row.company,
                 trade: row.trade,
                 email: row.email,
+                phone: row.phone,
                 postcode: row.postcode,
                 status: row.status,
                 createdAt: row.createdAt.toISOString(),

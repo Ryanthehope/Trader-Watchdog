@@ -36,6 +36,7 @@ type AppRow = {
   company: string;
   trade: string;
   email: string;
+  phone?: string | null;
   postcode: string;
   status: string;
   notes: string | null;
@@ -179,6 +180,7 @@ export function StaffApplications() {
         a.company,
         a.trade,
         a.email,
+        a.phone,
         a.postcode,
         a.status,
       ]
@@ -293,7 +295,7 @@ export function StaffApplications() {
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by company, email, trade, postcode, status…"
+              placeholder="Search by company, email, phone, trade, postcode, status…"
               className={`${staffControl} w-full px-3.5 py-2.5`}
               autoComplete="off"
             />
@@ -567,7 +569,7 @@ function ApplicationCard({
             {row.company}
           </p>
           <p className="mt-1 truncate text-sm text-slate-400">
-            {row.trade} · {row.email} · {row.postcode}
+            {[row.trade, row.email, row.phone, row.postcode].filter(Boolean).join(" · ")}
           </p>
           <p className="mt-1 text-xs text-slate-600">
             Applied {new Date(row.createdAt).toLocaleString()}
@@ -625,7 +627,7 @@ function ApplicationCard({
               {row.company}
             </p>
             <p className="mt-1 text-sm text-slate-400">
-              {row.trade} · {row.email} · {row.postcode}
+              {[row.trade, row.email, row.phone, row.postcode].filter(Boolean).join(" · ")}
             </p>
             <p className="mt-1 text-xs text-slate-600">
               Applied {new Date(row.createdAt).toLocaleString()}

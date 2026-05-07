@@ -40,6 +40,7 @@ export type PublicMember = {
   name: string;
   trade: string;
   location: string;
+  phone: string | null;
   categories: MemberCategoryPublic[];
   checks: string[];
   vettingCategories: VettingCategoryPublic[];
@@ -151,6 +152,7 @@ export function memberToPublic(m: MemberWithOptionalCategories): PublicMember {
     name: m.name,
     trade: m.trade,
     location: m.location,
+    phone: m.invoicePhone?.trim() || null,
     categories: Array.isArray(m.categories) ? m.categories : [],
     checks,
     vettingCategories,

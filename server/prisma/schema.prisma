@@ -163,6 +163,7 @@ model Application {
   company                      String
   trade                        String
   email                        String
+  phone                        String?
   postcode                     String
   status                       ApplicationStatus     @default(PENDING)
   /// Set when staff first marks the application APPROVED (used for payment window).

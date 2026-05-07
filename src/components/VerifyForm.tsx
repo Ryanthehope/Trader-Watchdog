@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSiteData } from "../context/SiteDataContext";
+import { getLaunchWindow } from "../lib/launchWindow";
 
 type Props = {
   id?: string;
@@ -11,21 +12,26 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const { findMember, loading, error } = useSiteData();
+  const { publicSearchEnabled } = getLaunchWindow();
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (!publicSearchEnabled) return;
     if (loading || error) return;
+
     const q = query.trim();
     if (!q) return;
+
     const member = findMember(q);
     if (member) navigate(`/m/${member.slug}`);
     else navigate(`/lookup/miss?q=${encodeURIComponent(q)}`);
   };
 
   const isHero = layout === "hero";
-  const disabled = loading || Boolean(error);
+  const disabled = loading || Boolean(error) || !publicSearchEnabled;
 
   return (
+    <div>
     <form
       id={id}
       className={
@@ -36,12 +42,12 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
       onSubmit={onSubmit}
     >
       <label className="sr-only" htmlFor={`${id}-input`}>
-        Business name or Trader Watchdog ID
+        Business name or telephone number
       </label>
       <input
         id={`${id}-input`}
         type="search"
-        placeholder="Business name or Trader Watchdog ID"
+        placeholder="Search business name or telephone number"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         autoComplete="off"
@@ -65,5 +71,11 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
         {loading ? "Loading…" : "Check"}
       </button>
     </form>
+       {!publicSearchEnabled ? (
+      <p className="mt-3 text-sm text-amber-200">
+        Public trader search opens on 1 July 2026.
+      </p>
+    ) : null}
+    </div>
   );
 }

@@ -173,11 +173,12 @@ export function notifyNewApplication(prisma, row) {
             `Company: ${row.company}`,
             `Trade: ${row.trade}`,
             `Email: ${row.email}`,
+            row.phone ? `Phone: ${row.phone}` : null,
             `Postcode: ${row.postcode}`,
             "",
             `Review: ${base}/staff/applications`,
             `Application id: ${row.id}`,
-        ].join("\n");
+        ].filter(Boolean).join("\n");
         notifyAdminsFireAndForget(prisma, `New application — ${row.company}`, text);
     })();
 }

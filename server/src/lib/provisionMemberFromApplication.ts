@@ -134,6 +134,7 @@ export async function tryProvisionMemberForApplication(
         name: app.company.trim(),
         trade: app.trade.trim(),
         location: `${app.postcode.trim()} area`,
+        invoicePhone: app.phone?.trim() || null,
         checks,
         verifiedSince: monthYear,
         blurb,

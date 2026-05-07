@@ -4,6 +4,7 @@ import {
   getRecaptchaToken,
   submitApplication,
 } from "../lib/submitApplication";
+import { getLaunchWindow } from "../lib/launchWindow";
 
 const apiBase = () =>
   (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
@@ -23,6 +24,9 @@ type ApplicantSummary = {
 
 export function Join() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [membershipPricePence, setMembershipPricePence] = useState<number | null>(null);
+  const [baseMembershipPricePence, setBaseMembershipPricePence] = useState<number | null>(null);
+  const [launchDiscountActive, setLaunchDiscountActive] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -43,6 +47,8 @@ export function Join() {
 
   const paidNotice = searchParams.get("paid");
   const cancelled = searchParams.get("cancelled");
+  const { beforeLaunch, launchDiscountActive: launchWindowDiscountActive, publicSearchEnabled } =
+    getLaunchWindow();
 
   const applyStoredJoinSession = useCallback(
     (p: { applicationId: string; email: string }) => {
@@ -190,9 +196,23 @@ export function Join() {
   useEffect(() => {
     fetch(`${apiBase()}/api/public-config`)
       .then((r) => r.json())
-      .then((d: { recaptchaSiteKey?: string | null }) => {
+      .then(
+        (d: {
+          recaptchaSiteKey?: string | null;
+          membershipPricePence?: number;
+          baseMembershipPricePence?: number;
+          launchDiscountActive?: boolean;
+        }) => {
         if (d.recaptchaSiteKey) setRecaptchaSiteKey(d.recaptchaSiteKey);
-      })
+          if (typeof d.membershipPricePence === "number") {
+            setMembershipPricePence(d.membershipPricePence);
+          }
+          if (typeof d.baseMembershipPricePence === "number") {
+            setBaseMembershipPricePence(d.baseMembershipPricePence);
+          }
+          setLaunchDiscountActive(Boolean(d.launchDiscountActive));
+        }
+      )
       .catch(() => {});
   }, []);
 
@@ -227,6 +247,7 @@ export function Join() {
     const company = String(fd.get("company") ?? "").trim();
     const trade = String(fd.get("trade") ?? "").trim();
     const email = String(fd.get("email") ?? "").trim();
+    const phone = String(fd.get("phone") ?? "").trim();
     const postcode = String(fd.get("postcode") ?? "").trim();
     const filesRaw = fd.getAll("files").filter((x): x is File => x instanceof File);
     const files = filesRaw.filter((f) => f.size > 0);
@@ -245,6 +266,7 @@ export function Join() {
         company,
         trade,
         email,
+        phone,
         postcode,
         submittedAt: new Date().toISOString(),
         recaptchaToken,
@@ -351,6 +373,29 @@ export function Join() {
     (applicantStatus === "DECLINED" ||
       (applicantSummary.exists && applicantStatus !== "APPROVED"));
 
+  const formatPence = (value: number | null) =>
+    value == null ? null : `£${(value / 100).toFixed(2)}`;
+
+  const membershipPriceLabel = formatPence(membershipPricePence);
+  const baseMembershipPriceLabel = formatPence(baseMembershipPricePence);
+  const introBody = beforeLaunch
+    ? "Trader Watchdog registration opens on 1 June 2026. We validate credentials before any payment is taken, and public business search goes live on 1 July 2026."
+    : launchWindowDiscountActive
+      ? "Trader registration is now open at a launch discount until 1 July 2026. We validate credentials before any payment is taken, and public business search goes live on 1 July 2026."
+      : "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
+  const introSupport = beforeLaunch
+    ? "Be ready for launch day: one fee regardless of employee count, fair visibility for all, and renewal reminders for insurance, licences, memberships, and your Trader Watchdog subscription."
+    : launchWindowDiscountActive
+      ? "Launch-period registrations receive discounted membership until 1 July 2026, with one fee regardless of employee count and the same fair visibility for all traders."
+      : publicSearchEnabled
+        ? "One fee regardless of employee count, fair visibility for all, and renewal reminders for insurance, licences, memberships, and your Trader Watchdog subscription."
+        : "One fee regardless of employee count, fair visibility for all, and public business search opening on 1 July 2026.";
+  const pricingHeading = launchWindowDiscountActive
+    ? "Launch pricing"
+    : beforeLaunch
+      ? "Membership pricing"
+      : "Membership pricing";
+
   return (
     <main className="border-b border-white/5 pb-24">
       <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-12 sm:py-16">
@@ -362,11 +407,33 @@ export function Join() {
             Apply to become a verified Trader Watchdog business
           </h1>
           <p className="mt-4 text-slate-400">
-            Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.
+            {introBody}
           </p>
           <p className="mt-4 text-sm text-slate-500">
-            One fee regardless of employee count, fair visibility for all, and renewal reminders for insurance, licences, memberships, and your Trader Watchdog subscription.
+            {introSupport}
           </p>
+          {membershipPriceLabel ? (
+            <div className="mt-6 rounded-xl border border-brand-400/20 bg-brand-500/10 px-4 py-4 text-left">
+              <p className="text-sm font-semibold text-white">{pricingHeading}</p>
+              {launchDiscountActive && baseMembershipPriceLabel ? (
+                <p className="mt-2 text-sm text-slate-300">
+                  Launch offer: <span className="font-semibold text-white">{membershipPriceLabel}</span>{" "}
+                  per month until 1 July 2026.
+                  <span className="ml-2 text-slate-400 line-through">
+                    {baseMembershipPriceLabel}
+                  </span>
+                </p>
+              ) : beforeLaunch && baseMembershipPriceLabel ? (
+                <p className="mt-2 text-sm text-slate-300">
+                  Membership will launch from <span className="font-semibold text-white">{baseMembershipPriceLabel}</span> per month on 1 June 2026.
+                </p>
+              ) : (
+                <p className="mt-2 text-sm text-slate-300">
+                  Membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> per month.
+                </p>
+              )}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -701,6 +768,22 @@ export function Join() {
             </div>
             <div>
               <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Telephone number you advertise
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                placeholder="0117 123 4567"
+              />
+            </div>
+            <div>
+              <label
                 htmlFor="postcode"
                 className="block text-sm font-medium text-slate-300"
               >
@@ -719,10 +802,10 @@ export function Join() {
                 htmlFor="files"
                 className="block text-sm font-medium text-slate-300"
               >
-                Supporting documents (optional)
+                Supporting documents
               </label>
               <p className="mt-1 text-xs text-slate-500">
-                PDF or images, up to 8 files, 10 MB each — for example insurance documents, qualifications, memberships, or scheme registrations. Identity and liveness checks will be handled separately during verification.
+                PDF or images, up to 8 files, 10 MB each. Insurance evidence will be required before approval, so upload it here if you have it ready. Other documents such as qualifications, memberships, or scheme registrations are optional and help support your application. Identity and liveness checks will be handled separately during verification.
               </p>
               <input
                 id="files"

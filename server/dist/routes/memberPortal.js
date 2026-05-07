@@ -23,6 +23,7 @@ const ALLOWED_DOC_MIME = new Set([
     "image/gif",
 ]);
 const MAX_DOC_BYTES = 10 * 1024 * 1024;
+const MAX_MEMBER_DOCUMENTS = 5;
 function memberDocDir(memberId) {
     return path.join(UPLOAD_ROOT, memberId);
 }
@@ -453,6 +454,16 @@ router.post("/documents", requireMemberMembershipActive, (req, res, next) => {
         const file = req.file;
         if (!file) {
             res.status(400).json({ error: "file is required" });
+            return;
+        }
+        const existingDocumentCount = await prisma.memberDocument.count({
+            where: { memberId },
+        });
+        if (existingDocumentCount >= MAX_MEMBER_DOCUMENTS) {
+            fs.unlink(file.path, () => { });
+            res.status(400).json({
+                error: "You can keep up to 5 insurance and qualification documents on your account. Delete one before uploading another.",
+            });
             return;
         }
         const row = await prisma.memberDocument.create({

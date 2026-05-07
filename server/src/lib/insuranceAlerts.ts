@@ -3,9 +3,8 @@ import { getBrandName } from "./adminMail.js";
 import nodemailer from "nodemailer";
 
 interface AlertsSent {
-    "90days"?: string; //ISO date when sent
-    "60days"?: string;
     "30days"?: string;
+    "14days"?: string;
     "grace"?: string;
 }
 
@@ -47,15 +46,12 @@ function generateAlertEmail(
     let urgency = "";
     let message = "";
 
-    if (daysUntilExpiry === 90) {
-        urgency = "90-Day Notice";
-        message = `Your ${insuranceType} will expire in 90 days (${expiryDateStr}). Please ensure you renew it before expiry to maintain your verified status.`;
-    } else if (daysUntilExpiry === 60) {
-        urgency = "60-Day Notice";
-        message = `Your ${insuranceType} will expire in 60 days (${expiryDateStr}). Please ensure you renew it before expiry to maintain your verified status.`;
-    } else if (daysUntilExpiry === 30) {
+    if (daysUntilExpiry === 30) {
         urgency = "30-Day Notice";
         message = `Your ${insuranceType} will expire in 30 days (${expiryDateStr}). Please ensure you renew it before expiry to maintain your verified status.`;
+    } else if (daysUntilExpiry === 14) {
+        urgency = "14-Day Notice";
+        message = `Your ${insuranceType} will expire in 14 days (${expiryDateStr}). Please renew it now to avoid losing your verified status.`;
     } else if (daysUntilExpiry < 0) {
         urgency = "Expired Notice";
         message = `Your ${insuranceType} expired on ${expiryDateStr}. You have 14 days grace period to renew before your listing is removed from ${brandName}`;
@@ -85,7 +81,7 @@ function generateAlertEmail(
 
 export async function sendInsuranceAlertEmail(
     insuranceId: string,
-    alertType: "90days" | "60days" | "30days" | "grace"
+    alertType: "30days" | "14days" | "grace"
 ): Promise<boolean> {
 
     try {
@@ -211,7 +207,7 @@ include: {
                 } else {
                     newStatus = "expired";
                 }
-            } else if (daysUntilExpiry <= 90) {
+            } else if (daysUntilExpiry <= 30) {
                 newStatus = "expiring_soon";
             } else {
                 newStatus = "active";
@@ -228,21 +224,15 @@ include: {
 
             // Check if alert needs sending
             const alerts = (policy.alertsSent as AlertsSent) || {};
-            // 90-day alert
-            if (daysUntilExpiry === 90 && !alerts["90days"]) {
-                const sent = await sendInsuranceAlertEmail(policy.id, "90days");
-                if (sent) alertsSent++;
-            }
-            
-            // 60-day alert
-            if (daysUntilExpiry === 60 && !alerts["60days"]) {
-                const sent = await sendInsuranceAlertEmail(policy.id, "60days");
-                if (sent) alertsSent++;
-            }
-            
             // 30-day alert
             if (daysUntilExpiry === 30 && !alerts["30days"]) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "30days");
+                if (sent) alertsSent++;
+            }
+
+            // 14-day alert
+            if (daysUntilExpiry === 14 && !alerts["14days"]) {
+                const sent = await sendInsuranceAlertEmail(policy.id, "14days");
                 if (sent) alertsSent++;
             }
             

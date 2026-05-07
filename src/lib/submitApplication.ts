@@ -2,6 +2,7 @@ export type ApplicationPayload = {
   company: string;
   trade: string;
   email: string;
+  phone: string;
   postcode: string;
   submittedAt: string;
   recaptchaToken?: string;
@@ -63,6 +64,7 @@ export async function submitApplication(
               fd.append("company", payload.company);
               fd.append("trade", payload.trade);
               fd.append("email", payload.email);
+              fd.append("phone", payload.phone);
               fd.append("postcode", payload.postcode);
               if (payload.recaptchaToken) {
                 fd.append("recaptchaToken", payload.recaptchaToken);
@@ -145,6 +147,7 @@ export async function submitApplication(
         `Business name: ${payload.company}\n` +
         `Trade / specialism: ${payload.trade}\n` +
         `Work email: ${payload.email}\n` +
+        `Telephone number: ${payload.phone}\n` +
         `Main operating postcode: ${payload.postcode}\n` +
         `Submitted (ISO): ${payload.submittedAt}\n`
     );

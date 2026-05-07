@@ -14,6 +14,8 @@ type DocRow = {
   createdAt: string;
 };
 
+const MAX_MEMBER_DOCUMENTS = 5;
+
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -26,6 +28,7 @@ export function MemberDocuments() {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const uploadLimitReached = rows.length >= MAX_MEMBER_DOCUMENTS;
 
   const load = useCallback(() => {
     setLoading(true);
@@ -104,6 +107,11 @@ export function MemberDocuments() {
         images, up to 10 MB each). Files are stored for your TradeVerify record
         and are not shown on your public profile.
       </p>
+      <p className="mt-2 text-sm text-slate-500">
+        {rows.length}/{MAX_MEMBER_DOCUMENTS} documents used. Sumsub identity and
+        address checks are handled separately and do not count toward this
+        limit.
+      </p>
 
       <form
         onSubmit={onUpload}
@@ -116,15 +124,26 @@ export function MemberDocuments() {
           name="file"
           type="file"
           accept=".pdf,image/png,image/jpeg,image/webp,image/gif"
+          disabled={uploading || uploadLimitReached}
           className="mt-2 block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-emerald-500"
         />
         <button
           type="submit"
-          disabled={uploading}
+          disabled={uploading || uploadLimitReached}
           className="mt-4 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
         >
-          {uploading ? "Uploading…" : "Upload"}
+          {uploading
+            ? "Uploading…"
+            : uploadLimitReached
+              ? "Upload limit reached"
+              : "Upload"}
         </button>
+        {uploadLimitReached ? (
+          <p className="mt-3 text-sm text-amber-700">
+            Delete an existing document to upload a new insurance or
+            qualification file.
+          </p>
+        ) : null}
       </form>
 
       {error ? (

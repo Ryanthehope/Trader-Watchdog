@@ -210,6 +210,7 @@ export function notifyNewApplication(
     company: string;
     trade: string;
     email: string;
+    phone?: string | null;
     postcode: string;
   }
 ): void {
@@ -221,11 +222,12 @@ export function notifyNewApplication(
       `Company: ${row.company}`,
       `Trade: ${row.trade}`,
       `Email: ${row.email}`,
+      row.phone ? `Phone: ${row.phone}` : null,
       `Postcode: ${row.postcode}`,
       "",
       `Review: ${base}/staff/applications`,
       `Application id: ${row.id}`,
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     notifyAdminsFireAndForget(
       prisma,
       `New application — ${row.company}`,

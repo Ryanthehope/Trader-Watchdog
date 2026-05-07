@@ -101,6 +101,7 @@ export function memberToPublic(m) {
         name: m.name,
         trade: m.trade,
         location: m.location,
+        phone: m.invoicePhone?.trim() || null,
         categories: Array.isArray(m.categories) ? m.categories : [],
         checks,
         vettingCategories,
