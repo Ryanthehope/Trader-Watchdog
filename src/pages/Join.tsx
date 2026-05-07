@@ -377,24 +377,11 @@ export function Join() {
     value == null ? null : `£${(value / 100).toFixed(2)}`;
 
   const membershipPriceLabel = formatPence(membershipPricePence);
-  const baseMembershipPriceLabel = formatPence(baseMembershipPricePence);
-  const introBody = beforeLaunch
-    ? "Trader Watchdog registration opens on 1 June 2026. We validate credentials before any payment is taken, and approved businesses can be found by business name or telephone number once their profile is live."
-    : launchWindowDiscountActive
-      ? "Trader registration is now open at a launch discount until 1 July 2026. We validate credentials before any payment is taken, and approved businesses can be found by business name or telephone number once their profile is live."
-      : "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
-  const introSupport = beforeLaunch
-    ? "Be ready for launch day: one fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and a searchable public profile using your business name and advertised telephone number."
-    : launchWindowDiscountActive
-      ? "Launch-period registrations receive discounted membership until 1 July 2026, with one fee regardless of employee count, the same fair visibility for all traders, and public search by business name or telephone number once approved."
-      : publicSearchEnabled
-        ? "One fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and public search by business name or telephone number once your profile is approved."
-        : "One fee regardless of employee count, fair visibility for all, and public business search opening on 1 July 2026.";
-  const pricingHeading = launchWindowDiscountActive
-    ? "Launch pricing"
-    : beforeLaunch
-      ? "Membership pricing"
-      : "Membership pricing";
+  const introBody = "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
+  const introSupport = publicSearchEnabled
+    ? "One fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and public search by business name or telephone number once your profile is approved."
+    : "One fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and a searchable public profile using your business name and advertised telephone number once public search is enabled.";
+  const pricingHeading = "Membership pricing";
 
   return (
     <main className="border-b border-white/5 pb-24">
@@ -415,23 +402,9 @@ export function Join() {
           {membershipPriceLabel ? (
             <div className="mt-6 rounded-xl border border-brand-400/20 bg-brand-500/10 px-4 py-4 text-left">
               <p className="text-sm font-semibold text-white">{pricingHeading}</p>
-              {launchDiscountActive && baseMembershipPriceLabel ? (
-                <p className="mt-2 text-sm text-slate-300">
-                  Launch offer: <span className="font-semibold text-white">{membershipPriceLabel}</span>{" "}
-                  per month until 1 July 2026.
-                  <span className="ml-2 text-slate-400 line-through">
-                    {baseMembershipPriceLabel}
-                  </span>
-                </p>
-              ) : beforeLaunch && baseMembershipPriceLabel ? (
-                <p className="mt-2 text-sm text-slate-300">
-                  Membership will launch from <span className="font-semibold text-white">{baseMembershipPriceLabel}</span> per month on 1 June 2026.
-                </p>
-              ) : (
-                <p className="mt-2 text-sm text-slate-300">
-                  Membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> per month.
-                </p>
-              )}
+              <p className="mt-2 text-sm text-slate-300">
+                Membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> per month.
+              </p>
             </div>
           ) : null}
         </div>

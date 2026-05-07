@@ -654,35 +654,26 @@ function useHashScroll() {
 export function Home() {
   useHashScroll();
   useSiteData();
-  const { beforeLaunch, launchDiscountActive, publicSearchEnabled } =
-    getLaunchWindow();
+  const { publicSearchEnabled } = getLaunchWindow();
 
   const heroBody = publicSearchEnabled
     ? "Verifying a trader is one click away. It&apos;s free, confidential, and you do not have to register. Search their business name or telephone number and view the result before even speaking to them."
-    : launchDiscountActive
-      ? "Trader registration is now open at a launch discount until 1 July 2026. Public business search is not live yet and will open on 1 July 2026."
-      : "Trader registration opens on 1 June 2026. Public business search is not live yet and will open on 1 July 2026."
+    : "Trader registration is open now. Public business search will be available soon."
     ;
 
   const heroSecondaryCta = publicSearchEnabled
     ? "Verify a trader now"
-    : "Public search opens 1 July";
+    : "Public search coming soon";
 
-  const joinCta = launchDiscountActive
-    ? "Register with launch discount"
-    : beforeLaunch
-      ? "Register from 1 June"
-      : "Register your business";
+  const joinCta = "Register your business";
 
   const verifyHeading = publicSearchEnabled
     ? "See if they are legit with one click"
-    : "Public trader search opens 1 July 2026";
+    : "Public trader search is coming soon";
 
   const verifyIntro = publicSearchEnabled
     ? "Search their business name or telephone number and you will immediately see whether there is a verified Trader Watchdog listing for that business."
-    : launchDiscountActive
-      ? "Trader registration is open now, but public business search remains locked until 1 July 2026 while the launch period is running."
-      : "Trader registration opens on 1 June 2026. Public business search will go live on 1 July 2026."
+    : "Trader registration is open now, and public business search will be available soon."
     ;
 
   return (
@@ -772,7 +763,7 @@ export function Home() {
               </p>
             ) : (
               <p className="text-sm text-slate-600">
-                During the launch period, traders can register first and the public search experience opens on 1 July 2026.
+                Traders can already register, and public search will be added here soon.
               </p>
             )}
           </div>
