@@ -270,18 +270,18 @@ export function Join() {
   }, [recaptchaSiteKey]);
 
   useEffect(() => {
-    if (paidNotice === "fast_track" || paidNotice === "membership") {
-      const t = setTimeout(() => {
-        setSearchParams((p) => {
-          const n = new URLSearchParams(p);
-          n.delete("paid");
-          n.delete("app");
-          return n;
-        });
-      }, 8000);
-      return () => clearTimeout(t);
-    }
-  }, [paidNotice, setSearchParams]);
+    return undefined;
+  }, [paidNotice]);
+
+  const clearJoinNotice = () => {
+    setSearchParams((p) => {
+      const n = new URLSearchParams(p);
+      n.delete("paid");
+      n.delete("app");
+      n.delete("cancelled");
+      return n;
+    });
+  };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -573,21 +573,48 @@ export function Join() {
 
       <div className="mx-auto max-w-xl px-4 pt-12 sm:px-6">
         {cancelled ? (
-          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-            Checkout was cancelled. When you&apos;re ready, complete payment from
-            this page (after approval).
+          <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            <span>
+              Checkout was cancelled. When you&apos;re ready, complete payment from
+              this page (after approval).
+            </span>
+            <button
+              type="button"
+              onClick={clearJoinNotice}
+              className="shrink-0 rounded-full border border-amber-200/20 px-2.5 py-1 text-xs font-medium text-amber-100/90 hover:bg-amber-500/10"
+            >
+              Dismiss
+            </button>
           </div>
         ) : null}
         {paidNotice === "fast_track" ? (
-          <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-            Fast-track payment received. We&apos;re creating your Trader Watchdog
-            listing — refresh in a moment or check your email.
+          <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+            <span>
+              Fast-track payment received. We&apos;re creating your Trader Watchdog
+              listing — refresh in a moment or check your email.
+            </span>
+            <button
+              type="button"
+              onClick={clearJoinNotice}
+              className="shrink-0 rounded-full border border-emerald-200/20 px-2.5 py-1 text-xs font-medium text-emerald-100/90 hover:bg-emerald-500/10"
+            >
+              Dismiss
+            </button>
           </div>
         ) : null}
         {paidNotice === "membership" ? (
-          <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-            Membership payment received. Your member profile should appear
-            shortly; you can log in with your work email once it&apos;s ready.
+          <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+            <span>
+              Membership payment received. Your member profile should appear
+              shortly; you can log in with your work email once it&apos;s ready.
+            </span>
+            <button
+              type="button"
+              onClick={clearJoinNotice}
+              className="shrink-0 rounded-full border border-emerald-200/20 px-2.5 py-1 text-xs font-medium text-emerald-100/90 hover:bg-emerald-500/10"
+            >
+              Dismiss
+            </button>
           </div>
         ) : null}
 
