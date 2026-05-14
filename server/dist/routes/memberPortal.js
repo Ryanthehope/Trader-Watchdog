@@ -155,10 +155,16 @@ router.get("/me", async (req, res) => {
         res.status(500).json({ error: "Could not load profile" });
     }
 });
-router.post("/membership/stripe-checkout", async (req, res) => {
+router.post("/membership/renew", async (req, res) => {
     try {
         const memberId = req.memberId;
-        const m = await prisma.member.findUnique({ where: { id: memberId } });
+        const m = await prisma.member.findUnique({
+            where: { id: memberId },
+            select: {
+                loginEmail: true,
+                stripeCustomerId: true,
+            },
+        });
         if (!m?.loginEmail?.trim()) {
             res.status(400).json({ error: "No login email on file" });
             return;
@@ -176,7 +182,7 @@ router.post("/membership/stripe-checkout", async (req, res) => {
         const origin = await siteOrigin(req);
         const lines = checkoutLineConfig(settings);
         const session = await stripe.checkout.sessions.create({
-            mode: "subscription",
+            mode: "payment",
             ...(m.stripeCustomerId
                 ? { customer: m.stripeCustomerId }
                 : { customer_email: m.loginEmail.trim().toLowerCase() }),
@@ -184,24 +190,17 @@ router.post("/membership/stripe-checkout", async (req, res) => {
                 {
                     price_data: {
                         currency: "gbp",
-                        product_data: { name: lines.membershipName },
+                        product_data: { name: `${lines.membershipName} renewal` },
                         unit_amount: lines.membershipPence,
-                        recurring: { interval: "month" },
                     },
                     quantity: 1,
                 },
             ],
-            success_url: `${origin}/member/membership?checkout=success`,
-            cancel_url: `${origin}/member/membership?checkout=cancelled`,
+            success_url: `${origin}/member/billing?renewal=success`,
+            cancel_url: `${origin}/member/billing?renewal=cancelled`,
             metadata: {
-                checkoutKind: "member_portal_subscription",
+                checkoutKind: "member_portal_renewal",
                 memberId,
-            },
-            subscription_data: {
-                metadata: {
-                    memberId,
-                    checkoutKind: "member_portal_subscription",
-                },
             },
         });
         if (!session.url) {
@@ -212,7 +211,7 @@ router.post("/membership/stripe-checkout", async (req, res) => {
     }
     catch (e) {
         console.error(e);
-        res.status(500).json({ error: "Could not start checkout" });
+        res.status(500).json({ error: "Could not start renewal checkout" });
     }
 });
 router.post("/profile-logo", requireMemberMembershipActive, (req, res, next) => {
@@ -526,7 +525,7 @@ async function invoiceBrandingPayload() {
         footerNote: org.invoiceFooterNote?.trim() || null,
     };
 }
-/** Stripe invoices & Customer Portal (read-only list; payment method changes in Stripe). */
+/** Stripe invoices for one-off joining and annual renewal payments. */
 router.get("/invoices", async (req, res) => {
     try {
         const memberId = req.memberId;
@@ -572,42 +571,6 @@ router.get("/invoices", async (req, res) => {
     catch (e) {
         console.error(e);
         res.status(500).json({ error: "Could not load invoices" });
-    }
-});
-router.post("/billing-portal", async (req, res) => {
-    try {
-        const memberId = req.memberId;
-        const m = await prisma.member.findUnique({
-            where: { id: memberId },
-            select: { stripeCustomerId: true },
-        });
-        if (!m?.stripeCustomerId?.trim()) {
-            res.status(400).json({
-                error: "No Stripe billing profile yet. Pay for membership online first, or contact TradeVerify.",
-            });
-            return;
-        }
-        const stripe = await getStripeClient();
-        if (!stripe) {
-            res.status(503).json({ error: "Billing is not configured" });
-            return;
-        }
-        const origin = await siteOrigin(req);
-        const session = await stripe.billingPortal.sessions.create({
-            customer: m.stripeCustomerId,
-            return_url: `${origin}/member/billing`,
-        });
-        if (!session.url) {
-            res.status(500).json({ error: "Could not start billing portal" });
-            return;
-        }
-        res.json({ url: session.url });
-    }
-    catch (e) {
-        console.error(e);
-        res.status(500).json({
-            error: "Could not open billing portal. Enable the Customer Portal in your Stripe Dashboard (Settings → Billing → Customer portal).",
-        });
     }
 });
 router.delete("/documents/:id", requireMemberMembershipActive, async (req, res) => {

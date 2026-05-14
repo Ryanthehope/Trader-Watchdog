@@ -25,12 +25,12 @@ async function assertFreshApplication(applicationId: string, email: string) {
   if (row.status !== "APPROVED") {
     return {
       error:
-        "Your application is not approved yet. When TradeVerify approves it, you can return here to pay and activate your listing.",
+        "Your application is not approved yet. When Trader Watchdog approves it, you can return here to pay and activate your listing.",
     } as const;
   }
   const windowStart = row.approvedAt ?? row.createdAt;
   if (Date.now() - windowStart.getTime() > PAYMENT_WINDOW_MS) {
-    return { error: "Payment window expired — contact TradeVerify" } as const;
+    return { error: "Payment window expired — contact Trader Watchdog" } as const;
   }
   return { application: row };
 }
@@ -64,6 +64,11 @@ router.post("/checkout-fast-track", async (req, res) => {
     const check = await assertFreshApplication(applicationId, email);
     if ("error" in check) {
       res.status(400).json({ error: check.error });
+      return;
+    }
+    const application = check.application;
+    if (application.fastTrackPaidAt) {
+      res.status(400).json({ error: "Fast-track payment is already recorded" });
       return;
     }
     const origin = siteOrigin(req);
@@ -122,10 +127,15 @@ router.post("/checkout-membership", async (req, res) => {
       res.status(400).json({ error: check.error });
       return;
     }
+    const application = check.application;
+    if (application.membershipSubscribed) {
+      res.status(400).json({ error: "Membership payment is already recorded" });
+      return;
+    }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
+      mode: "payment",
       customer_email: email,
       line_items: [
         {
@@ -133,7 +143,6 @@ router.post("/checkout-membership", async (req, res) => {
             currency: "gbp",
             product_data: { name: lines.membershipName },
             unit_amount: lines.membershipPence,
-            recurring: { interval: "month" },
           },
           quantity: 1,
         },
@@ -143,12 +152,6 @@ router.post("/checkout-membership", async (req, res) => {
       metadata: {
         applicationId,
         checkoutKind: "membership",
-      },
-      subscription_data: {
-        metadata: {
-          applicationId,
-          checkoutKind: "membership",
-        },
       },
     });
     if (!session.url) {

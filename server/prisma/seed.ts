@@ -562,7 +562,7 @@ async function main() {
       body: [
         "Always get a written quote that breaks down labour, materials, and VAT. Verbal estimates are hard to enforce if something goes wrong.",
         "For larger jobs, agree staged payments tied to milestones — not large upfront cash with little work done.",
-        "Cross-check the business address and landline with what they advertise. A TradeVerify check is designed to confirm locality and genuine contact details.",
+        "Cross-check the business address and landline with what they advertise. A Trader Watchdog check is designed to confirm locality and genuine contact details.",
         "Ask for insurance details and, where relevant, scheme registrations (Gas Safe, NICEIC, etc.) and verify them on the official registers.",
       ],
     },

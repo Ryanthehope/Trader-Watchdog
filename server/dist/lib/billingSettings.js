@@ -53,7 +53,7 @@ export function checkoutLineConfig(s) {
             ? applyPercentageDiscount(baseMembershipPence, LAUNCH_DISCOUNT_PERCENT)
             : baseMembershipPence,
         fastTrackPence: clampCheckoutPence(s.checkoutFastTrackPence),
-        membershipName: s.checkoutMembershipName?.trim() || "Trader Watchdog monthly membership",
+        membershipName: s.checkoutMembershipName?.trim() || "Trader Watchdog annual membership",
         fastTrackName: s.checkoutFastTrackName?.trim() || "Trader Watchdog fast-track vetting",
     };
 }

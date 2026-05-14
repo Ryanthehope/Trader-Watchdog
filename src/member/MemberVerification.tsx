@@ -76,7 +76,7 @@ export function MemberVerification() {
     <div className="p-6 sm:p-10">
       <h1 className="text-2xl font-semibold text-slate-900">Verification</h1>
       <p className="mt-2 max-w-2xl text-sm text-slate-600">
-        Trader Watchdog uses Sumsub for identity and address verification. Your verification status will be shown here.
+        This page shows the current verification status recorded on your Trader Watchdog account. If more identity checks are needed before launch, our team will contact you directly.
       </p>
 
       <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -97,7 +97,7 @@ export function MemberVerification() {
               Provider
             </dt>
             <dd className="mt-1 text-sm text-slate-900">
-              {verification.provider ?? "Sumsub"}
+              {verification.provider ?? "Trader Watchdog review"}
             </dd>
           </div>
 
@@ -143,9 +143,9 @@ export function MemberVerification() {
         ) : null}
 
         <div className="mt-8 rounded-xl bg-slate-50 p-4 text-sm text-slate-600 ring-1 ring-slate-200">
-          <p className="font-semibold text-slate-900">Next step</p>
+          <p className="font-semibold text-slate-900">What happens next</p>
           <p className="mt-1">
-            In the next section, this page will launch the Sumsub verification flow and refresh status automatically.
+            If your status is still not started or in progress, keep your insurance and supporting documents up to date in the portal. Trader Watchdog will email you if anything else is needed to keep your listing live.
           </p>
         </div>
       </div>

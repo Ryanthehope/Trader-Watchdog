@@ -1,11 +1,6 @@
 // @ts-nocheck
-import fs from "fs";
-import path from "path";
-import { randomUUID } from "crypto";
 import type { Request, Response } from "express";
 import { Router } from "express";
-import multer from "multer";
-import bcrypt from "bcryptjs";
 import type { ApplicationStatus, Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import {
@@ -17,42 +12,23 @@ import { applicationDocumentResolvedPath } from "../lib/applicationDocuments.js"
 import { tryProvisionMemberForApplication } from "../lib/provisionMemberFromApplication.js";
 import { sanitizeNullableDbString } from "../lib/sanitizeDbText.js";
 import { getStripeClient } from "../lib/billingSettings.js";
-import { serverStartedAt } from "../lib/serverMeta.js";
 import { fetchStripeFinancialSnapshot } from "../lib/stripeFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
-import { orgBrandingDir, orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
-import { syncLogoFileToStripeAccount } from "../lib/syncStripeBrandingLogo.js";
 import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
 import {
   invalidateSmtpTransportCache,
   notifyApplicationDecision,
   notifyNewLead,
 } from "../lib/adminMail.js";
+import {
+  createSumsubApplicant,
+  generateSumsubWebSdkLink,
+  getSumsubApplicantReview,
+  isSumsubConfigured,
+  mapSumsubReviewToVerificationData,
+} from "../lib/sumsub.js";
 
 const router = Router();
-
-const orgLogoUpload = multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      cb(null, orgBrandingDir());
-    },
-    filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname || "").toLowerCase();
-      const useExt =
-        ext === ".png" || ext === ".jpg" || ext === ".jpeg" ? ext : ".png";
-      cb(null, `${randomUUID()}${useExt}`);
-    },
-  }),
-  limits: { fileSize: 512 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    const ok =
-      file.mimetype === "image/png" ||
-      file.mimetype === "image/jpeg" ||
-      file.mimetype === "image/jpg";
-    if (ok) cb(null, true);
-    else cb(new Error("Only PNG or JPEG (max 512 KB) for Stripe invoice branding"));
-  },
-});
 
 async function ensureOrgSettings() {
   return prisma.organizationSettings.upsert({
@@ -173,57 +149,7 @@ function publicOrgSettings(s: Awaited<ReturnType<typeof ensureOrgSettings>>) {
       s.googleAnalyticsServiceAccountJson?.trim()
     ),
   };
-}
-
-router.get("/stripe-financial", async (_req, res) => {
-  try {
-    const settings = await ensureOrgSettings();
-    const stripe = await getStripeClient();
-    if (!stripe) {
-      res.json({
-        stripeConnected: false,
-        revenueMtdCents: settings.revenueMtdCents,
-        outstandingCents: settings.outstandingCents,
-        paymentCountMtd: 0,
-        openInvoiceCount: 0,
-        currency: "gbp",
-        fetchedAt: null as string | null,
-        error:
-          "Add your Stripe secret key in Integrations (or STRIPE_SECRET_KEY in .env).",
-      });
-      return;
-    }
-    const snap = await fetchStripeFinancialSnapshot(stripe);
-    if (!snap.ok) {
-      res.json({
-        stripeConnected: true,
-        revenueMtdCents: settings.revenueMtdCents,
-        outstandingCents: settings.outstandingCents,
-        paymentCountMtd: 0,
-        openInvoiceCount: 0,
-        currency: "gbp",
-        fetchedAt: null,
-        error: snap.error,
-        usedFallback: true,
-      });
-      return;
-    }
-    res.json({
-      stripeConnected: true,
-      revenueMtdCents: snap.revenueMtdCents,
-      outstandingCents: snap.outstandingCents,
-      paymentCountMtd: snap.paymentCountMtd,
-      openInvoiceCount: snap.openInvoiceCount,
-      currency: snap.currency,
-      fetchedAt: snap.fetchedAt,
-      error: null as string | null,
-      usedFallback: false,
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not load Stripe financials" });
-  }
-});
+};
 
 router.get("/organization-settings", async (_req, res) => {
   try {
@@ -565,114 +491,6 @@ async function patchOrganizationSettings(
   }
 }
 
-router.post(
-  "/organization-branding/logo",
-  (req, res, next) => {
-    orgLogoUpload.single("logo")(req, res, (err: unknown) => {
-      if (err) {
-        res.status(400).json({
-          error: err instanceof Error ? err.message : "Upload failed",
-        });
-        return;
-      }
-      next();
-    });
-  },
-  async (_req, res) => {
-    try {
-      const file = (
-        _req as Request & { file?: { path: string; filename: string } }
-      ).file;
-      if (!file) {
-        res.status(400).json({ error: "logo file is required (field name: logo)" });
-        return;
-      }
-      const s = await ensureOrgSettings();
-      if (s.brandingLogoStoredName) {
-        const oldPath = orgBrandingFilePath(s.brandingLogoStoredName);
-        fs.unlink(oldPath, () => {});
-      }
-      const storedName = path.basename(file.filename);
-      const sync = await syncLogoFileToStripeAccount(file.path);
-      let stripeFileId: string | null = null;
-      let stripeError: string | null = null;
-      if (sync.ok) {
-        stripeFileId = sync.fileId;
-      } else {
-        stripeError = sync.error;
-      }
-      const updated = await prisma.organizationSettings.update({
-        where: { id: "default" },
-        data: {
-          brandingLogoStoredName: storedName,
-          stripeBrandingLogoFileId: stripeFileId,
-        },
-      });
-      res.json({
-        settings: publicOrgSettings(updated),
-        stripeSync: stripeFileId
-          ? { ok: true as const, fileId: stripeFileId }
-          : { ok: false as const, error: stripeError },
-      });
-    } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: "Could not save logo" });
-    }
-  }
-);
-
-router.delete("/organization-branding/logo", async (_req, res) => {
-  try {
-    const s = await ensureOrgSettings();
-    if (s.brandingLogoStoredName) {
-      const p = orgBrandingFilePath(s.brandingLogoStoredName);
-      fs.unlink(p, () => {});
-    }
-    const updated = await prisma.organizationSettings.update({
-      where: { id: "default" },
-      data: {
-        brandingLogoStoredName: null,
-        stripeBrandingLogoFileId: null,
-      },
-    });
-    res.json({ settings: publicOrgSettings(updated) });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not remove logo" });
-  }
-});
-
-router.post("/organization-branding/sync-stripe", async (_req, res) => {
-  try {
-    const s = await ensureOrgSettings();
-    if (!s.brandingLogoStoredName) {
-      res.status(400).json({ error: "Upload a logo first" });
-      return;
-    }
-    const abs = orgBrandingFilePath(s.brandingLogoStoredName);
-    if (!fs.existsSync(abs)) {
-      res.status(400).json({ error: "Logo file missing on disk — upload again" });
-      return;
-    }
-    const sync = await syncLogoFileToStripeAccount(abs);
-    if (!sync.ok) {
-      res.status(400).json({ error: sync.error });
-      return;
-    }
-    const updated = await prisma.organizationSettings.update({
-      where: { id: "default" },
-      data: { stripeBrandingLogoFileId: sync.fileId },
-    });
-    res.json({
-      settings: publicOrgSettings(updated),
-      stripeSync: { ok: true as const, fileId: sync.fileId },
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Stripe sync failed" });
-  }
-});
-
 router.patch("/organization-settings", patchOrganizationSettings);
 /** POST alias: some reverse proxies/WAFs block PATCH; same body as PATCH. */
 router.post("/organization-settings", patchOrganizationSettings);
@@ -729,103 +547,6 @@ router.get("/analytics-ga-report", async (_req, res) => {
     });
   }
 });
-
-router.get("/system-info", async (_req, res) => {
-  try {
-    const dbUrl = process.env.DATABASE_URL ?? "";
-    const masked = dbUrl.replace(/:([^:@/]+)@/, ":****@");
-    res.json({
-      nodeVersion: process.version,
-      uptimeSeconds: Math.floor((Date.now() - serverStartedAt) / 1000),
-      databaseUrlHint: masked,
-      env: process.env.NODE_ENV ?? "development",
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not load system info" });
-  }
-});
-
-/** Staff accounts (team) */
-router.get("/staff-accounts", async (_req, res) => {
-  try {
-    const rows = await prisma.staff.findMany({
-      orderBy: { email: "asc" },
-      select: { id: true, email: true, name: true, createdAt: true },
-    });
-    res.json({
-      staff: rows.map((s) => ({
-        ...s,
-        createdAt: s.createdAt.toISOString(),
-      })),
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not list staff" });
-  }
-});
-
-router.post("/staff-accounts", async (req, res) => {
-  try {
-    const email = String(req.body?.email ?? "")
-      .trim()
-      .toLowerCase();
-    const password = String(req.body?.password ?? "");
-    const name = String(req.body?.name ?? "").trim() || null;
-    if (!email || !password || password.length < 8) {
-      res.status(400).json({
-        error: "Email and password (min 8 characters) are required",
-      });
-      return;
-    }
-    const hash = await bcrypt.hash(password, 12);
-    const s = await prisma.staff.create({
-      data: { email, password: hash, name },
-      select: { id: true, email: true, name: true, createdAt: true },
-    });
-    res.status(201).json({
-      staff: { ...s, createdAt: s.createdAt.toISOString() },
-    });
-  } catch (e: unknown) {
-    console.error(e);
-    const dup =
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2002";
-    res.status(400).json({ error: dup ? "Email already in use" : "Could not create staff" });
-  }
-});
-
-router.delete("/staff-accounts/:id", async (req, res) => {
-  try {
-    const myId = (req as unknown as { staffId: string }).staffId;
-    if (req.params.id === myId) {
-      res.status(400).json({ error: "You cannot delete your own account" });
-      return;
-    }
-    const count = await prisma.staff.count();
-    if (count <= 1) {
-      res.status(400).json({ error: "Cannot remove the last staff account" });
-      return;
-    }
-    await prisma.staff.delete({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(500).json({ error: "Could not delete staff" });
-  }
-});
-
 /** Applications */
 function serializeAdminApplication(a: {
   createdAt: Date;
@@ -833,6 +554,14 @@ function serializeAdminApplication(a: {
   approvedAt: Date | null;
   fastTrackPaidAt: Date | null;
   manualMembershipExpiresAt?: Date | null;
+  verificationProvider?: string | null;
+  verificationStatus?: string | null;
+  verificationSubmittedAt?: Date | null;
+  verificationApprovedAt?: Date | null;
+  verificationRejectedAt?: Date | null;
+  verificationProviderApplicantId?: string | null;
+  verificationProviderSessionId?: string | null;
+  verificationFailureReason?: string | null;
   pendingPortalPassword?: string | null;
   pendingPortalPasswordExpires?: Date | null;
   vettingState: unknown;
@@ -864,6 +593,14 @@ function serializeAdminApplication(a: {
     updatedAt,
     fastTrackPaidAt,
     manualMembershipExpiresAt: _manualMExp,
+    verificationProvider,
+    verificationStatus,
+    verificationSubmittedAt,
+    verificationApprovedAt,
+    verificationRejectedAt,
+    verificationProviderApplicantId,
+    verificationProviderSessionId,
+    verificationFailureReason,
     vettingState,
     pendingPortalPassword: _pendingPw,
     pendingPortalPasswordExpires: _pendingPwExp,
@@ -880,6 +617,14 @@ function serializeAdminApplication(a: {
     fastTrackPaidAt: fastTrackPaidAt?.toISOString() ?? null,
     manualMembershipExpiresAt:
       a.manualMembershipExpiresAt?.toISOString() ?? null,
+    verificationProvider: verificationProvider ?? null,
+    verificationStatus: verificationStatus ?? "NOT_STARTED",
+    verificationSubmittedAt: verificationSubmittedAt?.toISOString() ?? null,
+    verificationApprovedAt: verificationApprovedAt?.toISOString() ?? null,
+    verificationRejectedAt: verificationRejectedAt?.toISOString() ?? null,
+    verificationProviderApplicantId: verificationProviderApplicantId ?? null,
+    verificationProviderSessionId: verificationProviderSessionId ?? null,
+    verificationFailureReason: verificationFailureReason ?? null,
     createdMember: createdMember
       ? {
           id: createdMember.id,
@@ -1071,6 +816,193 @@ router.patch("/applications/:id", async (req, res) => {
   }
 });
 
+async function ensureSumsubApplicantForApplication(id: string) {
+  const application = await prisma.application.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      email: true,
+      phone: true,
+      company: true,
+      verificationProvider: true,
+      verificationProviderApplicantId: true,
+      verificationProviderSessionId: true,
+    },
+  });
+  if (!application) {
+    return { kind: "not_found" as const };
+  }
+
+  if (
+    application.verificationProvider === "sumsub" &&
+    application.verificationProviderApplicantId
+  ) {
+    return {
+      kind: "existing" as const,
+      application,
+      applicantId: application.verificationProviderApplicantId,
+      inspectionId: application.verificationProviderSessionId,
+      externalUserId: application.id,
+    };
+  }
+
+  const applicant = await createSumsubApplicant({
+    externalUserId: application.id,
+    email: application.email,
+    phone: application.phone,
+    firstName: application.company,
+    lastName: null,
+  });
+
+  await prisma.application.update({
+    where: { id: application.id },
+    data: {
+      verificationProvider: "sumsub",
+      verificationStatus: "IN_PROGRESS",
+      verificationSubmittedAt: new Date(),
+      verificationApprovedAt: null,
+      verificationRejectedAt: null,
+      verificationProviderApplicantId: applicant.id,
+      verificationProviderSessionId: applicant.inspectionId ?? null,
+      verificationFailureReason: null,
+    },
+  });
+
+  return {
+    kind: "created" as const,
+    application,
+    applicantId: applicant.id,
+    inspectionId: applicant.inspectionId ?? null,
+    externalUserId: applicant.externalUserId ?? application.id,
+  };
+}
+
+router.post("/applications/:id/sumsub-applicant", async (req, res) => {
+  try {
+    if (!isSumsubConfigured()) {
+      res.status(400).json({ error: "Sumsub is not configured" });
+      return;
+    }
+    const id = req.params.id;
+
+    const ensured = await ensureSumsubApplicantForApplication(id);
+    if (ensured.kind === "not_found") {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
+    res.json({
+      applicantId: ensured.applicantId,
+      inspectionId: ensured.inspectionId ?? null,
+      externalUserId: ensured.externalUserId,
+      reused: ensured.kind === "existing",
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not create Sumsub applicant" });
+  }
+});
+
+router.post("/applications/:id/sumsub-link", async (req, res) => {
+  try {
+    if (!isSumsubConfigured()) {
+      res.status(400).json({ error: "Sumsub is not configured" });
+      return;
+    }
+    const id = req.params.id;
+    const ensured = await ensureSumsubApplicantForApplication(id);
+    if (ensured.kind === "not_found") {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
+    const link = await generateSumsubWebSdkLink({
+      userId: ensured.externalUserId,
+      email: ensured.application.email,
+      phone: ensured.application.phone,
+      lang: "en",
+    });
+
+    res.json({
+      url: link.url,
+      applicantId: ensured.applicantId,
+      inspectionId: ensured.inspectionId ?? null,
+      externalUserId: ensured.externalUserId,
+      reused: ensured.kind === "existing",
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not create Sumsub launch link" });
+  }
+});
+
+router.post("/applications/:id/sumsub-sync", async (req, res) => {
+  try {
+    if (!isSumsubConfigured()) {
+      res.status(400).json({ error: "Sumsub is not configured" });
+      return;
+    }
+    const id = req.params.id;
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        createdMemberId: true,
+        verificationProviderApplicantId: true,
+      },
+    });
+    if (!application) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    if (!application.verificationProviderApplicantId) {
+      res.status(400).json({ error: "No Sumsub applicant is recorded yet" });
+      return;
+    }
+
+    const review = await getSumsubApplicantReview(
+      application.verificationProviderApplicantId
+    );
+    const verificationData = mapSumsubReviewToVerificationData(review);
+
+    await prisma.application.update({
+      where: { id: application.id },
+      data: verificationData,
+    });
+
+    if (application.createdMemberId) {
+      await prisma.member.update({
+        where: { id: application.createdMemberId },
+        data: verificationData,
+      });
+    }
+
+    const full = await prisma.application.findUnique({
+      where: { id },
+      include: {
+        documents: { orderBy: { createdAt: "desc" } },
+        createdMember: {
+          select: {
+            id: true,
+            slug: true,
+            tvId: true,
+            membershipBillingType: true,
+            membershipExpiresAt: true,
+            stripeSubscriptionStatus: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      reviewStatus: review.reviewStatus,
+      application: full ? serializeAdminApplication(full) : undefined,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not sync Sumsub status" });
+  }
+});
 /** Retry member creation after Stripe (or if webhook failed). Requires APPROVED + recorded payment. */
 router.post("/applications/:id/provision-member", async (req, res) => {
   try {
@@ -1513,533 +1445,6 @@ router.delete("/leads/:id", async (req, res) => {
 /** POST fallback — some proxies/clients block DELETE reliably */
 router.post("/leads/:id/delete", async (req, res) => {
   await deleteLeadById(req, res);
-});
-
-/** Inbox */
-router.get("/inbox", async (_req, res) => {
-  try {
-    const rows = await prisma.inboxMessage.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    res.json({
-      messages: rows.map((m) => ({
-        ...m,
-        createdAt: m.createdAt.toISOString(),
-        updatedAt: m.updatedAt.toISOString(),
-      })),
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not load inbox" });
-  }
-});
-
-router.post("/inbox", async (req, res) => {
-  try {
-    const { subject, body, fromEmail, fromName } = req.body ?? {};
-    if (!subject || !body || !String(subject).trim() || !String(body).trim()) {
-      res.status(400).json({ error: "Subject and body are required" });
-      return;
-    }
-    const m = await prisma.inboxMessage.create({
-      data: {
-        subject: String(subject).trim(),
-        body: String(body).trim(),
-        fromEmail: fromEmail ? String(fromEmail).trim() : null,
-        fromName: fromName ? String(fromName).trim() : null,
-      },
-    });
-    res.status(201).json({
-      message: {
-        ...m,
-        createdAt: m.createdAt.toISOString(),
-        updatedAt: m.updatedAt.toISOString(),
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ error: "Could not create message" });
-  }
-});
-
-router.patch("/inbox/:id", async (req, res) => {
-  try {
-    const { read } = req.body ?? {};
-    const data: { read?: boolean } = {};
-    if (typeof read === "boolean") data.read = read;
-    const m = await prisma.inboxMessage.update({
-      where: { id: req.params.id },
-      data,
-    });
-    res.json({
-      message: {
-        ...m,
-        createdAt: m.createdAt.toISOString(),
-        updatedAt: m.updatedAt.toISOString(),
-      },
-    });
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(400).json({ error: "Could not update message" });
-  }
-});
-
-router.delete("/inbox/:id", async (req, res) => {
-  try {
-    await prisma.inboxMessage.delete({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(500).json({ error: "Could not delete message" });
-  }
-});
-
-/** AI prompts */
-router.get("/ai-prompts", async (_req, res) => {
-  try {
-    const rows = await prisma.aiPrompt.findMany({ orderBy: { updatedAt: "desc" } });
-    res.json({
-      prompts: rows.map((p) => ({
-        ...p,
-        createdAt: p.createdAt.toISOString(),
-        updatedAt: p.updatedAt.toISOString(),
-      })),
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not list prompts" });
-  }
-});
-
-router.post("/ai-prompts", async (req, res) => {
-  try {
-    const { title, content } = req.body ?? {};
-    if (!title || !content || !String(title).trim() || !String(content).trim()) {
-      res.status(400).json({ error: "Title and content are required" });
-      return;
-    }
-    const p = await prisma.aiPrompt.create({
-      data: {
-        title: String(title).trim(),
-        content: String(content).trim(),
-      },
-    });
-    res.status(201).json({
-      prompt: {
-        ...p,
-        createdAt: p.createdAt.toISOString(),
-        updatedAt: p.updatedAt.toISOString(),
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ error: "Could not create prompt" });
-  }
-});
-
-router.put("/ai-prompts/:id", async (req, res) => {
-  try {
-    const { title, content } = req.body ?? {};
-    if (!title || !content || !String(title).trim() || !String(content).trim()) {
-      res.status(400).json({ error: "Title and content are required" });
-      return;
-    }
-    const p = await prisma.aiPrompt.update({
-      where: { id: req.params.id },
-      data: {
-        title: String(title).trim(),
-        content: String(content).trim(),
-      },
-    });
-    res.json({
-      prompt: {
-        ...p,
-        createdAt: p.createdAt.toISOString(),
-        updatedAt: p.updatedAt.toISOString(),
-      },
-    });
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(400).json({ error: "Could not update prompt" });
-  }
-});
-
-router.delete("/ai-prompts/:id", async (req, res) => {
-  try {
-    await prisma.aiPrompt.delete({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(500).json({ error: "Could not delete prompt" });
-  }
-});
-
-/** Planner */
-router.get("/planner-events", async (_req, res) => {
-  try {
-    const rows = await prisma.plannerEvent.findMany({
-      orderBy: { eventDate: "asc" },
-    });
-    res.json({
-      events: rows.map((ev) => ({
-        ...ev,
-        eventDate: ev.eventDate.toISOString(),
-        createdAt: ev.createdAt.toISOString(),
-        updatedAt: ev.updatedAt.toISOString(),
-      })),
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not list events" });
-  }
-});
-
-router.post("/planner-events", async (req, res) => {
-  try {
-    const { title, eventDate, notes } = req.body ?? {};
-    if (!title || !eventDate || !String(title).trim()) {
-      res.status(400).json({ error: "Title and eventDate are required" });
-      return;
-    }
-    const d = new Date(String(eventDate));
-    if (Number.isNaN(d.getTime())) {
-      res.status(400).json({ error: "Invalid eventDate" });
-      return;
-    }
-    const ev = await prisma.plannerEvent.create({
-      data: {
-        title: String(title).trim(),
-        eventDate: d,
-        notes: notes ? String(notes).trim() : null,
-      },
-    });
-    res.status(201).json({
-      event: {
-        ...ev,
-        eventDate: ev.eventDate.toISOString(),
-        createdAt: ev.createdAt.toISOString(),
-        updatedAt: ev.updatedAt.toISOString(),
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ error: "Could not create event" });
-  }
-});
-
-router.put("/planner-events/:id", async (req, res) => {
-  try {
-    const { title, eventDate, notes } = req.body ?? {};
-    if (!title || !eventDate || !String(title).trim()) {
-      res.status(400).json({ error: "Title and eventDate are required" });
-      return;
-    }
-    const d = new Date(String(eventDate));
-    if (Number.isNaN(d.getTime())) {
-      res.status(400).json({ error: "Invalid eventDate" });
-      return;
-    }
-    const ev = await prisma.plannerEvent.update({
-      where: { id: req.params.id },
-      data: {
-        title: String(title).trim(),
-        eventDate: d,
-        notes: notes !== undefined ? String(notes || "").trim() || null : undefined,
-      },
-    });
-    res.json({
-      event: {
-        ...ev,
-        eventDate: ev.eventDate.toISOString(),
-        createdAt: ev.createdAt.toISOString(),
-        updatedAt: ev.updatedAt.toISOString(),
-      },
-    });
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(400).json({ error: "Could not update event" });
-  }
-});
-
-router.delete("/planner-events/:id", async (req, res) => {
-  try {
-    await prisma.plannerEvent.delete({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(500).json({ error: "Could not delete event" });
-  }
-});
-
-/** Dispatch */
-router.get("/dispatch-tasks", async (_req, res) => {
-  try {
-    const rows = await prisma.dispatchTask.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { member: { select: { id: true, name: true, tvId: true } } },
-    });
-    res.json({
-      tasks: rows.map((t) => ({
-        id: t.id,
-        title: t.title,
-        status: t.status,
-        notes: t.notes,
-        memberId: t.memberId,
-        scheduledAt: t.scheduledAt?.toISOString() ?? null,
-        createdAt: t.createdAt.toISOString(),
-        updatedAt: t.updatedAt.toISOString(),
-        member: t.member,
-      })),
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not list tasks" });
-  }
-});
-
-router.post("/dispatch-tasks", async (req, res) => {
-  try {
-    const { title, status, notes, memberId, scheduledAt } = req.body ?? {};
-    if (!title || !String(title).trim()) {
-      res.status(400).json({ error: "Title is required" });
-      return;
-    }
-    let sched: Date | null = null;
-    if (scheduledAt) {
-      const d = new Date(String(scheduledAt));
-      if (!Number.isNaN(d.getTime())) sched = d;
-    }
-    const t = await prisma.dispatchTask.create({
-      data: {
-        title: String(title).trim(),
-        status: status ? String(status).trim() : "PENDING",
-        notes: notes ? String(notes).trim() : null,
-        memberId: memberId ? String(memberId) : null,
-        scheduledAt: sched,
-      },
-    });
-    res.status(201).json({
-      task: {
-        ...t,
-        scheduledAt: t.scheduledAt?.toISOString() ?? null,
-        createdAt: t.createdAt.toISOString(),
-        updatedAt: t.updatedAt.toISOString(),
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ error: "Could not create task" });
-  }
-});
-
-router.put("/dispatch-tasks/:id", async (req, res) => {
-  try {
-    const { title, status, notes, memberId, scheduledAt } = req.body ?? {};
-    if (!title || !String(title).trim()) {
-      res.status(400).json({ error: "Title is required" });
-      return;
-    }
-    let sched: Date | null | undefined = undefined;
-    if (scheduledAt !== undefined) {
-      if (!scheduledAt) sched = null;
-      else {
-        const d = new Date(String(scheduledAt));
-        sched = Number.isNaN(d.getTime()) ? null : d;
-      }
-    }
-    const t = await prisma.dispatchTask.update({
-      where: { id: req.params.id },
-      data: {
-        title: String(title).trim(),
-        status: status !== undefined ? String(status).trim() : undefined,
-        notes: notes !== undefined ? String(notes || "").trim() || null : undefined,
-        memberId:
-          memberId !== undefined
-            ? memberId
-              ? String(memberId)
-              : null
-            : undefined,
-        ...(sched !== undefined ? { scheduledAt: sched } : {}),
-      },
-    });
-    res.json({
-      task: {
-        ...t,
-        scheduledAt: t.scheduledAt?.toISOString() ?? null,
-        createdAt: t.createdAt.toISOString(),
-        updatedAt: t.updatedAt.toISOString(),
-      },
-    });
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(400).json({ error: "Could not update task" });
-  }
-});
-
-router.delete("/dispatch-tasks/:id", async (req, res) => {
-  try {
-    await prisma.dispatchTask.delete({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(500).json({ error: "Could not delete task" });
-  }
-});
-
-router.get("/members-options", async (_req, res) => {
-  try {
-    const rows = await prisma.member.findMany({
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, tvId: true },
-    });
-    res.json({ members: rows });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not load members" });
-  }
-});
-
-/** Member reviews (moderation) */
-router.get("/reviews", async (_req, res) => {
-  try {
-    const rows = await prisma.memberReview.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 200,
-      include: {
-        member: { select: { id: true, name: true, slug: true, tvId: true } },
-      },
-    });
-    res.json({
-      reviews: rows.map((r) => ({
-        id: r.id,
-        status: r.status,
-        rating: r.rating,
-        title: r.title,
-        body: r.body,
-        authorName: r.authorName,
-        authorEmail: r.authorEmail,
-        createdAt: r.createdAt.toISOString(),
-        member: r.member,
-      })),
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not load reviews" });
-  }
-});
-
-router.patch("/reviews/:id", async (req, res) => {
-  try {
-    const status = String(req.body?.status ?? "").trim();
-    if (status !== "APPROVED" && status !== "REJECTED") {
-      res.status(400).json({ error: "status must be APPROVED or REJECTED" });
-      return;
-    }
-    const row = await prisma.memberReview.update({
-      where: { id: req.params.id },
-      data: { status: status as "APPROVED" | "REJECTED" },
-      include: {
-        member: { select: { id: true, name: true, slug: true, tvId: true } },
-      },
-    });
-    res.json({
-      review: {
-        id: row.id,
-        status: row.status,
-        rating: row.rating,
-        title: row.title,
-        body: row.body,
-        authorName: row.authorName,
-        authorEmail: row.authorEmail,
-        createdAt: row.createdAt.toISOString(),
-        member: row.member,
-      },
-    });
-  } catch (e: unknown) {
-    console.error(e);
-    if (
-      typeof e === "object" &&
-      e &&
-      "code" in e &&
-      (e as { code?: string }).code === "P2025"
-    ) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-    res.status(400).json({ error: "Could not update review" });
-  }
 });
 
 export default router;

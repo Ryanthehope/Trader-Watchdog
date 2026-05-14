@@ -13,3 +13,17 @@ export function addOneCalendarMonthEndUtc(from: Date): Date {
   const d = Math.min(day, lastDay);
   return new Date(Date.UTC(y2, m2, d, 23, 59, 59, 999));
 }
+
+/**
+ * End of the same calendar day one year after `from` (UTC), clamping Feb 29
+ * to Feb 28 when the following year is not a leap year.
+ */
+export function addOneCalendarYearEndUtc(from: Date): Date {
+  const y = from.getUTCFullYear();
+  const m = from.getUTCMonth();
+  const day = from.getUTCDate();
+  const targetYear = y + 1;
+  const lastDay = new Date(Date.UTC(targetYear, m + 1, 0)).getUTCDate();
+  const d = Math.min(day, lastDay);
+  return new Date(Date.UTC(targetYear, m, d, 23, 59, 59, 999));
+}

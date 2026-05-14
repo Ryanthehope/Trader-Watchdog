@@ -44,7 +44,7 @@ model Member {
   blurb                    String
   /// Optional logo under uploads/member-profile-logos/{id}/ (public /api/members/.../profile-logo).
   profileLogoStoredName    String?
-  /// Multiline address on quotes & customer invoices (your business — not TradeVerify billing).
+  /// Multiline address on quotes & customer invoices (your business — not Trader Watchdog billing).
   invoiceAddress           String?
   /// Shown on customer invoices for bank transfer (account name, sort code, account no., reference).
   invoiceBankDetails       String?
@@ -177,6 +177,14 @@ model Application {
   membershipSubscribed         Boolean               @default(false)
   /// Expiry for staff-recorded manual membership (copied to Member on provision / updates).
   manualMembershipExpiresAt    DateTime?
+  verificationProvider            String?
+  verificationStatus              VerificationStatus @default(NOT_STARTED)
+  verificationSubmittedAt         DateTime?
+  verificationApprovedAt          DateTime?
+  verificationRejectedAt          DateTime?
+  verificationProviderApplicantId String?
+  verificationProviderSessionId   String?
+  verificationFailureReason       String?
   stripeCustomerId             String?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?
@@ -206,7 +214,7 @@ model OrganizationSettings {
   revenueMtdCents                   Int     @default(0)
   outstandingCents                  Int     @default(0)
   workspaceName                     String?
-  /// White-label product name (portal, emails, public UI). Falls back to workspaceName then "TradeVerify".
+  /// White-label product name (portal, emails, public UI). Falls back to workspaceName then "Trader Watchdog".
   siteDisplayName                   String?
   /// Base URL for email links (e.g. https://app.yoursite.com). Falls back to PUBLIC_SITE_URL env.
   publicSiteUrl                     String?

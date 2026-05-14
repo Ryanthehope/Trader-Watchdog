@@ -163,7 +163,7 @@ export function MemberLayout() {
               <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
                 Your membership is not active. Open{" "}
                 <span className="font-semibold text-amber-900">Billing</span>{" "}
-                below to renew or start card billing.
+                below to review invoices and contact Trader Watchdog about renewal.
               </p>
               <NavLink
                 to="/member"

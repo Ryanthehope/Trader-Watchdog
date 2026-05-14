@@ -9,37 +9,44 @@ export function LookupMiss() {
 
   return (
     <main className="mx-auto max-w-lg px-4 py-24 text-center sm:px-6">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-400">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/15 text-red-400 ring-1 ring-red-500/25">
         <svg
           className="h-8 w-8"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          strokeWidth={1.5}
+          strokeWidth={2}
         >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            d="M6 6l12 12M18 6L6 18"
           />
         </svg>
       </div>
+      <p className="mt-6 text-sm font-semibold uppercase tracking-[0.24em] text-red-300">
+        No verified listing
+      </p>
       <h1 className="mt-6 font-display text-2xl font-semibold text-white">
-        No match for that search
+        We could not find a verified Trader Watchdog match
       </h1>
       {q ? (
         <p className="mt-3 text-slate-400">
           There is no verified Trader Watchdog listing for{" "}
           <span className="font-mono text-slate-300">&quot;{q}&quot;</span>.
-          Check the business name or Trader Watchdog ID and try again, or ask the
-          business to send their profile link.
+          Search again using the business name or telephone number, or ask the
+          trader to send their Trader Watchdog profile link.
         </p>
       ) : (
         <p className="mt-3 text-slate-400">
-          Enter a business name as it is advertised, or search by Trader Watchdog
-          ID if you have it.
+          Enter a business name or telephone number to check whether a verified
+          Trader Watchdog listing exists.
         </p>
       )}
+      <p className="mt-4 text-sm text-slate-500">
+        If no verified listing appears, treat the trader as unverified. 
+        Be cautious. Do not enter an agreement without a visual check of their insurance, licences, and other supporting evidence.
+      </p>
       {!loading && hints.length > 0 ? (
         <p className="mt-6 text-sm text-slate-500">
           Search examples from the directory:{" "}

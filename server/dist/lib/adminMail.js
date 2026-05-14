@@ -198,21 +198,3 @@ export function notifyApplicationDecision(prisma, row) {
         notifyAdminsFireAndForget(prisma, `Application ${row.status} — ${row.company}`, text);
     })();
 }
-export function notifyStripeSubscriptionEnded(prisma, member, stripeSubscriptionId) {
-    void (async () => {
-        const base = await publicSiteBase(prisma);
-        const text = [
-            "A member’s Stripe subscription ended or was cancelled.",
-            "",
-            `Business: ${member.name}`,
-            `TV ID: ${member.tvId}`,
-            member.loginEmail ? `Portal email: ${member.loginEmail}` : null,
-            `Stripe subscription: ${stripeSubscriptionId}`,
-            "",
-            `Members: ${base}/staff/members`,
-        ]
-            .filter((x) => x !== null)
-            .join("\n");
-        notifyAdminsFireAndForget(prisma, `Membership subscription ended — ${member.name}`, text);
-    })();
-}

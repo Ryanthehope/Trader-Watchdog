@@ -5,7 +5,7 @@ import multer from "multer";
 import { prisma } from "../db.js";
 import { ALLOWED_APPLICATION_DOC_MIME, MAX_APPLICATION_DOC_BYTES, MAX_APPLICATION_FILES, persistApplicationDocuments, removeApplicationUploadDir, } from "../lib/applicationDocuments.js";
 import { billingReady, getOrgBilling, getStripeSecretKey, } from "../lib/billingSettings.js";
-// import { buildMemberBadgeSvgFromRow, buildTradeVerifyBadgeSvg } from "../lib/memberBadgeSvg.js";
+// import { buildMemberBadgeSvgFromRow, buildTraderWatchdogBadgeSvg } from "../lib/memberBadgeSvg.js";
 import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
 import { memberProfileLogoFilePath } from "../lib/memberProfileLogoPaths.js";
 import { orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
@@ -199,18 +199,25 @@ router.post("/applications/applicant-summary", async (req, res) => {
             res.json({
                 exists: false,
                 billingAvailable,
-                canCheckout: false,
-                hasPayment: false,
+                canCheckoutFastTrack: false,
+                canCheckoutMembership: false,
+                hasFastTrackPayment: false,
+                hasMembershipPayment: false,
                 profileLive: false,
                 oneTimePassword: null,
             });
             return;
         }
-        const hasPayment = Boolean(row.fastTrackPaidAt) || Boolean(row.membershipSubscribed);
+        const hasFastTrackPayment = Boolean(row.fastTrackPaidAt);
+        const hasMembershipPayment = Boolean(row.membershipSubscribed);
         const profileLive = Boolean(row.createdMemberId);
-        const canCheckout = billingAvailable &&
+        const canCheckoutFastTrack = billingAvailable &&
             row.status === "APPROVED" &&
-            !hasPayment &&
+            !hasFastTrackPayment &&
+            !profileLive;
+        const canCheckoutMembership = billingAvailable &&
+            row.status === "APPROVED" &&
+            !hasMembershipPayment &&
             !profileLive;
         const now = new Date();
         const oneTimePassword = profileLive &&
@@ -223,8 +230,10 @@ router.post("/applications/applicant-summary", async (req, res) => {
             exists: true,
             status: String(row.status),
             billingAvailable,
-            canCheckout,
-            hasPayment,
+            canCheckoutFastTrack,
+            canCheckoutMembership,
+            hasFastTrackPayment,
+            hasMembershipPayment,
             profileLive,
             oneTimePassword,
         });

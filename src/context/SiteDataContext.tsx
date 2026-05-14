@@ -29,7 +29,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<VerifiedMember[]>([]);
   // Guides state removed
-  const [brandName, setBrandName] = useState("TradeVerify");
+  const [brandName, setBrandName] = useState("Trader Watchdog");
   const [publicSiteUrl, setPublicSiteUrl] = useState("http://localhost:5173");
   const [googleAnalyticsMeasurementId, setGoogleAnalyticsMeasurementId] =
     useState("");
@@ -49,7 +49,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
             publicSiteUrl: string;
             googleAnalyticsMeasurementId?: string | null;
           }>("/api/site-meta").catch(() => ({
-            brandName: "TradeVerify",
+            brandName: "Trader Watchdog",
             publicSiteUrl: "http://localhost:5173",
             googleAnalyticsMeasurementId: null as string | null,
           })),
@@ -57,7 +57,9 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         setMembers(Array.isArray(membersRes.members) ? membersRes.members : []);
         setBrandName(
-          metaRes.brandName?.trim() ? metaRes.brandName.trim() : "TradeVerify"
+          metaRes.brandName?.trim()
+            ? metaRes.brandName.trim()
+            : "Trader Watchdog"
         );
         setPublicSiteUrl(
           metaRes.publicSiteUrl?.trim() || "http://localhost:5173"

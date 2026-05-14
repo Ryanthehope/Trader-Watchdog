@@ -24,6 +24,7 @@ import insuranceRouter from "./routes/insurance.js";
 import cronRouter from "./routes/cron.js";
 import { ensureSeedStaffFromEnv } from "./lib/ensureSeedStaff.js";
 import { stripeWebhookHandler } from "./routes/stripeWebhook.js";
+import { sumsubWebhookHandler } from "./routes/sumsubWebhook.js";
 import { prisma } from "./db.js";
 // import { deleteMembersExpiredBeyondGrace } from "./lib/memberMembership.js";
 
@@ -38,6 +39,13 @@ app.post(
   express.raw({ type: "application/json" }),
   (req, res) => {
     void stripeWebhookHandler(req, res);
+  }
+);
+app.post(
+  "/api/sumsub/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    void sumsubWebhookHandler(req, res);
   }
 );
 app.use(express.json({ limit: "1mb" }));
@@ -81,7 +89,7 @@ if (fs.existsSync(distDir)) {
       .status(503)
       .type("text")
       .send(
-        "TradeVerify API is up. No built web app (dist/). Run: npm run build (project root), then restart the server. In development, open the Vite URL (usually port 5173), not this API port."
+        "Trader Watchdog API is up. No built web app (dist/). Run: npm run build (project root), then restart the server. In development, open the Vite URL (usually port 5173), not this API port."
       );
   });
 }

@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 // import { GuideArticle } from "./pages/GuideArticle";
 // import { GuidesIndex } from "./pages/GuidesIndex";
@@ -63,8 +63,8 @@ export default function App() {
           <Route path="billing" element={<MemberBilling />} />
           <Route path="verification" element={<MemberVerification />} />
           <Route path="password" element={<MemberPassword />} />
-          <Route path="analytics" element={<StaffAnalytics />} />
-          <Route path="settings" element={<StaffSettingsPage />} />
+          <Route path="analytics" element={<Navigate to="/member" replace />} />
+          <Route path="settings" element={<Navigate to="/member/business" replace />} />
         </Route>
 
         <Route

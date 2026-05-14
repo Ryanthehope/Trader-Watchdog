@@ -45,7 +45,7 @@ export function registerStaff2faRoutes(router) {
                 data: { totpSecret: secret, totpEnabled: false },
             });
             const otpauthUrl = generateURI({
-                issuer: "TradeVerify Staff",
+                issuer: "Trader Watchdog Staff",
                 label: staff.email,
                 secret,
             });

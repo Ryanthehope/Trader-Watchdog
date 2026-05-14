@@ -267,7 +267,7 @@ export function StaffMemberForm() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-300">
-              TradeVerify ID
+              Trader Watchdog ID
             </label>
             <input
               required
@@ -392,7 +392,8 @@ export function StaffMemberForm() {
               <p className="mt-1 text-xs text-slate-500">
                 Controls how long the member can use the dashboard (documents,
                 profile edits, etc.). One-off fast-track payments default to one
-                calendar month unless you change this.
+                calendar month unless you change this. Annual renewals now use
+                fixed end dates rather than a monthly subscription.
               </p>
               <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-slate-300">
                 <input
@@ -419,7 +420,7 @@ export function StaffMemberForm() {
                   className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                 >
                   <option value="keep">
-                    Stripe — keep synced from Stripe (no local change)
+                    Legacy Stripe-linked record (no local change)
                   </option>
                   <option value="legacy">
                     Unspecified / legacy (no expiry record)
@@ -456,13 +457,13 @@ export function StaffMemberForm() {
                     }
                     className="rounded border-white/20 bg-ink-900"
                   />
-                  Clear Stripe subscription link on save (use when moving off
+                  Clear old Stripe billing link on save (use when moving off
                   Stripe or resetting billing)
                 </label>
               ) : null}
               {portalAccessMode === "keep" && loadedStripeSubscriptionStatus ? (
                 <p className="mt-3 text-xs text-slate-500">
-                  Stripe status:{" "}
+                  Legacy Stripe status:{" "}
                   <span className="font-mono text-slate-400">
                     {loadedStripeSubscriptionStatus}
                   </span>

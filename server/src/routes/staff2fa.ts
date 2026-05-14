@@ -56,7 +56,7 @@ router.post("/me/2fa/setup", async (req, res) => {
       data: { totpSecret: secret, totpEnabled: false },
     });
     const otpauthUrl = generateURI({
-      issuer: "TradeVerify Staff",
+      issuer: "Trader Watchdog Staff",
       label: staff.email,
       secret,
     });

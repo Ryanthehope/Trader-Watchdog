@@ -13,7 +13,7 @@ export async function provisionIfApplicationPaid(prisma, applicationId) {
         return { ok: false, reason: "not_approved" };
     if (app.createdMemberId)
         return { ok: false, reason: "already_provisioned" };
-    const paid = Boolean(app.fastTrackPaidAt) || Boolean(app.membershipSubscribed);
+    const paid = Boolean(app.fastTrackPaidAt) && Boolean(app.membershipSubscribed);
     if (!paid)
         return { ok: false, reason: "unpaid" };
     const prov = await tryProvisionMemberForApplication(prisma, applicationId);

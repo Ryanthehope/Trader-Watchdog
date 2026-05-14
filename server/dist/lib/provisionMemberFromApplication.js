@@ -1,6 +1,5 @@
 import { randomBytes, randomInt } from "crypto";
 import { hashPortalPassword } from "./portalCredentials.js";
-import { addOneCalendarMonthEndUtc } from "./membershipPeriod.js";
 function slugify(company) {
     const s = company
         .toLowerCase()
@@ -37,7 +36,7 @@ async function uniqueTvId(db) {
         if (!clash)
             return candidate;
     }
-    throw new Error("Could not allocate a unique TradeVerify ID");
+    throw new Error("Could not allocate a unique Trader Watchdog ID");
 }
 export async function tryProvisionMemberForApplication(prisma, applicationId) {
     return prisma.$transaction(async (tx) => {
@@ -80,23 +79,21 @@ export async function tryProvisionMemberForApplication(prisma, applicationId) {
             year: "numeric",
         });
         const checks = [
-            "TradeVerify staff review completed for this application.",
+            "Trader Watchdog staff review completed for this application.",
             `Approved ${monthYear}. Operating area and business identity confirmed.`,
             "Insurance and claimed credentials reviewed against supplied evidence.",
             "Public-facing details checked for consistency before listing.",
         ];
-        const blurb = `${app.company} is a TradeVerify checked ${app.trade} business. This profile was published after staff vetting of the membership application.`;
+        const blurb = `${app.company} is a Trader Watchdog checked ${app.trade} business. This profile was published after staff vetting of the membership application.`;
         const membershipManual = Boolean(app.membershipSubscribed) && app.manualMembershipExpiresAt != null;
-        const onlyFastTrack = Boolean(app.fastTrackPaidAt) && !app.membershipSubscribed;
         const membershipFromPayment = membershipManual
             ? {
                 membershipBillingType: "manual",
                 membershipExpiresAt: app.manualMembershipExpiresAt,
             }
-            : onlyFastTrack && app.fastTrackPaidAt
+            : Boolean(app.membershipSubscribed)
                 ? {
-                    membershipBillingType: "fast_track",
-                    membershipExpiresAt: addOneCalendarMonthEndUtc(app.fastTrackPaidAt),
+                    membershipBillingType: "membership",
                 }
                 : {};
         const member = await tx.member.create({
@@ -115,6 +112,14 @@ export async function tryProvisionMemberForApplication(prisma, applicationId) {
                 mustChangePassword: true,
                 membershipUnlimited: false,
                 stripeCustomerId: app.stripeCustomerId ?? undefined,
+                verificationProvider: app.verificationProvider ?? undefined,
+                verificationStatus: app.verificationStatus,
+                verificationSubmittedAt: app.verificationSubmittedAt ?? undefined,
+                verificationApprovedAt: app.verificationApprovedAt ?? undefined,
+                verificationRejectedAt: app.verificationRejectedAt ?? undefined,
+                verificationProviderApplicantId: app.verificationProviderApplicantId ?? undefined,
+                verificationProviderSessionId: app.verificationProviderSessionId ?? undefined,
+                verificationFailureReason: app.verificationFailureReason ?? undefined,
                 ...membershipFromPayment,
             },
         });

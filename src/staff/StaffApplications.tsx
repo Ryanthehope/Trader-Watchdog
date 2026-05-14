@@ -46,6 +46,14 @@ type AppRow = {
   fastTrackPaidAt: string | null;
   membershipSubscribed: boolean;
   manualMembershipExpiresAt?: string | null;
+  verificationProvider?: string | null;
+  verificationStatus?: string | null;
+  verificationSubmittedAt?: string | null;
+  verificationApprovedAt?: string | null;
+  verificationRejectedAt?: string | null;
+  verificationProviderApplicantId?: string | null;
+  verificationProviderSessionId?: string | null;
+  verificationFailureReason?: string | null;
   createdAt: string;
   documents: AppDoc[];
   createdMember: CreatedMemberRef | null;
@@ -111,6 +119,32 @@ function cleanText(s: string | null | undefined): string {
   if (t === "null" || t === "undefined" || t === '"null"' || t === "'null'")
     return "";
   return t;
+}
+
+function verificationStatusLabel(status: string | null | undefined): string {
+  switch (status) {
+    case "APPROVED":
+      return "Verification approved";
+    case "REJECTED":
+      return "Verification rejected";
+    case "IN_PROGRESS":
+      return "Verification in progress";
+    default:
+      return "Verification not started";
+  }
+}
+
+function verificationStatusClasses(status: string | null | undefined): string {
+  switch (status) {
+    case "APPROVED":
+      return "bg-emerald-500/20 text-emerald-200";
+    case "REJECTED":
+      return "bg-red-500/20 text-red-200";
+    case "IN_PROGRESS":
+      return "bg-sky-500/20 text-sky-200";
+    default:
+      return "bg-white/5 text-slate-500";
+  }
 }
 
 /** Consistent controls: soft border, inset highlight, brand focus ring (no harsh white outlines). */
@@ -357,6 +391,7 @@ function ApplicationCard({
   const [manualPaymentBusy, setManualPaymentBusy] = useState<
     "fast_track" | "membership" | null
   >(null);
+  const [sumsubBusy, setSumsubBusy] = useState<"launch" | "sync" | null>(null);
   const [provisionFlash, setProvisionFlash] = useState<{
     password?: string;
     member: CreatedMemberRef;
@@ -386,6 +421,8 @@ function ApplicationCard({
     row.status === "APPROVED" && hasPayment && !linked;
   const allDone = SECTIONS.every((s) => vetting[s.id]?.done);
   const sectionsDoneCount = SECTIONS.filter((s) => vetting[s.id]?.done).length;
+  const verificationStatus = row.verificationStatus ?? "NOT_STARTED";
+  const canUseSumsub = row.status !== "DECLINED";
 
   const save = async (nextStatus?: string) => {
     setSaving(true);
@@ -407,7 +444,7 @@ function ApplicationCard({
     if (!allDone) {
       if (
         !confirm(
-          "Not every vetting section is marked verified. Approve anyway and create the member profile?"
+          "Not every vetting section is marked verified. Approve anyway? The applicant will then be able to complete the required payments before their listing goes live."
         )
       ) {
         return;
@@ -436,7 +473,7 @@ function ApplicationCard({
     const label =
       type === "fast_track"
         ? "fast-track (£40) was received outside Stripe"
-        : `£15/month membership was arranged outside Stripe (until ${membershipExpiresAt})`;
+        : `membership payment was recorded outside Stripe (until ${membershipExpiresAt})`;
     if (
       !confirm(
         `Record that ${label}? This marks payment on the application and creates the member profile when eligible (same as a successful card payment).`
@@ -541,6 +578,38 @@ function ApplicationCard({
     }
   };
 
+  const launchSumsub = async () => {
+    setSumsubBusy("launch");
+    try {
+      const d = await apiSend<{ url: string }>(
+        `/api/admin/applications/${row.id}/sumsub-link`,
+        {
+          method: "POST",
+        }
+      );
+      window.open(d.url, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not create Sumsub link");
+    } finally {
+      setSumsubBusy(null);
+      reload();
+    }
+  };
+
+  const syncSumsub = async () => {
+    setSumsubBusy("sync");
+    try {
+      await apiSend(`/api/admin/applications/${row.id}/sumsub-sync`, {
+        method: "POST",
+      });
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not sync Sumsub status");
+    } finally {
+      setSumsubBusy(null);
+      reload();
+    }
+  };
+
   const updateSection = (
     id: VettingSectionId,
     patch: Partial<VettingSectionState>
@@ -574,7 +643,7 @@ function ApplicationCard({
           <p className="mt-1 text-xs text-slate-600">
             Applied {new Date(row.createdAt).toLocaleString()}
           </p>
-          {(awaitingPaymentAfterApproval || paidAwaitingProfile) && !expanded ? (
+          {(awaitingPaymentAfterApproval || paidAwaitingProfile || row.verificationProvider === "sumsub") && !expanded ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {awaitingPaymentAfterApproval ? (
                 <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-200">
@@ -584,6 +653,13 @@ function ApplicationCard({
               {paidAwaitingProfile ? (
                 <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-[11px] font-medium text-brand-200">
                   Paid — no profile
+                </span>
+              ) : null}
+              {row.verificationProvider === "sumsub" ? (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${verificationStatusClasses(verificationStatus)}`}
+                >
+                  {verificationStatusLabel(verificationStatus)}
                 </span>
               ) : null}
             </div>
@@ -654,19 +730,53 @@ function ApplicationCard({
               )}
               {row.membershipSubscribed ? (
                 <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 font-medium text-emerald-200">
-                  £15/mo subscribed
+                  Membership paid
                   {row.manualMembershipExpiresAt
-                    ? ` · manual until ${row.manualMembershipExpiresAt.slice(0, 10)}`
+                    ? ` · active until ${row.manualMembershipExpiresAt.slice(0, 10)}`
                     : linked?.membershipBillingType === "stripe"
-                      ? " · Stripe"
+                      ? " · legacy Stripe link"
                       : ""}
                 </span>
               ) : (
                 <span className="rounded-full bg-white/5 px-2.5 py-1 text-slate-500">
-                  No subscription
+                  No membership payment
                 </span>
               )}
+              <span
+                className={`rounded-full px-2.5 py-1 font-medium ${verificationStatusClasses(verificationStatus)}`}
+              >
+                {verificationStatusLabel(verificationStatus)}
+              </span>
+              {row.verificationProviderApplicantId ? (
+                <span className="rounded-full bg-white/5 px-2.5 py-1 text-slate-500">
+                  Applicant linked
+                </span>
+              ) : null}
             </div>
+            {row.verificationProvider === "sumsub" ? (
+              <div className="mt-3 space-y-1 text-xs text-slate-500">
+                {row.verificationSubmittedAt ? (
+                  <p>
+                    Submitted {new Date(row.verificationSubmittedAt).toLocaleString()}
+                  </p>
+                ) : null}
+                {row.verificationApprovedAt ? (
+                  <p>
+                    Approved {new Date(row.verificationApprovedAt).toLocaleString()}
+                  </p>
+                ) : null}
+                {row.verificationRejectedAt ? (
+                  <p>
+                    Rejected {new Date(row.verificationRejectedAt).toLocaleString()}
+                  </p>
+                ) : null}
+                {row.verificationFailureReason ? (
+                  <p className="max-w-2xl text-red-200/85">
+                    {row.verificationFailureReason}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -711,6 +821,34 @@ function ApplicationCard({
                 {provisionBusy ? "Creating…" : "Create member profile"}
               </button>
             ) : null}
+            {canUseSumsub ? (
+              <>
+                <button
+                  type="button"
+                  disabled={sumsubBusy !== null}
+                  onClick={() => void launchSumsub()}
+                  className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
+                >
+                  {sumsubBusy === "launch"
+                    ? "Opening…"
+                    : row.verificationProviderApplicantId
+                      ? "Open Sumsub link"
+                      : "Start Sumsub check"}
+                </button>
+                {row.verificationProviderApplicantId ? (
+                  <button
+                    type="button"
+                    disabled={sumsubBusy !== null}
+                    onClick={() => void syncSumsub()}
+                    className="rounded-xl border border-white/14 bg-white/[0.06] px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-white/[0.1] disabled:opacity-50"
+                  >
+                    {sumsubBusy === "sync"
+                      ? "Refreshing…"
+                      : "Refresh verification"}
+                  </button>
+                ) : null}
+              </>
+            ) : null}
             {row.status === "APPROVED" && !linked ? (
               <>
                 {!row.fastTrackPaidAt ? (
@@ -734,7 +872,7 @@ function ApplicationCard({
                   >
                     {manualPaymentBusy === "membership"
                       ? "Saving…"
-                      : "Record membership (manual)"}
+                      : "Record annual membership (manual)"}
                   </button>
                 ) : null}
               </>

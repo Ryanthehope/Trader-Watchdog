@@ -48,7 +48,7 @@ export function MemberPassword() {
       </h1>
       <p className="mt-1 text-slate-500">
         {mustChange
-          ? "Enter the one-time password from your TradeVerify join page as “current”, then set a new password (at least 10 characters)."
+          ? "Enter the one-time password from your Trader Watchdog join page as “current”, then set a new password (at least 10 characters)."
           : "Use at least 10 characters for your new password."}
       </p>
       <form className="mt-8 max-w-md space-y-4" onSubmit={onSubmit}>

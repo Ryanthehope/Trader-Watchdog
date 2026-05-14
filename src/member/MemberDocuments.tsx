@@ -104,7 +104,7 @@ export function MemberDocuments() {
       <h1 className="text-2xl font-semibold text-slate-900">Documents</h1>
       <p className="mt-2 max-w-2xl text-sm text-slate-600">
         Upload insurance certificates, accreditations, and photos (PDF or
-        images, up to 10 MB each). Files are stored for your TradeVerify record
+        images, up to 10 MB each). Files are stored for your Trader Watchdog record
         and are not shown on your public profile.
       </p>
       <p className="mt-2 text-sm text-slate-500">

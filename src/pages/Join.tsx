@@ -15,12 +15,53 @@ type ApplicantSummary = {
   exists: boolean;
   status?: string;
   billingAvailable: boolean;
-  canCheckout: boolean;
-  hasPayment: boolean;
+  canCheckoutFastTrack: boolean;
+  canCheckoutMembership: boolean;
+  hasFastTrackPayment: boolean;
+  hasMembershipPayment: boolean;
   profileLive: boolean;
   /** Shown until first portal login or expiry; not stored in the browser. */
   oneTimePassword: string | null;
 };
+
+const traderBenefits = [
+  "Protect your reputation and show customers your business is insured, compliant, and real.",
+  "One fee regardless of employee count, with no area caps and fair visibility for all traders.",
+  "Help reduce rogue trading in your community while giving householders one place to check your business.",
+  "Receive renewal reminders for insurance, licences, memberships, and your Trader Watchdog annual renewal.",
+];
+
+const validationSteps = [
+  {
+    title: "Register the business details you actually advertise",
+    body: "Apply using your trading name, main trading postcode, work email, and the telephone number customers will search for.",
+  },
+  {
+    title: "Upload supporting evidence",
+    body: "Insurance evidence is required before approval. Qualifications, memberships, and relevant scheme registrations help support your application.",
+  },
+  {
+    title: "Complete verification checks",
+    body: "Identity, address, and liveness checks are handled during verification. We also review insurance and, where relevant, ICO, waste carrier, Gas Safe, and Competent Person evidence.",
+  },
+  {
+    title: "Pay only after approval",
+    body: "No payment is taken until your credentials are validated and your application is approved. Once payment completes, your public profile and member portal are created.",
+  },
+];
+
+const customerOutcomes = [
+  {
+    title: "Verified listing",
+    tone: "emerald",
+    body: "Customers can find your business by name or telephone number, view your live Trader Watchdog profile, and review the checks shown there before agreeing work.",
+  },
+  {
+    title: "No verified listing",
+    tone: "red",
+    body: "If a trader is not verified, customers are told to proceed cautiously and ask to see the evidence directly before agreeing work or paying money.",
+  },
+];
 
 export function Join() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -153,8 +194,10 @@ export function Join() {
         exists: data.exists,
         status: data.status,
         billingAvailable: Boolean(data.billingAvailable),
-        canCheckout: Boolean(data.canCheckout),
-        hasPayment: Boolean(data.hasPayment),
+        canCheckoutFastTrack: Boolean(data.canCheckoutFastTrack),
+        canCheckoutMembership: Boolean(data.canCheckoutMembership),
+        hasFastTrackPayment: Boolean(data.hasFastTrackPayment),
+        hasMembershipPayment: Boolean(data.hasMembershipPayment),
         profileLive: Boolean(data.profileLive),
         oneTimePassword:
           typeof data.oneTimePassword === "string" && data.oneTimePassword
@@ -368,7 +411,7 @@ export function Join() {
     sentVia === "api" &&
     applicantSummaryReady &&
     applicantSummary != null &&
-    !applicantSummary.canCheckout &&
+    !canCheckoutAny &&
     !applicantSummary.profileLive &&
     (applicantStatus === "DECLINED" ||
       (applicantSummary.exists && applicantStatus !== "APPROVED"));
@@ -379,9 +422,15 @@ export function Join() {
   const membershipPriceLabel = formatPence(membershipPricePence);
   const introBody = "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
   const introSupport = publicSearchEnabled
-    ? "One fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and public search by business name or telephone number once your profile is approved."
-    : "One fee regardless of employee count, fair visibility for all, renewal reminders for insurance, licences, memberships, and a searchable public profile using your business name and advertised telephone number once public search is enabled.";
+    ? "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and public search by business name or telephone number once your profile is approved."
+    : "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and a searchable public profile using your business name and advertised telephone number once public search is enabled.";
   const pricingHeading = "Membership pricing";
+  const hasAnyPayment = Boolean(
+    applicantSummary?.hasFastTrackPayment || applicantSummary?.hasMembershipPayment);
+  const hasBothPayments = Boolean(
+  applicantSummary?.hasFastTrackPayment && applicantSummary?.hasMembershipPayment);
+  const canCheckoutAny = Boolean(
+  applicantSummary?.canCheckoutFastTrack || applicantSummary?.canCheckoutMembership);
 
   return (
     <main className="border-b border-white/5 pb-24">
@@ -403,12 +452,124 @@ export function Join() {
             <div className="mt-6 rounded-xl border border-brand-400/20 bg-brand-500/10 px-4 py-4 text-left">
               <p className="text-sm font-semibold text-white">{pricingHeading}</p>
               <p className="mt-2 text-sm text-slate-300">
-                Membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> per month.
+                Membership fee: <span className="font-semibold text-white">{membershipPriceLabel}</span> after approval.
+              </p>
+              <p className="mt-2 text-xs text-slate-400">
+                Renewals are handled annually rather than on a monthly subscription.
               </p>
             </div>
           ) : null}
         </div>
       </div>
+
+      <section className="border-b border-white/5 bg-ink-950/40 py-12 sm:py-16">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+          <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6 sm:p-8">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+              Why register with Trader Watchdog?
+            </p>
+            <h2 className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
+              An affordable public platform for legitimate traders
+            </h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {traderBenefits.map((benefit) => (
+                <div
+                  key={benefit}
+                  className="rounded-xl border border-white/8 bg-white/[0.03] p-4 text-sm leading-relaxed text-slate-300"
+                >
+                  {benefit}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-brand-400/20 bg-brand-500/10 p-6 sm:p-8">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-200">
+              What this means for your business
+            </p>
+            <ul className="mt-5 space-y-4 text-sm text-slate-200">
+              <li>Show customers you are insured, licensed, and compliant before they pick up the phone.</li>
+              <li>Build trust without paying for leads or competing for paid placement in your area.</li>
+              <li>Stay visible with a searchable public profile once your application is approved.</li>
+              <li>Get 30 and 14 day reminders before key renewal dates.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/5 bg-ink-950/20 py-12 sm:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+              How validation works
+            </p>
+            <h2 className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
+              A clearer version of the process traders actually go through
+            </h2>
+          </div>
+          <div className="mt-8 grid gap-4 lg:grid-cols-4">
+            {validationSteps.map((step, index) => (
+              <div
+                key={step.title}
+                className="rounded-2xl border border-white/10 bg-ink-900/60 p-6"
+              >
+                <p className="text-xs font-semibold uppercase tracking-wider text-brand-300">
+                  Step {index + 1}
+                </p>
+                <h3 className="mt-3 text-base font-semibold text-white">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-400">
+                  {step.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/5 bg-ink-950/40 py-12 sm:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+              What customers will see
+            </p>
+            <h2 className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
+              Your public result needs to be clear at a glance
+            </h2>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            {customerOutcomes.map((outcome) => (
+              <div
+                key={outcome.title}
+                className={
+                  outcome.tone === "emerald"
+                    ? "rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6"
+                    : "rounded-2xl border border-red-500/30 bg-red-500/10 p-6"
+                }
+              >
+                <p
+                  className={
+                    outcome.tone === "emerald"
+                      ? "text-sm font-semibold uppercase tracking-wider text-emerald-200"
+                      : "text-sm font-semibold uppercase tracking-wider text-red-200"
+                  }
+                >
+                  {outcome.title}
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-slate-200">
+                  {outcome.body}
+                </p>
+              </div>
+            ))}
+            <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6 md:col-span-2">
+              <p className="text-sm leading-relaxed text-slate-400">
+                If customers contact you after checking your profile, we ask them to mention Trader Watchdog. The public-facing experience is designed to show proof first, not sell leads.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="mx-auto max-w-xl px-4 pt-12 sm:px-6">
         {cancelled ? (
@@ -425,7 +586,7 @@ export function Join() {
         ) : null}
         {paidNotice === "membership" ? (
           <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-            Subscription started — thank you. Your member profile should appear
+            Membership payment received. Your member profile should appear
             shortly; you can log in with your work email once it&apos;s ready.
           </div>
         ) : null}
@@ -463,7 +624,7 @@ export function Join() {
                     Your application is saved. Our team will run vetting
                     (insurance, identity, and trade checks) and email you when
                     you&apos;re approved. After approval, return to this page to
-                    pay membership or fast-track — your public listing and
+                    pay your joining fee or fast-track — your public listing and
                     member login are created when payment completes.
                   </p>
                   <p className="mt-3 text-xs text-slate-500">
@@ -570,7 +731,7 @@ export function Join() {
                   </div>
                 ) : null}
                 {applicantSummary?.exists &&
-                applicantSummary.hasPayment &&
+                hasBothPayments &&
                 !applicantSummary.profileLive &&
                 applicantSummary.status === "APPROVED" ? (
                   <div className="rounded-2xl border border-white/10 bg-ink-950/60 p-6 text-sm text-slate-400">
@@ -583,7 +744,7 @@ export function Join() {
                   </div>
                 ) : null}
                 {applicantSummary?.exists &&
-                applicantSummary.hasPayment &&
+                hasAnyPayment &&
                 !applicantSummary.profileLive &&
                 applicantSummary.status &&
                 applicantSummary.status !== "APPROVED" ? (
@@ -599,10 +760,10 @@ export function Join() {
                     </p>
                   </div>
                 ) : null}
-                {applicantSummary?.canCheckout ? (
+                {canCheckoutAny ? (
                   <div className="rounded-2xl border border-white/10 bg-ink-950/60 p-6">
                     <p className="text-sm font-semibold text-white">
-                      You&apos;re approved — complete payment
+                      You&apos;re approved — complete the remaining payment steps
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
                       Secure card checkout. Use the same email as on your
@@ -613,33 +774,37 @@ export function Join() {
                       this link until that new application is approved.
                     </p>
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                      <button
-                        type="button"
-                        disabled={checkoutLoading !== null}
-                        onClick={() => startCheckout("fast")}
-                        className="flex-1 rounded-xl bg-amber-500 py-3 text-sm font-semibold text-ink-900 hover:bg-amber-400 disabled:opacity-50"
-                      >
-                        {checkoutLoading === "fast"
-                          ? "Redirecting…"
-                          : "Fast-track £40"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={checkoutLoading !== null}
-                        onClick={() => startCheckout("member")}
-                        className="flex-1 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white hover:bg-brand-500 disabled:opacity-50"
-                      >
-                        {checkoutLoading === "member"
-                          ? "Redirecting…"
-                          : "£15/month membership"}
-                      </button>
+                      {applicantSummary?.canCheckoutFastTrack ? (
+                        <button
+                          type="button"
+                          disabled={checkoutLoading !== null}
+                          onClick={() => startCheckout("fast")}
+                          className="flex-1 rounded-xl bg-amber-500 py-3 text-sm font-semibold text-ink-900 hover:bg-amber-400 disabled:opacity-50"
+                        >
+                          {checkoutLoading === "fast"
+                            ? "Redirecting…"
+                            : "Fast-track £40"}
+                        </button>
+                      ) : null}
+                      {applicantSummary?.canCheckoutMembership ? (
+                        <button
+                          type="button"
+                          disabled={checkoutLoading !== null}
+                          onClick={() => startCheckout("member")}
+                          className="flex-1 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white hover:bg-brand-500 disabled:opacity-50"
+                        >
+                          {checkoutLoading === "member"
+                            ? "Redirecting…"
+                            : `${membershipPriceLabel ?? "Membership fee"}`}
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 ) : null}
                 {applicantSummary?.exists &&
                 applicantSummary.status === "APPROVED" &&
-                !applicantSummary.canCheckout &&
-                !applicantSummary.hasPayment &&
+                !canCheckoutAny &&
+                !hasAnyPayment &&
                 !applicantSummary.profileLive &&
                 !applicantSummary.billingAvailable ? (
                   <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-100/90">
@@ -715,6 +880,9 @@ export function Join() {
               >
                 Business type / specialism
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Enter up to three core trades or specialisms customers would expect to find you under.
+              </p>
               <input
                 id="trade"
                 name="trade"
@@ -778,7 +946,7 @@ export function Join() {
                 Supporting documents
               </label>
               <p className="mt-1 text-xs text-slate-500">
-                PDF or images, up to 8 files, 10 MB each. Insurance evidence will be required before approval, so upload it here if you have it ready. Other documents such as qualifications, memberships, or scheme registrations are optional and help support your application. Identity, address, and liveness checks will be handled separately during verification.
+                PDF or images, up to 8 files, 10 MB each. Insurance evidence will be required before approval, so upload it here if you have it ready. Other documents such as qualifications, memberships, waste carrier registration, ICO evidence, or scheme registrations are optional and help support your application. Identity, address, and liveness checks will be handled separately during verification.
               </p>
               <input
                 id="files"

@@ -32,7 +32,7 @@ router.post("/login", async (req, res) => {
         });
         if (!member?.passwordHash) {
             res.status(401).json({
-                error: "Invalid email or password. Ask TradeVerify if your portal access is set up.",
+                error: "Invalid email or password. Ask Trader Watchdog if your portal access is set up.",
             });
             return;
         }

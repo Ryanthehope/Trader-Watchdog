@@ -134,13 +134,13 @@ export function StaffSettingsPage() {
             <input
               value={siteDisplayName}
               onChange={(e) => setSiteDisplayName(e.target.value)}
-              placeholder="TradeVerify"
+              placeholder="Trader Watchdog"
               className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
             />
             <p className="mt-1 text-xs text-slate-500">
               Shown in the public header, member portal, staff area, and email
               subjects. If empty, falls back to workspace name below, then
-              “TradeVerify”.
+              “Trader Watchdog”.
             </p>
           </div>
           <div>
