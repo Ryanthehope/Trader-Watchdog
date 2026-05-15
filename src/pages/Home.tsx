@@ -590,28 +590,27 @@ export function Home() {
           <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
             {heroTopLine}
           </p>
-          <p className="mt-2 text-base font-semibold uppercase tracking-wide text-cyan-400 sm:text-2xl">
+          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/85 sm:text-sm">
             {heroSubLine}
           </p>
 
-          <div className="mx-auto mt-10 grid max-w-5xl items-center gap-8 md:grid-cols-[1fr_1.25fr]">
-            <div className="mx-auto w-full max-w-[420px] rounded-[999px] border border-white/10 bg-white/5 p-3 shadow-[0_22px_55px_-35px_rgba(15,23,42,0.6)]">
+          <div className="mx-auto mt-10 flex max-w-6xl flex-col items-center justify-center gap-8 md:flex-row md:items-center">
+            <div className="w-full max-w-[420px] overflow-hidden rounded-[999px] border border-white/10 shadow-[0_22px_55px_-35px_rgba(15,23,42,0.6)]">
               <img
                 src={ghostTradersImage}
                 alt="Tradespeople illustration used in the Trader Watchdog hero"
-                className="aspect-[4/5] w-full rounded-[999px] object-cover object-center"
+                className="aspect-[4/5] w-full object-contain object-center opacity-95 [mask-image:radial-gradient(ellipse_at_center,_black_68%,_transparent_96%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,_black_68%,_transparent_96%)]"
               />
             </div>
 
-            <div className="text-center md:text-left">
-              <h1 className="font-display text-5xl font-bold leading-none text-white sm:text-6xl lg:text-[4.8rem]">
-                <span className="text-orange-400">ROGUE</span> or {" "}
-                <span className="text-white">LEGIT?</span>
+            <div className="w-full max-w-[36rem] text-center md:text-left">
+              <h1 className="font-display text-5xl font-bold leading-none text-orange-400 sm:text-6xl lg:text-[4.8rem]">
+                ROGUE or LEGIT?
               </h1>
-              <h2 className="mt-5 font-display text-3xl font-bold leading-tight text-white sm:text-5xl">
+              <h2 className="mt-5 max-w-[30rem] font-display text-3xl font-bold leading-tight text-white sm:text-5xl">
                 Don&apos;t take their word for it
               </h2>
-              <p className="mt-6 text-2xl font-bold uppercase leading-snug text-white sm:text-3xl">
+              <p className="mt-6 max-w-[34rem] text-2xl font-bold uppercase leading-snug text-white sm:text-3xl">
                 {heroSupport}
               </p>
             </div>
