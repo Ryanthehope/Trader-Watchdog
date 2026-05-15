@@ -594,7 +594,8 @@ export function Home() {
             {heroSubLine}
           </p>
 
-          <div className="mx-auto mt-10 flex max-w-6xl flex-col items-center justify-center gap-8 md:flex-row md:items-center">
+          <div className="mx-auto mt-10 max-w-6xl">
+          <div className="flex flex-col items-center justify-center gap-8 md:flex-row md:items-center">
             <div className="w-full max-w-[420px] overflow-hidden rounded-[999px] border border-white/10 shadow-[0_22px_55px_-35px_rgba(15,23,42,0.6)]">
               <img
                 src={ghostTradersImage}
@@ -607,14 +608,17 @@ export function Home() {
               <h1 className="font-display text-5xl font-bold leading-none text-orange-400 sm:text-6xl lg:text-[4.8rem]">
                 ROGUE or LEGIT?
               </h1>
+
               <h2 className="mt-5 max-w-[30rem] font-display text-3xl font-bold leading-tight text-white sm:text-5xl">
                 Don&apos;t take their word for it
               </h2>
-              <p className="mt-6 max-w-[34rem] text-2xl font-bold uppercase leading-snug text-white sm:text-3xl">
-                {heroSupport}
-              </p>
             </div>
           </div>
+
+          <p className="mx-auto mt-10 max-w-5xl text-center text-2xl font-bold uppercase leading-snug text-white sm:text-3xl">
+            {heroSupport}
+          </p>
+        </div>
 
           <div id="verify" className="mx-auto mt-10 max-w-3xl">
             <VerifyForm id="hero-verify" layout="hero" />
