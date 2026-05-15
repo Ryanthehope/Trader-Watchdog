@@ -585,7 +585,7 @@ export function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-brand-900/40 bg-brand-950 px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+      <section className="relative overflow-hidden border-b border-brand-800/40 bg-brand-800 px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-6xl text-center">
           <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
             {heroTopLine}
@@ -645,7 +645,7 @@ export function Home() {
       <Stats />
       <FeatureHighlights />
 
-      <section className="border-b border-brand-900/40 bg-brand-950 py-16 sm:py-20">
+      <section className="border-b border-brand-800/40 bg-brand-800 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="font-display text-4xl font-bold text-white sm:text-5xl">
