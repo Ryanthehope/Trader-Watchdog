@@ -197,7 +197,7 @@ function FeatureHighlights() {
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-slate-200 bg-white py-16 sm:py-20"
+      className="scroll-mt-24 border-b border-brand-900/40 bg-[#2f3d69] py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-10 md:grid-cols-3">
@@ -206,10 +206,10 @@ function FeatureHighlights() {
               key={c.title}
               className="text-center"
             >
-              <h3 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
+              <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
                 {c.title}
               </h3>
-              <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-slate-900">
+              <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-white/85">
                 {c.body}
               </p>
             </div>
@@ -642,10 +642,10 @@ export function Home() {
       <Stats />
       <FeatureHighlights />
 
-      <section className="border-b border-slate-200 bg-white py-16 sm:py-20">
+      <section className="border-b border-brand-900/40 bg-[#2f3d69] py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="font-display text-4xl font-bold text-slate-900 sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold text-white sm:text-5xl">
               What you will see
             </h2>
           </div>
@@ -657,8 +657,8 @@ export function Home() {
                 alt="Green flag"
                 className="h-16 w-16 shrink-0 object-contain"
               />
-              <p className="text-base leading-relaxed text-slate-900 sm:text-lg">
-                <span className="font-bold text-slate-900">
+              <p className="text-base leading-relaxed text-white sm:text-lg">
+                <span className="font-bold text-white">
                   A green flag
                 </span>{" "}
                 shows a professional, legitimate trader. Their identity,
@@ -672,8 +672,8 @@ export function Home() {
                 alt="Red flag"
                 className="h-16 w-16 shrink-0 object-contain"
               />
-              <p className="text-base leading-relaxed text-slate-900 sm:text-lg">
-                <span className="font-bold text-slate-900">
+              <p className="text-base leading-relaxed text-white sm:text-lg">
+                <span className="font-bold text-white">
                   A red flag
                 </span>{" "}
                 shows no verified listing. Be cautious. Do not enter an
