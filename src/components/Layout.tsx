@@ -122,9 +122,6 @@ export function Layout() {
 
           <div className="hidden border-t border-white/5 xl:block">
             <nav className="flex items-center justify-center gap-2 py-3">
-              <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
-                Verify
-              </Link>
               <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
                 What we check
               </Link>
@@ -144,13 +141,6 @@ export function Layout() {
         {menuOpen ? (
           <div className="border-t border-white/5 bg-ink-950 px-4 py-4 xl:hidden">
             <nav className="flex flex-col gap-1 text-sm font-medium text-slate-300">
-              <Link
-                to="/#verify"
-                className={mobileLinkClass}
-                onClick={() => setMenuOpen(false)}
-              >
-                Verify
-              </Link>
               <Link
                 to="/#why"
                 className={mobileLinkClass}

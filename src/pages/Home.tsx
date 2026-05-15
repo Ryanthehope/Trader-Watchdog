@@ -594,7 +594,7 @@ export function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-brand-800/40 bg-brand-800 px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+      <section id="verify" className="relative overflow-hidden scroll-mt-24 border-b border-brand-800/40 bg-brand-800 px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-6xl text-center">
           <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
             {heroTopLine}
@@ -629,7 +629,7 @@ export function Home() {
           </p>
         </div>
 
-          <div id="verify" className="mx-auto mt-10 max-w-3xl">
+          <div className="mx-auto mt-10 max-w-3xl">
             <VerifyForm id="hero-verify" layout="hero" />
           </div>
 
@@ -699,9 +699,9 @@ export function Home() {
 
       <CompetitorComparison />
       <Pillars />
+      <TradesCta />
       <Faq />
       {/* GuidesTeaser removed */}
-      <TradesCta />
     </>
   );
 }
