@@ -182,43 +182,34 @@ function CompareCell({ value }: { value: CompareCell }) {
 function FeatureHighlights() {
   const cards = [
     {
-      title: "Free and confidential",
-      body: "Checking a trader is free to householders. You do not need to register, and traders are not told who searched for them.",
+      title: "Free",
+      body: "Checking a trader has never been easier. Just enter their name or telephone number, and click.",
     },
     {
-      title: "Verification, not lead generation",
-      body: "Trader Watchdog does not sell leads to traders. We focus on proof, diligence, and consumer protection rather than pay-to-win listings.",
+      title: "Confidential",
+      body: "You do not have to register or sign in,. The trader will never know you have searched them.",
     },
     {
-      title: "Proof in one place",
-      body: "Structured vetting summary, badge artwork, and profile details give householders one place to check whether a trader is operating responsibly and legally.",
+      title: "Proof in one place.",
+      body: "We focus on proof, diligence and consumer protection. All in one place, not scattered around.",
     },
   ];
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-slate-800/60 bg-slate-900 py-20 sm:py-24"
+      className="scroll-mt-24 border-b border-slate-200 bg-white py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
-          Why Choose Trader Watchdog
-        </p>
-        <h2 className="mt-3 text-center font-display text-3xl font-bold text-white sm:text-4xl">
-          Verification, not lead generation
-        </h2>
-        <div className="mt-14 grid gap-8 md:grid-cols-3">
+        <div className="grid gap-10 md:grid-cols-3">
           {cards.map((c) => (
             <div
               key={c.title}
-              className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-8 transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/50"
+              className="text-center"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
-                <IconCheck className="h-6 w-6" />
-              </div>
-              <h3 className="mt-5 font-display text-xl font-semibold text-white">
+              <h3 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 {c.title}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-slate-300">
+              <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-slate-900">
                 {c.body}
               </p>
             </div>
@@ -585,128 +576,111 @@ export function Home() {
     : "Trader registration is open now, and public business search will be available soon."
     ;
 
+  const heroTopLine =
+    "TRADER WATCHDOG PROVIDES A FREE CONSUMER PROTECTION SERVICE";
+  const heroSubLine =
+    "DILIGENCE RECOMMENDED BY POLICE, TRADING STANDARDS, COUNCILS AND COMMUNITY GROUPS";
+  const heroSupport =
+    "VERIFYING A TRADER IS PROFESSIONAL AND LEGAL IS ONLY A CLICK AWAY.";
+
   return (
     <>
-    <div className="pointer-events-none fixed left-0 top-24 z-20 block h-[calc(100vh-6rem)] w-10 overflow-hidden sm:w-12 lg:w-16">
-  <img
-        src="/police_chequers.jpg"
-    alt=""
-    className="h-full w-full object-cover opacity-40"
-  />
-</div>
-      <section className="relative overflow-hidden border-b border-brand-900/40 bg-gradient-to-b from-brand-900 via-brand-800 to-brand-950 px-4 py-20 sm:px-6 lg:px-8">
-  <div className="mx-auto max-w-7xl text-center">
-    <p className="mb-10 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/85">
-      Recommended by Police, Trading Standards, Councils and community groups
-    </p>
+      <section className="relative overflow-hidden border-b border-brand-900/40 bg-[#2f3d69] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        <div className="mx-auto max-w-6xl text-center">
+          <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
+            {heroTopLine}
+          </p>
+          <p className="mt-2 text-base font-semibold uppercase tracking-wide text-cyan-400 sm:text-2xl">
+            {heroSubLine}
+          </p>
 
-    <div className="mx-auto flex max-w-6xl flex-row items-center justify-center gap-8">
-      <div className="w-[40%] max-w-[420px] overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-[0_25px_60px_-35px_rgba(15,23,42,0.8)]">
-        <img
-          src={ghostTradersImage}
-          alt="Tradespeople illustration used in the Trader Watchdog hero"
-          className="h-auto w-full object-cover"
-        />
-      </div>
+          <div className="mx-auto mt-10 grid max-w-5xl items-center gap-8 md:grid-cols-[1fr_1.25fr]">
+            <div className="overflow-hidden rounded-[2.5rem] bg-white/95 px-6 py-5 shadow-[0_22px_55px_-35px_rgba(15,23,42,0.6)]">
+              <img
+                src={ghostTradersImage}
+                alt="Tradespeople illustration used in the Trader Watchdog hero"
+                className="h-auto w-full object-cover"
+              />
+            </div>
 
-      <div className="w-[60%] text-left">
-        <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[4rem] lg:leading-[1.08]">
-          <span className="text-orange-400">ROGUE</span> OR{" "}
-          <span className="text-orange-400">LEGIT?</span>
-        </h1>
+            <div className="text-center md:text-left">
+              <h1 className="font-display text-5xl font-bold leading-none text-white sm:text-6xl lg:text-[4.8rem]">
+                <span className="text-orange-400">ROGUE</span> or {" "}
+                <span className="text-white">LEGIT?</span>
+              </h1>
+              <h2 className="mt-5 font-display text-3xl font-bold leading-tight text-white sm:text-5xl">
+                Don&apos;t take their word for it
+              </h2>
+              <p className="mt-6 text-2xl font-bold uppercase leading-snug text-white sm:text-3xl">
+                {heroSupport}
+              </p>
+            </div>
+          </div>
 
-        <h2 className="mt-4 font-display text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-[3rem] lg:leading-[1.08]">
-          Don&apos;t take their word for it.
-        </h2>
-      </div>
-    </div>
+          <div id="verify" className="mx-auto mt-10 max-w-3xl">
+            <VerifyForm id="hero-verify" layout="hero" />
+          </div>
 
-    <p className="mx-auto mt-10 max-w-5xl text-lg leading-relaxed text-slate-300 sm:text-xl sm:leading-relaxed">
-      {heroBody}
-    </p>
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Link
+              to="/#verify"
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white/15"
+            >
+              {heroSecondaryCta}
+            </Link>
 
-    <div className="mx-auto mt-8 max-w-3xl">
-      <VerifyForm id="hero-verify" layout="hero" />
-    </div>
-
-    <div className="mt-12 flex flex-wrap justify-center gap-4">
-      <Link
-        to="/#verify"
-        className="inline-flex items-center justify-center rounded-lg border border-slate-700/50 bg-slate-800/40 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:border-brand-500/50 hover:bg-slate-800/60"
-      >
-        {heroSecondaryCta}
-      </Link>
-
-      <Link
-        to="/join"
-        className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-500"
-      >
-        {joinCta}
-      </Link>
-    </div>
-  </div>
-</section>
+            <Link
+              to="/join"
+              className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-500"
+            >
+              {joinCta}
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <Stats />
       <FeatureHighlights />
 
-      <section
-        id="verify"
-        className="scroll-mt-24 border-b border-slate-800/60 bg-slate-950 py-20 sm:py-24"
-      >
+      <section className="border-b border-slate-200 bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
-              {verifyHeading}
-            </h2>
-            <p className="mt-4 text-base text-white">
-              {verifyIntro}
-            </p>
-          </div>
-          <VerifyForm id="section-verify" layout="section" />
-          <div className="mx-auto mt-8 max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="font-display text-4xl font-bold text-slate-900 sm:text-5xl">
               What you will see
-            </p>
+            </h2>
           </div>
-          <div className="mx-auto mt-6 max-w-3xl space-y-4 text-center">
-            <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-6 py-6 shadow-sm">
-              <div className="flex flex-col items-center gap-5 text-left md:flex-row md:items-center">
-                <div className="flex h-28 w-full max-w-[220px] shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-600 bg-slate-800/80 text-sm text-slate-400">
-                  Verified flag image placeholder
-                </div>
-                <p className="text-sm text-white">
-                  <span className="font-semibold text-white">
-                    Verified listing
-                  </span>
-                  {' '}
-                  = found on Trader Watchdog. Review the live profile and the checks shown there before agreeing work. This shows a verified trader and their profile, which you can use as part of your own due diligence.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-6 py-6 shadow-sm">
-              <div className="flex flex-col items-center gap-5 text-left md:flex-row md:items-center">
-                <div className="flex h-28 w-full max-w-[220px] shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-600 bg-slate-800/80 text-sm text-slate-400">
-                  Unverified flag image placeholder
-                </div>
-                <p className="text-sm text-white">
-                  <span className="font-semibold text-white">
-                    No verified listing
-                  </span>
-                  {' '}
-                  = not verified. Be cautious. Do not enter an agreement without a visual check of their insurance, licences, and other supporting evidence.
-                </p>
-              </div>
-            </div>
-            {publicSearchEnabled ? (
-              <p className="text-sm text-white">
-                If you contact the trader after checking their profile, please mention Trader Watchdog.
+
+          <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-12">
+            <div className="flex items-start gap-5 text-left">
+              <img
+                src="/Green%20flag2.png"
+                alt="Green flag"
+                className="h-16 w-16 shrink-0 object-contain"
+              />
+              <p className="text-base leading-relaxed text-slate-900 sm:text-lg">
+                <span className="font-bold text-slate-900">
+                  A green flag
+                </span>{" "}
+                shows a professional, legitimate trader. Their identity,
+                insurance, legal licenses and registrations have been
+                successfully verified.
               </p>
-            ) : (
-              <p className="text-sm text-white">
-                Traders can already register, and public search will be added here soon.
+            </div>
+            <div className="flex items-start gap-5 text-left">
+              <img
+                src="/Red%20flag2.png"
+                alt="Red flag"
+                className="h-16 w-16 shrink-0 object-contain"
+              />
+              <p className="text-base leading-relaxed text-slate-900 sm:text-lg">
+                <span className="font-bold text-slate-900">
+                  A red flag
+                </span>{" "}
+                shows no verified listing. Be cautious. Do not enter an
+                agreement without visual proof of insurance and legal
+                credentials.
               </p>
-            )}
+            </div>
           </div>
         </div>
       </section>
