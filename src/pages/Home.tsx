@@ -373,7 +373,7 @@ function Pillars() {
     },
   ];
   return (
-    <section id="why" className="scroll-mt-24 border-b border-slate-800/60 bg-slate-900 py-20 sm:py-28">
+    <section id="why" className="scroll-mt-24 border-b border-slate-800/60 bg-slate-800 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
           What We Verify For You
