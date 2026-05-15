@@ -596,11 +596,11 @@ export function Home() {
 
           <div className="mx-auto mt-10 max-w-6xl">
           <div className="flex flex-col items-center justify-center gap-8 md:flex-row md:items-center">
-            <div className="w-full max-w-[420px] overflow-hidden rounded-[999px] border border-white/10 shadow-[0_22px_55px_-35px_rgba(15,23,42,0.6)]">
+            <div className="w-full max-w-[420px]">
               <img
                 src={ghostTradersImage}
                 alt="Tradespeople illustration used in the Trader Watchdog hero"
-                className="aspect-[4/5] w-full object-contain object-center opacity-95 [mask-image:radial-gradient(ellipse_at_center,_black_68%,_transparent_96%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,_black_68%,_transparent_96%)]"
+                className="w-full object-contain"
               />
             </div>
 
