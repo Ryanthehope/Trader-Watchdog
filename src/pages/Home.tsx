@@ -197,7 +197,7 @@ function FeatureHighlights() {
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-brand-900/40 bg-brand-950 py-16 sm:py-20"
+      className="scroll-mt-24 border-b border-brand-800/40 bg-brand-800 py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-10 md:grid-cols-3">
