@@ -663,7 +663,7 @@ export function Home() {
           </div>
 
           <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-12">
-            <div className="flex items-start gap-5 rounded-3xlborder-b border-brand-800/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
+            <div className="flex items-start gap-5 rounded-3xlborder-b border-brand-900/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
               <img
                 src="/Green%20flag2.png"
                 alt="Green flag"
@@ -680,7 +680,7 @@ export function Home() {
               </p>
             </div>
 
-            <div className="flex items-start gap-5 rounded-3xl border-b border-brand-800/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
+            <div className="flex items-start gap-5 rounded-3xl border-b border-brand-900/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
               <img
                 src="/Red%20flag2.png"
                 alt="Red flag"
