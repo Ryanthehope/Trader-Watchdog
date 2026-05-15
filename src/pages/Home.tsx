@@ -5,54 +5,6 @@ import { VerifyForm } from "../components/VerifyForm";
 import { getLaunchWindow } from "../lib/launchWindow";
 import ghostTradersImage from "../../ghost traders.jpg";
 
-function BadgeShowcase() {
-  return (
-    <section className="border-b border-slate-200 bg-slate-50 py-20 sm:py-24">
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:gap-20 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center sm:px-6">
-        <div className="lg:max-w-xl">
-          <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
-            The Trader Watchdog badge
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-            See if they&apos;re legit with one click
-          </h2>
-          <p className="mt-5 text-base leading-relaxed text-slate-700">
-            Verified traders display a unique Trader Watchdog ID that householders
-            can search on this site. If there is no badge, or the result does not
-            match a live profile, treat that as a red flag before agreeing work or
-            parting with money.
-          </p>
-          <ul className="mt-8 space-y-3 text-sm text-slate-700">
-            <li className="flex gap-3">
-              <span className="text-brand-600">✓</span>
-              Ask for their Trader Watchdog ID if it is not visible.
-            </li>
-            <li className="flex gap-3">
-              <span className="text-brand-600">✓</span>
-              Save their live profile link for your records if the trader is listed.
-            </li>
-          </ul>
-        </div>
-        <div className="flex justify-center lg:justify-end">
-          <div className="w-full max-w-[460px] rounded-3xl border border-brand-100 bg-white p-8 shadow-[0_24px_60px_-35px_rgba(30,68,153,0.35)]">
-            <div className="flex flex-col items-center text-center sm:items-end sm:text-right">
-              <img
-                src="/badge-preview.svg"
-                width={420}
-                height={120}
-                alt="Trader Watchdog verified badge preview"
-                className="h-auto w-full max-w-[420px] sm:ml-auto"
-              />
-              <p className="mt-5 max-w-[380px] text-sm leading-relaxed text-slate-600">
-                See this sign on a trader&apos;s van, paperwork, or website? It means they are verified on Trader Watchdog and you can check their profile before work starts.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function Stats() {
   const items = [
@@ -586,20 +538,20 @@ export function Home() {
     ;
 
   const heroTopLine =
-    "TRADER WATCHDOG PROVIDES A FREE CONSUMER PROTECTION SERVICE";
+    "TRADER WATCHDOG IS A FREE CONSUMER PROTECTION SERVICE TO THE PUBLIC";
   const heroSubLine =
     "DILIGENCE RECOMMENDED BY POLICE, TRADING STANDARDS, COUNCILS AND COMMUNITY GROUPS";
   const heroSupport =
-    "VERIFYING A TRADER IS PROFESSIONAL AND LEGAL IS ONLY A CLICK AWAY.";
+    "VERIFYING A TRADER IS ONLY A CLICK AWAY.";
 
   return (
     <>
       <section id="verify" className="relative overflow-hidden scroll-mt-24 border-b border-brand-800/40 bg-brand-800 px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-6xl text-center">
-          <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
+          <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-2xl">
             {heroTopLine}
           </p>
-          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/85 sm:text-sm">
+          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#A5A6A8]/85 sm:text-sm">
             {heroSubLine}
           </p>
 
@@ -624,7 +576,7 @@ export function Home() {
             </div>
           </div>
 
-          <p className="mx-auto mt-10 max-w-5xl text-center text-2xl font-bold uppercase leading-snug text-white sm:text-3xl">
+          <p className="mx-auto mt-10 max-w-5xl text-center text-2xl font-bold uppercase leading-snug text-white sm:text-2xl">
             {heroSupport}
           </p>
         </div>
