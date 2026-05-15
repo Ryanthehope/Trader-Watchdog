@@ -82,7 +82,7 @@ function Stats() {
     },
     {
       value: "Upto 30%",
-      label: "of online reviews are fake using AI instead",
+      label: "of online reviews are fake using AI instead to generate fake reviews",
       cardClass:
         "border-slate-700/70 bg-slate-900 text-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.45)]",
       valueClass: "text-white",
@@ -618,7 +618,7 @@ export function Home() {
                 ROGUE or LEGIT?
               </h1>
 
-              <h2 className="mt-5 max-w-[30rem] font-display text-3xl font-bold leading-tight text-white sm:text-5xl">
+              <h2 className="mt-5 max-w-[30rem] font-display text-2xl font-bold leading-tight text-white sm:text-5xl">
                 Don&apos;t take their word for it
               </h2>
             </div>
@@ -663,14 +663,15 @@ export function Home() {
           </div>
 
           <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-12">
-            <div className="flex items-start gap-5 text-left">
+            <div className="flex items-start gap-5 rounded-3xlborder-b border-brand-800/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
               <img
                 src="/Green%20flag2.png"
                 alt="Green flag"
                 className="h-16 w-16 shrink-0 object-contain"
               />
+
               <p className="text-base leading-relaxed text-white sm:text-lg">
-                <span className="font-bold text-white">
+                <span className="font-bold">
                   A green flag
                 </span>{" "}
                 shows a professional, legitimate trader. Their identity,
@@ -678,14 +679,16 @@ export function Home() {
                 successfully verified.
               </p>
             </div>
-            <div className="flex items-start gap-5 text-left">
+
+            <div className="flex items-start gap-5 rounded-3xl border-b border-brand-800/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
               <img
                 src="/Red%20flag2.png"
                 alt="Red flag"
                 className="h-16 w-16 shrink-0 object-contain"
               />
+
               <p className="text-base leading-relaxed text-white sm:text-lg">
-                <span className="font-bold text-white">
+                <span className="font-bold">
                   A red flag
                 </span>{" "}
                 shows no verified listing. Be cautious. Do not enter an
