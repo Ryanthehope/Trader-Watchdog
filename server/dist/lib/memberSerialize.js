@@ -77,7 +77,7 @@ export function parseVettingItems(raw) {
     }
     return out.length ? out : null;
 }
-function checksToFallbackCategories(checks) {
+function checksToFallbackSections(checks) {
     return [
         {
             id: "summary",
@@ -94,7 +94,7 @@ function checksToFallbackCategories(checks) {
 export function memberToPublic(m) {
     const checks = parseChecksJson(m.checks);
     const parsed = parseVettingItems(m.vettingItems);
-    const vettingCategories = parsed ?? (checks.length ? checksToFallbackCategories(checks) : []);
+    const vettingSections = parsed ?? (checks.length ? checksToFallbackSections(checks) : []);
     return {
         slug: m.slug,
         tvId: m.tvId,
@@ -102,9 +102,8 @@ export function memberToPublic(m) {
         trade: m.trade,
         location: m.location,
         phone: m.invoicePhone?.trim() || null,
-        categories: Array.isArray(m.categories) ? m.categories : [],
         checks,
-        vettingCategories,
+        vettingSections,
         verifiedSince: m.verifiedSince,
         blurb: m.blurb,
         profileLogo: Boolean(m.profileLogoStoredName?.trim()),

@@ -18,18 +18,6 @@ model Staff {
   updatedAt   DateTime @updatedAt
 }
 
-model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  slug        String   @unique
-  description String?
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  members Member[]
-}
-
 model Member {
   id                       String           @id @default(cuid())
   slug                     String           @unique
@@ -38,7 +26,7 @@ model Member {
   trade                    String
   location                 String
   checks                   Json
-  /// Optional structured vetting UI for the public profile (categories + accordion items).
+  /// Optional structured vetting UI for the public profile (sections + accordion items).
   vettingItems             Json?
   verifiedSince            String
   blurb                    String
@@ -88,8 +76,6 @@ model Member {
   /// Filled when this profile was auto-created from an approved application.
   sourceApplication        Application?     @relation("MemberFromApprovedApplication")
   insurancePolicies        Insurance[]
-
-  categories Category[]
 }
 
 model Insurance {

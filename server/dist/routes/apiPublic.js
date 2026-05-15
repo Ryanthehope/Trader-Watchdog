@@ -9,7 +9,6 @@ import { billingReady, getOrgBilling, getStripeSecretKey, } from "../lib/billing
 import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
 import { memberProfileLogoFilePath } from "../lib/memberProfileLogoPaths.js";
 import { orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
-// import { findMembersMatchingJobTrade, isValidJobTradeSlug, jobTradeLabelForSlug, JOB_TRADE_CATEGORIES } from "../lib/jobPostTradeRouting.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { verifyRecaptchaV2 } from "../lib/verifyRecaptcha.js";
 import { getBrandName, notifyNewApplication, publicSiteBase, } from "../lib/adminMail.js";
@@ -114,7 +113,6 @@ router.get("/public-config", async (_req, res) => {
             membershipPricePence: lines.membershipPence,
             baseMembershipPricePence: baseMembershipPence,
             launchDiscountActive,
-            // jobTradeCategories: JOB_TRADE_CATEGORIES, // removed
         });
     }
     catch (e) {
@@ -126,7 +124,6 @@ router.get("/public-config", async (_req, res) => {
             contactEmail,
             hasBrandingLogo: false,
             invoiceLegalName: null,
-            // jobTradeCategories: JOB_TRADE_CATEGORIES, // removed
         });
     }
 });
@@ -380,15 +377,6 @@ router.post("/applications", (req, res, next) => {
 router.get("/members", async (_req, res) => {
     try {
         const rows = await prisma.member.findMany({
-            include: {
-                categories: {
-                    select: {
-                        id: true,
-                        name: true,
-                        slug: true,
-                    },
-                },
-            },
             orderBy: { name: "asc" },
         });
         res.json({
@@ -459,21 +447,12 @@ async function memberProfileLogoGetHandler(req, res) {
 // Member inquiry endpoints removed
 /** Public availability calendar for a verified member profile */
 // Member availability endpoints removed
-/** Homeowner job request — staff lead + one lead per matching verified trade (by category). */
+/** Homeowner job request endpoints removed. */
 // Job post endpoints removed
 async function memberBySlugHandler(req, res) {
     try {
         const m = await prisma.member.findUnique({
             where: { slug: req.params.slug },
-            include: {
-                categories: {
-                    select: {
-                        id: true,
-                        name: true,
-                        slug: true,
-                    },
-                },
-            },
         });
         if (!m || !isMemberPublicListingVisible(m)) {
             res.status(404).json({ error: "Not found" });
@@ -519,3 +498,24 @@ async function guideBySlugHandler(req, res) {
 router.get("/guides/by-slug/:slug", guideBySlugHandler);
 router.get("/guides/by_slug/:slug", guideBySlugHandler);
 export default router;
+    **  * Delete;
+File: c: ;
+Users;
+ryan_;
+Documents;
+Websites;
+tradeverify;
+server;
+src;
+routes;
+categories.ts
+    **  * Delete;
+File: c: ;
+Users;
+ryan_;
+Documents;
+Websites;
+tradeverify;
+src;
+pages;
+CategoryView.tsx;

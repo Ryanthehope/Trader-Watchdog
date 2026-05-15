@@ -125,17 +125,11 @@ export function Layout() {
               <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
                 Verify
               </Link>
-              <Link to="/#how" className={`${desktopActionClass} bg-white/5`}>
-                How it works
-              </Link>
               <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
                 What we check
               </Link>
               <Link to="/#compare" className={`${desktopActionClass} bg-white/5`}>
                 Compare
-              </Link>
-              <Link to="/categories" className={`${desktopActionClass} bg-white/5`}>
-                Categories
               </Link>
               <Link to="/#verify" className={`${desktopActionClass} bg-white/10`}>
                 Verify a trade
@@ -158,13 +152,6 @@ export function Layout() {
                 Verify
               </Link>
               <Link
-                to="/#how"
-                className={mobileLinkClass}
-                onClick={() => setMenuOpen(false)}
-              >
-                How it works
-              </Link>
-              <Link
                 to="/#why"
                 className={mobileLinkClass}
                 onClick={() => setMenuOpen(false)}
@@ -177,13 +164,6 @@ export function Layout() {
                 onClick={() => setMenuOpen(false)}
               >
                 Compare
-              </Link>
-              <Link
-                to="/categories"
-                className={mobileLinkClass}
-                onClick={() => setMenuOpen(false)}
-              >
-                Categories
               </Link>
               <Link
                 to="/#verify"
@@ -275,9 +255,6 @@ export function Layout() {
                 className="text-slate-600 transition-colors hover:text-slate-400"
               >
                 Trader log in
-              </Link>
-              <Link to="/categories" className="text-slate-600 transition-colors hover:text-slate-400">
-                Categories
               </Link>
             </nav>
           </div>

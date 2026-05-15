@@ -103,7 +103,6 @@ See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architectur
 - Staff portal authentication against live Railway database
 - Member portal authentication and billing screens
 - Insurance CRUD and expiry tracking flows
-- Categories CRUD endpoints plus staff-side category assignment for members
 - Guides content management and public guide pages
 - Stripe billing, invoice, and annual renewal flows already present in the codebase
 - Monthly Stripe subscription creation is no longer part of the active billing flow

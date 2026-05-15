@@ -1,15 +1,5 @@
 import type { Member } from "@prisma/client";
 
-type MemberCategoryPublic = {
-  id: string;
-  name: string;
-  slug: string;
-};
-
-type MemberWithOptionalCategories = Member & {
-  categories?: MemberCategoryPublic[];
-};
-
 export type VettingItemStatus = "verified" | "pending";
 
 export type VettingFactPublic = {
@@ -28,7 +18,7 @@ export type VettingItemPublic = {
   facts?: VettingFactPublic[];
 };
 
-export type VettingCategoryPublic = {
+export type VettingSectionPublic = {
   id: string;
   label: string;
   items: VettingItemPublic[];
@@ -41,9 +31,8 @@ export type PublicMember = {
   trade: string;
   location: string;
   phone: string | null;
-  categories: MemberCategoryPublic[];
   checks: string[];
-  vettingCategories: VettingCategoryPublic[];
+  vettingSections: VettingSectionPublic[];
   verifiedSince: string;
   blurb: string;
   /** Public profile has an uploaded logo image. */
@@ -71,9 +60,9 @@ function parseChecksJson(checks: unknown): string[] {
   return [];
 }
 
-export function parseVettingItems(raw: unknown): VettingCategoryPublic[] | null {
+export function parseVettingItems(raw: unknown): VettingSectionPublic[] | null {
   if (!Array.isArray(raw)) return null;
-  const out: VettingCategoryPublic[] = [];
+  const out: VettingSectionPublic[] = [];
   for (const cat of raw) {
     if (!cat || typeof cat !== "object") return null;
     const label = String((cat as { label?: unknown }).label ?? "").trim();
@@ -125,7 +114,7 @@ export function parseVettingItems(raw: unknown): VettingCategoryPublic[] | null 
   return out.length ? out : null;
 }
 
-function checksToFallbackCategories(checks: string[]): VettingCategoryPublic[] {
+function checksToFallbackSections(checks: string[]): VettingSectionPublic[] {
   return [
     {
       id: "summary",
@@ -141,11 +130,11 @@ function checksToFallbackCategories(checks: string[]): VettingCategoryPublic[] {
   ];
 }
 
-export function memberToPublic(m: MemberWithOptionalCategories): PublicMember {
+export function memberToPublic(m: Member): PublicMember {
   const checks = parseChecksJson(m.checks);
   const parsed = parseVettingItems(m.vettingItems);
-  const vettingCategories =
-    parsed ?? (checks.length ? checksToFallbackCategories(checks) : []);
+  const vettingSections =
+    parsed ?? (checks.length ? checksToFallbackSections(checks) : []);
   return {
     slug: m.slug,
     tvId: m.tvId,
@@ -153,9 +142,8 @@ export function memberToPublic(m: MemberWithOptionalCategories): PublicMember {
     trade: m.trade,
     location: m.location,
     phone: m.invoicePhone?.trim() || null,
-    categories: Array.isArray(m.categories) ? m.categories : [],
     checks,
-    vettingCategories,
+    vettingSections,
     verifiedSince: m.verifiedSince,
     blurb: m.blurb,
     profileLogo: Boolean(m.profileLogoStoredName?.trim()),

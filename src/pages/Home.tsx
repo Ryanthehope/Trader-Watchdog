@@ -197,14 +197,14 @@ function FeatureHighlights() {
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-brand-900/40 bg-[#2f3d69] py-16 sm:py-20"
+      className="scroll-mt-24 border-b border-brand-900/40 bg-brand-950 py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-10 md:grid-cols-3">
           {cards.map((c) => (
             <div
               key={c.title}
-              className="text-center"
+              className="rounded-lg border border-slate-700/60 bg-slate-800/50 p-8 text-center transition-all duration-200 hover:border-slate-500 hover:bg-slate-800/70"
             >
               <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
                 {c.title}
@@ -585,7 +585,7 @@ export function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-brand-900/40 bg-[#2f3d69] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+      <section className="relative overflow-hidden border-b border-brand-900/40 bg-brand-950 px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-6xl text-center">
           <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
             {heroTopLine}
@@ -595,11 +595,11 @@ export function Home() {
           </p>
 
           <div className="mx-auto mt-10 grid max-w-5xl items-center gap-8 md:grid-cols-[1fr_1.25fr]">
-            <div className="overflow-hidden rounded-[2.5rem] bg-white/95 px-6 py-5 shadow-[0_22px_55px_-35px_rgba(15,23,42,0.6)]">
+            <div className="mx-auto w-full max-w-[420px] rounded-[999px] border border-white/10 bg-white/5 p-3 shadow-[0_22px_55px_-35px_rgba(15,23,42,0.6)]">
               <img
                 src={ghostTradersImage}
                 alt="Tradespeople illustration used in the Trader Watchdog hero"
-                className="h-auto w-full object-cover"
+                className="aspect-[4/5] w-full rounded-[999px] object-cover object-center"
               />
             </div>
 
@@ -642,7 +642,7 @@ export function Home() {
       <Stats />
       <FeatureHighlights />
 
-      <section className="border-b border-brand-900/40 bg-[#2f3d69] py-16 sm:py-20">
+      <section className="border-b border-brand-900/40 bg-brand-950 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="font-display text-4xl font-bold text-white sm:text-5xl">

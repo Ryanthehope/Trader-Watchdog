@@ -11,9 +11,9 @@ import { apiGet, apiPostPublic, publicApiUrl } from "../lib/api";
 import { getRecaptchaResponse } from "../lib/submitApplication";
 import { PublicAvailabilityCalendar } from "../components/PublicAvailabilityCalendar";
 import type {
-  VettingCategoryPublic,
   VettingFactPublic,
   VettingItemPublic,
+  VettingSectionPublic,
 } from "../types/content";
 
 const DISCLAIMER =
@@ -105,9 +105,9 @@ function VettingFacts({ facts }: { facts: VettingFactPublic[] }) {
 }
 
 function VettingAccordion({
-  categories,
+  sections,
 }: {
-  categories: VettingCategoryPublic[];
+  sections: VettingSectionPublic[];
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
 
@@ -117,7 +117,7 @@ function VettingAccordion({
 
   return (
     <div className="space-y-8">
-      {categories.map((cat) => (
+      {sections.map((cat) => (
         <div key={cat.id}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
             {cat.label}
@@ -421,9 +421,9 @@ export function MemberProfile() {
     );
   }
 
-  const categories =
-    member.vettingCategories.length > 0
-      ? member.vettingCategories
+  const vettingSections =
+    member.vettingSections.length > 0
+      ? member.vettingSections
       : [
           {
             id: "summary",
@@ -474,18 +474,6 @@ export function MemberProfile() {
                 <p className="mt-2 text-lg text-slate-400">
                   {member.trade} · {member.location}
                 </p>
-                {member.categories.length ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {member.categories.map((category) => (
-                      <span
-                        key={category.id}
-                        className="rounded-full border border-brand-400/20 bg-brand-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-100"
-                      >
-                        {category.name}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
                 <p className="mt-1 text-sm text-slate-500">
                   Checked since {member.verifiedSince}
                 </p>
@@ -540,7 +528,7 @@ export function MemberProfile() {
           </p>
 
           <div className="mt-8">
-            <VettingAccordion categories={categories} />
+            <VettingAccordion sections={vettingSections} />
           </div>
 
           <p className="mt-10 border-t border-white/10 pt-8 text-xs leading-relaxed text-slate-500">

@@ -2,8 +2,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 // import { GuideArticle } from "./pages/GuideArticle";
 // import { GuidesIndex } from "./pages/GuidesIndex";
-import { Categories } from "./pages/Categories";
-import { CategoryView } from "./pages/CategoryView";
 import { Contact } from "./pages/Contact";
 import { Home } from "./pages/Home";
 import { Join } from "./pages/Join";
@@ -94,8 +92,6 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="m/:slug" element={<MemberProfile />} />
           <Route path="lookup/miss" element={<LookupMiss />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="categories/:slug" element={<CategoryView />} />
           <Route path="join" element={<Join />} />
           {/* Removed post-job route */}
           {/* Guides/advice routes removed */}

@@ -14,16 +14,10 @@ export type VettingItemPublic = {
   facts?: VettingFactPublic[];
 };
 
-export type VettingCategoryPublic = {
+export type VettingSectionPublic = {
   id: string;
   label: string;
   items: VettingItemPublic[];
-};
-
-export type MemberCategoryPublic = {
-  id: string;
-  name: string;
-  slug: string;
 };
 
 export type VerifiedMember = {
@@ -33,9 +27,8 @@ export type VerifiedMember = {
   trade: string;
   location: string;
   phone: string | null;
-  categories: MemberCategoryPublic[];
   checks: string[];
-  vettingCategories: VettingCategoryPublic[];
+  vettingSections: VettingSectionPublic[];
   verifiedSince: string;
   blurb: string;
   /** Public profile includes a logo image. */

@@ -54,22 +54,12 @@ function parseGuideBody(body) {
 router.get("/members", async (_req, res) => {
     try {
         const rows = await prisma.member.findMany({
-            include: {
-                categories: {
-                    select: {
-                        id: true,
-                        name: true,
-                        slug: true,
-                    },
-                },
-            },
             orderBy: { updatedAt: "desc" },
         });
         res.json({
             members: rows.map((m) => ({
                 id: m.id,
                 ...memberToPublic(m),
-                categories: m.categories,
                 loginEmail: m.loginEmail,
                 portalEnabled: Boolean(m.loginEmail && m.passwordHash),
                 membershipUnlimited: m.membershipUnlimited,
@@ -89,15 +79,6 @@ router.get("/members/:id", async (req, res) => {
     try {
         const m = await prisma.member.findUnique({
             where: { id: req.params.id },
-            include: {
-                categories: {
-                    select: {
-                        id: true,
-                        name: true,
-                        slug: true,
-                    },
-                },
-            },
         });
         if (!m) {
             res.status(404).json({ error: "Not found" });
@@ -107,7 +88,6 @@ router.get("/members/:id", async (req, res) => {
             member: {
                 id: m.id,
                 ...memberToPublic(m),
-                categories: m.categories,
                 loginEmail: m.loginEmail,
                 portalEnabled: Boolean(m.loginEmail && m.passwordHash),
                 membershipUnlimited: m.membershipUnlimited,
@@ -126,11 +106,8 @@ router.get("/members/:id", async (req, res) => {
 });
 router.post("/members", async (req, res) => {
     try {
-        const { slug, tvId, name, trade, location, checks, verifiedSince, blurb, loginEmail, portalPassword, categoryIds, } = req.body ?? {};
+        const { slug, tvId, name, trade, location, checks, verifiedSince, blurb, loginEmail, portalPassword, } = req.body ?? {};
         const checkList = parseChecks(checks);
-        const normalizedCategoryIds = Array.isArray(categoryIds)
-            ? categoryIds.map(String).map((id) => id.trim()).filter(Boolean)
-            : [];
         if (!slug ||
             !tvId ||
             !name ||
@@ -164,13 +141,6 @@ router.post("/members", async (req, res) => {
                 checks: checkList,
                 verifiedSince: String(verifiedSince).trim(),
                 blurb: String(blurb).trim(),
-                ...(normalizedCategoryIds.length
-                    ? {
-                        categories: {
-                            connect: normalizedCategoryIds.map((id) => ({ id })),
-                        },
-                    }
-                    : {}),
                 ...(portalPw && portalEmail
                     ? {
                         loginEmail: portalEmail,
@@ -198,11 +168,8 @@ router.post("/members", async (req, res) => {
 });
 router.put("/members/:id", async (req, res) => {
     try {
-        const { slug, tvId, name, trade, location, checks, verifiedSince, blurb, loginEmail, portalPassword, disablePortal, categoryIds, } = req.body ?? {};
+        const { slug, tvId, name, trade, location, checks, verifiedSince, blurb, loginEmail, portalPassword, disablePortal, } = req.body ?? {};
         const checkList = parseChecks(checks);
-        const normalizedCategoryIds = Array.isArray(categoryIds)
-            ? categoryIds.map(String).map((id) => id.trim()).filter(Boolean)
-            : [];
         if (!slug ||
             !tvId ||
             !name ||
@@ -289,9 +256,6 @@ router.put("/members/:id", async (req, res) => {
                 checks: checkList,
                 verifiedSince: String(verifiedSince).trim(),
                 blurb: String(blurb).trim(),
-                categories: {
-                    set: normalizedCategoryIds.map((id) => ({ id })),
-                },
                 ...portalPatch,
                 ...membershipPatch,
             },
