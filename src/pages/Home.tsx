@@ -353,27 +353,39 @@ function Pillars() {
   const pillars = [
     {
       title: "Identity",
-      body: "We verify a trader is who they say they are and, where relevant, check business details against official company records. If a trader maintains, installs, or repairs gas appliances on domestic properties, they must be registered with Gas Safe, and we check that where relevant.",
+      body: "We use biometric checks and data analysis to verify the identity and location of a trader or Limited Company. This confirms they are who they claim to be, helping protect householders from fraud and false identities.",
     },
     {
-      title: "Insurance",
-      body: "Public Liability insurance helps protect your property from accidental damage. Employers Insurance is a legal requirement for many businesses. We verify the insurance held and the expiry dates we have been given.",
+      title: "Your Waste",
+      body: "Most householders don’t realise traders removing waste they have created at your property must hold a legal Waste Carrier Licence. If your waste is flytipped by an unlicensed trader, you can be fined or prosecuted as the waste producer.",
     },
     {
-      title: "Qualifications and memberships",
-      body: "Traders can display their qualifications and memberships on their profile for your inspection where they are relevant to the work they carry out.",
+      title: "Keeping Your Personal Data Safe",
+      body: "Any trader storing customer details — even just your name and number in their phone — must be ICO registered. It shows they follow GDPR rules and handle your personal information safely and legally.",
     },
     {
-      title: "Your waste",
-      body: "If a trader removes waste from your property, the correct Environment Agency registration matters. We help you check whether the trader holds the licence or permit required for the work they carry out.",
+      title: "Gas Engineers",
+      body: "A trader must be Gas Safe registered to work safely on any gas appliance or installation. Using a person that is not registered is illegal and dangerous — faulty gas work can cause leaks, fires or carbon monoxide poisoning.",
     },
     {
-      title: "Personal data and trade registers",
-      body: "If a trader stores your personal data, even just your name, they are legally required to protect it and register with the ICO where required for GDPR compliance. We also check claimed trade registers where relevant.",
+      title: "Public Liability Insurance",
+      body: "Public Liability Insurance protects you if a trader damages your property or injures someone while working. Without it, you may struggle to recover costs or compensation if something goes wrong.",
     },
+    {
+      title: "Employers Insurance",
+      body: "If a trader employs staff, they must have Employers’ Liability Insurance. It protects you if a worker is injured on your property — without it, claims can become complicated and leave you exposed.",
+    },
+    {
+      title: "Qualifications and Memberships",
+      body: "Traders can upload up to three qualifications or tradebody memberships to their public profile. This helps householders quickly see verified skills and recognised standards, showing the trader is properly trained for the work they offer.",
+    },
+    {
+      title: "Reviews",
+      body: "Fake reviews fuelled by AI are rising fast and can even be purchased online (search ‘buy reviews’). Tostay honest and transparent, we don’t offer reviews or recommendations — we provide facts only, so householders can make informed decisions.",
+    }
   ];
   return (
-    <section id="why" className="scroll-mt-24 border-b border-slate-800/60 bg-slate-800 py-20 sm:py-28">
+    <section id="why" className="scroll-mt-24 border-b border-brand-800/60 bg-brand-800 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
           What We Verify For You
