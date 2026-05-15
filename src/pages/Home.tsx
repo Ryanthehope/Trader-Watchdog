@@ -163,7 +163,7 @@ function CompareCell({ value }: { value: CompareCell }) {
   if (value === "partial") {
     return (
       <span
-        className="text-xs font-medium text-amber-200/90"
+        className="text-xs font-medium text-black/70"
         title="Partial or varies by plan"
       >
         Varies
@@ -414,48 +414,6 @@ function Pillars() {
   );
 }
 
-const faqItems = [
-  {
-    q: "What is Trader Watchdog?",
-    a: "Trader Watchdog is an independent consumer protection platform. We help householders check whether a trader can be verified before agreeing work or paying money.",
-  },
-  {
-    q: "What happens when I search for a trader?",
-    a: "If the trader is listed, you are taken to their live Trader Watchdog profile so you can review the checks we show there. If they are not listed, you will see a no-match page and should ask the trader for evidence directly.",
-  },
-  {
-    q: "Can I download a report?",
-    a: "Not yet. Today the service shows the trader's live profile and verification details on site. If downloadable reports are added later, the public wording should be updated at the same time.",
-  },
-];
-
-function Faq() {
-  return (
-    <section id="faq" className="border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
-        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          Common questions
-        </h2>
-        <dl className="mt-12 space-y-6">
-          {faqItems.map((item) => (
-            <div
-              key={item.q}
-              className="rounded-lg border border-slate-300/60 bg-white px-6 py-6 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
-            >
-              <dt className="font-semibold text-slate-900">{item.q}</dt>
-              <dd className="mt-3 text-sm leading-relaxed text-slate-700">
-                {item.a}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-    </section>
-  );
-}
-
-// GuidesTeaser removed
-
 function TradesCta() {
   return (
     <section id="join" className="border-t border-slate-200 bg-white py-20 sm:py-28">
@@ -535,6 +493,45 @@ function TradesCta() {
     </section>
   );
 }
+
+function Faq() {
+  return (
+    <section id="faq" className="border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          Common questions
+        </h2>
+        <dl className="mt-12 space-y-6">
+          {faqItems.map((item) => (
+            <div
+              key={item.q}
+              className="rounded-lg border border-slate-300/60 bg-white px-6 py-6 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
+            >
+              <dt className="font-semibold text-slate-900">{item.q}</dt>
+              <dd className="mt-3 text-sm leading-relaxed text-slate-700">
+                {item.a}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  );
+}
+const faqItems = [
+  {
+    q: "What is Trader Watchdog?",
+    a: "Trader Watchdog is an independent consumer protection platform. We help householders check whether a trader can be verified before agreeing work or paying money.",
+  },
+  {
+    q: "What happens when I search for a trader?",
+    a: "If the trader is listed, you are taken to their live Trader Watchdog profile so you can review the checks we show there. If they are not listed, you will see a no-match page and should ask the trader for evidence directly.",
+  },
+  {
+    q: "Can I download a report?",
+    a: "Not yet. Today the service shows the trader's live profile and verification details on site. If downloadable reports are added later, the public wording should be updated at the same time.",
+  },
+];
 
 function useHashScroll() {
   const { pathname, hash } = useLocation();
