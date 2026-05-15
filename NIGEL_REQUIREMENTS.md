@@ -51,17 +51,13 @@
 
 ### 3. Search Functionality
 
-**Two Search Methods:**
+**Current agreed direction:**
 
-**A) Search by Name + Address**
-- User enters business name AND address
-- Returns specific match
-- Confirms business location
-
-**B) Search by Name Only (Dropdown)**
-- Dropdown/autocomplete of business names
-- User selects from list
-- Shows all matches if multiple businesses have same name
+**Search by Business Name or Telephone Number**
+- User enters a business name OR telephone number
+- Search returns the correct trader record
+- Result should show the trader's business/trader name, address, telephone number, and insurance/certificate details
+- Search results should only expose verified/currently visible traders
 
 ---
 
@@ -146,7 +142,7 @@
 | Application Workflow | ✅ Built | Apply → Review → Approve |
 | Document Uploads | ✅ Built | Can upload files |
 | Public Directory | ✅ Built | Member profiles viewable |
-| Search | ⚠️ Partial | Has lookup, needs name+address AND dropdown |
+| Search | ⚠️ Partial | Has lookup and phone support, but still needs the final result-detail shape and validation pass |
 | Categories | ❌ Missing | No business category structure |
 | **Insurance Tracking** | ❌ **MISSING** | **CORE FEATURE NOT BUILT** |
 | **Expiry Alerts** | ❌ **MISSING** | **NO AUTOMATED NOTIFICATIONS** |
@@ -246,7 +242,7 @@ model Member {
 4. Add insurance display in admin panel
 5. Create cron job for expiry alerts
 6. Add business categories
-7. Enhance search (name+address, dropdown)
+7. Enhance search (business name or telephone number, with full trader detail result)
 8. Add address verification workflow
 9. Deploy to production
 
@@ -306,7 +302,7 @@ model Member {
 - Automated expiry alerts (90/60/30 days)
 - Grace period logic (7-10 days)
 - Business categories with alphabetical listing
-- Enhanced search (name+address AND dropdown)
+- Enhanced search (business name or telephone number with full trader detail result)
 - Address verification workflow
 - Production deployment
 - Testing and bug fixes
@@ -386,7 +382,7 @@ Here's what I'll deliver:
 ✅ Automated expiry alerts (90, 60, 30 days)
 ✅ Grace period management (7-10 days)
 ✅ Business categories (alphabetically listed)
-✅ Search by name+address AND name dropdown
+✅ Search by business name or telephone number
 ✅ Address verification workflow (ID + utility bill)
 ✅ Admin panel for 2+ users
 ✅ Member portal for businesses
@@ -416,7 +412,7 @@ Platform is successful when:
 3. ✅ Public directory shows only businesses with valid insurance
 4. ✅ Automated emails sent at 90/60/30 days before expiry
 5. ✅ Grace period properly tracked and enforced
-6. ✅ Businesses can be searched by name+address
+6. ✅ Businesses can be searched by business name or telephone number
 7. ✅ Admin can manage all verifications
 8. ✅ Homeowners trust the verification system
 

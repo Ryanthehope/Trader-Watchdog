@@ -407,6 +407,12 @@ export function Join() {
    * (Strict `status === "APPROVED"` missed some cases; positive allow-list is safer.)
    */
   const applicantStatus = String(applicantSummary?.status ?? "").toUpperCase();
+  const hasAnyPayment = Boolean(
+    applicantSummary?.hasFastTrackPayment || applicantSummary?.hasMembershipPayment);
+  const hasBothPayments = Boolean(
+  applicantSummary?.hasFastTrackPayment && applicantSummary?.hasMembershipPayment);
+  const canCheckoutAny = Boolean(
+  applicantSummary?.canCheckoutFastTrack || applicantSummary?.canCheckoutMembership);
   const showSubmitAnother =
     sentVia === "api" &&
     applicantSummaryReady &&
@@ -425,12 +431,6 @@ export function Join() {
     ? "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and public search by business name or telephone number once your profile is approved."
     : "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and a searchable public profile using your business name and advertised telephone number once public search is enabled.";
   const pricingHeading = "Membership pricing";
-  const hasAnyPayment = Boolean(
-    applicantSummary?.hasFastTrackPayment || applicantSummary?.hasMembershipPayment);
-  const hasBothPayments = Boolean(
-  applicantSummary?.hasFastTrackPayment && applicantSummary?.hasMembershipPayment);
-  const canCheckoutAny = Boolean(
-  applicantSummary?.canCheckoutFastTrack || applicantSummary?.canCheckoutMembership);
 
   return (
     <main className="border-b border-white/5 pb-24">
