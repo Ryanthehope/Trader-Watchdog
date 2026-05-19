@@ -4,7 +4,7 @@ import { Router } from "express";
 import multer from "multer";
 import { prisma } from "../db.js";
 import { ALLOWED_APPLICATION_DOC_MIME, MAX_APPLICATION_DOC_BYTES, MAX_APPLICATION_FILES, persistApplicationDocuments, removeApplicationUploadDir, } from "../lib/applicationDocuments.js";
-import { billingReady, getOrgBilling, getStripeSecretKey, } from "../lib/billingSettings.js";
+import { billingReady, getOrgBilling, getGoCardlessSecretKey, } from "../lib/billingSettings.js";
 // import { buildMemberBadgeSvgFromRow, buildTraderWatchdogBadgeSvg } from "../lib/memberBadgeSvg.js";
 import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
 import { memberProfileLogoFilePath } from "../lib/memberProfileLogoPaths.js";
@@ -37,7 +37,7 @@ const MEMBER_PUBLIC_VISIBILITY_SELECT = {
     membershipUnlimited: true,
     membershipBillingType: true,
     membershipExpiresAt: true,
-    stripeSubscriptionStatus: true,
+    goCardlessSubscriptionStatus: true,
 };
 /** Public diagnostic: open in a browser when the site shows "Could not load members". */
 router.get("/health", async (_req, res) => {
@@ -98,7 +98,7 @@ router.get("/public-config", async (_req, res) => {
         null;
     try {
         const s = await getOrgBilling();
-        const stripeOk = Boolean(await getStripeSecretKey());
+        const goCardlessOk = Boolean(await getGoCardlessSecretKey());
         const lines = checkoutLineConfig(s);
         const { launchDiscountActive } = getLaunchWindow();
         const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
@@ -106,7 +106,7 @@ router.get("/public-config", async (_req, res) => {
             recaptchaSiteKey: s.recaptchaEnabled && s.recaptchaSiteKey?.trim()
                 ? s.recaptchaSiteKey.trim()
                 : null,
-            billingAvailable: billingReady(s) && stripeOk,
+            billingAvailable: billingReady(s) && goCardlessOk,
             contactEmail,
             hasBrandingLogo: Boolean(s.brandingLogoStoredName?.trim()),
             invoiceLegalName: s.invoiceLegalName?.trim() || null,
@@ -176,8 +176,8 @@ router.post("/applications/applicant-summary", async (req, res) => {
     let billingAvailable = false;
     try {
         const s = await getOrgBilling();
-        const stripeOk = Boolean(await getStripeSecretKey());
-        billingAvailable = billingReady(s) && stripeOk;
+        const goCardlessOk = Boolean(await getGoCardlessSecretKey());
+        billingAvailable = billingReady(s) && goCardlessOk;
     }
     catch {
         billingAvailable = false;
@@ -353,8 +353,8 @@ router.post("/applications", (req, res, next) => {
             phone: row.phone,
             postcode: row.postcode,
         });
-        const stripeOk = Boolean(await getStripeSecretKey());
-        const billingAvailable = billingReady(org) && stripeOk;
+        const goCardlessOk = Boolean(await getGoCardlessSecretKey());
+        const billingAvailable = billingReady(org) && goCardlessOk;
         res.status(201).json({
             application: {
                 id: row.id,
@@ -498,24 +498,3 @@ async function guideBySlugHandler(req, res) {
 router.get("/guides/by-slug/:slug", guideBySlugHandler);
 router.get("/guides/by_slug/:slug", guideBySlugHandler);
 export default router;
-    **  * Delete;
-File: c: ;
-Users;
-ryan_;
-Documents;
-Websites;
-tradeverify;
-server;
-src;
-routes;
-categories.ts
-    **  * Delete;
-File: c: ;
-Users;
-ryan_;
-Documents;
-Websites;
-tradeverify;
-src;
-pages;
-CategoryView.tsx;

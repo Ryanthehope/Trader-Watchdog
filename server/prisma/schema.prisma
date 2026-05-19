@@ -52,9 +52,9 @@ model Member {
   passwordHash             String?
   /// After provisioning with a temp password; cleared when they set a new password.
   mustChangePassword       Boolean          @default(false)
-  /// When set with membershipBillingType, access ends after this instant (Stripe period end or manual term).
+  /// When set with membershipBillingType, access ends after this instant (GoCardless period end or manual term).
   membershipExpiresAt      DateTime?
-  /// "stripe" | "manual" | "fast_track" — null with null expiry = legacy grandfathered access.
+  /// "goCardless" | "manual" — null with null expiry = legacy grandfathered access.
   membershipBillingType    String?
   verificationProvider            String?
   verificationStatus              VerificationStatus @default(NOT_STARTED)
@@ -64,10 +64,10 @@ model Member {
   verificationProviderApplicantId String?
   verificationProviderSessionId   String?
   verificationFailureReason       String?
-  stripeCustomerId         String?
-  stripeSubscriptionId     String?
-  /// Mirrors Stripe subscription.status (active, canceled, past_due, …).
-  stripeSubscriptionStatus String?
+  goCardlessCustomerId         String?
+  goCardlessSubscriptionId     String?
+  /// Mirrors GoCardless subscription.status (active, canceled, past_due, …).
+  goCardlessSubscriptionStatus String?
   /// Staff-only: portal membership never expires (overrides billing/expiry).
   membershipUnlimited      Boolean          @default(false)
   createdAt                DateTime         @default(now())
@@ -159,7 +159,7 @@ model Application {
   vettingChecklist             String?
   /// Structured vetting sections { sectionId: { done, notes } }.
   vettingState                 Json?
-  fastTrackPaidAt              DateTime?
+  registrationFeePaidAt        DateTime?
   membershipSubscribed         Boolean               @default(false)
   /// Expiry for staff-recorded manual membership (copied to Member on provision / updates).
   manualMembershipExpiresAt    DateTime?
@@ -170,8 +170,8 @@ model Application {
   verificationRejectedAt          DateTime?
   verificationProviderApplicantId String?
   verificationProviderSessionId   String?
-  verificationFailureReason       String?
-  stripeCustomerId             String?
+  verificationFailureReason       String?   
+  goCardlessCustomerId             String?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?
   pendingPortalPasswordExpires DateTime?
@@ -215,16 +215,16 @@ model OrganizationSettings {
   smtpPass                          String?
   /// Sender for system emails, e.g. "Acme Verify <noreply@acme.com>"
   mailFrom                          String?
-  /// Stripe (admin-configurable; secret also via STRIPE_SECRET_KEY env)
+  /// GoCardless (admin-configurable; secret also via GO_CARDLESS_SECRET_KEY env)
   billingEnabled                    Boolean @default(false)
-  stripePublishableKey              String?
-  stripeSecretKey                   String?
-  stripeWebhookSecret               String?
-  /// Shown on Stripe Checkout (inline price_data — no Dashboard Price IDs required)
+  goCardlessPublishableKey              String?
+  goCardlessSecretKey                   String?
+  goCardlessWebhookSecret               String?
+  /// Shown on GoCardless Checkout (inline price_data — no Dashboard Price IDs required)
   checkoutMembershipName            String?
-  checkoutFastTrackName             String?
-  checkoutMembershipPence           Int     @default(1500)
-  checkoutFastTrackPence            Int     @default(4000)
+  checkoutRegistrationFeeName       String?
+  checkoutMembershipPence           Int     @default(7900)
+  checkoutRegistrationFeePence      Int     @default(1800)
   /// reCAPTCHA v2
   recaptchaEnabled                  Boolean @default(false)
   recaptchaSiteKey                  String?
@@ -233,13 +233,13 @@ model OrganizationSettings {
   staffRequire2fa                   Boolean @default(false)
   /// PNG/JPG logo file name under org branding upload dir (served at /api/public/branding/logo).
   brandingLogoStoredName            String?
-  /// Shown on member billing + synced context; Stripe PDFs use Dashboard branding after sync.
+  /// Shown on member billing + synced context; GoCardless PDFs use Dashboard branding after sync.
   invoiceLegalName                  String?
   invoiceVatNumber                  String?
   invoiceAddress                    String?
   invoiceFooterNote                 String?
-  /// Last Stripe File id used for account branding (optional).
-  stripeBrandingLogoFileId          String?
+  /// Last GoCardless File id used for account branding (optional).
+  goCardlessBrandingLogoFileId          String?
   /// GA4 Measurement ID (G-XXXXXXXXXX) — loads gtag on the public site (not /staff).
   googleAnalyticsMeasurementId      String?
   /// GA4 numeric Property ID (Admin → Property settings) for Data API reports in Staff → Analytics.

@@ -28,7 +28,7 @@ type CreatedMemberRef = {
   tvId: string;
   membershipBillingType?: string | null;
   membershipExpiresAt?: string | null;
-  stripeSubscriptionStatus?: string | null;
+  goCardlessSubscriptionStatus?: string | null;
 };
 
 type AppRow = {
@@ -43,9 +43,10 @@ type AppRow = {
   vettingChecklist: string | null;
   vettingState?: VettingStateMap | null;
   approvedAt: string | null;
-  fastTrackPaidAt: string | null;
+  registrationFeePaidAt: string | null;
   membershipSubscribed: boolean;
   manualMembershipExpiresAt?: string | null;
+  goCardlessSubscriptionStatus?: string | null;
   verificationProvider?: string | null;
   verificationStatus?: string | null;
   verificationSubmittedAt?: string | null;
@@ -305,7 +306,7 @@ export function StaffApplications() {
         <strong className="text-emerald-300/90"> Approve application</strong> marks them
         ready to pay; their public listing and portal are created{" "}
         <strong className="text-slate-300">after</strong> they complete checkout (or use{" "}
-        <strong className="text-slate-300">Create member profile</strong> if the Stripe
+        <strong className="text-slate-300">Create member profile</strong> if the GoCardless
         webhook failed). For bank transfer / invoice / cash, use{" "}
         <strong className="text-slate-300">Record … (manual)</strong> on an approved
         application — manual membership requires an{" "}
@@ -389,7 +390,7 @@ function ApplicationCard({
   const [saving, setSaving] = useState(false);
   const [provisionBusy, setProvisionBusy] = useState(false);
   const [manualPaymentBusy, setManualPaymentBusy] = useState<
-    "fast_track" | "membership" | null
+    "registration_fee" | "membership" | null
   >(null);
   const [sumsubBusy, setSumsubBusy] = useState<"launch" | "sync" | null>(null);
   const [provisionFlash, setProvisionFlash] = useState<{
@@ -414,7 +415,7 @@ function ApplicationCard({
   const docs = row.documents ?? [];
   const linked = row.createdMember ?? null;
   const hasPayment =
-    Boolean(row.fastTrackPaidAt) || Boolean(row.membershipSubscribed);
+    Boolean(row.registrationFeePaidAt) || Boolean(row.membershipSubscribed);
   const awaitingPaymentAfterApproval =
     row.status === "APPROVED" && !linked && !hasPayment;
   const paidAwaitingProfile =
@@ -454,7 +455,7 @@ function ApplicationCard({
     await save("APPROVED");
   };
 
-  const recordManualPayment = async (type: "fast_track" | "membership") => {
+  const recordManualPayment = async (type: "registration_fee" | "membership") => {
     let membershipExpiresAt: string | undefined;
     if (type === "membership") {
       const suggested = defaultManualMembershipExpiryDate();
@@ -471,12 +472,12 @@ function ApplicationCard({
       membershipExpiresAt = trimmed;
     }
     const label =
-      type === "fast_track"
-        ? "fast-track (£40) was received outside Stripe"
-        : `membership payment was recorded outside Stripe (until ${membershipExpiresAt})`;
+      type === "registration_fee"
+        ? "registration fee (£18) for admin checks was received outside GoCardless"
+        : `membership payment was recorded outside GoCardless (until ${membershipExpiresAt})`;
     if (
       !confirm(
-        `Record that ${label}? This marks payment on the application and creates the member profile when eligible (same as a successful card payment).`
+        `Record that ${label}? This marks payment on the application and creates the member profile when eligible (same as a successful GoCardless payment).`
       )
     ) {
       return;
@@ -719,13 +720,13 @@ function ApplicationCard({
                   Paid — profile not created yet
                 </span>
               ) : null}
-              {row.fastTrackPaidAt ? (
+              {row.registrationFeePaidAt ? (
                 <span className="rounded-full bg-amber-500/20 px-2.5 py-1 font-medium text-amber-200">
-                  Fast-track paid
+                  Registration fee paid
                 </span>
               ) : (
                 <span className="rounded-full bg-white/5 px-2.5 py-1 text-slate-500">
-                  No fast-track
+                  Registration fee outstanding
                 </span>
               )}
               {row.membershipSubscribed ? (
@@ -733,8 +734,8 @@ function ApplicationCard({
                   Membership paid
                   {row.manualMembershipExpiresAt
                     ? ` · active until ${row.manualMembershipExpiresAt.slice(0, 10)}`
-                    : linked?.membershipBillingType === "stripe"
-                      ? " · legacy Stripe link"
+                    : linked?.membershipBillingType === "goCardless"
+                      ? " · legacy GoCardless link"
                       : ""}
                 </span>
               ) : (
@@ -851,16 +852,16 @@ function ApplicationCard({
             ) : null}
             {row.status === "APPROVED" && !linked ? (
               <>
-                {!row.fastTrackPaidAt ? (
+                {!row.registrationFeePaidAt ? (
                   <button
                     type="button"
                     disabled={manualPaymentBusy !== null || provisionBusy}
-                    onClick={() => void recordManualPayment("fast_track")}
+                    onClick={() => void recordManualPayment("registration_fee")}
                     className="rounded-xl border border-amber-500/35 bg-amber-500/10 px-3.5 py-2.5 text-sm font-medium text-amber-100/95 transition hover:bg-amber-500/16 disabled:opacity-50"
                   >
-                    {manualPaymentBusy === "fast_track"
+                    {manualPaymentBusy === "registration_fee"
                       ? "Saving…"
-                      : "Record fast-track (manual)"}
+                      : "Record registration fee (manual)"}
                   </button>
                 ) : null}
                 {!row.membershipSubscribed ? (
@@ -881,7 +882,7 @@ function ApplicationCard({
             linked &&
             row.membershipSubscribed &&
             row.manualMembershipExpiresAt &&
-            linked.membershipBillingType !== "stripe" ? (
+            linked.membershipBillingType !== "goCardless" ? (
               <button
                 type="button"
                 disabled={manualPaymentBusy !== null || provisionBusy}

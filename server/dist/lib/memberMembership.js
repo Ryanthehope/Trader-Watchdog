@@ -1,7 +1,7 @@
 function nowUtc() {
     return new Date();
 }
-function isStripeMembershipActive(status) {
+function isGoCardlessMembershipActive(status) {
     return status === "active" || status === "trialing";
 }
 export function isMemberMembershipAccessActive(member, now = nowUtc()) {
@@ -10,8 +10,8 @@ export function isMemberMembershipAccessActive(member, now = nowUtc()) {
     if (!member.membershipBillingType)
         return true;
     if (!member.membershipExpiresAt) {
-        return (member.membershipBillingType !== "stripe" ||
-            isStripeMembershipActive(member.stripeSubscriptionStatus));
+        return (member.membershipBillingType !== "goCardless" ||
+            isGoCardlessMembershipActive(member.goCardlessSubscriptionStatus));
     }
     return member.membershipExpiresAt > now;
 }
@@ -32,7 +32,7 @@ export function membershipSummaryForMember(member, now = nowUtc()) {
         membershipUnlimited: member.membershipUnlimited,
         billingType: member.membershipBillingType,
         expiresAt: member.membershipExpiresAt?.toISOString() ?? null,
-        stripeSubscriptionStatus: member.stripeSubscriptionStatus,
+        goCardlessSubscriptionStatus: member.goCardlessSubscriptionStatus,
         inGracePeriod: !accessActive && publicVisible && Boolean(member.membershipExpiresAt),
     };
 }

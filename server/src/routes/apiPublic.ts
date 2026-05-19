@@ -15,7 +15,7 @@ import {
 import {
   billingReady,
   getOrgBilling,
-  getStripeSecretKey,
+  getGoCardlessSecretKey,
 } from "../lib/billingSettings.js";
 // import { buildMemberBadgeSvgFromRow, buildTraderWatchdogBadgeSvg } from "../lib/memberBadgeSvg.js";
 import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
@@ -57,7 +57,7 @@ const MEMBER_PUBLIC_VISIBILITY_SELECT = {
   membershipUnlimited: true,
   membershipBillingType: true,
   membershipExpiresAt: true,
-  stripeSubscriptionStatus: true,
+  goCardlessSubscriptionStatus: true,
 } as const;
 
 /** Public diagnostic: open in a browser when the site shows "Could not load members". */
@@ -122,7 +122,7 @@ router.get("/public-config", async (_req, res) => {
     null;
   try {
     const s = await getOrgBilling();
-    const stripeOk = Boolean(await getStripeSecretKey());
+    const goCardlessOk = Boolean(await getGoCardlessSecretKey());
     const lines = checkoutLineConfig(s);
     const { launchDiscountActive } = getLaunchWindow();
     const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
@@ -132,7 +132,7 @@ router.get("/public-config", async (_req, res) => {
         s.recaptchaEnabled && s.recaptchaSiteKey?.trim()
           ? s.recaptchaSiteKey.trim()
           : null,
-      billingAvailable: billingReady(s) && stripeOk,
+      billingAvailable: billingReady(s) && goCardlessOk,
       contactEmail,
       hasBrandingLogo: Boolean(s.brandingLogoStoredName?.trim()),
       invoiceLegalName: s.invoiceLegalName?.trim() || null,
@@ -204,8 +204,8 @@ router.post("/applications/applicant-summary", async (req, res) => {
   let billingAvailable = false;
   try {
     const s = await getOrgBilling();
-    const stripeOk = Boolean(await getStripeSecretKey());
-    billingAvailable = billingReady(s) && stripeOk;
+    const goCardlessOk = Boolean(await getGoCardlessSecretKey());
+    billingAvailable = billingReady(s) && goCardlessOk;
   } catch {
     billingAvailable = false;
   }
@@ -223,24 +223,23 @@ router.post("/applications/applicant-summary", async (req, res) => {
       res.json({
         exists: false,
         billingAvailable,
-        canCheckoutFastTrack: false,
+        canCheckoutRegistrationFee: false,
         canCheckoutMembership: false,
-        hasFastTrackPayment: false,
+        hasRegistrationFeePayment: false,
         hasMembershipPayment: false,
         profileLive: false,
         oneTimePassword: null,
       });
       return;
     }
-    const hasFastTrackPayment  =
-      Boolean(row.fastTrackPaidAt);
+    const hasRegistrationFeePayment = Boolean(row.registrationFeePaidAt);
     const hasMembershipPayment =
       Boolean(row.membershipSubscribed);  
     const profileLive = Boolean(row.createdMemberId);
-    const canCheckoutFastTrack =
+    const canCheckoutRegistrationFee =
       billingAvailable &&
       row.status === "APPROVED" &&
-      !hasFastTrackPayment &&
+      !hasRegistrationFeePayment &&
       !profileLive;
     const canCheckoutMembership =
       billingAvailable &&
@@ -259,9 +258,9 @@ router.post("/applications/applicant-summary", async (req, res) => {
       exists: true,
       status: String(row.status),
       billingAvailable,
-      canCheckoutFastTrack,
+      canCheckoutRegistrationFee,
       canCheckoutMembership,
-      hasFastTrackPayment,
+      hasRegistrationFeePayment,
       hasMembershipPayment,
       profileLive,
       oneTimePassword,
@@ -391,8 +390,8 @@ router.post(
         phone: row.phone,
         postcode: row.postcode,
       });
-      const stripeOk = Boolean(await getStripeSecretKey());
-      const billingAvailable = billingReady(org) && stripeOk;
+      const goCardlessOk = Boolean(await getGoCardlessSecretKey());
+      const billingAvailable = billingReady(org) && goCardlessOk;
       res.status(201).json({
         application: {
           id: row.id,

@@ -24,7 +24,7 @@ export type MemberSession = {
   membershipAdminUnlimited: boolean;
   membershipBillingType: string | null;
   membershipExpiresAt: string | null;
-  stripeSubscriptionStatus: string | null;
+  goCardlessSubscriptionStatus: string | null;
 };
 
 type Value = {
@@ -72,7 +72,7 @@ export function MemberAuthProvider({ children }: { children: ReactNode }) {
       membershipAdminUnlimited: m?.adminUnlimited ?? false,
       membershipBillingType: m?.billingType ?? null,
       membershipExpiresAt: m?.expiresAt ?? null,
-      stripeSubscriptionStatus: m?.subscriptionStatus ?? null,
+      goCardlessSubscriptionStatus: m?.subscriptionStatus ?? null,
     });
   }, []);
 

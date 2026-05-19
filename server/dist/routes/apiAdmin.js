@@ -93,7 +93,7 @@ router.get("/members/:id", async (req, res) => {
                 membershipUnlimited: m.membershipUnlimited,
                 membershipBillingType: m.membershipBillingType,
                 membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
-                stripeSubscriptionStatus: m.stripeSubscriptionStatus,
+                goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
                 createdAt: m.createdAt.toISOString(),
                 updatedAt: m.updatedAt.toISOString(),
             },
@@ -187,7 +187,7 @@ router.put("/members/:id", async (req, res) => {
             : undefined;
         const portalOff = Boolean(disablePortal);
         const portalPatch = {};
-        const { membershipUnlimited, membershipAccessMode, membershipExpiresAt, clearStripeSubscription, } = req.body ?? {};
+        const { membershipUnlimited, membershipAccessMode, membershipExpiresAt, clearGoCardlessSubscription, } = req.body ?? {};
         const membershipPatch = {};
         if (typeof membershipUnlimited === "boolean") {
             membershipPatch.membershipUnlimited = membershipUnlimited;
@@ -198,10 +198,10 @@ router.put("/members/:id", async (req, res) => {
         if (accessMode === "legacy") {
             membershipPatch.membershipBillingType = null;
             membershipPatch.membershipExpiresAt = null;
-            if (clearStripeSubscription === true) {
-                membershipPatch.stripeSubscriptionId = null;
-                membershipPatch.stripeSubscriptionStatus = null;
-                membershipPatch.stripeCustomerId = null;
+            if (clearGoCardlessSubscription === true) {
+                membershipPatch.goCardlessSubscriptionId = null;
+                membershipPatch.goCardlessSubscriptionStatus = null;
+                membershipPatch.goCardlessCustomerId = null;
             }
         }
         else if (accessMode === "manual" || accessMode === "fast_track") {
@@ -215,9 +215,9 @@ router.put("/members/:id", async (req, res) => {
             membershipPatch.membershipBillingType =
                 accessMode === "fast_track" ? "fast_track" : "manual";
             membershipPatch.membershipExpiresAt = exp;
-            if (clearStripeSubscription === true) {
-                membershipPatch.stripeSubscriptionId = null;
-                membershipPatch.stripeSubscriptionStatus = null;
+            if (clearGoCardlessSubscription === true) {
+                membershipPatch.goCardlessSubscriptionId = null;
+                membershipPatch.goCardlessSubscriptionStatus = null;
             }
         }
         if (portalOff) {
@@ -269,7 +269,7 @@ router.put("/members/:id", async (req, res) => {
                 membershipUnlimited: m.membershipUnlimited,
                 membershipBillingType: m.membershipBillingType,
                 membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
-                stripeSubscriptionStatus: m.stripeSubscriptionStatus,
+                goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
             },
         });
     }

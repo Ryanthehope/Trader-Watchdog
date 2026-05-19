@@ -20,15 +20,15 @@ import memberPortalRouter from "./routes/memberPortal.js";
 import insuranceRouter from "./routes/insurance.js";
 import cronRouter from "./routes/cron.js";
 import { ensureSeedStaffFromEnv } from "./lib/ensureSeedStaff.js";
-import { stripeWebhookHandler } from "./routes/stripeWebhook.js";
+import { goCardlessWebhookHandler } from "./routes/goCardlessWebhook.js";
 import { sumsubWebhookHandler } from "./routes/sumsubWebhook.js";
 // import { deleteMembersExpiredBeyondGrace } from "./lib/memberMembership.js";
 const rootDir = path.join(bootDir, "..", "..");
 const distDir = path.join(rootDir, "dist");
 const app = express();
 app.use(cors({ origin: true, credentials: true }));
-app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), (req, res) => {
-    void stripeWebhookHandler(req, res);
+app.post("/api/goCardless/webhook", express.raw({ type: "application/json" }), (req, res) => {
+    void goCardlessWebhookHandler(req, res);
 });
 app.post("/api/sumsub/webhook", express.raw({ type: "application/json" }), (req, res) => {
     void sumsubWebhookHandler(req, res);

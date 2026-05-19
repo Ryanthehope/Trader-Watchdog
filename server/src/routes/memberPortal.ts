@@ -9,7 +9,7 @@ import {
   billingReady,
   checkoutLineConfig,
   getOrgBilling,
-  getStripeClient,
+  getGoCardlessClient,
 } from "../lib/billingSettings.js";
 import { documentIssuerFromMember } from "../lib/documentIssuer.js";
 import {
@@ -133,13 +133,13 @@ router.get("/me", async (req, res) => {
       membershipUnlimited: m.membershipUnlimited,
       membershipBillingType: m.membershipBillingType,
       membershipExpiresAt: m.membershipExpiresAt,
-      stripeSubscriptionStatus: m.stripeSubscriptionStatus,
+      goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
     });
     const profileLive = isMemberPublicListingVisible({
       membershipUnlimited: m.membershipUnlimited,
       membershipBillingType: m.membershipBillingType,
       membershipExpiresAt: m.membershipExpiresAt,
-      stripeSubscriptionStatus: m.stripeSubscriptionStatus,
+      goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
     });
     res.json({
   memberId: m.id,
@@ -184,7 +184,7 @@ router.post("/membership/renew", async (req, res) => {
       where: { id: memberId },
       select: {
         loginEmail: true,
-        stripeCustomerId: true,
+        goCardlessCustomerId: true,
       },
     });
     if (!m?.loginEmail?.trim()) {
@@ -196,17 +196,17 @@ router.post("/membership/renew", async (req, res) => {
       res.status(400).json({ error: "Online billing is not enabled" });
       return;
     }
-    const stripe = await getStripeClient();
-    if (!stripe) {
-      res.status(400).json({ error: "Stripe is not configured" });
+    const gocardless = await getGoCardlessClient();
+    if (!gocardless) {
+      res.status(400).json({ error: "GoCardless is not configured" });
       return;
     }
     const origin = await siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const session = await stripe.checkout.sessions.create({
+    const session = await gocardless.checkout.sessions.create({
       mode: "payment",
-      ...(m.stripeCustomerId
-        ? { customer: m.stripeCustomerId }
+      ...(m.goCardlessCustomerId
+        ? { customer: m.goCardlessCustomerId }
         : { customer_email: m.loginEmail.trim().toLowerCase() }),
       line_items: [
         {
@@ -586,36 +586,36 @@ async function invoiceBrandingPayload() {
   };
 }
 
-/** Stripe invoices for one-off joining and annual renewal payments. */
+/** GoCardless invoices for one-off joining and annual renewal payments. */
 router.get("/invoices", async (req, res) => {
   try {
     const memberId = (req as unknown as { memberId: string }).memberId;
     const branding = await invoiceBrandingPayload();
     const m = await prisma.member.findUnique({
       where: { id: memberId },
-      select: { stripeCustomerId: true },
+      select: { goCardlessCustomerId: true },
     });
-    if (!m?.stripeCustomerId?.trim()) {
+    if (!m?.goCardlessCustomerId?.trim()) {
       res.json({
         invoices: [] as Array<Record<string, unknown>>,
-        stripeCustomerId: null as string | null,
+        goCardlessCustomerId: null as string | null,
         branding,
       });
       return;
     }
-    const stripe = await getStripeClient();
-    if (!stripe) {
+    const gocardless = await getGoCardlessClient();
+    if (!gocardless) {
       res.status(503).json({ error: "Billing is not configured" });
       return;
     }
-    const list = await stripe.invoices.list({
-      customer: m.stripeCustomerId,
+    const list = await gocardless.invoices.list({
+      customer: m.goCardlessCustomerId,
       limit: 36,
     });
     res.json({
-      stripeCustomerId: m.stripeCustomerId,
+      goCardlessCustomerId: m.goCardlessCustomerId,
       branding,
-      invoices: list.data.map((inv) => ({
+      invoices: list.data.map((inv: any) => ({
         id: inv.id,
         number: inv.number,
         status: inv.status,

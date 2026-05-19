@@ -11,7 +11,7 @@ type Dashboard = {
   reviewsPending: number;
   revenueMtdCents: number;
   outstandingCents: number;
-  financialSource?: "stripe" | "fallback";
+  financialSource?: "goCardless" | "fallback";
   financialError?: string | null;
   inboxUnread: number;
   activity: { at: string; label: string; href: string }[];
@@ -58,7 +58,7 @@ export function StaffDashboard() {
           <p className="mt-2 text-xs text-amber-600">
             Live totals unavailable — figures may be outdated. See Financial.
           </p>
-        ) : data.financialSource !== "stripe" ? (
+        ) : data.financialSource !== "goCardless" ? (
           <p className="mt-2 text-xs text-slate-500">
             Card payments can be connected in Integrations to keep these current.
           </p>

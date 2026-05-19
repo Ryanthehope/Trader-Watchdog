@@ -8,7 +8,7 @@ A trader verification platform with a public directory, staff portal, trader por
 - **Backend:** Express + TypeScript
 - **Database:** PostgreSQL via Prisma
 - **Authentication:** Custom JWT auth for staff and member portals
-- **Payments:** Stripe for one-off joining and annual renewal payments
+- **Payments:** GoCarless for one-off joining and annual renewal payments
 - **Styling:** Tailwind CSS
 - **Hosting:** Vercel (frontend) + Railway (backend/database)
 
@@ -25,7 +25,7 @@ npm install
 Important variables used by the current app:
 
 - Frontend: `VITE_API_URL`
-- Backend: `DATABASE_URL`, `JWT_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+- Backend: `DATABASE_URL`, `JWT_SECRET`, `GoCardless_SECRET_KEY`, `GoCardless_WEBHOOK_SECRET`
 - Staff bootstrap: `STAFF_SEED_EMAIL`, `STAFF_SEED_PASSWORD`, `STAFF_SEED_NAME`
 - Scheduled tasks: `CRON_SECRET`
 
@@ -61,11 +61,11 @@ If `STAFF_SEED_EMAIL`, `STAFF_SEED_PASSWORD`, and `STAFF_SEED_NAME` are set on t
 
 This was added so the live admin portal can recover from an empty `staff` table without running a manual seed script.
 
-### 6. Stripe And Billing
+### 6. GoCardless And Billing
 
-1. Set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` on the backend
+1. Set `GoCardless_SECRET_KEY` and `GoCardless_WEBHOOK_SECRET` on the backend
 2. Enable billing in staff settings and confirm the checkout amounts/names there
-3. Setup webhook endpoint: `https://yourdomain.com/api/webhooks/stripe`
+3. Setup webhook endpoint: `https://yourdomain.com/api/webhooks/GoCardless`
 4. Use one-off checkout for the initial joining fee and member annual renewal
 
 ## Project Structure
@@ -104,11 +104,11 @@ See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architectur
 - Member portal authentication and billing screens
 - Insurance CRUD and expiry tracking flows
 - Guides content management and public guide pages
-- Stripe billing, invoice, and annual renewal flows already present in the codebase
-- Monthly Stripe subscription creation is no longer part of the active billing flow
+- GoCardless billing, invoice, and annual renewal flows already present in the codebase
+- Monthly GoCardless subscription creation is no longer part of the active billing flow
 - The first unused legacy finance endpoint has been removed from `adminOps.ts`
 - A dormant legacy `system-info` and `staff-accounts` slice has been removed from `adminOps.ts`
-- A redundant manual `organization-branding/sync-stripe` endpoint has been removed from `adminOps.ts`
+- A redundant manual `organization-branding/sync-GoCardless` endpoint has been removed from `adminOps.ts`
 - An unused `ai-prompts` CRUD slice has been removed from `adminOps.ts`
 - An unused `members-options` endpoint has been removed from `adminOps.ts`
 - An unused `planner-events` CRUD slice has been removed from `adminOps.ts`
@@ -185,7 +185,7 @@ Insurance visibility includes a 14-day grace period after expiry before a member
 
 See the repo memory note at `/memories/repo/insurance-grace-period.md` for the current rule.
 
-## Stripe Testing
+## GoCardless Testing
 
 Use test cards:
 - Success: `4242 4242 4242 4242`

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../db.js";
-import { billingReady, checkoutLineConfig, getOrgBilling, getStripeClient, } from "../lib/billingSettings.js";
+import { billingReady, checkoutLineConfig, getOrgBilling, getGoCardlessClient, } from "../lib/billingSettings.js";
 const router = Router();
 /** From approval (or application date if legacy); applicants pay after staff approve. */
 const PAYMENT_WINDOW_MS = 1000 * 60 * 60 * 24 * 30;
@@ -43,9 +43,9 @@ router.post("/checkout-fast-track", async (req, res) => {
             res.status(400).json({ error: "Billing is not enabled" });
             return;
         }
-        const stripe = await getStripeClient();
-        if (!stripe) {
-            res.status(400).json({ error: "Stripe is not configured" });
+        const gocardless = await getGoCardlessClient();
+        if (!gocardless) {
+            res.status(400).json({ error: "GoCardless is not configured" });
             return;
         }
         const check = await assertFreshApplication(applicationId, email);
@@ -60,7 +60,7 @@ router.post("/checkout-fast-track", async (req, res) => {
         }
         const origin = siteOrigin(req);
         const lines = checkoutLineConfig(settings);
-        const session = await stripe.checkout.sessions.create({
+        const session = await gocardless.checkout.sessions.create({
             mode: "payment",
             customer_email: email,
             line_items: [
@@ -104,9 +104,9 @@ router.post("/checkout-membership", async (req, res) => {
             res.status(400).json({ error: "Billing is not enabled" });
             return;
         }
-        const stripe = await getStripeClient();
-        if (!stripe) {
-            res.status(400).json({ error: "Stripe is not configured" });
+        const gocardless = await getGoCardlessClient();
+        if (!gocardless) {
+            res.status(400).json({ error: "GoCardless is not configured" });
             return;
         }
         const check = await assertFreshApplication(applicationId, email);
@@ -121,7 +121,7 @@ router.post("/checkout-membership", async (req, res) => {
         }
         const origin = siteOrigin(req);
         const lines = checkoutLineConfig(settings);
-        const session = await stripe.checkout.sessions.create({
+        const session = await gocardless.checkout.sessions.create({
             mode: "payment",
             customer_email: email,
             line_items: [

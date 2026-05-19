@@ -22,11 +22,11 @@ export function StaffMemberForm() {
   const [portalMembershipUnlimited, setPortalMembershipUnlimited] =
     useState(false);
   const [portalAccessMode, setPortalAccessMode] = useState<
-    "keep" | "legacy" | "manual" | "fast_track"
+    "keep" | "legacy" | "manual"
   >("legacy");
   const [portalExpiresAt, setPortalExpiresAt] = useState("");
-  const [clearStripeSubscription, setClearStripeSubscription] = useState(false);
-  const [loadedStripeSubscriptionStatus, setLoadedStripeSubscriptionStatus] =
+  const [clearGoCardlessSubscription, setClearGoCardlessSubscription] = useState(false);
+  const [loadedGoCardlessSubscriptionStatus, setLoadedGoCardlessSubscriptionStatus] =
     useState<string | null>(null);
 
   const [loading, setLoading] = useState(!isNew);
@@ -56,7 +56,7 @@ export function StaffMemberForm() {
             membershipUnlimited?: boolean;
             membershipBillingType?: string | null;
             membershipExpiresAt?: string | null;
-            stripeSubscriptionStatus?: string | null;
+            goCardlessSubscriptionStatus?: string | null;
           };
         }>(`/api/admin/members/${id}`);
         if (cancelled) return;
@@ -74,20 +74,18 @@ export function StaffMemberForm() {
         setPortalMembershipUnlimited(Boolean(m.membershipUnlimited));
         const bt = (m.membershipBillingType ?? "").trim().toLowerCase();
         const mode =
-          bt === "stripe"
+          bt === "gocardless"
             ? "keep"
             : bt === "manual"
               ? "manual"
-              : bt === "fast_track"
-                ? "fast_track"
-                : "legacy";
+              : "legacy";
         setPortalAccessMode(mode);
         setPortalExpiresAt(
           m.membershipExpiresAt ? m.membershipExpiresAt.slice(0, 10) : ""
         );
-        setClearStripeSubscription(false);
-        setLoadedStripeSubscriptionStatus(
-          m.stripeSubscriptionStatus?.trim() || null
+        setClearGoCardlessSubscription(false);
+        setLoadedGoCardlessSubscriptionStatus(
+          m.goCardlessSubscriptionStatus?.trim() || null
         );
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Load failed");
@@ -131,12 +129,11 @@ export function StaffMemberForm() {
       }
     } else {
       if (
-        (portalAccessMode === "manual" ||
-          portalAccessMode === "fast_track") &&
+        portalAccessMode === "manual" &&
         !portalExpiresAt.trim()
       ) {
         setError(
-          "Access end date is required for manual and one-off (fast-track) modes."
+          "Access end date is required for manual access mode."
         );
         return;
       }
@@ -167,11 +164,10 @@ export function StaffMemberForm() {
             membershipUnlimited: portalMembershipUnlimited,
             membershipAccessMode: portalAccessMode,
             membershipExpiresAt:
-              portalAccessMode === "manual" ||
-              portalAccessMode === "fast_track"
+              portalAccessMode === "manual"
                 ? portalExpiresAt.trim() || null
                 : null,
-            clearStripeSubscription: clearStripeSubscription,
+            clearGoCardlessSubscription: clearGoCardlessSubscription,
           };
 
     setSaving(true);
@@ -324,8 +320,7 @@ export function StaffMemberForm() {
               </h2>
               <p className="mt-1 text-xs text-slate-500">
                 Controls how long the member can use the dashboard (documents,
-                profile edits, etc.). One-off fast-track payments default to one
-                calendar month unless you change this. Annual renewals now use
+                profile edits, etc.). Annual renewals now use
                 fixed end dates rather than a monthly subscription.
               </p>
               <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-slate-300">
@@ -353,19 +348,15 @@ export function StaffMemberForm() {
                   className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                 >
                   <option value="keep">
-                    Legacy Stripe-linked record (no local change)
+                    Legacy GoCardless-linked record (no local change)
                   </option>
                   <option value="legacy">
                     Unspecified / legacy (no expiry record)
                   </option>
                   <option value="manual">Manual term (set end date)</option>
-                  <option value="fast_track">
-                    One-off window (fast-track style — set end date)
-                  </option>
                 </select>
               </div>
-              {portalAccessMode === "manual" ||
-              portalAccessMode === "fast_track" ? (
+              {portalAccessMode === "manual" ? (
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-slate-300">
                     Access until (YYYY-MM-DD)
@@ -378,27 +369,25 @@ export function StaffMemberForm() {
                   />
                 </div>
               ) : null}
-              {portalAccessMode === "legacy" ||
-              portalAccessMode === "manual" ||
-              portalAccessMode === "fast_track" ? (
+              {portalAccessMode === "legacy" || portalAccessMode === "manual" ? (
                 <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-slate-300">
                   <input
                     type="checkbox"
-                    checked={clearStripeSubscription}
+                    checked={clearGoCardlessSubscription}
                     onChange={(e) =>
-                      setClearStripeSubscription(e.target.checked)
+                      setClearGoCardlessSubscription(e.target.checked)
                     }
                     className="rounded border-white/20 bg-ink-900"
                   />
-                  Clear old Stripe billing link on save (use when moving off
-                  Stripe or resetting billing)
+                  Clear old GoCardless billing link on save (use when moving off
+                  GoCardless or resetting billing)
                 </label>
               ) : null}
-              {portalAccessMode === "keep" && loadedStripeSubscriptionStatus ? (
+              {portalAccessMode === "keep" && loadedGoCardlessSubscriptionStatus ? (
                 <p className="mt-3 text-xs text-slate-500">
-                  Legacy Stripe status:{" "}
+                  Legacy GoCardless status:{" "}
                   <span className="font-mono text-slate-400">
-                    {loadedStripeSubscriptionStatus}
+                    {loadedGoCardlessSubscriptionStatus}
                   </span>
                 </p>
               ) : null}

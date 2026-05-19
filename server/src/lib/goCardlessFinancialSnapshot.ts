@@ -1,6 +1,6 @@
-import type Stripe from "stripe";
+import type GoCardless from "gocardless";
 
-/** Month boundaries in UTC (Stripe `created` filters use Unix seconds). */
+/** Month boundaries in UTC (GoCardless `created` filters use Unix seconds). */
 function startOfUtcMonthUnix(): number {
   const now = new Date();
   return Math.floor(
@@ -8,7 +8,7 @@ function startOfUtcMonthUnix(): number {
   );
 }
 
-export type StripeFinancialSnapshot =
+export type GoCardlessFinancialSnapshot =
   | {
       ok: true;
       revenueMtdCents: number;
@@ -21,22 +21,21 @@ export type StripeFinancialSnapshot =
   | { ok: false; error: string };
 
 /**
- * Revenue MTD: sum of succeeded PaymentIntent amounts in GBP (gross before your payout).
- * Outstanding: sum of `amount_remaining` on open GBP invoices (uncollected).
+ * Revenue MTD and outstanding amounts returned from the configured billing client.
  */
-export async function fetchStripeFinancialSnapshot(
-  stripe: Stripe
-): Promise<StripeFinancialSnapshot> {
+export async function fetchGoCardlessFinancialSnapshot(
+  goCardless: GoCardless
+): Promise<GoCardlessFinancialSnapshot> {
   try {
     const startUnix = startOfUtcMonthUnix();
     const currency = "gbp";
 
     let revenueMtdCents = 0;
     let paymentCountMtd = 0;
-    for await (const pi of stripe.paymentIntents.list({
+    for await (const pi of (goCardless as any).paymentIntents.list({
       created: { gte: startUnix },
       limit: 100,
-    })) {
+    }) as AsyncIterable<any>) {
       if (pi.status !== "succeeded") continue;
       if (pi.currency !== currency) continue;
       revenueMtdCents += pi.amount;
@@ -45,10 +44,10 @@ export async function fetchStripeFinancialSnapshot(
 
     let outstandingCents = 0;
     let openInvoiceCount = 0;
-    for await (const inv of stripe.invoices.list({
+    for await (const inv of (goCardless as any).invoices.list({
       status: "open",
       limit: 100,
-    })) {
+    }) as AsyncIterable<any>) {
       if (inv.currency !== currency) continue;
       const remaining = inv.amount_remaining ?? 0;
       if (remaining <= 0) continue;
@@ -66,7 +65,7 @@ export async function fetchStripeFinancialSnapshot(
       fetchedAt: new Date().toISOString(),
     };
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Stripe request failed";
+    const msg = e instanceof Error ? e.message : "GoCardless request failed";
     return { ok: false, error: msg };
   }
 }

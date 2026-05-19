@@ -2,14 +2,14 @@ type MemberMembershipFields = {
   membershipUnlimited: boolean;
   membershipBillingType: string | null;
   membershipExpiresAt: Date | null;
-  stripeSubscriptionStatus: string | null;
+  goCardlessSubscriptionStatus: string | null;
 };
 
 function nowUtc(): Date {
   return new Date();
 }
 
-function isStripeMembershipActive(status: string | null): boolean {
+function isGoCardlessMembershipActive(status: string | null): boolean {
   return status === "active" || status === "trialing";
 }
 
@@ -21,8 +21,8 @@ export function isMemberMembershipAccessActive(
   if (!member.membershipBillingType) return true;
   if (!member.membershipExpiresAt) {
     return (
-      member.membershipBillingType !== "stripe" ||
-      isStripeMembershipActive(member.stripeSubscriptionStatus)
+      member.membershipBillingType !== "goCardless" ||
+      isGoCardlessMembershipActive(member.goCardlessSubscriptionStatus)
     );
   }
   return member.membershipExpiresAt > now;
@@ -54,7 +54,7 @@ export function membershipSummaryForMember(
     membershipUnlimited: member.membershipUnlimited,
     billingType: member.membershipBillingType,
     expiresAt: member.membershipExpiresAt?.toISOString() ?? null,
-    stripeSubscriptionStatus: member.stripeSubscriptionStatus,
+    goCardlessSubscriptionStatus: member.goCardlessSubscriptionStatus,
     inGracePeriod:
       !accessActive && publicVisible && Boolean(member.membershipExpiresAt),
   };

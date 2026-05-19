@@ -4,8 +4,8 @@ import { mergeVettingStateFromDb, mergeVettingStateFromInput, vettingStateToPris
 import { applicationDocumentResolvedPath } from "../lib/applicationDocuments.js";
 import { tryProvisionMemberForApplication } from "../lib/provisionMemberFromApplication.js";
 import { sanitizeNullableDbString } from "../lib/sanitizeDbText.js";
-import { getStripeClient } from "../lib/billingSettings.js";
-import { fetchStripeFinancialSnapshot } from "../lib/stripeFinancialSnapshot.js";
+import { getGoCardlessClient } from "../lib/billingSettings.js";
+import { fetchGoCardlessFinancialSnapshot } from "../lib/goCardlessFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
 import { invalidateSmtpTransportCache, notifyApplicationDecision, notifyNewLead, } from "../lib/adminMail.js";
@@ -69,13 +69,13 @@ router.get("/dashboard", async (_req, res) => {
         let outstandingCents = settings.outstandingCents;
         let financialSource = "fallback";
         let financialError = null;
-        const stripe = await getStripeClient();
-        if (stripe) {
-            const snap = await fetchStripeFinancialSnapshot(stripe);
+        const goCardless = await getGoCardlessClient();
+        if (goCardless) {
+            const snap = await fetchGoCardlessFinancialSnapshot(goCardless);
             if (snap.ok) {
                 revenueMtdCents = snap.revenueMtdCents;
                 outstandingCents = snap.outstandingCents;
-                financialSource = "stripe";
+                financialSource = "goCardless";
             }
             else {
                 financialError = snap.error;
@@ -103,13 +103,13 @@ router.get("/dashboard", async (_req, res) => {
 function publicOrgSettings(s) {
     return {
         ...s,
-        stripeSecretKey: null,
-        stripeWebhookSecret: null,
+        goCardlessSecretKey: null,
+        goCardlessWebhookSecret: null,
         recaptchaSecretKey: null,
         smtpPass: null,
         googleAnalyticsServiceAccountJson: null,
-        hasStripeSecret: Boolean(s.stripeSecretKey?.trim()),
-        hasStripeWebhookSecret: Boolean(s.stripeWebhookSecret?.trim()),
+        hasGoCardlessSecret: Boolean(s.goCardlessSecretKey?.trim()),
+        hasGoCardlessWebhookSecret: Boolean(s.goCardlessWebhookSecret?.trim()),
         hasRecaptchaSecret: Boolean(s.recaptchaSecretKey?.trim()),
         hasSmtpPassword: Boolean(s.smtpPass?.trim()),
         hasGoogleAnalyticsServiceAccount: Boolean(s.googleAnalyticsServiceAccountJson?.trim()),
@@ -181,8 +181,8 @@ async function patchOrganizationSettings(req, res) {
         const billingEnabled = typeof body.billingEnabled === "boolean"
             ? body.billingEnabled
             : undefined;
-        const stripePublishableKey = typeof body.stripePublishableKey === "string"
-            ? body.stripePublishableKey.trim() || null
+        const goCardlessPublishableKey = typeof body.goCardlessPublishableKey === "string"
+            ? body.goCardlessPublishableKey.trim() || null
             : undefined;
         const checkoutMembershipName = typeof body.checkoutMembershipName === "string"
             ? body.checkoutMembershipName.trim() || null
@@ -198,11 +198,11 @@ async function patchOrganizationSettings(req, res) {
             Number.isFinite(body.checkoutFastTrackPence)
             ? Math.floor(body.checkoutFastTrackPence)
             : undefined;
-        const stripeSecretKey = typeof body.stripeSecretKey === "string"
-            ? body.stripeSecretKey.trim() || null
+        const goCardlessSecretKey = typeof body.goCardlessSecretKey === "string"
+            ? body.goCardlessSecretKey.trim() || null
             : undefined;
-        const stripeWebhookSecret = typeof body.stripeWebhookSecret === "string"
-            ? body.stripeWebhookSecret.trim() || null
+        const goCardlessWebhookSecret = typeof body.goCardlessWebhookSecret === "string"
+            ? body.goCardlessWebhookSecret.trim() || null
             : undefined;
         const recaptchaEnabled = typeof body.recaptchaEnabled === "boolean"
             ? body.recaptchaEnabled
@@ -305,11 +305,11 @@ async function patchOrganizationSettings(req, res) {
             }
         }
         const secretPatch = {};
-        if (stripeSecretKey !== undefined) {
-            secretPatch.stripeSecretKey = stripeSecretKey;
+        if (goCardlessSecretKey !== undefined) {
+            secretPatch.goCardlessSecretKey = goCardlessSecretKey;
         }
-        if (stripeWebhookSecret !== undefined) {
-            secretPatch.stripeWebhookSecret = stripeWebhookSecret;
+        if (goCardlessWebhookSecret !== undefined) {
+            secretPatch.goCardlessWebhookSecret = goCardlessWebhookSecret;
         }
         if (recaptchaSecretKey !== undefined) {
             secretPatch.recaptchaSecretKey = recaptchaSecretKey;
@@ -335,8 +335,8 @@ async function patchOrganizationSettings(req, res) {
                 ...(smtpUser !== undefined ? { smtpUser } : {}),
                 ...(mailFrom !== undefined ? { mailFrom } : {}),
                 ...(billingEnabled !== undefined ? { billingEnabled } : {}),
-                ...(stripePublishableKey !== undefined
-                    ? { stripePublishableKey }
+                ...(goCardlessPublishableKey !== undefined
+                    ? { goCardlessPublishableKey }
                     : {}),
                 ...(checkoutMembershipName !== undefined
                     ? { checkoutMembershipName }
@@ -380,8 +380,8 @@ async function patchOrganizationSettings(req, res) {
                 ...(smtpUser !== undefined ? { smtpUser } : {}),
                 ...(mailFrom !== undefined ? { mailFrom } : {}),
                 ...(billingEnabled !== undefined ? { billingEnabled } : {}),
-                ...(stripePublishableKey !== undefined
-                    ? { stripePublishableKey }
+                ...(goCardlessPublishableKey !== undefined
+                    ? { goCardlessPublishableKey }
                     : {}),
                 ...(checkoutMembershipName !== undefined
                     ? { checkoutMembershipName }
@@ -509,7 +509,7 @@ function serializeAdminApplication(a) {
                 tvId: createdMember.tvId,
                 membershipBillingType: createdMember.membershipBillingType ?? null,
                 membershipExpiresAt: createdMember.membershipExpiresAt?.toISOString() ?? null,
-                stripeSubscriptionStatus: createdMember.stripeSubscriptionStatus ?? null,
+                goCardlessSubscriptionStatus: createdMember.goCardlessSubscriptionStatus ?? null,
             }
             : null,
         documents: documents.map((d) => ({
@@ -534,7 +534,7 @@ router.get("/applications", async (_req, res) => {
                         tvId: true,
                         membershipBillingType: true,
                         membershipExpiresAt: true,
-                        stripeSubscriptionStatus: true,
+                        goCardlessSubscriptionStatus: true,
                     },
                 },
             },
@@ -621,7 +621,7 @@ router.patch("/applications/:id", async (req, res) => {
                         tvId: true,
                         membershipBillingType: true,
                         membershipExpiresAt: true,
-                        stripeSubscriptionStatus: true,
+                        goCardlessSubscriptionStatus: true,
                     },
                 },
             },
@@ -820,7 +820,7 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
                         tvId: true,
                         membershipBillingType: true,
                         membershipExpiresAt: true,
-                        stripeSubscriptionStatus: true,
+                        goCardlessSubscriptionStatus: true,
                     },
                 },
             },
@@ -835,7 +835,7 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
         res.status(500).json({ error: "Could not sync Sumsub status" });
     }
 });
-/** Retry member creation after Stripe (or if webhook failed). Requires APPROVED + recorded payment. */
+/** Retry member creation after GoCardless (or if webhook failed). Requires APPROVED + recorded payment. */
 router.post("/applications/:id/provision-member", async (req, res) => {
     try {
         const id = req.params.id;
@@ -850,7 +850,7 @@ router.post("/applications/:id/provision-member", async (req, res) => {
         }
         if (!before.fastTrackPaidAt && !before.membershipSubscribed) {
             res.status(400).json({
-                error: "No payment is recorded yet. The listing is created when the applicant completes checkout, or retry here after Stripe confirms payment.",
+                error: "No payment is recorded yet. The listing is created when the applicant completes checkout, or retry here after GoCardless confirms payment.",
             });
             return;
         }
@@ -889,7 +889,7 @@ router.post("/applications/:id/provision-member", async (req, res) => {
                         tvId: true,
                         membershipBillingType: true,
                         membershipExpiresAt: true,
-                        stripeSubscriptionStatus: true,
+                        goCardlessSubscriptionStatus: true,
                     },
                 },
             },
@@ -912,7 +912,7 @@ router.post("/applications/:id/provision-member", async (req, res) => {
     }
 });
 /**
- * Record payment received outside Stripe (bank transfer, cash, phone, etc.).
+ * Record payment received outside GoCardless (bank transfer, cash, phone, etc.).
  * Same outcome as a successful Checkout webhook: flags + provision when eligible.
  */
 router.post("/applications/:id/record-manual-payment", async (req, res) => {
@@ -970,7 +970,7 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
                 }
                 if (before.manualMembershipExpiresAt == null) {
                     res.status(400).json({
-                        error: "This membership was recorded via Stripe. Manage renewal in Stripe or have the member subscribe from the portal.",
+                        error: "This membership was recorded via GoCardless. Manage renewal in GoCardless or have the member subscribe from the portal.",
                     });
                     return;
                 }
@@ -980,9 +980,9 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
                         select: { id: true, membershipBillingType: true },
                     })
                     : null;
-                if (memberRow?.membershipBillingType === "stripe") {
+                if (memberRow?.membershipBillingType === "goCardless") {
                     res.status(400).json({
-                        error: "This member is on Stripe billing; dates sync from the subscription.",
+                        error: "This member is on GoCardless billing; dates sync from the subscription.",
                     });
                     return;
                 }
@@ -1036,7 +1036,7 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
                         tvId: true,
                         membershipBillingType: true,
                         membershipExpiresAt: true,
-                        stripeSubscriptionStatus: true,
+                        goCardlessSubscriptionStatus: true,
                     },
                 },
             },

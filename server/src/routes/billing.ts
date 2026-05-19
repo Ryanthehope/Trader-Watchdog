@@ -4,7 +4,7 @@ import {
   billingReady,
   checkoutLineConfig,
   getOrgBilling,
-  getStripeClient,
+  getGoCardlessClient,
 } from "../lib/billingSettings.js";
 
 const router = Router();
@@ -43,7 +43,7 @@ function siteOrigin(req: { get: (h: string) => string | undefined }) {
   );
 }
 
-router.post("/checkout-fast-track", async (req, res) => {
+router.post("/checkout-registration-fee", async (req, res) => {
   try {
     const applicationId = String(req.body?.applicationId ?? "").trim();
     const email = String(req.body?.email ?? "").trim().toLowerCase();
@@ -56,9 +56,9 @@ router.post("/checkout-fast-track", async (req, res) => {
       res.status(400).json({ error: "Billing is not enabled" });
       return;
     }
-    const stripe = await getStripeClient();
-    if (!stripe) {
-      res.status(400).json({ error: "Stripe is not configured" });
+    const gocardless = await getGoCardlessClient();
+    if (!gocardless) {
+      res.status(400).json({ error: "GoCardless is not configured" });
       return;
     }
     const check = await assertFreshApplication(applicationId, email);
@@ -67,30 +67,30 @@ router.post("/checkout-fast-track", async (req, res) => {
       return;
     }
     const application = check.application;
-    if (application.fastTrackPaidAt) {
-      res.status(400).json({ error: "Fast-track payment is already recorded" });
+    if (application.registrationFeePaidAt) {
+      res.status(400).json({ error: "Registration fee is already recorded" });
       return;
     }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const session = await stripe.checkout.sessions.create({
+    const session = await gocardless.checkout.sessions.create({
       mode: "payment",
       customer_email: email,
       line_items: [
         {
           price_data: {
             currency: "gbp",
-            product_data: { name: lines.fastTrackName },
-            unit_amount: lines.fastTrackPence,
+            product_data: { name: lines.registrationFeeName },
+            unit_amount: lines.registrationFeePence,
           },
           quantity: 1,
         },
       ],
-      success_url: `${origin}/join?paid=fast_track&app=${encodeURIComponent(applicationId)}`,
+      success_url: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}`,
       cancel_url: `${origin}/join?cancelled=1`,
       metadata: {
         applicationId,
-        checkoutKind: "fast_track",
+        checkoutKind: "registration_fee",
       },
     });
     if (!session.url) {
@@ -117,9 +117,9 @@ router.post("/checkout-membership", async (req, res) => {
       res.status(400).json({ error: "Billing is not enabled" });
       return;
     }
-    const stripe = await getStripeClient();
-    if (!stripe) {
-      res.status(400).json({ error: "Stripe is not configured" });
+    const gocardless = await getGoCardlessClient();
+    if (!gocardless) {
+      res.status(400).json({ error: "GoCardless is not configured" });
       return;
     }
     const check = await assertFreshApplication(applicationId, email);
@@ -134,7 +134,7 @@ router.post("/checkout-membership", async (req, res) => {
     }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const session = await stripe.checkout.sessions.create({
+    const session = await gocardless.checkout.sessions.create({
       mode: "payment",
       customer_email: email,
       line_items: [

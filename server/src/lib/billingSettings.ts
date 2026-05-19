@@ -1,50 +1,64 @@
-import Stripe from "stripe";
+import GoCardless from "gocardless";
 import { prisma } from "../db.js";
 import { getLaunchWindow } from "./launchWindow.js";
-const MIN_CHECKOUT_PENCE = 100; // £1.00 — Stripe practical minimum for GBP
+const MIN_CHECKOUT_PENCE = 100; // £1.00 — GoCardless practical minimum for GBP
 const MAX_CHECKOUT_PENCE = 999_999_99;
 const LAUNCH_DISCOUNT_PERCENT = 20;
+const DEFAULT_ANNUAL_MEMBERSHIP_PENCE = 7_900;
+const DEFAULT_REGISTRATION_FEE_PENCE = 1_800;
+
+function defaultAnnualMembershipPence(value: number) {
+  const normalized = clampCheckoutPence(value);
+  return normalized === 1_500 ? DEFAULT_ANNUAL_MEMBERSHIP_PENCE : normalized;
+}
 
 export async function getOrgBilling() {
   return prisma.organizationSettings.upsert({
     where: { id: "default" },
-    create: { id: "default" },
+    create: {
+      id: "default",
+      checkoutMembershipPence: DEFAULT_ANNUAL_MEMBERSHIP_PENCE,
+    },
     update: {},
   });
 }
 
-export async function getStripeSecretKey(): Promise<string | null> {
-  const env = process.env.STRIPE_SECRET_KEY?.trim();
+export async function getGoCardlessSecretKey(): Promise<string | null> {
+  const env =
+    process.env.GO_CARDLESS_SECRET_KEY?.trim() ||
+    process.env.GOCARDLESS_SECRET_KEY?.trim();
   if (env) return env;
   const s = await getOrgBilling();
-  return s.stripeSecretKey?.trim() || null;
+  return s.goCardlessSecretKey?.trim() || null;
 }
 
-export async function getStripeWebhookSecret(): Promise<string | null> {
-  const env = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+export async function getGoCardlessWebhookSecret(): Promise<string | null> {
+  const env =
+    process.env.GO_CARDLESS_WEBHOOK_SECRET?.trim() ||
+    process.env.GOCARDLESS_WEBHOOK_SECRET?.trim();
   if (env) return env;
   const s = await getOrgBilling();
-  return s.stripeWebhookSecret?.trim() || null;
+  return s.goCardlessWebhookSecret?.trim() || null;
 }
 
-export async function getStripeClient(): Promise<Stripe | null> {
-  const key = await getStripeSecretKey();
+export async function getGoCardlessClient(): Promise<GoCardless | null> {
+  const key = await getGoCardlessSecretKey();
   if (!key) return null;
-  return new Stripe(key);
+  return new GoCardless(key);
 }
 
 export function billingReady(s: {
   billingEnabled: boolean;
-  stripePublishableKey: string | null;
+  goCardlessPublishableKey: string | null;
 }): boolean {
-  return Boolean(s.billingEnabled && s.stripePublishableKey?.trim());
+  return Boolean(s.billingEnabled && s.goCardlessPublishableKey?.trim());
 }
 
 type BillingRow = {
-  checkoutMembershipName: string | null;
-  checkoutFastTrackName: string | null;
-  checkoutMembershipPence: number;
-  checkoutFastTrackPence: number;
+  checkoutMembershipName?: string | null;
+  checkoutRegistrationFeeName?: string | null;
+  checkoutMembershipPence?: number | null;
+  checkoutRegistrationFeePence?: number | null;
 };
 
 export function clampCheckoutPence(n: number): number {
@@ -58,18 +72,23 @@ function applyPercentageDiscount(amountPence: number, percent: number) {
   return clampCheckoutPence(Math.round(amountPence * multiplier));
 }
 
-/** Names + amounts for Stripe Checkout `price_data` line items. */
+/** Names + amounts for online billing line items. */
 export function checkoutLineConfig(s: BillingRow) {
   const { launchDiscountActive } = getLaunchWindow();
-  const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
+  const baseMembershipPence = defaultAnnualMembershipPence(
+    s.checkoutMembershipPence ?? DEFAULT_ANNUAL_MEMBERSHIP_PENCE
+  );
   return {
     membershipPence: launchDiscountActive
       ? applyPercentageDiscount(baseMembershipPence, LAUNCH_DISCOUNT_PERCENT)
       : baseMembershipPence,
-    fastTrackPence: clampCheckoutPence(s.checkoutFastTrackPence),
+    registrationFeePence: clampCheckoutPence(
+      s.checkoutRegistrationFeePence ?? DEFAULT_REGISTRATION_FEE_PENCE
+    ),
     membershipName:
       s.checkoutMembershipName?.trim() || "Trader Watchdog annual membership",
-    fastTrackName:
-      s.checkoutFastTrackName?.trim() || "Trader Watchdog fast-track vetting",
+    registrationFeeName:
+      s.checkoutRegistrationFeeName?.trim() ||
+      "Trader Watchdog registration and admin checks",
   };
 }

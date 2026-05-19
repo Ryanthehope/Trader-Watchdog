@@ -15,7 +15,7 @@ export type ProvisionAfterPaymentResult =
 
 /**
  * Creates the member profile when an application is APPROVED and at least one
- * payment path (fast-track or membership) is satisfied.
+ * payment path (registration fee and membership) is satisfied.
  */
 export async function provisionIfApplicationPaid(
   prisma: PrismaClient,
@@ -28,7 +28,7 @@ export async function provisionIfApplicationPaid(
   if (app.status !== "APPROVED") return { ok: false, reason: "not_approved" };
   if (app.createdMemberId) return { ok: false, reason: "already_provisioned" };
   const paid =
-    Boolean(app.fastTrackPaidAt) && Boolean(app.membershipSubscribed);
+    Boolean(app.registrationFeePaidAt) && Boolean(app.membershipSubscribed);
   if (!paid) return { ok: false, reason: "unpaid" };
   const prov = await tryProvisionMemberForApplication(prisma, applicationId);
   if (prov.kind === "email_in_use") {

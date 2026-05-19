@@ -83,9 +83,9 @@ model Trader {
 model Subscription {
   id                String              @id @default(cuid())
   traderId          String              @unique
-  stripeCustomerId  String              @unique
-  stripeSubscriptionId String?          @unique
-  stripePriceId     String
+  CustomerId  String              @unique
+  SubscriptionId String?          @unique
+  PriceId     String
   status            SubscriptionStatus  @default(INACTIVE)
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?

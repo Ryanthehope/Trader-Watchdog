@@ -18,7 +18,7 @@ The uploaded code and your Next.js project have **fundamentally different data s
 - Profile data: name, trade, location, slug, tvId
 - Business details: invoice address, bank details, VAT
 - Portal access: loginEmail, passwordHash
-- Membership: expiresAt, billingType, Stripe IDs
+- Membership: expiresAt, billingType, GoCardless IDs
 - Branding: profileLogo, documentAccentHex
 - **No insurance tracking**
 - **No certification expiry tracking**
@@ -87,8 +87,8 @@ The uploaded code and your Next.js project have **fundamentally different data s
 - Verification status
 - **Links to: Subscription, InsurancePolicy, Certification**
 
-**Subscription** (Stripe billing)
-- Stripe customer/subscription IDs
+**Subscription** (GoCardless billing)
+- GoCardless customer/subscription IDs
 - Status tracking
 - Period tracking
 - Cancellation handling
@@ -128,7 +128,7 @@ The uploaded code and your Next.js project have **fundamentally different data s
 | **Public Profile** | ✅ Rich profile | ❌ Not built yet |
 | **Availability Calendar** | ✅ Public calendar | ❌ Not planned |
 | **Documents** | ✅ Generic uploads | ✅ Policy/cert specific |
-| **Subscription Billing** | ✅ Stripe recurring | ✅ Stripe recurring |
+| **Subscription Billing** | ✅ GoCardless recurring | ✅ GoCardless recurring |
 | **Database** | SQLite (file-based) | PostgreSQL (production) |
 | **Auth System** | JWT tokens | NextAuth sessions |
 

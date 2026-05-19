@@ -137,7 +137,7 @@ export async function tryProvisionMemberForApplication(
         passwordHash: await hashPortalPassword(temporaryPassword),
         mustChangePassword: true,
         membershipUnlimited: false,
-        stripeCustomerId: app.stripeCustomerId ?? undefined,
+        goCardlessCustomerId: app.goCardlessCustomerId ?? undefined,
         verificationProvider: app.verificationProvider ?? undefined,
         verificationStatus: app.verificationStatus,
         verificationSubmittedAt: app.verificationSubmittedAt ?? undefined,

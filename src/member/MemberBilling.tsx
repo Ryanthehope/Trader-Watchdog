@@ -29,7 +29,7 @@ export function MemberBilling() {
   const { member, refreshMember } = useMemberAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
-  const [stripeCustomerId, setStripeCustomerId] = useState<string | null>(null);
+  const [goCardlessCustomerId, setGoCardlessCustomerId] = useState<string | null>(null);
   const [branding, setBranding] = useState<Branding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,12 +42,12 @@ export function MemberBilling() {
     setError(null);
     apiGetMember<{
       invoices: InvoiceRow[];
-      stripeCustomerId: string | null;
+      goCardlessCustomerId: string | null;
       branding: Branding;
     }>("/api/member/portal/invoices")
       .then((d) => {
         setInvoices(d.invoices);
-        setStripeCustomerId(d.stripeCustomerId);
+        setGoCardlessCustomerId(d.goCardlessCustomerId);
         setBranding(d.branding);
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"))
@@ -112,8 +112,8 @@ export function MemberBilling() {
         Billing & invoices
       </h1>
       <p className="mt-2 max-w-xl text-sm text-slate-600">
-        Billing history shown here is for your joining fee and any future annual
-        renewals processed online.
+        Billing history shown here is for your registration fee, annual
+        membership payments, and any future annual renewals processed online.
       </p>
 
       {renewalState === "success" ? (
@@ -195,17 +195,18 @@ export function MemberBilling() {
         </p>
       ) : null}
 
-      {!stripeCustomerId ? (
+      {!goCardlessCustomerId ? (
         <p className="mt-6 text-sm text-slate-600">
-          No online billing record is linked yet. After your joining fee or a
-          future annual renewal is processed online, invoices will appear here.
+          No online billing record is linked yet. After your registration fee,
+          annual membership payment, or a future annual renewal is processed
+          online, invoices will appear here.
         </p>
       ) : null}
 
-      {stripeCustomerId && invoices.length === 0 ? (
+      {goCardlessCustomerId && invoices.length === 0 ? (
         <p className="mt-6 text-sm text-slate-600">
-          No invoices yet. Future joining-fee or renewal charges will show here
-          and in your email.
+          No invoices yet. Future registration-fee, annual-membership, or
+          renewal charges will show here and in your email.
         </p>
       ) : null}
 

@@ -38,7 +38,7 @@ cp .env.example .env
 # Fill in .env with:
 # - DATABASE_URL (from Step 3)
 # - NEXTAUTH_SECRET (generated above)
-# - Leave Stripe/Resend empty for now
+# - Leave GoCardless/Resend empty for now
 ```
 
 ### Step 5: Create Database Tables
@@ -62,8 +62,8 @@ Visit: http://localhost:3000
 
 ## 📋 Next Steps (In Order)
 
-### 1. Setup Stripe (30 mins)
-- Sign up at [stripe.com](https://stripe.com)
+### 1. Setup GoCardless (30 mins)
+- Sign up at [GoCardless.com](https://GoCardless.com)
 - Get API keys → Add to `.env`
 - Create product + price
 - Test checkout flow
@@ -104,7 +104,7 @@ Visit: http://localhost:3000
 
 - **Neon:** 512 MB storage (plenty for MVP)
 - **Vercel:** Unlimited hobby projects
-- **Stripe:** Unlimited test transactions
+- **GoCardless:** Unlimited test transactions
 - **Resend:** 3,000 emails/month free
 
 ## 🛠️ Development Commands
@@ -123,7 +123,7 @@ npm run db:studio    # Open Prisma Studio (database GUI)
   page.tsx              # Landing page ✅
   /dashboard            # TODO: Trader dashboard
   /api
-    /webhooks/stripe    # Stripe webhook handler ✅
+    /webhooks/GoCardless    # GoCardless webhook handler ✅
     /cron/check-expiry  # Insurance expiry checker ✅
 
 /components/ui          # Reusable UI components ✅
@@ -164,7 +164,7 @@ npm run db:studio    # Open Prisma Studio (database GUI)
 ## 💡 Tips
 
 1. Start simple - get one feature working fully before adding more
-2. Test Stripe in test mode (it's free!)
+2. Test GoCardless in test mode (it's free!)
 3. Use Prisma Studio to view database: `npm run db:studio`
 4. Keep client updated with screenshots
 5. Deploy early to Vercel (it's free) so they can see progress

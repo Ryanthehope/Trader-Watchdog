@@ -105,7 +105,7 @@ router.get("/members/:id", async (req, res) => {
         membershipUnlimited: m.membershipUnlimited,
         membershipBillingType: m.membershipBillingType,
         membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
-        stripeSubscriptionStatus: m.stripeSubscriptionStatus,
+        goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
         createdAt: m.createdAt.toISOString(),
         updatedAt: m.updatedAt.toISOString(),
       },
@@ -239,7 +239,7 @@ router.put("/members/:id", async (req, res) => {
       membershipUnlimited,
       membershipAccessMode,
       membershipExpiresAt,
-      clearStripeSubscription,
+      clearGoCardlessSubscription,
     } = req.body ?? {};
 
     const membershipPatch: Prisma.MemberUpdateInput = {};
@@ -256,26 +256,25 @@ router.put("/members/:id", async (req, res) => {
     if (accessMode === "legacy") {
       membershipPatch.membershipBillingType = null;
       membershipPatch.membershipExpiresAt = null;
-      if (clearStripeSubscription === true) {
-        membershipPatch.stripeSubscriptionId = null;
-        membershipPatch.stripeSubscriptionStatus = null;
-        membershipPatch.stripeCustomerId = null;
+      if (clearGoCardlessSubscription === true) {
+        membershipPatch.goCardlessSubscriptionId = null;
+        membershipPatch.goCardlessSubscriptionStatus = null;
+        membershipPatch.goCardlessCustomerId = null;
       }
-    } else if (accessMode === "manual" || accessMode === "fast_track") {
+    } else if (accessMode === "manual") {
       const exp = parseManualMembershipExpiryInput(membershipExpiresAt);
       if (!exp) {
         res.status(400).json({
           error:
-            "membershipExpiresAt (YYYY-MM-DD or ISO) is required for manual and fast_track access modes",
+            "membershipExpiresAt (YYYY-MM-DD or ISO) is required for manual access mode",
         });
         return;
       }
-      membershipPatch.membershipBillingType =
-        accessMode === "fast_track" ? "fast_track" : "manual";
+      membershipPatch.membershipBillingType = "manual";
       membershipPatch.membershipExpiresAt = exp;
-      if (clearStripeSubscription === true) {
-        membershipPatch.stripeSubscriptionId = null;
-        membershipPatch.stripeSubscriptionStatus = null;
+      if (clearGoCardlessSubscription === true) {
+        membershipPatch.goCardlessSubscriptionId = null;
+        membershipPatch.goCardlessSubscriptionStatus = null;
       }
     }
 
@@ -329,7 +328,7 @@ router.put("/members/:id", async (req, res) => {
         membershipUnlimited: m.membershipUnlimited,
         membershipBillingType: m.membershipBillingType,
         membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
-        stripeSubscriptionStatus: m.stripeSubscriptionStatus,
+        goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
       },
     });
   } catch (e: unknown) {

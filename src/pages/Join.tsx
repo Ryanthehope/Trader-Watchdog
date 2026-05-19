@@ -15,9 +15,9 @@ type ApplicantSummary = {
   exists: boolean;
   status?: string;
   billingAvailable: boolean;
-  canCheckoutFastTrack: boolean;
+  canCheckoutRegistrationFee: boolean;
   canCheckoutMembership: boolean;
-  hasFastTrackPayment: boolean;
+  hasRegistrationFeePayment: boolean;
   hasMembershipPayment: boolean;
   profileLive: boolean;
   /** Shown until first portal login or expiry; not stored in the browser. */
@@ -78,7 +78,7 @@ export function Join() {
   const [savedEmail, setSavedEmail] = useState("");
   const [recaptchaSiteKey, setRecaptchaSiteKey] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<
-    "fast" | "member" | null
+    "registration" | "member" | null
   >(null);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [applicantSummary, setApplicantSummary] =
@@ -194,9 +194,9 @@ export function Join() {
         exists: data.exists,
         status: data.status,
         billingAvailable: Boolean(data.billingAvailable),
-        canCheckoutFastTrack: Boolean(data.canCheckoutFastTrack),
+        canCheckoutRegistrationFee: Boolean(data.canCheckoutRegistrationFee),
         canCheckoutMembership: Boolean(data.canCheckoutMembership),
-        hasFastTrackPayment: Boolean(data.hasFastTrackPayment),
+        hasRegistrationFeePayment: Boolean(data.hasRegistrationFeePayment),
         hasMembershipPayment: Boolean(data.hasMembershipPayment),
         profileLive: Boolean(data.profileLive),
         oneTimePassword:
@@ -367,14 +367,14 @@ export function Join() {
     setApplicantSummaryReady(false);
   };
 
-  const startCheckout = async (kind: "fast" | "member") => {
+  const startCheckout = async (kind: "registration" | "member") => {
     if (!applicationId || !savedEmail) return;
     setCheckoutLoading(kind);
     setFormError(null);
     try {
       const path =
-        kind === "fast"
-          ? "/api/billing/checkout-fast-track"
+        kind === "registration"
+          ? "/api/billing/checkout-registration-fee"
           : "/api/billing/checkout-membership";
       const res = await fetch(`${apiBase()}${path}`, {
         method: "POST",
@@ -408,11 +408,11 @@ export function Join() {
    */
   const applicantStatus = String(applicantSummary?.status ?? "").toUpperCase();
   const hasAnyPayment = Boolean(
-    applicantSummary?.hasFastTrackPayment || applicantSummary?.hasMembershipPayment);
+    applicantSummary?.hasRegistrationFeePayment || applicantSummary?.hasMembershipPayment);
   const hasBothPayments = Boolean(
-  applicantSummary?.hasFastTrackPayment && applicantSummary?.hasMembershipPayment);
+  applicantSummary?.hasRegistrationFeePayment && applicantSummary?.hasMembershipPayment);
   const canCheckoutAny = Boolean(
-  applicantSummary?.canCheckoutFastTrack || applicantSummary?.canCheckoutMembership);
+  applicantSummary?.canCheckoutRegistrationFee || applicantSummary?.canCheckoutMembership);
   const showSubmitAnother =
     sentVia === "api" &&
     applicantSummaryReady &&
@@ -430,7 +430,7 @@ export function Join() {
   const introSupport = publicSearchEnabled
     ? "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and public search by business name or telephone number once your profile is approved."
     : "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and a searchable public profile using your business name and advertised telephone number once public search is enabled.";
-  const pricingHeading = "Membership pricing";
+  const pricingHeading = "Annual membership";
 
   return (
     <main className="border-b border-white/5 pb-24">
@@ -452,7 +452,7 @@ export function Join() {
             <div className="mt-6 rounded-xl border border-brand-400/20 bg-brand-500/10 px-4 py-4 text-left">
               <p className="text-sm font-semibold text-white">{pricingHeading}</p>
               <p className="mt-2 text-sm text-slate-300">
-                Membership fee: <span className="font-semibold text-white">{membershipPriceLabel}</span> after approval.
+                Annual membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> after approval.
               </p>
               <p className="mt-2 text-xs text-slate-400">
                 Renewals are handled annually rather than on a monthly subscription.
@@ -587,10 +587,10 @@ export function Join() {
             </button>
           </div>
         ) : null}
-        {paidNotice === "fast_track" ? (
+        {paidNotice === "registration_fee" ? (
           <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
             <span>
-              Fast-track payment received. We&apos;re creating your Trader Watchdog
+              Registration fee received. We&apos;re creating your Trader Watchdog
               listing — refresh in a moment or check your email.
             </span>
             <button
@@ -651,7 +651,7 @@ export function Join() {
                     Your application is saved. Our team will run vetting
                     (insurance, identity, and trade checks) and email you when
                     you&apos;re approved. After approval, return to this page to
-                    pay your joining fee or fast-track — your public listing and
+                    pay your registration fee and annual membership — your public listing and
                     member login are created when payment completes.
                   </p>
                   <p className="mt-3 text-xs text-slate-500">
@@ -801,16 +801,16 @@ export function Join() {
                       this link until that new application is approved.
                     </p>
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                      {applicantSummary?.canCheckoutFastTrack ? (
+                      {applicantSummary?.canCheckoutRegistrationFee ? (
                         <button
                           type="button"
                           disabled={checkoutLoading !== null}
-                          onClick={() => startCheckout("fast")}
+                          onClick={() => startCheckout("registration")}
                           className="flex-1 rounded-xl bg-amber-500 py-3 text-sm font-semibold text-ink-900 hover:bg-amber-400 disabled:opacity-50"
                         >
-                          {checkoutLoading === "fast"
+                          {checkoutLoading === "registration"
                             ? "Redirecting…"
-                            : "Fast-track £40"}
+                            : "Registration fee £18"}
                         </button>
                       ) : null}
                       {applicantSummary?.canCheckoutMembership ? (
@@ -822,7 +822,7 @@ export function Join() {
                         >
                           {checkoutLoading === "member"
                             ? "Redirecting…"
-                            : `${membershipPriceLabel ?? "Membership fee"}`}
+                            : `${membershipPriceLabel ?? "Annual membership"}`}
                         </button>
                       ) : null}
                     </div>

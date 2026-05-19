@@ -10,7 +10,7 @@ export const requireMemberMembershipActive = async (req, res, next) => {
                 membershipUnlimited: true,
                 membershipBillingType: true,
                 membershipExpiresAt: true,
-                stripeSubscriptionStatus: true,
+                goCardlessSubscriptionStatus: true,
             },
         });
         if (!m) {
