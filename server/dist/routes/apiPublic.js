@@ -196,21 +196,21 @@ router.post("/applications/applicant-summary", async (req, res) => {
             res.json({
                 exists: false,
                 billingAvailable,
-                canCheckoutFastTrack: false,
+                canCheckoutRegistrationFee: false,
                 canCheckoutMembership: false,
-                hasFastTrackPayment: false,
+                hasRegistrationFeePayment: false,
                 hasMembershipPayment: false,
                 profileLive: false,
                 oneTimePassword: null,
             });
             return;
         }
-        const hasFastTrackPayment = Boolean(row.fastTrackPaidAt);
+        const hasRegistrationFeePayment = Boolean(row.registrationFeePaidAt);
         const hasMembershipPayment = Boolean(row.membershipSubscribed);
         const profileLive = Boolean(row.createdMemberId);
-        const canCheckoutFastTrack = billingAvailable &&
+        const canCheckoutRegistrationFee = billingAvailable &&
             row.status === "APPROVED" &&
-            !hasFastTrackPayment &&
+            !hasRegistrationFeePayment &&
             !profileLive;
         const canCheckoutMembership = billingAvailable &&
             row.status === "APPROVED" &&
@@ -227,9 +227,9 @@ router.post("/applications/applicant-summary", async (req, res) => {
             exists: true,
             status: String(row.status),
             billingAvailable,
-            canCheckoutFastTrack,
+            canCheckoutRegistrationFee,
             canCheckoutMembership,
-            hasFastTrackPayment,
+            hasRegistrationFeePayment,
             hasMembershipPayment,
             profileLive,
             oneTimePassword,

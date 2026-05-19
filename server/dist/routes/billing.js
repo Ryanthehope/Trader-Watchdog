@@ -30,7 +30,7 @@ function siteOrigin(req) {
         process.env.PUBLIC_SITE_URL?.trim() ||
         "http://localhost:5173");
 }
-router.post("/checkout-fast-track", async (req, res) => {
+router.post("/checkout-registration-fee", async (req, res) => {
     try {
         const applicationId = String(req.body?.applicationId ?? "").trim();
         const email = String(req.body?.email ?? "").trim().toLowerCase();
@@ -54,8 +54,8 @@ router.post("/checkout-fast-track", async (req, res) => {
             return;
         }
         const application = check.application;
-        if (application.fastTrackPaidAt) {
-            res.status(400).json({ error: "Fast-track payment is already recorded" });
+        if (application.registrationFeePaidAt) {
+            res.status(400).json({ error: "Registration fee is already recorded" });
             return;
         }
         const origin = siteOrigin(req);
@@ -67,17 +67,17 @@ router.post("/checkout-fast-track", async (req, res) => {
                 {
                     price_data: {
                         currency: "gbp",
-                        product_data: { name: lines.fastTrackName },
-                        unit_amount: lines.fastTrackPence,
+                        product_data: { name: lines.registrationFeeName },
+                        unit_amount: lines.registrationFeePence,
                     },
                     quantity: 1,
                 },
             ],
-            success_url: `${origin}/join?paid=fast_track&app=${encodeURIComponent(applicationId)}`,
+            success_url: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}`,
             cancel_url: `${origin}/join?cancelled=1`,
             metadata: {
                 applicationId,
-                checkoutKind: "fast_track",
+                checkoutKind: "registration_fee",
             },
         });
         if (!session.url) {

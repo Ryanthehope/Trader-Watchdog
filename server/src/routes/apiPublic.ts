@@ -26,7 +26,6 @@ import { verifyRecaptchaV2 } from "../lib/verifyRecaptcha.js";
 import {
   getBrandName,
   notifyNewApplication,
-  notifyNewLead,
   publicSiteBase,
 } from "../lib/adminMail.js";
 import { checkoutLineConfig } from "../lib/billingSettings.js";

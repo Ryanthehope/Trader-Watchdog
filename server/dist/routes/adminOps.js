@@ -8,7 +8,7 @@ import { getGoCardlessClient } from "../lib/billingSettings.js";
 import { fetchGoCardlessFinancialSnapshot } from "../lib/goCardlessFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
-import { invalidateSmtpTransportCache, notifyApplicationDecision, notifyNewLead, } from "../lib/adminMail.js";
+import { invalidateSmtpTransportCache, notifyApplicationDecision, } from "../lib/adminMail.js";
 import { createSumsubApplicant, generateSumsubWebSdkLink, getSumsubApplicantReview, isSumsubConfigured, mapSumsubReviewToVerificationData, } from "../lib/sumsub.js";
 const router = Router();
 async function ensureOrgSettings() {
@@ -187,16 +187,16 @@ async function patchOrganizationSettings(req, res) {
         const checkoutMembershipName = typeof body.checkoutMembershipName === "string"
             ? body.checkoutMembershipName.trim() || null
             : undefined;
-        const checkoutFastTrackName = typeof body.checkoutFastTrackName === "string"
-            ? body.checkoutFastTrackName.trim() || null
+        const checkoutRegistrationFeeName = typeof body.checkoutRegistrationFeeName === "string"
+            ? body.checkoutRegistrationFeeName.trim() || null
             : undefined;
         const checkoutMembershipPence = typeof body.checkoutMembershipPence === "number" &&
             Number.isFinite(body.checkoutMembershipPence)
             ? Math.floor(body.checkoutMembershipPence)
             : undefined;
-        const checkoutFastTrackPence = typeof body.checkoutFastTrackPence === "number" &&
-            Number.isFinite(body.checkoutFastTrackPence)
-            ? Math.floor(body.checkoutFastTrackPence)
+        const checkoutRegistrationFeePence = typeof body.checkoutRegistrationFeePence === "number" &&
+            Number.isFinite(body.checkoutRegistrationFeePence)
+            ? Math.floor(body.checkoutRegistrationFeePence)
             : undefined;
         const goCardlessSecretKey = typeof body.goCardlessSecretKey === "string"
             ? body.goCardlessSecretKey.trim() || null
@@ -341,14 +341,14 @@ async function patchOrganizationSettings(req, res) {
                 ...(checkoutMembershipName !== undefined
                     ? { checkoutMembershipName }
                     : {}),
-                ...(checkoutFastTrackName !== undefined
-                    ? { checkoutFastTrackName }
+                ...(checkoutRegistrationFeeName !== undefined
+                    ? { checkoutRegistrationFeeName }
                     : {}),
                 ...(checkoutMembershipPence !== undefined
                     ? { checkoutMembershipPence }
                     : {}),
-                ...(checkoutFastTrackPence !== undefined
-                    ? { checkoutFastTrackPence }
+                ...(checkoutRegistrationFeePence !== undefined
+                    ? { checkoutRegistrationFeePence }
                     : {}),
                 ...secretPatch,
                 ...(recaptchaEnabled !== undefined ? { recaptchaEnabled } : {}),
@@ -386,14 +386,14 @@ async function patchOrganizationSettings(req, res) {
                 ...(checkoutMembershipName !== undefined
                     ? { checkoutMembershipName }
                     : {}),
-                ...(checkoutFastTrackName !== undefined
-                    ? { checkoutFastTrackName }
+                ...(checkoutRegistrationFeeName !== undefined
+                    ? { checkoutRegistrationFeeName }
                     : {}),
                 ...(checkoutMembershipPence !== undefined
                     ? { checkoutMembershipPence }
                     : {}),
-                ...(checkoutFastTrackPence !== undefined
-                    ? { checkoutFastTrackPence }
+                ...(checkoutRegistrationFeePence !== undefined
+                    ? { checkoutRegistrationFeePence }
                     : {}),
                 ...secretPatch,
                 ...(recaptchaEnabled !== undefined ? { recaptchaEnabled } : {}),
@@ -483,7 +483,7 @@ router.get("/analytics-ga-report", async (_req, res) => {
 });
 /** Applications */
 function serializeAdminApplication(a) {
-    const { documents, createdMember, notes, vettingChecklist, approvedAt, createdAt, updatedAt, fastTrackPaidAt, manualMembershipExpiresAt: _manualMExp, verificationProvider, verificationStatus, verificationSubmittedAt, verificationApprovedAt, verificationRejectedAt, verificationProviderApplicantId, verificationProviderSessionId, verificationFailureReason, vettingState, pendingPortalPassword: _pendingPw, pendingPortalPasswordExpires: _pendingPwExp, ...rest } = a;
+    const { documents, createdMember, notes, vettingChecklist, approvedAt, createdAt, updatedAt, registrationFeePaidAt, manualMembershipExpiresAt: _manualMExp, verificationProvider, verificationStatus, verificationSubmittedAt, verificationApprovedAt, verificationRejectedAt, verificationProviderApplicantId, verificationProviderSessionId, verificationFailureReason, vettingState, pendingPortalPassword: _pendingPw, pendingPortalPasswordExpires: _pendingPwExp, ...rest } = a;
     return {
         ...rest,
         notes: sanitizeNullableDbString(notes),
@@ -492,7 +492,7 @@ function serializeAdminApplication(a) {
         createdAt: createdAt.toISOString(),
         updatedAt: updatedAt.toISOString(),
         approvedAt: approvedAt?.toISOString() ?? null,
-        fastTrackPaidAt: fastTrackPaidAt?.toISOString() ?? null,
+        registrationFeePaidAt: registrationFeePaidAt?.toISOString() ?? null,
         manualMembershipExpiresAt: a.manualMembershipExpiresAt?.toISOString() ?? null,
         verificationProvider: verificationProvider ?? null,
         verificationStatus: verificationStatus ?? "NOT_STARTED",
@@ -848,7 +848,7 @@ router.post("/applications/:id/provision-member", async (req, res) => {
             res.status(400).json({ error: "Application must be approved first" });
             return;
         }
-        if (!before.fastTrackPaidAt && !before.membershipSubscribed) {
+        if (!before.registrationFeePaidAt && !before.membershipSubscribed) {
             res.status(400).json({
                 error: "No payment is recorded yet. The listing is created when the applicant completes checkout, or retry here after GoCardless confirms payment.",
             });
@@ -919,10 +919,10 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
     try {
         const id = req.params.id;
         const type = String(req.body?.type ?? "").trim();
-        if (type !== "fast_track" && type !== "membership") {
+        if (type !== "registration_fee" && type !== "membership") {
             res
                 .status(400)
-                .json({ error: "type must be fast_track or membership" });
+                .json({ error: "type must be registration_fee or membership" });
             return;
         }
         const before = await prisma.application.findUnique({ where: { id } });
@@ -934,14 +934,14 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
             res.status(400).json({ error: "Application must be approved first" });
             return;
         }
-        if (type === "fast_track") {
-            if (before.fastTrackPaidAt) {
-                res.status(400).json({ error: "Fast-track payment is already recorded" });
+        if (type === "registration_fee") {
+            if (before.registrationFeePaidAt) {
+                res.status(400).json({ error: "Registration fee is already recorded" });
                 return;
             }
             await prisma.application.update({
                 where: { id },
-                data: { fastTrackPaidAt: new Date() },
+                data: { registrationFeePaidAt: new Date() },
             });
         }
         else {
@@ -1083,146 +1083,5 @@ router.get("/applications/:applicationId/documents/:documentId/file", async (req
         console.error(e);
         res.status(500).json({ error: "Could not load file" });
     }
-});
-/** Leads */
-router.get("/leads", async (_req, res) => {
-    try {
-        const rows = await prisma.lead.findMany({
-            where: {
-                /** Hide per-trade copies of posted jobs — staff sees the aggregate row only. */
-                NOT: { AND: [{ source: "job_post" }, { memberId: { not: null } }] },
-            },
-            orderBy: { createdAt: "desc" },
-            include: {
-                member: { select: { id: true, name: true, tvId: true, slug: true } },
-            },
-        });
-        res.json({
-            leads: rows.map((l) => ({
-                ...l,
-                member: l.member,
-                createdAt: l.createdAt.toISOString(),
-                updatedAt: l.updatedAt.toISOString(),
-            })),
-        });
-    }
-    catch (e) {
-        console.error(e);
-        res.status(500).json({ error: "Could not list leads" });
-    }
-});
-router.post("/leads", async (req, res) => {
-    try {
-        const { name, email, phone, source, status, notes, jobTitle, jobDescription, jobPostcode, } = req.body ?? {};
-        if (!name || !String(name).trim()) {
-            res.status(400).json({ error: "Name is required" });
-            return;
-        }
-        const l = await prisma.lead.create({
-            data: {
-                name: String(name).trim(),
-                email: email ? String(email).trim() : null,
-                phone: phone ? String(phone).trim() : null,
-                source: source ? String(source).trim() : "manual",
-                status: status ? String(status).trim() : "NEW",
-                notes: notes ? String(notes).trim() : null,
-                jobTitle: jobTitle ? String(jobTitle).trim() : null,
-                jobDescription: jobDescription ? String(jobDescription).trim() : null,
-                jobPostcode: jobPostcode ? String(jobPostcode).trim() : null,
-            },
-        });
-        notifyNewLead(prisma, {
-            id: l.id,
-            name: l.name,
-            source: l.source,
-            email: l.email,
-            phone: l.phone,
-            notes: l.notes,
-            jobTitle: l.jobTitle,
-            jobPostcode: l.jobPostcode,
-        });
-        res.status(201).json({
-            lead: {
-                ...l,
-                createdAt: l.createdAt.toISOString(),
-                updatedAt: l.updatedAt.toISOString(),
-            },
-        });
-    }
-    catch (e) {
-        console.error(e);
-        res.status(400).json({ error: "Could not create lead" });
-    }
-});
-router.put("/leads/:id", async (req, res) => {
-    try {
-        const { name, email, phone, source, status, notes, jobTitle, jobDescription, jobPostcode, } = req.body ?? {};
-        if (!name || !String(name).trim()) {
-            res.status(400).json({ error: "Name is required" });
-            return;
-        }
-        const l = await prisma.lead.update({
-            where: { id: req.params.id },
-            data: {
-                name: String(name).trim(),
-                email: email !== undefined ? String(email || "").trim() || null : undefined,
-                phone: phone !== undefined ? String(phone || "").trim() || null : undefined,
-                source: source !== undefined ? String(source || "").trim() : undefined,
-                status: status !== undefined ? String(status || "").trim() : undefined,
-                notes: notes !== undefined ? String(notes || "").trim() || null : undefined,
-                jobTitle: jobTitle !== undefined
-                    ? String(jobTitle || "").trim() || null
-                    : undefined,
-                jobDescription: jobDescription !== undefined
-                    ? String(jobDescription || "").trim() || null
-                    : undefined,
-                jobPostcode: jobPostcode !== undefined
-                    ? String(jobPostcode || "").trim() || null
-                    : undefined,
-            },
-        });
-        res.json({
-            lead: {
-                ...l,
-                createdAt: l.createdAt.toISOString(),
-                updatedAt: l.updatedAt.toISOString(),
-            },
-        });
-    }
-    catch (e) {
-        console.error(e);
-        if (typeof e === "object" &&
-            e &&
-            "code" in e &&
-            e.code === "P2025") {
-            res.status(404).json({ error: "Not found" });
-            return;
-        }
-        res.status(400).json({ error: "Could not update lead" });
-    }
-});
-async function deleteLeadById(req, res) {
-    try {
-        await prisma.lead.delete({ where: { id: req.params.id } });
-        res.status(204).send();
-    }
-    catch (e) {
-        console.error(e);
-        if (typeof e === "object" &&
-            e &&
-            "code" in e &&
-            e.code === "P2025") {
-            res.status(404).json({ error: "Not found" });
-            return;
-        }
-        res.status(500).json({ error: "Could not delete lead" });
-    }
-}
-router.delete("/leads/:id", async (req, res) => {
-    await deleteLeadById(req, res);
-});
-/** POST fallback — some proxies/clients block DELETE reliably */
-router.post("/leads/:id/delete", async (req, res) => {
-    await deleteLeadById(req, res);
 });
 export default router;

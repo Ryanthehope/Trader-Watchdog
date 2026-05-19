@@ -13,9 +13,6 @@
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "node ./node_modules/prisma/build/index.js generate"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@google-analytics/data": "^4.12.1",
     "@prisma/client": "^6.19.0",

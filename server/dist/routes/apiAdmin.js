@@ -204,16 +204,15 @@ router.put("/members/:id", async (req, res) => {
                 membershipPatch.goCardlessCustomerId = null;
             }
         }
-        else if (accessMode === "manual" || accessMode === "fast_track") {
+        else if (accessMode === "manual") {
             const exp = parseManualMembershipExpiryInput(membershipExpiresAt);
             if (!exp) {
                 res.status(400).json({
-                    error: "membershipExpiresAt (YYYY-MM-DD or ISO) is required for manual and fast_track access modes",
+                    error: "membershipExpiresAt (YYYY-MM-DD or ISO) is required for manual access mode",
                 });
                 return;
             }
-            membershipPatch.membershipBillingType =
-                accessMode === "fast_track" ? "fast_track" : "manual";
+            membershipPatch.membershipBillingType = "manual";
             membershipPatch.membershipExpiresAt = exp;
             if (clearGoCardlessSubscription === true) {
                 membershipPatch.goCardlessSubscriptionId = null;

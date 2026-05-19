@@ -4,10 +4,19 @@ import { getLaunchWindow } from "./launchWindow.js";
 const MIN_CHECKOUT_PENCE = 100; // £1.00 — GoCardless practical minimum for GBP
 const MAX_CHECKOUT_PENCE = 999_999_99;
 const LAUNCH_DISCOUNT_PERCENT = 20;
+const DEFAULT_ANNUAL_MEMBERSHIP_PENCE = 7_900;
+const DEFAULT_REGISTRATION_FEE_PENCE = 1_800;
+function defaultAnnualMembershipPence(value) {
+    const normalized = clampCheckoutPence(value);
+    return normalized === 1_500 ? DEFAULT_ANNUAL_MEMBERSHIP_PENCE : normalized;
+}
 export async function getOrgBilling() {
     return prisma.organizationSettings.upsert({
         where: { id: "default" },
-        create: { id: "default" },
+        create: {
+            id: "default",
+            checkoutMembershipPence: DEFAULT_ANNUAL_MEMBERSHIP_PENCE,
+        },
         update: {},
     });
 }
@@ -49,13 +58,14 @@ function applyPercentageDiscount(amountPence, percent) {
 /** Names + amounts for online billing line items. */
 export function checkoutLineConfig(s) {
     const { launchDiscountActive } = getLaunchWindow();
-    const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
+    const baseMembershipPence = defaultAnnualMembershipPence(s.checkoutMembershipPence ?? DEFAULT_ANNUAL_MEMBERSHIP_PENCE);
     return {
         membershipPence: launchDiscountActive
             ? applyPercentageDiscount(baseMembershipPence, LAUNCH_DISCOUNT_PERCENT)
             : baseMembershipPence,
-        fastTrackPence: clampCheckoutPence(s.checkoutFastTrackPence),
+        registrationFeePence: clampCheckoutPence(s.checkoutRegistrationFeePence ?? DEFAULT_REGISTRATION_FEE_PENCE),
         membershipName: s.checkoutMembershipName?.trim() || "Trader Watchdog annual membership",
-        fastTrackName: s.checkoutFastTrackName?.trim() || "Trader Watchdog fast-track vetting",
+        registrationFeeName: s.checkoutRegistrationFeeName?.trim() ||
+            "Trader Watchdog registration and admin checks",
     };
 }

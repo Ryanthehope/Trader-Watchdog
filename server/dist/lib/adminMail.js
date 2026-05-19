@@ -145,25 +145,6 @@ export function notifyAdminsFireAndForget(prisma, subject, text) {
         console.error("[admin-mail] send failed", e);
     });
 }
-export function notifyNewLead(prisma, lead) {
-    void (async () => {
-        const base = await publicSiteBase(prisma);
-        const lines = [
-            `New lead (${lead.source})`,
-            "",
-            `Name: ${lead.name}`,
-            lead.email ? `Email: ${lead.email}` : null,
-            lead.phone ? `Phone: ${lead.phone}` : null,
-            lead.jobTitle ? `Job title: ${lead.jobTitle}` : null,
-            lead.jobPostcode ? `Postcode: ${lead.jobPostcode}` : null,
-            lead.notes ? `Notes: ${lead.notes}` : null,
-            "",
-            `Staff leads: ${base}/staff/outreach/leads`,
-            `Lead id: ${lead.id}`,
-        ].filter((x) => x !== null);
-        notifyAdminsFireAndForget(prisma, `New lead — ${lead.name}`, lines.join("\n"));
-    })();
-}
 export function notifyNewApplication(prisma, row) {
     void (async () => {
         const base = await publicSiteBase(prisma);
