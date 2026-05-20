@@ -385,81 +385,217 @@ function Pillars() {
 
 function TradesCta() {
   return (
-    <section id="join" className="border-t border-slate-200 bg-white py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="overflow-hidden rounded-xl border border-slate-300/60 bg-white p-10 sm:p-14">
-          <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
-              Traders & Businesses
-            </p>
-            <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-              Join Trader Watchdog and show customers you&apos;re legit
-            </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-base text-slate-700">
-              Trader Watchdog does not sell leads, does not cap the number of traders in an area, and gives customers one place to check that your business is insured, compliant, and real.
-            </p>
-            <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-slate-900">
-              One fee, fair visibility, renewal reminders, and a public profile that builds trust.
-            </p>
+    <section
+  id="why"
+  className="scroll-mt-24 border-b border-brand-800/60 bg-brand-800 py-20 sm:py-28"
+>
+  <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
+      Become a Verified Trader Watchdog Business
+    </p>
 
-            <div className="mx-auto mt-12 max-w-2xl rounded-lg border border-slate-300/60 bg-slate-50/50 p-8 text-left">
-              <h3 className="mb-6 text-center font-display text-xl font-semibold text-slate-900">
-                Registration Requirements
-              </h3>
-              <ul className="space-y-4 text-sm text-slate-700">
-                <li className="flex gap-3">
-                  <span className="mt-0.5 text-brand-600">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                  <span>Your business name and the telephone number you advertise</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-0.5 text-brand-600">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                  <span>Identity and liveness checks through our verification provider when requested</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-0.5 text-brand-600">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                  <span>Current insurance documents showing cover, provider, and renewal dates</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-0.5 text-brand-600">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                  <span>Waste carrier details, ICO registration, and any trade-register evidence relevant to your work</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-0.5 text-brand-600">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                  <span>Proof of claimed qualifications, memberships, or scheme registration where applicable</span>
-                </li>
-              </ul>
+    <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
+      An affordable, trusted public platform for genuine local traders
+    </h2>
+
+    <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-300">
+      Show customers you&apos;re insured, compliant, and operating properly.
+      Trader Watchdog is designed to show proof first — not sell leads.
+    </p>
+
+    <div className="mt-16 grid gap-8 lg:grid-cols-2">
+      {/* LEFT COLUMN */}
+      <div className="space-y-8">
+        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8">
+          <h3 className="font-display text-2xl font-semibold text-white">
+            Why Register?
+          </h3>
+
+          <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-300">
+            <li>• An affordable, trusted public platform for genuine local traders</li>
+            <li>• Show customers you&apos;re insured, compliant, and operating properly</li>
+            <li>• One fair fee, no area limits, no paid placements</li>
+            <li>• Help protect your community from rogue traders</li>
+            <li>• Automatic reminders for insurance, licences, memberships, and annual renewal</li>
+          </ul>
+        </div>
+
+        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8">
+          <h3 className="font-display text-2xl font-semibold text-white">
+            What It Means For Your Business
+          </h3>
+
+          <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-300">
+            <li>• Customers see you&apos;re insured and legitimate before they call</li>
+            <li>• Build trust without buying leads</li>
+            <li>• Stay visible with a public, searchable profile</li>
+            <li>• Adds credibility to your business</li>
+            <li>• Verified Trader logo for vehicles and advertising</li>
+          </ul>
+        </div>
+
+        <div className="rounded-2xl border border-brand-500/30 bg-brand-500/10 p-8">
+          <h3 className="font-display text-2xl font-semibold text-white">
+            What It Costs
+          </h3>
+
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center justify-between rounded-xl bg-black/20 px-5 py-4">
+              <span className="text-sm text-slate-300">
+                One-off registration fee
+              </span>
+
+              <span className="text-xl font-bold text-white">£15 + VAT</span>
             </div>
 
-            <Link
-              to="/join"
-              className="mt-10 inline-flex shrink-0 items-center justify-center rounded-lg bg-brand-600 px-10 py-4 font-semibold text-white transition-all duration-200 hover:bg-brand-700"
-            >
-              Register now
-            </Link>
+            <div className="flex items-center justify-between rounded-xl bg-black/20 px-5 py-4">
+              <span className="text-sm text-slate-300">
+                Annual subscription
+              </span>
+
+              <span className="text-xl font-bold text-white">£79 + VAT</span>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              Charges exclude VAT.
+            </p>
           </div>
         </div>
       </div>
-    </section>
+
+      {/* RIGHT COLUMN */}
+      <div className="space-y-8">
+        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-8">
+          <h3 className="font-display text-2xl font-semibold text-white">
+            What Customers See
+          </h3>
+
+          <div className="mt-6 space-y-6">
+            <div>
+              <p className="text-lg font-semibold text-emerald-200">
+                Verified listing
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-200">
+                Your profile appears in public search by name or phone number,
+                showing your verified credentials.
+              </p>
+            </div>
+
+            <div className="border-t border-white/10 pt-6">
+              <p className="text-lg font-semibold text-red-300">
+                Not verified
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-200">
+                Householders are advised to be cautious and ask for documentary
+                proof directly.
+              </p>
+            </div>
+
+            <div className="border-t border-white/10 pt-6">
+              <p className="text-sm leading-relaxed text-slate-300">
+                Customers are asked to mention Trader Watchdog in all
+                communications.
+              </p>
+
+              <p className="mt-3 text-sm font-medium text-white">
+                Trader Watchdog is designed to show proof first — not sell
+                leads.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8">
+          <h3 className="font-display text-2xl font-semibold text-white">
+            How It Works
+          </h3>
+
+          <div className="mt-8 space-y-6">
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
+                1
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-white">
+                  Add your business details
+                </h4>
+
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Use the trading name, postcode, email, and phone number you
+                  already advertise.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
+                2
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-white">
+                  Upload your documents
+                </h4>
+
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Insurance is required. Other documents (qualifications,
+                  memberships, scheme registrations) are optional but helpful.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
+                3
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-white">
+                  Complete your checks
+                </h4>
+
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  We guide you through identity, address, and liveness checks.
+                  We also review insurance and any required licences or
+                  registrations.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
+                4
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-white">
+                  Pay only when approved
+                </h4>
+
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  No payment until your credentials are validated and your
+                  application is accepted.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <a
+              href="/join"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-brand-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-brand-500"
+            >
+              APPLY NOW
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
   );
 }
 

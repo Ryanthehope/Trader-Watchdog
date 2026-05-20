@@ -65,6 +65,7 @@ const customerOutcomes = [
 
 export function Join() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [registrationFeePricePence, setRegistrationFeePricePence] = useState<number | null>(null);
   const [membershipPricePence, setMembershipPricePence] = useState<number | null>(null);
   const [baseMembershipPricePence, setBaseMembershipPricePence] = useState<number | null>(null);
   const [launchDiscountActive, setLaunchDiscountActive] = useState(false);
@@ -242,11 +243,15 @@ export function Join() {
       .then(
         (d: {
           recaptchaSiteKey?: string | null;
+          registrationFeePricePence?: number;
           membershipPricePence?: number;
           baseMembershipPricePence?: number;
           launchDiscountActive?: boolean;
         }) => {
         if (d.recaptchaSiteKey) setRecaptchaSiteKey(d.recaptchaSiteKey);
+          if (typeof d.registrationFeePricePence === "number") {
+            setRegistrationFeePricePence(d.registrationFeePricePence);
+          }
           if (typeof d.membershipPricePence === "number") {
             setMembershipPricePence(d.membershipPricePence);
           }
@@ -475,10 +480,21 @@ export function Join() {
     (applicantStatus === "DECLINED" ||
       (applicantSummary.exists && applicantStatus !== "APPROVED"));
 
-  const formatPence = (value: number | null) =>
-    value == null ? null : `£${(value / 100).toFixed(2)}`;
+  const formatSterling = (valuePence: number) => {
+    const pounds = valuePence / 100;
+    return Number.isInteger(pounds) ? `£${pounds}` : `£${pounds.toFixed(2)}`;
+  };
 
-  const membershipPriceLabel = formatPence(membershipPricePence);
+  const formatVatExclusiveLabel = (grossPence: number | null) => {
+    if (grossPence == null) return null;
+    const exVatPence = Math.round((grossPence * 100) / 120);
+    return `${formatSterling(exVatPence)} + VAT`;
+  };
+
+  const registrationFeePriceLabel =
+    formatVatExclusiveLabel(registrationFeePricePence) ?? "£15 + VAT";
+  const membershipPriceLabel =
+    formatVatExclusiveLabel(membershipPricePence) ?? "£79 + VAT";
   const introBody = "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
   const introSupport = publicSearchEnabled
     ? "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and public search by business name or telephone number once your profile is approved."
@@ -507,8 +523,11 @@ export function Join() {
               <p className="mt-2 text-sm text-slate-300">
                 Annual membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> after approval.
               </p>
+              <p className="mt-2 text-sm text-slate-300">
+                Registration fee: <span className="font-semibold text-white">{registrationFeePriceLabel}</span> after approval.
+              </p>
               <p className="mt-2 text-xs text-slate-400">
-                Renewals are handled annually rather than on a monthly subscription.
+                Renewals are handled annually rather than on a monthly subscription. VAT is added to the checkout total.
               </p>
             </div>
           ) : null}
@@ -704,8 +723,7 @@ export function Join() {
                     Your application is saved. Our team will run vetting
                     (insurance, identity, and trade checks) and email you when
                     you&apos;re approved. After approval, return to this page to
-                    pay your registration fee and annual membership — your public listing and
-                    member login are created when payment completes.
+                    pay your <span className="text-slate-300">{registrationFeePriceLabel}</span> registration fee and <span className="text-slate-300">{membershipPriceLabel}</span> annual membership — your public listing and member login are created when payment completes.
                   </p>
                   <p className="mt-3 text-xs text-slate-500">
                     Tip: bookmark this tab or keep your confirmation email so you
@@ -863,7 +881,7 @@ export function Join() {
                         >
                           {checkoutLoading === "registration"
                             ? "Redirecting…"
-                            : "Registration fee £18"}
+                            : `Registration fee ${registrationFeePriceLabel}`}
                         </button>
                       ) : null}
                       {applicantSummary?.canCheckoutMembership ? (
@@ -875,7 +893,7 @@ export function Join() {
                         >
                           {checkoutLoading === "member"
                             ? "Redirecting…"
-                            : `${membershipPriceLabel ?? "Annual membership"}`}
+                            : `Annual membership ${membershipPriceLabel}`}
                         </button>
                       ) : null}
                     </div>

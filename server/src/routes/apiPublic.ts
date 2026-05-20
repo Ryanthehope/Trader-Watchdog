@@ -142,6 +142,7 @@ router.get("/public-config", async (_req, res) => {
       contactEmail,
       hasBrandingLogo: Boolean(s.brandingLogoStoredName?.trim()),
       invoiceLegalName: s.invoiceLegalName?.trim() || null,
+      registrationFeePricePence: lines.registrationFeePence,
       membershipPricePence: lines.membershipPence,
       baseMembershipPricePence: baseMembershipPence,
       launchDiscountActive,

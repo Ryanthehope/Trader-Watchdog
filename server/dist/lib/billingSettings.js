@@ -4,8 +4,11 @@ import { getLaunchWindow } from "./launchWindow.js";
 const MIN_CHECKOUT_PENCE = 100; // £1.00 — GoCardless practical minimum for GBP
 const MAX_CHECKOUT_PENCE = 999_999_99;
 const LAUNCH_DISCOUNT_PERCENT = 20;
-const DEFAULT_ANNUAL_MEMBERSHIP_PENCE = 7_900;
+const DEFAULT_ANNUAL_MEMBERSHIP_PENCE = 9_480;
 const DEFAULT_REGISTRATION_FEE_PENCE = 1_800;
+function ensureVatMention(label) {
+    return /vat/i.test(label) ? label : `${label} + VAT`;
+}
 function defaultAnnualMembershipPence(value) {
     const normalized = clampCheckoutPence(value);
     return normalized === 1_500 ? DEFAULT_ANNUAL_MEMBERSHIP_PENCE : normalized;
@@ -16,6 +19,7 @@ export async function getOrgBilling() {
         create: {
             id: "default",
             checkoutMembershipPence: DEFAULT_ANNUAL_MEMBERSHIP_PENCE,
+            checkoutRegistrationFeePence: DEFAULT_REGISTRATION_FEE_PENCE,
         },
         update: {},
     });
@@ -64,8 +68,8 @@ export function checkoutLineConfig(s) {
             ? applyPercentageDiscount(baseMembershipPence, LAUNCH_DISCOUNT_PERCENT)
             : baseMembershipPence,
         registrationFeePence: clampCheckoutPence(s.checkoutRegistrationFeePence ?? DEFAULT_REGISTRATION_FEE_PENCE),
-        membershipName: s.checkoutMembershipName?.trim() || "Trader Watchdog annual membership",
-        registrationFeeName: s.checkoutRegistrationFeeName?.trim() ||
-            "Trader Watchdog registration and admin checks",
+        membershipName: ensureVatMention(s.checkoutMembershipName?.trim() || "Trader Watchdog annual membership"),
+        registrationFeeName: ensureVatMention(s.checkoutRegistrationFeeName?.trim() ||
+            "Trader Watchdog registration and admin checks"),
     };
 }

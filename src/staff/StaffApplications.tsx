@@ -486,7 +486,7 @@ function ApplicationCard({
     }
     const label =
       type === "registration_fee"
-        ? "registration fee (£18) for admin checks was received outside GoCardless"
+        ? "registration fee (£15 + VAT) for admin checks was received outside GoCardless"
         : `membership payment was recorded outside GoCardless (until ${membershipExpiresAt})`;
     if (
       !confirm(

@@ -80,7 +80,7 @@ export function StaffSettingsPage() {
         setClearGoCardlessWebhookSecret(false);
         setCheckoutMembershipName(s.checkoutMembershipName ?? "");
         setCheckoutRegistrationFeeName(s.checkoutRegistrationFeeName ?? "");
-        setCheckoutMembershipPence(String(s.checkoutMembershipPence ?? 7900));
+        setCheckoutMembershipPence(String(s.checkoutMembershipPence ?? 9480));
         setCheckoutRegistrationFeePence(
           String(s.checkoutRegistrationFeePence ?? 1800)
         );
@@ -130,7 +130,7 @@ export function StaffSettingsPage() {
         : NaN;
       body.checkoutMembershipPence = Number.isFinite(membershipPenceNum)
         ? membershipPenceNum
-        : 7900;
+        : 9480;
 
       const registrationFeePenceNum = checkoutRegistrationFeePence.trim()
         ? parseInt(checkoutRegistrationFeePence.trim(), 10)
@@ -382,7 +382,7 @@ export function StaffSettingsPage() {
               <input
                 value={checkoutMembershipName}
                 onChange={(e) => setCheckoutMembershipName(e.target.value)}
-                placeholder="Trader Watchdog annual membership"
+                placeholder="Trader Watchdog annual membership + VAT"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
             </div>
@@ -395,25 +395,28 @@ export function StaffSettingsPage() {
                 onChange={(e) =>
                   setCheckoutRegistrationFeeName(e.target.value)
                 }
-                placeholder="Trader Watchdog registration and admin checks"
+                placeholder="Trader Watchdog registration and admin checks + VAT"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                Membership price (pence)
+                Membership charge (gross pence, inc VAT)
               </label>
               <input
                 value={checkoutMembershipPence}
                 onChange={(e) => setCheckoutMembershipPence(e.target.value)}
                 inputMode="numeric"
-                placeholder="7900"
+                placeholder="9480"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
+              <p className="mt-1 text-xs text-slate-500">
+                Example: £79 + VAT charges as 9480 pence.
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                Registration fee (pence)
+                Registration fee charge (gross pence, inc VAT)
               </label>
               <input
                 value={checkoutRegistrationFeePence}
@@ -424,6 +427,9 @@ export function StaffSettingsPage() {
                 placeholder="1800"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
+              <p className="mt-1 text-xs text-slate-500">
+                Example: £15 + VAT charges as 1800 pence.
+              </p>
             </div>
           </div>
         </section>
