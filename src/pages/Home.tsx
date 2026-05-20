@@ -25,16 +25,16 @@ function Stats() {
       labelClass: "text-slate-700",
     },
     {
-      value: "24%",
-      label: "of traders may have no Public Liability insurance",
+      value: "50%",
+      label: "of traders are under-insured or have no insurance at all",
       cardClass:
         "border-slate-300/60 bg-slate-100 text-slate-900 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.14)]",
       valueClass: "text-brand-700",
       labelClass: "text-slate-700",
     },
     {
-      value: "Upto 30%",
-      label: "of online reviews are fake using AI instead to generate fake reviews",
+      value: "Fake Reviews",
+      label: "Are exploding - AI now generates around 30% of them",
       cardClass:
         "border-slate-700/70 bg-slate-900 text-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.45)]",
       valueClass: "text-white",
@@ -181,21 +181,28 @@ function CompetitorComparison() {
     other2: CompareCell;
   }[] = [
     {
-      feature: "Free public lookup of a business",
+      feature: "Free public business search",
       tv: "yes",
       other: "yes",
       other2: "yes",
     },
     {
-      feature: "Independent verification checklist on profile",
-      detail: "Address, insurance, accreditations, digital footprint — structured on one page.",
+      feature: "Public profile based on verified checks",
+      detail: "Shows identity, insurance, licenses, accreditations all on one page.",
       tv: "yes",
       other: "partial",
       other2: "partial",
     },
     {
-      feature: "Verification-first listings",
-      detail: "Public profile is built around what we checked — not just ads.",
+      feature: "Searches are confidential",
+      detail: ".  Registering is not required, searching remains anonymous",
+      tv: "yes",
+      other: "no",
+      other2: "no",
+    },
+    {
+      feature: "Verification-first",
+      detail: "Public profile is built around verification – not advertisements.",
       tv: "yes",
       other: "partial",
       other2: "partial",
@@ -221,10 +228,8 @@ function CompetitorComparison() {
           How we&apos;re different from lead directories
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-slate-700">
-          Trader Watchdog is a verification service with public profiles. Lead
-          marketplaces focus on connecting jobs — we focus on what&apos;s true
-          before you connect. Competitor columns are a general guide; features
-          vary by plan and change over time.
+          Trader Watchdog is a verification service with public profiles, not a lead marketplace. While lead platforms focus on selling job connections, we focus on verifying truth before you connect. 
+          Competitor columns are for general comparison only — features may vary by plan and change over time.
         </p>
 
         <div className="mt-10 overflow-x-auto rounded-2xl border border-slate-300/60 bg-slate-50">
@@ -309,15 +314,15 @@ function Pillars() {
     },
     {
       title: "Your Waste",
-      body: "Most householders don’t realise traders removing waste they have created at your property must hold a legal Waste Carrier Licence. If your waste is flytipped by an unlicensed trader, you can be fined or prosecuted as the waste producer.",
+      body: "If a trader removes and transports any waste form your property they must legally hold a legal Waste Carrier Licence. If your waste is fly tipped by an unlicensed trader, you can be fined or prosecuted as the waste producer",
     },
     {
       title: "Keeping Your Personal Data Safe",
-      body: "Any trader storing customer details — even just your name and number in their phone — must be ICO registered. It shows they follow GDPR rules and handle your personal information safely and legally.",
+      body: "Any trader storing customer details — even just your name and number in their phone — is legally required to be ICO registered. It shows they follow GDPR rules and handle your personal information safely and legally.",
     },
     {
       title: "Gas Engineers",
-      body: "A trader must be Gas Safe registered to work safely on any gas appliance or installation. Using a person that is not registered is illegal and dangerous — faulty gas work can cause leaks, fires or carbon monoxide poisoning.",
+      body: "A trader must be Gas Safe registered to work on any gas appliance or installation. Using a person that is not registered is illegal and dangerous — faulty gas work can cause leaks, fires or carbon monoxide poisoning.",
     },
     {
       title: "Public Liability Insurance",
@@ -333,7 +338,7 @@ function Pillars() {
     },
     {
       title: "Reviews",
-      body: "Fake reviews fuelled by AI are rising fast and can even be purchased online (search ‘buy reviews’). Tostay honest and transparent, we don’t offer reviews or recommendations — we provide facts only, so householders can make informed decisions.",
+      body: "Fake reviews fuelled by AI are rising fast and can even be purchased online (search ‘buy reviews’). To stay honest and transparent, we don’t offer reviews or recommendations — we provide facts only, so householders can make informed decisions.",
     }
   ];
   return (

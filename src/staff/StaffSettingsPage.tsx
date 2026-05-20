@@ -14,6 +14,14 @@ type Settings = {
   smtpUser: string | null;
   mailFrom: string | null;
   hasSmtpPassword: boolean;
+  billingEnabled: boolean;
+  goCardlessPublishableKey: string | null;
+  checkoutMembershipName: string | null;
+  checkoutRegistrationFeeName: string | null;
+  checkoutMembershipPence: number;
+  checkoutRegistrationFeePence: number;
+  hasGoCardlessSecret: boolean;
+  hasGoCardlessWebhookSecret: boolean;
 };
 
 export function StaffSettingsPage() {
@@ -30,6 +38,19 @@ export function StaffSettingsPage() {
   const [smtpPass, setSmtpPass] = useState("");
   const [clearSmtpPassword, setClearSmtpPassword] = useState(false);
   const [mailFrom, setMailFrom] = useState("");
+  const [billingEnabled, setBillingEnabled] = useState(false);
+  const [goCardlessPublishableKey, setGoCardlessPublishableKey] = useState("");
+  const [goCardlessSecretKey, setGoCardlessSecretKey] = useState("");
+  const [clearGoCardlessSecret, setClearGoCardlessSecret] = useState(false);
+  const [goCardlessWebhookSecret, setGoCardlessWebhookSecret] = useState("");
+  const [clearGoCardlessWebhookSecret, setClearGoCardlessWebhookSecret] =
+    useState(false);
+  const [checkoutMembershipName, setCheckoutMembershipName] = useState("");
+  const [checkoutRegistrationFeeName, setCheckoutRegistrationFeeName] =
+    useState("");
+  const [checkoutMembershipPence, setCheckoutMembershipPence] = useState("");
+  const [checkoutRegistrationFeePence, setCheckoutRegistrationFeePence] =
+    useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -51,6 +72,18 @@ export function StaffSettingsPage() {
         setSmtpPass("");
         setClearSmtpPassword(false);
         setMailFrom(s.mailFrom ?? "");
+        setBillingEnabled(Boolean(s.billingEnabled));
+        setGoCardlessPublishableKey(s.goCardlessPublishableKey ?? "");
+        setGoCardlessSecretKey("");
+        setClearGoCardlessSecret(false);
+        setGoCardlessWebhookSecret("");
+        setClearGoCardlessWebhookSecret(false);
+        setCheckoutMembershipName(s.checkoutMembershipName ?? "");
+        setCheckoutRegistrationFeeName(s.checkoutRegistrationFeeName ?? "");
+        setCheckoutMembershipPence(String(s.checkoutMembershipPence ?? 7900));
+        setCheckoutRegistrationFeePence(
+          String(s.checkoutRegistrationFeePence ?? 1800)
+        );
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
       .finally(() => setLoading(false));
@@ -85,6 +118,40 @@ export function StaffSettingsPage() {
       if (clearSmtpPassword) {
         body.clearSmtpPassword = true;
       }
+      body.billingEnabled = billingEnabled;
+      body.goCardlessPublishableKey =
+        goCardlessPublishableKey.trim() || null;
+      body.checkoutMembershipName = checkoutMembershipName.trim() || null;
+      body.checkoutRegistrationFeeName =
+        checkoutRegistrationFeeName.trim() || null;
+
+      const membershipPenceNum = checkoutMembershipPence.trim()
+        ? parseInt(checkoutMembershipPence.trim(), 10)
+        : NaN;
+      body.checkoutMembershipPence = Number.isFinite(membershipPenceNum)
+        ? membershipPenceNum
+        : 7900;
+
+      const registrationFeePenceNum = checkoutRegistrationFeePence.trim()
+        ? parseInt(checkoutRegistrationFeePence.trim(), 10)
+        : NaN;
+      body.checkoutRegistrationFeePence = Number.isFinite(
+        registrationFeePenceNum
+      )
+        ? registrationFeePenceNum
+        : 1800;
+
+      if (clearGoCardlessSecret) {
+        body.goCardlessSecretKey = null;
+      } else if (goCardlessSecretKey.trim()) {
+        body.goCardlessSecretKey = goCardlessSecretKey.trim();
+      }
+
+      if (clearGoCardlessWebhookSecret) {
+        body.goCardlessWebhookSecret = null;
+      } else if (goCardlessWebhookSecret.trim()) {
+        body.goCardlessWebhookSecret = goCardlessWebhookSecret.trim();
+      }
 
       const d = await apiSend<{ settings: Settings }>(
         "/api/admin/organization-settings/save",
@@ -96,6 +163,10 @@ export function StaffSettingsPage() {
       setSettings(d.settings);
       setSmtpPass("");
       setClearSmtpPassword(false);
+      setGoCardlessSecretKey("");
+      setClearGoCardlessSecret(false);
+      setGoCardlessWebhookSecret("");
+      setClearGoCardlessWebhookSecret(false);
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
@@ -118,7 +189,7 @@ export function StaffSettingsPage() {
 
       <form
         onSubmit={onSubmit}
-        className="mt-8 max-w-xl space-y-8 rounded-2xl border border-white/10 bg-ink-900/40 p-6"
+        className="mt-8 max-w-3xl space-y-8 rounded-2xl border border-white/10 bg-ink-900/40 p-6"
       >
         {error ? <p className="text-sm text-red-300">{error}</p> : null}
         {saved ? <p className="text-sm text-emerald-400">Saved.</p> : null}
@@ -204,6 +275,156 @@ export function StaffSettingsPage() {
               placeholder="ops@example.com"
               className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
             />
+          </div>
+        </section>
+
+        <section className="space-y-4 border-t border-white/10 pt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+            Billing &amp; GoCardless
+          </h2>
+          <p className="text-xs leading-relaxed text-slate-500">
+            Checkout is only available when billing is enabled, a publishable
+            key is set, and a GoCardless secret key exists either here or in
+            the server environment.
+          </p>
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={billingEnabled}
+              onChange={(e) => setBillingEnabled(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-600 bg-ink-950 text-brand-500"
+            />
+            <span className="text-sm text-slate-300">
+              Enable online billing and checkout links
+            </span>
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-300">
+                GoCardless publishable key
+              </label>
+              <input
+                value={goCardlessPublishableKey}
+                onChange={(e) => setGoCardlessPublishableKey(e.target.value)}
+                autoComplete="off"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Used by the app to decide whether checkout can be offered.
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                GoCardless secret key
+              </label>
+              <input
+                type="password"
+                value={goCardlessSecretKey}
+                onChange={(e) => setGoCardlessSecretKey(e.target.value)}
+                placeholder={
+                  settings?.hasGoCardlessSecret
+                    ? "•••••••• (leave blank to keep)"
+                    : "Required if not set in env"
+                }
+                autoComplete="new-password"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                GoCardless webhook secret
+              </label>
+              <input
+                type="password"
+                value={goCardlessWebhookSecret}
+                onChange={(e) => setGoCardlessWebhookSecret(e.target.value)}
+                placeholder={
+                  settings?.hasGoCardlessWebhookSecret
+                    ? "•••••••• (leave blank to keep)"
+                    : "Required for webhook validation"
+                }
+                autoComplete="new-password"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            {settings?.hasGoCardlessSecret ? (
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={clearGoCardlessSecret}
+                  onChange={(e) => setClearGoCardlessSecret(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-600 bg-ink-950 text-brand-500"
+                />
+                <span className="text-sm text-slate-400">
+                  Clear stored GoCardless secret key
+                </span>
+              </label>
+            ) : null}
+            {settings?.hasGoCardlessWebhookSecret ? (
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={clearGoCardlessWebhookSecret}
+                  onChange={(e) =>
+                    setClearGoCardlessWebhookSecret(e.target.checked)
+                  }
+                  className="h-4 w-4 rounded border-slate-600 bg-ink-950 text-brand-500"
+                />
+                <span className="text-sm text-slate-400">
+                  Clear stored GoCardless webhook secret
+                </span>
+              </label>
+            ) : null}
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                Membership label
+              </label>
+              <input
+                value={checkoutMembershipName}
+                onChange={(e) => setCheckoutMembershipName(e.target.value)}
+                placeholder="Trader Watchdog annual membership"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                Registration fee label
+              </label>
+              <input
+                value={checkoutRegistrationFeeName}
+                onChange={(e) =>
+                  setCheckoutRegistrationFeeName(e.target.value)
+                }
+                placeholder="Trader Watchdog registration and admin checks"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                Membership price (pence)
+              </label>
+              <input
+                value={checkoutMembershipPence}
+                onChange={(e) => setCheckoutMembershipPence(e.target.value)}
+                inputMode="numeric"
+                placeholder="7900"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                Registration fee (pence)
+              </label>
+              <input
+                value={checkoutRegistrationFeePence}
+                onChange={(e) =>
+                  setCheckoutRegistrationFeePence(e.target.value)
+                }
+                inputMode="numeric"
+                placeholder="1800"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
           </div>
         </section>
 

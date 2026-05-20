@@ -5,7 +5,7 @@ export function getLaunchWindow(now = new Date()) {
     const beforeLaunch = now < LAUNCH_START;
     const launchDiscountActive =
         now >= LAUNCH_START && now < PUBLIC_SEARCH_START;
-    const publicSearchEnabled = true;
+    const publicSearchEnabled = now >= PUBLIC_SEARCH_START;
 
     return {
         beforeLaunch,
