@@ -20,9 +20,16 @@ async function ensureOrgSettings() {
 }
 const inboxUnreadCount = 0;
 const reviewsPendingCount = 0;
+function settledValue(result, label, fallback) {
+    if (result.status === "fulfilled") {
+        return result.value;
+    }
+    console.error(`[dashboard] ${label} failed`, result.reason);
+    return fallback;
+}
 router.get("/dashboard", async (_req, res) => {
     try {
-        const [membersTotal, membersPortal, guidesTotal, applicationsPending, settings, recentApps, recentMembers, recentGuides,] = await Promise.all([
+        const [membersTotalResult, membersPortalResult, guidesTotalResult, applicationsPendingResult, settingsResult, recentAppsResult, recentMembersResult, recentGuidesResult,] = await Promise.allSettled([
             prisma.member.count(),
             prisma.member.count({
                 where: { loginEmail: { not: null }, passwordHash: { not: null } },
@@ -46,6 +53,17 @@ router.get("/dashboard", async (_req, res) => {
                 select: { id: true, title: true, updatedAt: true },
             }),
         ]);
+        const membersTotal = settledValue(membersTotalResult, "membersTotal", 0);
+        const membersPortal = settledValue(membersPortalResult, "membersPortal", 0);
+        const guidesTotal = settledValue(guidesTotalResult, "guidesTotal", 0);
+        const applicationsPending = settledValue(applicationsPendingResult, "applicationsPending", 0);
+        const settings = settledValue(settingsResult, "organizationSettings", {
+            revenueMtdCents: 0,
+            outstandingCents: 0,
+        });
+        const recentApps = settledValue(recentAppsResult, "recentApps", []);
+        const recentMembers = settledValue(recentMembersResult, "recentMembers", []);
+        const recentGuides = settledValue(recentGuidesResult, "recentGuides", []);
         const activity = [
             ...recentApps.map((a) => ({
                 at: a.createdAt.toISOString(),
