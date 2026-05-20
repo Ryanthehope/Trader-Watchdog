@@ -147,10 +147,23 @@ enum VerificationStatus {
 model Application {
   id                           String                @id @default(cuid())
   company                      String
+  legalStructure               String?
+  tradingAddress               String?
   trade                        String
+  identifiablePerson           String?
+  identifiablePersonAddress    String?
   email                        String
   phone                        String?
   postcode                     String
+  wasteCarrierRequired         String?
+  wasteCarrierNumber           String?
+  gasSafeRequired              String?
+  gasSafeNumber                String?
+  icoNumber                    String?
+  businessDescription          String?
+  documentsConfirmed           Boolean               @default(false)
+  agreementAccepted            Boolean               @default(false)
+  enquiriesAccepted            Boolean               @default(false)
   status                       ApplicationStatus     @default(PENDING)
   /// Set when staff first marks the application APPROVED (used for payment window).
   approvedAt                   DateTime?

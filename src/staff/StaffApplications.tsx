@@ -34,10 +34,23 @@ type CreatedMemberRef = {
 type AppRow = {
   id: string;
   company: string;
+  legalStructure?: string | null;
+  tradingAddress?: string | null;
   trade: string;
+  identifiablePerson?: string | null;
+  identifiablePersonAddress?: string | null;
   email: string;
   phone?: string | null;
   postcode: string;
+  wasteCarrierRequired?: string | null;
+  wasteCarrierNumber?: string | null;
+  gasSafeRequired?: string | null;
+  gasSafeNumber?: string | null;
+  icoNumber?: string | null;
+  businessDescription?: string | null;
+  documentsConfirmed?: boolean;
+  agreementAccepted?: boolean;
+  enquiriesAccepted?: boolean;
   status: string;
   notes: string | null;
   vettingChecklist: string | null;

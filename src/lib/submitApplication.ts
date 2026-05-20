@@ -1,9 +1,22 @@
 export type ApplicationPayload = {
   company: string;
-  trade: string;
-  email: string;
+  legalStructure: string;
+  tradingAddress: string;
   phone: string;
+  identifiablePerson: string;
+  identifiablePersonAddress: string;
+  email: string;
+  trade: string;
   postcode: string;
+  wasteCarrierRequired: string;
+  wasteCarrierNumber?: string;
+  gasSafeRequired: string;
+  gasSafeNumber?: string;
+  icoNumber?: string;
+  businessDescription?: string;
+  documentsConfirmed: boolean;
+  agreementAccepted: boolean;
+  enquiriesAccepted: boolean;
   submittedAt: string;
   recaptchaToken?: string;
 };
@@ -61,17 +74,15 @@ export async function submitApplication(
             method: "POST",
             body: (() => {
               const fd = new FormData();
-              fd.append("company", payload.company);
-              fd.append("trade", payload.trade);
-              fd.append("email", payload.email);
-              fd.append("phone", payload.phone);
-              fd.append("postcode", payload.postcode);
-              if (payload.recaptchaToken) {
-                fd.append("recaptchaToken", payload.recaptchaToken);
-              }
+              Object.entries(payload).forEach(([key, value]) => {
+                if (value === undefined || value === null || value === "") return;
+                fd.append(key, typeof value === "boolean" ? String(value) : value);
+              });
+
               for (const f of fileList) {
                 fd.append("files", f);
               }
+
               return fd;
             })(),
           })
@@ -145,10 +156,23 @@ export async function submitApplication(
     const body = encodeURIComponent(
       `Trader Watchdog membership application\n\n` +
         `Business name: ${payload.company}\n` +
+        `Business structure: ${payload.legalStructure}\n` +
+        `Trading address: ${payload.tradingAddress}\n` +
+        `Identifiable person: ${payload.identifiablePerson}\n` +
+        `Identifiable person address: ${payload.identifiablePersonAddress}\n` +
         `Trade / specialism: ${payload.trade}\n` +
         `Work email: ${payload.email}\n` +
         `Telephone number: ${payload.phone}\n` +
         `Main operating postcode: ${payload.postcode}\n` +
+        `Waste Carrier Licence required: ${payload.wasteCarrierRequired}\n` +
+        `Waste Carrier number: ${payload.wasteCarrierNumber ?? ""}\n` +
+        `Gas Safe required: ${payload.gasSafeRequired}\n` +
+        `Gas Safe number: ${payload.gasSafeNumber ?? ""}\n` +
+        `ICO number: ${payload.icoNumber ?? ""}\n` +
+        `Business description: ${payload.businessDescription ?? ""}\n` +
+        `Documents confirmed: ${payload.documentsConfirmed ? "Yes" : "No"}\n` +
+        `Agreement accepted: ${payload.agreementAccepted ? "Yes" : "No"}\n` +
+        `Enquiries accepted: ${payload.enquiriesAccepted ? "Yes" : "No"}\n` +
         `Submitted (ISO): ${payload.submittedAt}\n`
     );
     window.location.href = `mailto:${inbox}?subject=${subject}&body=${body}`;

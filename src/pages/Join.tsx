@@ -288,12 +288,52 @@ export function Join() {
     setFormError(null);
     const fd = new FormData(e.currentTarget);
     const company = String(fd.get("company") ?? "").trim();
+    const legalStructure = String(fd.get("legalStructure") ?? "").trim();
+    const tradingAddress = String(fd.get("tradingAddress") ?? "").trim();
     const trade = String(fd.get("trade") ?? "").trim();
+    const identifiablePerson = String(fd.get("identifiablePerson") ?? "").trim();
+    const identifiablePersonAddress = String(
+      fd.get("identifiablePersonAddress") ?? ""
+    ).trim();
     const email = String(fd.get("email") ?? "").trim();
     const phone = String(fd.get("phone") ?? "").trim();
     const postcode = String(fd.get("postcode") ?? "").trim();
+    const wasteCarrierRequired = String(
+      fd.get("wasteCarrierRequired") ?? ""
+    ).trim();
+    const wasteCarrierNumber = String(fd.get("wasteCarrierNumber") ?? "").trim();
+    const gasSafeRequired = String(fd.get("gasSafeRequired") ?? "").trim();
+    const gasSafeNumber = String(fd.get("gasSafeNumber") ?? "").trim();
+    const icoNumber = String(fd.get("icoNumber") ?? "").trim();
+    const businessDescription = String(
+      fd.get("businessDescription") ?? ""
+    ).trim();
+    const documentsConfirmed = fd.get("documentsConfirmed") === "on";
+    const agreementAccepted = fd.get("agreementAccepted") === "on";
+    const enquiriesAccepted = fd.get("enquiriesAccepted") === "on";
     const filesRaw = fd.getAll("files").filter((x): x is File => x instanceof File);
     const files = filesRaw.filter((f) => f.size > 0);
+
+    if (files.length > 8) {
+      setFormError("Please upload no more than 8 supporting documents.");
+      return;
+    }
+
+    const oversizedFile = files.find((f) => f.size > 10 * 1024 * 1024);
+
+    if (oversizedFile) {
+      setFormError(
+        `Each file must be 10 MB or less. ${oversizedFile.name} is too large.`
+      );
+      return;
+    }
+
+    if (!agreementAccepted || !enquiriesAccepted || !documentsConfirmed) {
+      setFormError(
+        "Please confirm the required declaration boxes before submitting."
+      );
+      return;
+    }
 
     const recaptchaToken = recaptchaSiteKey
       ? getRecaptchaToken()
@@ -307,10 +347,23 @@ export function Join() {
     const result = await submitApplication(
       {
         company,
-        trade,
-        email,
+        legalStructure,
+        tradingAddress,
         phone,
+        identifiablePerson,
+        identifiablePersonAddress,
+        email,
+        trade,
         postcode,
+        wasteCarrierRequired,
+        wasteCarrierNumber,
+        gasSafeRequired,
+        gasSafeNumber,
+        icoNumber,
+        businessDescription,
+        documentsConfirmed,
+        agreementAccepted,
+        enquiriesAccepted,
         submittedAt: new Date().toISOString(),
         recaptchaToken,
       },
@@ -902,6 +955,44 @@ export function Join() {
             </div>
             <div>
               <label
+                htmlFor="legalStructure"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Business structure
+              </label>
+              <select
+                id="legalStructure"
+                name="legalStructure"
+                required
+                defaultValue=""
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                <option value="Sole trader">Sole trader</option>
+                <option value="Partnership">Partnership</option>
+                <option value="Limited company">Limited company</option>
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="tradingAddress"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Trading address
+              </label>
+              <textarea
+                id="tradingAddress"
+                name="tradingAddress"
+                required
+                rows={3}
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                placeholder="Business trading address"
+              />
+            </div>
+            <div>
+              <label
                 htmlFor="trade"
                 className="block text-sm font-medium text-slate-300"
               >
@@ -916,6 +1007,52 @@ export function Join() {
                 required
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                 placeholder="Plumber, roofer, gas engineer"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="businessDescription"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Short business description
+              </label>
+              <textarea
+                id="businessDescription"
+                name="businessDescription"
+                rows={3}
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                placeholder="What work do you mainly carry out?"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="identifiablePerson"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Identifiable person
+              </label>
+              <input
+                id="identifiablePerson"
+                name="identifiablePerson"
+                required
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                placeholder="Full name"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="identifiablePersonAddress"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Identifiable person address
+              </label>
+              <textarea
+                id="identifiablePersonAddress"
+                name="identifiablePersonAddress"
+                required
+                rows={3}
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                placeholder="Private address for verification"
               />
             </div>
             <div>
@@ -967,6 +1104,87 @@ export function Join() {
             </div>
             <div>
               <label
+                htmlFor="wasteCarrierRequired"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Does your business require a Waste Carrier Licence?
+              </label>
+              <select
+                id="wasteCarrierRequired"
+                name="wasteCarrierRequired"
+                required
+                defaultValue=""
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="wasteCarrierNumber"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Waste Carrier Licence number, if applicable
+              </label>
+              <input
+                id="wasteCarrierNumber"
+                name="wasteCarrierNumber"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="gasSafeRequired"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Does your business require Gas Safe registration?
+              </label>
+              <select
+                id="gasSafeRequired"
+                name="gasSafeRequired"
+                required
+                defaultValue=""
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="gasSafeNumber"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Gas Safe registration number, if applicable
+              </label>
+              <input
+                id="gasSafeNumber"
+                name="gasSafeNumber"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="icoNumber"
+                className="block text-sm font-medium text-slate-300"
+              >
+                ICO registration number, if applicable
+              </label>
+              <input
+                id="icoNumber"
+                name="icoNumber"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              />
+            </div>
+            <div>
+              <label
                 htmlFor="files"
                 className="block text-sm font-medium text-slate-300"
               >
@@ -984,6 +1202,27 @@ export function Join() {
                 className="mt-2 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15"
               />
             </div>
+            <label className="flex gap-3 text-sm text-slate-300">
+              <input name="documentsConfirmed" type="checkbox" required />
+              <span>
+                I understand licences and registrations must be held in the
+                trading name where required.
+              </span>
+            </label>
+            <label className="flex gap-3 text-sm text-slate-300">
+              <input name="agreementAccepted" type="checkbox" required />
+              <span>
+                I have read and understand the Trader Watchdog Verified Trader
+                Agreement.
+              </span>
+            </label>
+            <label className="flex gap-3 text-sm text-slate-300">
+              <input name="enquiriesAccepted" type="checkbox" required />
+              <span>
+                I agree to Trader Watchdog making enquiries necessary to
+                validate the information supplied.
+              </span>
+            </label>
             {recaptchaSiteKey ? (
               <div
                 className="g-recaptcha"

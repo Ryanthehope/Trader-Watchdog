@@ -114,6 +114,13 @@ function isApplicationMultipart(req: { headers: { "content-type"?: string } }) {
   return (req.headers["content-type"] || "").includes("multipart/form-data");
 }
 
+function parseBooleanish(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value !== "string") return false;
+  const normalized = value.trim().toLowerCase();
+  return normalized === "true" || normalized === "1" || normalized === "on";
+}
+
 router.get("/public-config", async (_req, res) => {
   const contactEmail =
     process.env.CONTACT_EMAIL?.trim() ||
@@ -323,14 +330,75 @@ router.post(
   async (req, res) => {
     try {
       const company = String(req.body?.company ?? "").trim();
+      const legalStructure = String(req.body?.legalStructure ?? "").trim();
+      const tradingAddress = String(req.body?.tradingAddress ?? "").trim();
       const trade = String(req.body?.trade ?? "").trim();
+      const identifiablePerson = String(req.body?.identifiablePerson ?? "").trim();
+      const identifiablePersonAddress = String(
+        req.body?.identifiablePersonAddress ?? ""
+      ).trim();
       const email = String(req.body?.email ?? "").trim().toLowerCase();
       const phone = String(req.body?.phone ?? "").trim();
       const postcode = String(req.body?.postcode ?? "").trim();
+      const wasteCarrierRequired = String(
+        req.body?.wasteCarrierRequired ?? ""
+      ).trim();
+      const wasteCarrierNumber = String(req.body?.wasteCarrierNumber ?? "").trim();
+      const gasSafeRequired = String(req.body?.gasSafeRequired ?? "").trim();
+      const gasSafeNumber = String(req.body?.gasSafeNumber ?? "").trim();
+      const icoNumber = String(req.body?.icoNumber ?? "").trim();
+      const businessDescription = String(
+        req.body?.businessDescription ?? ""
+      ).trim();
+      const documentsConfirmed = parseBooleanish(req.body?.documentsConfirmed);
+      const agreementAccepted = parseBooleanish(req.body?.agreementAccepted);
+      const enquiriesAccepted = parseBooleanish(req.body?.enquiriesAccepted);
       const recaptchaToken = req.body?.recaptchaToken as string | undefined;
       if (!company || !trade || !email || !phone || !postcode) {
         res.status(400).json({
           error: "company, trade, email, phone, and postcode are required",
+        });
+        return;
+      }
+
+      const hasExtendedFields = Boolean(
+        legalStructure ||
+          tradingAddress ||
+          identifiablePerson ||
+          identifiablePersonAddress ||
+          wasteCarrierRequired ||
+          wasteCarrierNumber ||
+          gasSafeRequired ||
+          gasSafeNumber ||
+          icoNumber ||
+          businessDescription ||
+          Object.prototype.hasOwnProperty.call(req.body ?? {}, "documentsConfirmed") ||
+          Object.prototype.hasOwnProperty.call(req.body ?? {}, "agreementAccepted") ||
+          Object.prototype.hasOwnProperty.call(req.body ?? {}, "enquiriesAccepted")
+      );
+
+      if (
+        hasExtendedFields &&
+        (!legalStructure ||
+          !tradingAddress ||
+          !identifiablePerson ||
+          !identifiablePersonAddress ||
+          !wasteCarrierRequired ||
+          !gasSafeRequired)
+      ) {
+        res.status(400).json({
+          error:
+            "Please complete the business structure, address, identifiable person, and licence requirement fields.",
+        });
+        return;
+      }
+
+      if (
+        hasExtendedFields &&
+        (!documentsConfirmed || !agreementAccepted || !enquiriesAccepted)
+      ) {
+        res.status(400).json({
+          error: "Please confirm the required declaration boxes before submitting.",
         });
         return;
       }
@@ -359,7 +427,26 @@ router.post(
         null;
       try {
         row = await prisma.application.create({
-          data: { company, trade, email, phone, postcode },
+          data: {
+            company,
+            legalStructure: legalStructure || null,
+            tradingAddress: tradingAddress || null,
+            trade,
+            identifiablePerson: identifiablePerson || null,
+            identifiablePersonAddress: identifiablePersonAddress || null,
+            email,
+            phone,
+            postcode,
+            wasteCarrierRequired: wasteCarrierRequired || null,
+            wasteCarrierNumber: wasteCarrierNumber || null,
+            gasSafeRequired: gasSafeRequired || null,
+            gasSafeNumber: gasSafeNumber || null,
+            icoNumber: icoNumber || null,
+            businessDescription: businessDescription || null,
+            documentsConfirmed,
+            agreementAccepted,
+            enquiriesAccepted,
+          },
         });
         await persistApplicationDocuments(row.id, files);
       } catch (persistErr) {
@@ -373,10 +460,23 @@ router.post(
       void forwardApplicationWebhook({
         source: "Trader Watchdog-join",
         company,
+        legalStructure,
+        tradingAddress,
         trade,
+        identifiablePerson,
+        identifiablePersonAddress,
         email,
         phone,
         postcode,
+        wasteCarrierRequired,
+        wasteCarrierNumber,
+        gasSafeRequired,
+        gasSafeNumber,
+        icoNumber,
+        businessDescription,
+        documentsConfirmed,
+        agreementAccepted,
+        enquiriesAccepted,
         submittedAt: row.createdAt.toISOString(),
         id: row.id,
         documentCount: files.length,
