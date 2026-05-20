@@ -135,7 +135,7 @@ function FeatureHighlights() {
   const cards = [
     {
       title: "Free",
-      body: "Checking a trader has never been easier. Just enter their name or telephone number, and click.",
+      body: "Verifying a trader has never been easier. Just enter their name or telephone number, and click.",
     },
     {
       title: "Confidential",
