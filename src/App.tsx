@@ -85,7 +85,6 @@ export default function App() {
           <Route path="guides/:id" element={<StaffGuideForm />} />
           <Route path="analytics" element={<StaffAnalytics />} />
           <Route path="settings" element={<StaffSettingsPage />} />
-          <Route path="team" element={<Navigate to="/staff" replace />} />
         </Route>
 
         <Route element={<Layout />}>

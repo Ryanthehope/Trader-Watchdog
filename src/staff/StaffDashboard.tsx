@@ -33,7 +33,70 @@ export function StaffDashboard() {
     return <p className="text-slate-500">Loading dashboard…</p>;
   }
   if (error || !data) {
-    return <p className="text-red-300">{error ?? "No data"}</p>;
+    return (
+      <div>
+        <div className="border-b border-slate-700/50 bg-slate-900 px-6 py-8 sm:px-10 sm:py-10">
+          <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">
+            Dashboard
+          </h1>
+          <p className="mt-3 max-w-3xl text-base text-slate-300">
+            Dashboard data is temporarily unavailable, but the staff tools below still work.
+          </p>
+        </div>
+
+        <section className="border-b border-slate-200 bg-white px-6 py-10 sm:px-10 sm:py-12">
+          <div className="rounded-lg border border-amber-300/60 bg-amber-50 p-5 text-sm text-amber-900">
+            {error ?? "Dashboard data could not be loaded."}
+          </div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <Link
+              to="/staff/applications"
+              className="block rounded-lg border border-slate-300/60 bg-slate-50 p-8 transition hover:border-brand-500/50"
+            >
+              <h3 className="font-display text-lg font-bold text-slate-900">
+                Applications
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Review trader applications, documents, vetting, and payment progress.
+              </p>
+            </Link>
+            <Link
+              to="/staff/members"
+              className="block rounded-lg border border-slate-300/60 bg-slate-50 p-8 transition hover:border-brand-500/50"
+            >
+              <h3 className="font-display text-lg font-bold text-slate-900">
+                Members
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Manage live member profiles, portal access, and billing-related details.
+              </p>
+            </Link>
+            <Link
+              to="/staff/guides"
+              className="block rounded-lg border border-slate-300/60 bg-slate-50 p-8 transition hover:border-brand-500/50"
+            >
+              <h3 className="font-display text-lg font-bold text-slate-900">
+                Guides
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Edit the public guidance content shown on the site.
+              </p>
+            </Link>
+            <Link
+              to="/staff/settings"
+              className="block rounded-lg border border-slate-300/60 bg-slate-50 p-8 transition hover:border-brand-500/50"
+            >
+              <h3 className="font-display text-lg font-bold text-slate-900">
+                Settings
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Update billing, branding, email, and operational configuration.
+              </p>
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   return (
