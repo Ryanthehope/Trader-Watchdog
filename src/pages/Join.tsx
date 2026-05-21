@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   getRecaptchaToken,
@@ -64,6 +64,7 @@ const customerOutcomes = [
 ];
 
 export function Join() {
+  const joinStatusRef = useRef<HTMLDivElement | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [registrationFeePricePence, setRegistrationFeePricePence] = useState<number | null>(null);
   const [membershipPricePence, setMembershipPricePence] = useState<number | null>(null);
@@ -277,6 +278,11 @@ export function Join() {
   useEffect(() => {
     return undefined;
   }, [paidNotice]);
+
+  useEffect(() => {
+    if (!sent) return;
+    joinStatusRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [sent, applicationId, applicantSummary?.status, applicantSummary?.profileLive]);
 
   const clearJoinNotice = () => {
     setSearchParams((p) => {
@@ -695,7 +701,10 @@ export function Join() {
             Loading…
           </div>
         ) : sent ? (
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center">
+          <div
+            ref={joinStatusRef}
+            className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center"
+          >
             <p className="font-display text-lg font-semibold text-white">
               Application received
             </p>
@@ -729,6 +738,26 @@ export function Join() {
                     Tip: bookmark this tab or keep your confirmation email so you
                     can open this page again easily.
                   </p>
+                  {applicationId ? (
+                    <div className="mt-4 rounded-xl border border-white/10 bg-ink-950/50 p-4 text-left">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Application reference
+                      </p>
+                      <p className="mt-2 break-all font-mono text-sm text-white">
+                        {applicationId}
+                      </p>
+                    </div>
+                  ) : null}
+                  <div className="mt-4 rounded-xl border border-white/10 bg-ink-950/50 p-4 text-left">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      What happens next
+                    </p>
+                    <ol className="mt-3 space-y-2 text-sm text-slate-300">
+                      <li>1. Trader Watchdog reviews the application and supporting documents.</li>
+                      <li>2. If approved, this page updates with the next payment step or contact instructions.</li>
+                      <li>3. Once payment is complete, the public listing and member login are created.</li>
+                    </ol>
+                  </div>
                 </>
               )
             ) : sentVia === "mailto" ? (
