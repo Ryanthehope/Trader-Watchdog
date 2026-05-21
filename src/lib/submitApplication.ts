@@ -100,9 +100,13 @@ export async function submitApplication(
         billingAvailable: Boolean(data.billingAvailable),
       };
     }
-    if (res.status === 400 && typeof data?.error === "string") {
+    if (typeof data?.error === "string") {
       return { ok: false, message: data.error };
     }
+    return {
+      ok: false,
+      message: `Application service error (${res.status}). Please try again in a moment.`,
+    };
   } catch {
     // API unreachable — fall back to webhook or mailto below
   }

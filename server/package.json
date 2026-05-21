@@ -7,7 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build:client": "npm run build:client --prefix ..",
     "build": "node ./node_modules/prisma/build/index.js generate && node ./node_modules/typescript/lib/tsc.js",
-    "start": "node dist/index.js",
+    "start": "npm run db:migrate && node dist/index.js",
     "db:push": "node ./node_modules/prisma/build/index.js db push",
     "db:migrate": "node ./node_modules/prisma/build/index.js migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
