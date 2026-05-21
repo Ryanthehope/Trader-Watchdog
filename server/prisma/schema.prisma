@@ -64,6 +64,12 @@ model Member {
   verificationProviderApplicantId String?
   verificationProviderSessionId   String?
   verificationFailureReason       String?
+  addressVerificationStatus           VerificationStatus @default(NOT_STARTED)
+  addressVerificationApprovedAt       DateTime?
+  addressVerificationRejectedAt       DateTime?
+  addressVerificationFailureReason    String?
+  addressVerificationMatchedAddress   String?
+  addressVerificationMatchedApplication Boolean?
   goCardlessCustomerId         String?
   goCardlessSubscriptionId     String?
   /// Mirrors GoCardless subscription.status (active, canceled, past_due, …).
@@ -183,7 +189,13 @@ model Application {
   verificationRejectedAt          DateTime?
   verificationProviderApplicantId String?
   verificationProviderSessionId   String?
-  verificationFailureReason       String?   
+  verificationFailureReason       String?
+  addressVerificationStatus           VerificationStatus @default(NOT_STARTED)
+  addressVerificationApprovedAt       DateTime?
+  addressVerificationRejectedAt       DateTime?
+  addressVerificationFailureReason    String?
+  addressVerificationMatchedAddress   String?
+  addressVerificationMatchedApplication Boolean?
   goCardlessCustomerId             String?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?

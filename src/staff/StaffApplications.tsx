@@ -68,6 +68,12 @@ type AppRow = {
   verificationProviderApplicantId?: string | null;
   verificationProviderSessionId?: string | null;
   verificationFailureReason?: string | null;
+  addressVerificationStatus?: string | null;
+  addressVerificationApprovedAt?: string | null;
+  addressVerificationRejectedAt?: string | null;
+  addressVerificationFailureReason?: string | null;
+  addressVerificationMatchedAddress?: string | null;
+  addressVerificationMatchedApplication?: boolean | null;
   createdAt: string;
   documents: AppDoc[];
   createdMember: CreatedMemberRef | null;
@@ -159,6 +165,34 @@ function verificationStatusClasses(status: string | null | undefined): string {
     default:
       return "bg-white/5 text-slate-500";
   }
+}
+
+function addressVerificationLabel(
+  status: string | null | undefined,
+  matchedApplication: boolean | null | undefined
+): string {
+  switch (status) {
+    case "APPROVED":
+      if (matchedApplication === true) return "Address verified - matches application";
+      if (matchedApplication === false) return "Address verified - mismatch";
+      return "Address verified";
+    case "REJECTED":
+      return "Address verification rejected";
+    case "IN_PROGRESS":
+      return "Address verification in progress";
+    default:
+      return "Address verification not started";
+  }
+}
+
+function addressVerificationClasses(
+  status: string | null | undefined,
+  matchedApplication: boolean | null | undefined
+): string {
+  if (status === "APPROVED" && matchedApplication === false) {
+    return "bg-amber-500/20 text-amber-200";
+  }
+  return verificationStatusClasses(status);
 }
 
 /** Consistent controls: soft border, inset highlight, brand focus ring (no harsh white outlines). */
@@ -436,6 +470,7 @@ function ApplicationCard({
   const allDone = SECTIONS.every((s) => vetting[s.id]?.done);
   const sectionsDoneCount = SECTIONS.filter((s) => vetting[s.id]?.done).length;
   const verificationStatus = row.verificationStatus ?? "NOT_STARTED";
+  const addressVerificationStatus = row.addressVerificationStatus ?? "NOT_STARTED";
   const canUseSumsub = row.status !== "DECLINED";
 
   const save = async (nextStatus?: string) => {
@@ -676,6 +711,19 @@ function ApplicationCard({
                   {verificationStatusLabel(verificationStatus)}
                 </span>
               ) : null}
+              {row.verificationProvider === "sumsub" ? (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${addressVerificationClasses(
+                    addressVerificationStatus,
+                    row.addressVerificationMatchedApplication
+                  )}`}
+                >
+                  {addressVerificationLabel(
+                    addressVerificationStatus,
+                    row.addressVerificationMatchedApplication
+                  )}
+                </span>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -761,6 +809,17 @@ function ApplicationCard({
               >
                 {verificationStatusLabel(verificationStatus)}
               </span>
+              <span
+                className={`rounded-full px-2.5 py-1 font-medium ${addressVerificationClasses(
+                  addressVerificationStatus,
+                  row.addressVerificationMatchedApplication
+                )}`}
+              >
+                {addressVerificationLabel(
+                  addressVerificationStatus,
+                  row.addressVerificationMatchedApplication
+                )}
+              </span>
               {row.verificationProviderApplicantId ? (
                 <span className="rounded-full bg-white/5 px-2.5 py-1 text-slate-500">
                   Applicant linked
@@ -787,6 +846,38 @@ function ApplicationCard({
                 {row.verificationFailureReason ? (
                   <p className="max-w-2xl text-red-200/85">
                     {row.verificationFailureReason}
+                  </p>
+                ) : null}
+                {row.addressVerificationApprovedAt ? (
+                  <p>
+                    Address verified {new Date(row.addressVerificationApprovedAt).toLocaleString()}
+                  </p>
+                ) : null}
+                {row.addressVerificationRejectedAt ? (
+                  <p>
+                    Address rejected {new Date(row.addressVerificationRejectedAt).toLocaleString()}
+                  </p>
+                ) : null}
+                {row.addressVerificationFailureReason ? (
+                  <p className="max-w-2xl text-red-200/85">
+                    {row.addressVerificationFailureReason}
+                  </p>
+                ) : null}
+                {row.identifiablePerson ? <p>Individual: {row.identifiablePerson}</p> : null}
+                {row.identifiablePersonAddress ? (
+                  <p>Application address: {row.identifiablePersonAddress}</p>
+                ) : null}
+                {row.addressVerificationMatchedAddress ? (
+                  <p>Verified address: {row.addressVerificationMatchedAddress}</p>
+                ) : null}
+                {row.addressVerificationMatchedApplication === true ? (
+                  <p className="text-emerald-200/85">
+                    Verified address matches the application.
+                  </p>
+                ) : null}
+                {row.addressVerificationMatchedApplication === false ? (
+                  <p className="max-w-2xl text-amber-200/90">
+                    Sumsub approved an address, but it does not match the application.
                   </p>
                 ) : null}
               </div>

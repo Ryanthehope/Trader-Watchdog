@@ -16,6 +16,20 @@ type SumsubApplicantInput = {
   lastName: string | null;
 };
 
+type SumsubAddress = {
+  buildingName?: string;
+  flatNumber?: string;
+  subStreet?: string;
+  street?: string;
+  state?: string;
+  buildingNumber?: string;
+  town?: string;
+  postCode?: string;
+  country?: string;
+  formattedAddress?: string;
+  source?: string;
+};
+
 type SumsubApplicantResponse = {
   id: string;
   inspectionId?: string;
@@ -65,6 +79,39 @@ export type SumsubApplicantReviewResponse = {
     | "awaitingUser"
     | string;
   reviewResult?: SumsubReviewResult;
+};
+
+export type SumsubApplicantDataResponse = {
+  inspectionId?: string;
+  info?: {
+    addresses?: SumsubAddress[];
+    idDocs?: Array<{
+      address?: SumsubAddress;
+    }>;
+  };
+  fixedInfo?: {
+    addresses?: SumsubAddress[];
+  };
+  review?: SumsubApplicantReviewResponse;
+};
+
+type SumsubStepReviewResult = {
+  reviewAnswer?: "GREEN" | "RED";
+  rejectLabels?: string[];
+  moderationComment?: string;
+  clientComment?: string;
+  reviewRejectType?: "FINAL" | "RETRY";
+};
+
+type SumsubStepStatus = {
+  reviewResult?: SumsubStepReviewResult;
+  idDocType?: string;
+  country?: string;
+};
+
+export type SumsubApplicantStepStatusResponse = {
+  PROOF_OF_RESIDENCE?: SumsubStepStatus;
+  PROOF_OF_RESIDENCE2?: SumsubStepStatus;
 };
 
 export type SumsubWebhookPayload = {
@@ -195,6 +242,20 @@ export async function getSumsubApplicantReview(
 ): Promise<SumsubApplicantReviewResponse> {
   const path = `/resources/applicants/${encodeURIComponent(applicantId)}/status`;
   return sumsubJsonRequest<SumsubApplicantReviewResponse>("GET", path);
+}
+
+export async function getSumsubApplicantData(
+  applicantId: string
+): Promise<SumsubApplicantDataResponse> {
+  const path = `/resources/applicants/${encodeURIComponent(applicantId)}/one`;
+  return sumsubJsonRequest<SumsubApplicantDataResponse>("GET", path);
+}
+
+export async function getSumsubApplicantVerificationSteps(
+  applicantId: string
+): Promise<SumsubApplicantStepStatusResponse> {
+  const path = `/resources/applicants/${encodeURIComponent(applicantId)}/requiredIdDocsStatus`;
+  return sumsubJsonRequest<SumsubApplicantStepStatusResponse>("GET", path);
 }
 
 export function parseSumsubDate(value: string | undefined): Date | null {

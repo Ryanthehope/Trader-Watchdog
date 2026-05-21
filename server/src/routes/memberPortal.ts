@@ -20,7 +20,6 @@ import { memberProfileLogoFilePath, memberProfileLogoDir } from "../lib/memberPr
 import { memberToPublic } from "../lib/memberSerialize.js";
 import { requireMember } from "../middleware/requireMember.js";
 import { requireMemberMembershipActive } from "../middleware/requireMemberMembershipActive.js";
-// import memberCrmRoutes from "./memberCrmRoutes.js";
 
 const UPLOAD_ROOT =
   process.env.MEMBER_UPLOAD_DIR?.trim() ||
@@ -685,7 +684,5 @@ router.get("/insurance", requireMemberMembershipActive, async (req, res) => {
     res.status(500).json({ error: "Could not list insurance policies" });
   }
 });
-
-// router.use(memberCrmRoutes);
 
 export default router;

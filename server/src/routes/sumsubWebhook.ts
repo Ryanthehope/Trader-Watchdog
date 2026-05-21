@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { prisma } from "../db.js";
 import { notifyApplicantVerificationOutcome } from "../lib/adminMail.js";
+import { buildSumsubVerificationUpdate } from "../lib/sumsubVerificationSync.js";
 import {
   getSumsubWebhookSecret,
-  mapSumsubReviewToVerificationData,
   parseSumsubDate,
   verifySumsubWebhookSignature,
   type SumsubWebhookPayload,
@@ -84,6 +84,7 @@ export async function sumsubWebhookHandler(req: Request, res: Response) {
         email: true,
         createdMemberId: true,
         verificationStatus: true,
+        identifiablePersonAddress: true,
         verificationSubmittedAt: true,
         verificationProviderApplicantId: true,
         verificationProviderSessionId: true,
@@ -99,21 +100,18 @@ export async function sumsubWebhookHandler(req: Request, res: Response) {
     }
 
     const eventDate = sumsubEventDate(payload);
-    const verificationData = {
-      verificationProvider: "sumsub" as const,
-      verificationSubmittedAt:
-        application.verificationSubmittedAt ?? eventDate ?? new Date(),
-      verificationProviderApplicantId:
+    const verificationData = await buildSumsubVerificationUpdate(application, {
+      applicantId:
         application.verificationProviderApplicantId ?? payload.applicantId,
-      verificationProviderSessionId:
-        payload.inspectionId ?? application.verificationProviderSessionId ?? null,
-      ...mapSumsubReviewToVerificationData({
+      inspectionId: payload.inspectionId ?? null,
+      eventDate,
+      fallbackReview: {
         reviewStatus: payload.reviewStatus,
         createdAt: payload.createdAt,
         createdAtMs: payload.createdAtMs,
         reviewResult: payload.reviewResult,
-      }),
-    };
+      },
+    });
 
     await prisma.application.update({
       where: { id: application.id },

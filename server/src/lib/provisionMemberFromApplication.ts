@@ -148,6 +148,17 @@ export async function tryProvisionMemberForApplication(
         verificationProviderSessionId:
           app.verificationProviderSessionId ?? undefined,
         verificationFailureReason: app.verificationFailureReason ?? undefined,
+        addressVerificationStatus: app.addressVerificationStatus,
+        addressVerificationApprovedAt:
+          app.addressVerificationApprovedAt ?? undefined,
+        addressVerificationRejectedAt:
+          app.addressVerificationRejectedAt ?? undefined,
+        addressVerificationFailureReason:
+          app.addressVerificationFailureReason ?? undefined,
+        addressVerificationMatchedAddress:
+          app.addressVerificationMatchedAddress ?? undefined,
+        addressVerificationMatchedApplication:
+          app.addressVerificationMatchedApplication ?? undefined,
         ...membershipFromPayment,
       },
     });

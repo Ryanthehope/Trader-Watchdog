@@ -8,8 +8,9 @@ import { getGoCardlessClient } from "../lib/billingSettings.js";
 import { fetchGoCardlessFinancialSnapshot } from "../lib/goCardlessFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
-import { invalidateSmtpTransportCache, notifyApplicationDecision, } from "../lib/adminMail.js";
-import { createSumsubApplicant, generateSumsubWebSdkLink, getSumsubApplicantReview, isSumsubConfigured, mapSumsubReviewToVerificationData, } from "../lib/sumsub.js";
+import { invalidateSmtpTransportCache, notifyApplicationDecision, notifyApplicantVerificationOutcome, } from "../lib/adminMail.js";
+import { createSumsubApplicant, generateSumsubWebSdkLink, isSumsubConfigured, } from "../lib/sumsub.js";
+import { buildSumsubVerificationUpdate, splitFullName, } from "../lib/sumsubVerificationSync.js";
 const router = Router();
 async function ensureOrgSettings() {
     return prisma.organizationSettings.upsert({
@@ -30,7 +31,11 @@ function settledValue(result, label, fallback) {
 const ADMIN_APPLICATION_FULL_SELECT = {
     id: true,
     company: true,
+    legalStructure: true,
+    tradingAddress: true,
     trade: true,
+    identifiablePerson: true,
+    identifiablePersonAddress: true,
     email: true,
     phone: true,
     postcode: true,
@@ -50,6 +55,12 @@ const ADMIN_APPLICATION_FULL_SELECT = {
     verificationProviderApplicantId: true,
     verificationProviderSessionId: true,
     verificationFailureReason: true,
+    addressVerificationStatus: true,
+    addressVerificationApprovedAt: true,
+    addressVerificationRejectedAt: true,
+    addressVerificationFailureReason: true,
+    addressVerificationMatchedAddress: true,
+    addressVerificationMatchedApplication: true,
     pendingPortalPassword: true,
     pendingPortalPasswordExpires: true,
     createdAt: true,
@@ -149,17 +160,24 @@ router.get("/dashboard", async (_req, res) => {
         let outstandingCents = settings.outstandingCents;
         let financialSource = "fallback";
         let financialError = null;
-        const goCardless = await getGoCardlessClient();
-        if (goCardless) {
-            const snap = await fetchGoCardlessFinancialSnapshot(goCardless);
-            if (snap.ok) {
-                revenueMtdCents = snap.revenueMtdCents;
-                outstandingCents = snap.outstandingCents;
-                financialSource = "goCardless";
+        try {
+            const goCardless = await getGoCardlessClient();
+            if (goCardless) {
+                const snap = await fetchGoCardlessFinancialSnapshot(goCardless);
+                if (snap.ok) {
+                    revenueMtdCents = snap.revenueMtdCents;
+                    outstandingCents = snap.outstandingCents;
+                    financialSource = "goCardless";
+                }
+                else {
+                    financialError = snap.error;
+                }
             }
-            else {
-                financialError = snap.error;
-            }
+        }
+        catch (error) {
+            financialError =
+                error instanceof Error ? error.message : "Billing snapshot unavailable";
+            console.error("[dashboard] billing snapshot failed", error);
         }
         res.json({
             membersTotal,
@@ -563,7 +581,7 @@ router.get("/analytics-ga-report", async (_req, res) => {
 });
 /** Applications */
 function serializeAdminApplication(a) {
-    const { documents, createdMember, notes, vettingChecklist, approvedAt, createdAt, updatedAt, registrationFeePaidAt, manualMembershipExpiresAt: _manualMExp, verificationProvider, verificationStatus, verificationSubmittedAt, verificationApprovedAt, verificationRejectedAt, verificationProviderApplicantId, verificationProviderSessionId, verificationFailureReason, vettingState, pendingPortalPassword: _pendingPw, pendingPortalPasswordExpires: _pendingPwExp, ...rest } = a;
+    const { documents, createdMember, notes, vettingChecklist, approvedAt, createdAt, updatedAt, registrationFeePaidAt, manualMembershipExpiresAt: _manualMExp, verificationProvider, verificationStatus, verificationSubmittedAt, verificationApprovedAt, verificationRejectedAt, verificationProviderApplicantId, verificationProviderSessionId, verificationFailureReason, addressVerificationStatus, addressVerificationApprovedAt, addressVerificationRejectedAt, addressVerificationFailureReason, addressVerificationMatchedAddress, addressVerificationMatchedApplication, vettingState, pendingPortalPassword: _pendingPw, pendingPortalPasswordExpires: _pendingPwExp, ...rest } = a;
     return {
         ...rest,
         notes: sanitizeNullableDbString(notes),
@@ -582,6 +600,12 @@ function serializeAdminApplication(a) {
         verificationProviderApplicantId: verificationProviderApplicantId ?? null,
         verificationProviderSessionId: verificationProviderSessionId ?? null,
         verificationFailureReason: verificationFailureReason ?? null,
+        addressVerificationStatus: addressVerificationStatus ?? "NOT_STARTED",
+        addressVerificationApprovedAt: addressVerificationApprovedAt?.toISOString() ?? null,
+        addressVerificationRejectedAt: addressVerificationRejectedAt?.toISOString() ?? null,
+        addressVerificationFailureReason: addressVerificationFailureReason ?? null,
+        addressVerificationMatchedAddress: addressVerificationMatchedAddress ?? null,
+        addressVerificationMatchedApplication: addressVerificationMatchedApplication ?? null,
         createdMember: createdMember
             ? {
                 id: createdMember.id,
@@ -730,6 +754,8 @@ async function ensureSumsubApplicantForApplication(id) {
             email: true,
             phone: true,
             company: true,
+            identifiablePerson: true,
+            identifiablePersonAddress: true,
             verificationProvider: true,
             verificationProviderApplicantId: true,
             verificationProviderSessionId: true,
@@ -748,12 +774,13 @@ async function ensureSumsubApplicantForApplication(id) {
             externalUserId: application.id,
         };
     }
+    const personName = splitFullName(application.identifiablePerson || application.company);
     const applicant = await createSumsubApplicant({
         externalUserId: application.id,
         email: application.email,
         phone: application.phone,
-        firstName: application.company,
-        lastName: null,
+        firstName: personName.firstName,
+        lastName: personName.lastName,
     });
     await prisma.application.update({
         where: { id: application.id },
@@ -766,6 +793,12 @@ async function ensureSumsubApplicantForApplication(id) {
             verificationProviderApplicantId: applicant.id,
             verificationProviderSessionId: applicant.inspectionId ?? null,
             verificationFailureReason: null,
+            addressVerificationStatus: "NOT_STARTED",
+            addressVerificationApprovedAt: null,
+            addressVerificationRejectedAt: null,
+            addressVerificationFailureReason: null,
+            addressVerificationMatchedAddress: null,
+            addressVerificationMatchedApplication: null,
         },
     });
     return {
@@ -842,8 +875,17 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
             where: { id },
             select: {
                 id: true,
+                company: true,
+                email: true,
                 createdMemberId: true,
+                identifiablePersonAddress: true,
+                verificationStatus: true,
+                verificationSubmittedAt: true,
                 verificationProviderApplicantId: true,
+                verificationProviderSessionId: true,
+                createdMember: {
+                    select: { slug: true },
+                },
             },
         });
         if (!application) {
@@ -854,8 +896,9 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
             res.status(400).json({ error: "No Sumsub applicant is recorded yet" });
             return;
         }
-        const review = await getSumsubApplicantReview(application.verificationProviderApplicantId);
-        const verificationData = mapSumsubReviewToVerificationData(review);
+        const verificationData = await buildSumsubVerificationUpdate(application, {
+            applicantId: application.verificationProviderApplicantId,
+        });
         await prisma.application.update({
             where: { id: application.id },
             data: verificationData,
@@ -864,6 +907,18 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
             await prisma.member.update({
                 where: { id: application.createdMemberId },
                 data: verificationData,
+            });
+        }
+        if (verificationData.verificationStatus &&
+            verificationData.verificationStatus !== application.verificationStatus &&
+            (verificationData.verificationStatus === "APPROVED" ||
+                verificationData.verificationStatus === "REJECTED")) {
+            notifyApplicantVerificationOutcome(prisma, {
+                company: application.company,
+                email: application.email,
+                status: verificationData.verificationStatus,
+                failureReason: verificationData.verificationFailureReason ?? null,
+                profileSlug: application.createdMember?.slug ?? null,
             });
         }
         const full = await prisma.application.findUnique({

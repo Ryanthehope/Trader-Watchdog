@@ -23,10 +23,12 @@ import {
 import {
   createSumsubApplicant,
   generateSumsubWebSdkLink,
-  getSumsubApplicantReview,
   isSumsubConfigured,
-  mapSumsubReviewToVerificationData,
 } from "../lib/sumsub.js";
+import {
+  buildSumsubVerificationUpdate,
+  splitFullName,
+} from "../lib/sumsubVerificationSync.js";
 
 const router = Router();
 
@@ -56,7 +58,11 @@ function settledValue<T>(
 const ADMIN_APPLICATION_FULL_SELECT = {
   id: true,
   company: true,
+  legalStructure: true,
+  tradingAddress: true,
   trade: true,
+  identifiablePerson: true,
+  identifiablePersonAddress: true,
   email: true,
   phone: true,
   postcode: true,
@@ -76,6 +82,12 @@ const ADMIN_APPLICATION_FULL_SELECT = {
   verificationProviderApplicantId: true,
   verificationProviderSessionId: true,
   verificationFailureReason: true,
+  addressVerificationStatus: true,
+  addressVerificationApprovedAt: true,
+  addressVerificationRejectedAt: true,
+  addressVerificationFailureReason: true,
+  addressVerificationMatchedAddress: true,
+  addressVerificationMatchedApplication: true,
   pendingPortalPassword: true,
   pendingPortalPasswordExpires: true,
   createdAt: true,
@@ -677,6 +689,12 @@ function serializeAdminApplication(a: {
   verificationProviderApplicantId?: string | null;
   verificationProviderSessionId?: string | null;
   verificationFailureReason?: string | null;
+  addressVerificationStatus?: string | null;
+  addressVerificationApprovedAt?: Date | null;
+  addressVerificationRejectedAt?: Date | null;
+  addressVerificationFailureReason?: string | null;
+  addressVerificationMatchedAddress?: string | null;
+  addressVerificationMatchedApplication?: boolean | null;
   pendingPortalPassword?: string | null;
   pendingPortalPasswordExpires?: Date | null;
   vettingState: unknown;
@@ -716,6 +734,12 @@ function serializeAdminApplication(a: {
     verificationProviderApplicantId,
     verificationProviderSessionId,
     verificationFailureReason,
+    addressVerificationStatus,
+    addressVerificationApprovedAt,
+    addressVerificationRejectedAt,
+    addressVerificationFailureReason,
+    addressVerificationMatchedAddress,
+    addressVerificationMatchedApplication,
     vettingState,
     pendingPortalPassword: _pendingPw,
     pendingPortalPasswordExpires: _pendingPwExp,
@@ -740,6 +764,17 @@ function serializeAdminApplication(a: {
     verificationProviderApplicantId: verificationProviderApplicantId ?? null,
     verificationProviderSessionId: verificationProviderSessionId ?? null,
     verificationFailureReason: verificationFailureReason ?? null,
+    addressVerificationStatus: addressVerificationStatus ?? "NOT_STARTED",
+    addressVerificationApprovedAt:
+      addressVerificationApprovedAt?.toISOString() ?? null,
+    addressVerificationRejectedAt:
+      addressVerificationRejectedAt?.toISOString() ?? null,
+    addressVerificationFailureReason:
+      addressVerificationFailureReason ?? null,
+    addressVerificationMatchedAddress:
+      addressVerificationMatchedAddress ?? null,
+    addressVerificationMatchedApplication:
+      addressVerificationMatchedApplication ?? null,
     createdMember: createdMember
       ? {
           id: createdMember.id,
@@ -916,6 +951,8 @@ async function ensureSumsubApplicantForApplication(id: string) {
       email: true,
       phone: true,
       company: true,
+      identifiablePerson: true,
+      identifiablePersonAddress: true,
       verificationProvider: true,
       verificationProviderApplicantId: true,
       verificationProviderSessionId: true,
@@ -938,12 +975,16 @@ async function ensureSumsubApplicantForApplication(id: string) {
     };
   }
 
+  const personName = splitFullName(
+    application.identifiablePerson || application.company
+  );
+
   const applicant = await createSumsubApplicant({
     externalUserId: application.id,
     email: application.email,
     phone: application.phone,
-    firstName: application.company,
-    lastName: null,
+    firstName: personName.firstName,
+    lastName: personName.lastName,
   });
 
   await prisma.application.update({
@@ -957,6 +998,12 @@ async function ensureSumsubApplicantForApplication(id: string) {
       verificationProviderApplicantId: applicant.id,
       verificationProviderSessionId: applicant.inspectionId ?? null,
       verificationFailureReason: null,
+      addressVerificationStatus: "NOT_STARTED",
+      addressVerificationApprovedAt: null,
+      addressVerificationRejectedAt: null,
+      addressVerificationFailureReason: null,
+      addressVerificationMatchedAddress: null,
+      addressVerificationMatchedApplication: null,
     },
   });
 
@@ -1042,8 +1089,11 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
         company: true,
         email: true,
         createdMemberId: true,
+        identifiablePersonAddress: true,
         verificationStatus: true,
+        verificationSubmittedAt: true,
         verificationProviderApplicantId: true,
+        verificationProviderSessionId: true,
         createdMember: {
           select: { slug: true },
         },
@@ -1058,10 +1108,9 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
       return;
     }
 
-    const review = await getSumsubApplicantReview(
-      application.verificationProviderApplicantId
-    );
-    const verificationData = mapSumsubReviewToVerificationData(review);
+    const verificationData = await buildSumsubVerificationUpdate(application, {
+      applicantId: application.verificationProviderApplicantId,
+    });
 
     await prisma.application.update({
       where: { id: application.id },

@@ -11,7 +11,7 @@ import { memberProfileLogoFilePath } from "../lib/memberProfileLogoPaths.js";
 import { orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { verifyRecaptchaV2 } from "../lib/verifyRecaptcha.js";
-import { getBrandName, notifyNewApplication, publicSiteBase, } from "../lib/adminMail.js";
+import { getBrandName, notifyApplicantSubmissionReceived, notifyNewApplication, publicSiteBase, } from "../lib/adminMail.js";
 import { checkoutLineConfig } from "../lib/billingSettings.js";
 import { clampCheckoutPence } from "../lib/billingSettings.js";
 import { getLaunchWindow } from "../lib/launchWindow.js";
@@ -438,6 +438,12 @@ router.post("/applications", (req, res, next) => {
             email: row.email,
             phone: row.phone,
             postcode: row.postcode,
+        });
+        notifyApplicantSubmissionReceived(prisma, {
+            id: row.id,
+            company: row.company,
+            trade: row.trade,
+            email: row.email,
         });
         const goCardlessOk = Boolean(await getGoCardlessSecretKey());
         const billingAvailable = billingReady(org) && goCardlessOk;

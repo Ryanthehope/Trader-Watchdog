@@ -25,7 +25,6 @@ import { ensureSeedStaffFromEnv } from "./lib/ensureSeedStaff.js";
 import { goCardlessWebhookHandler } from "./routes/goCardlessWebhook.js";
 import { sumsubWebhookHandler } from "./routes/sumsubWebhook.js";
 import { prisma } from "./db.js";
-// import { deleteMembersExpiredBeyondGrace } from "./lib/memberMembership.js";
 
 
 const rootDir = path.join(bootDir, "..", "..");
@@ -121,8 +120,6 @@ const onListen = () => {
   if (fs.existsSync(distDir)) {
     console.log(`[tradeverify] Serving SPA from ${distDir}`);
   }
-  // Removed: deleteMembersExpiredBeyondGrace cleanup logic
-  // Removed: periodic deleteMembersExpiredBeyondGrace cleanup
 };
 
 async function startServer() {

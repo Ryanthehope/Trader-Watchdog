@@ -47,7 +47,7 @@ export async function getGoCardlessClient() {
     return new GoCardless(key);
 }
 export function billingReady(s) {
-    return Boolean(s.billingEnabled && s.goCardlessPublishableKey?.trim());
+    return Boolean(s.billingEnabled);
 }
 export function clampCheckoutPence(n) {
     const v = Math.floor(Number(n));
