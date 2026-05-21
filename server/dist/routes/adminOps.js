@@ -27,6 +27,68 @@ function settledValue(result, label, fallback) {
     console.error(`[dashboard] ${label} failed`, result.reason);
     return fallback;
 }
+const ADMIN_APPLICATION_FULL_SELECT = {
+    id: true,
+    company: true,
+    trade: true,
+    email: true,
+    phone: true,
+    postcode: true,
+    status: true,
+    notes: true,
+    vettingChecklist: true,
+    vettingState: true,
+    approvedAt: true,
+    registrationFeePaidAt: true,
+    membershipSubscribed: true,
+    manualMembershipExpiresAt: true,
+    verificationProvider: true,
+    verificationStatus: true,
+    verificationSubmittedAt: true,
+    verificationApprovedAt: true,
+    verificationRejectedAt: true,
+    verificationProviderApplicantId: true,
+    verificationProviderSessionId: true,
+    verificationFailureReason: true,
+    pendingPortalPassword: true,
+    pendingPortalPasswordExpires: true,
+    createdAt: true,
+    updatedAt: true,
+    createdMemberId: true,
+    documents: {
+        orderBy: { createdAt: "desc" },
+        select: {
+            id: true,
+            originalName: true,
+            mimeType: true,
+            sizeBytes: true,
+            createdAt: true,
+        },
+    },
+    createdMember: {
+        select: {
+            id: true,
+            slug: true,
+            tvId: true,
+            membershipBillingType: true,
+            membershipExpiresAt: true,
+            goCardlessSubscriptionStatus: true,
+        },
+    },
+};
+const ADMIN_APPLICATION_MUTATION_SELECT = {
+    id: true,
+    company: true,
+    trade: true,
+    email: true,
+    phone: true,
+    status: true,
+    createdAt: true,
+    createdMemberId: true,
+    registrationFeePaidAt: true,
+    membershipSubscribed: true,
+    manualMembershipExpiresAt: true,
+};
 router.get("/dashboard", async (_req, res) => {
     try {
         const [membersTotalResult, membersPortalResult, guidesTotalResult, applicationsPendingResult, settingsResult, recentAppsResult, recentMembersResult, recentGuidesResult,] = await Promise.allSettled([
@@ -543,19 +605,7 @@ router.get("/applications", async (_req, res) => {
     try {
         const rows = await prisma.application.findMany({
             orderBy: { createdAt: "desc" },
-            include: {
-                documents: { orderBy: { createdAt: "desc" } },
-                createdMember: {
-                    select: {
-                        id: true,
-                        slug: true,
-                        tvId: true,
-                        membershipBillingType: true,
-                        membershipExpiresAt: true,
-                        goCardlessSubscriptionStatus: true,
-                    },
-                },
-            },
+            select: ADMIN_APPLICATION_FULL_SELECT,
         });
         res.json({
             applications: rows.map((a) => serializeAdminApplication(a)),
@@ -570,6 +620,7 @@ router.patch("/applications/:id", async (req, res) => {
     try {
         const before = await prisma.application.findUnique({
             where: { id: req.params.id },
+            select: ADMIN_APPLICATION_MUTATION_SELECT,
         });
         if (!before) {
             res.status(404).json({ error: "Not found" });
@@ -630,19 +681,7 @@ router.patch("/applications/:id", async (req, res) => {
         });
         const full = await prisma.application.findUnique({
             where: { id: req.params.id },
-            include: {
-                documents: { orderBy: { createdAt: "desc" } },
-                createdMember: {
-                    select: {
-                        id: true,
-                        slug: true,
-                        tvId: true,
-                        membershipBillingType: true,
-                        membershipExpiresAt: true,
-                        goCardlessSubscriptionStatus: true,
-                    },
-                },
-            },
+            select: ADMIN_APPLICATION_FULL_SELECT,
         });
         if (!full) {
             res.status(404).json({ error: "Not found" });
@@ -829,19 +868,7 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
         }
         const full = await prisma.application.findUnique({
             where: { id },
-            include: {
-                documents: { orderBy: { createdAt: "desc" } },
-                createdMember: {
-                    select: {
-                        id: true,
-                        slug: true,
-                        tvId: true,
-                        membershipBillingType: true,
-                        membershipExpiresAt: true,
-                        goCardlessSubscriptionStatus: true,
-                    },
-                },
-            },
+            select: ADMIN_APPLICATION_FULL_SELECT,
         });
         res.json({
             reviewStatus: review.reviewStatus,
@@ -857,7 +884,10 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
 router.post("/applications/:id/provision-member", async (req, res) => {
     try {
         const id = req.params.id;
-        const before = await prisma.application.findUnique({ where: { id } });
+        const before = await prisma.application.findUnique({
+            where: { id },
+            select: ADMIN_APPLICATION_MUTATION_SELECT,
+        });
         if (!before) {
             res.status(404).json({ error: "Not found" });
             return;
@@ -898,19 +928,7 @@ router.post("/applications/:id/provision-member", async (req, res) => {
         }
         const full = await prisma.application.findUnique({
             where: { id },
-            include: {
-                documents: { orderBy: { createdAt: "desc" } },
-                createdMember: {
-                    select: {
-                        id: true,
-                        slug: true,
-                        tvId: true,
-                        membershipBillingType: true,
-                        membershipExpiresAt: true,
-                        goCardlessSubscriptionStatus: true,
-                    },
-                },
-            },
+            select: ADMIN_APPLICATION_FULL_SELECT,
         });
         res.json({
             memberProvisioned,
@@ -943,7 +961,10 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
                 .json({ error: "type must be registration_fee or membership" });
             return;
         }
-        const before = await prisma.application.findUnique({ where: { id } });
+        const before = await prisma.application.findUnique({
+            where: { id },
+            select: ADMIN_APPLICATION_MUTATION_SELECT,
+        });
         if (!before) {
             res.status(404).json({ error: "Not found" });
             return;
@@ -1045,19 +1066,7 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
         }
         const full = await prisma.application.findUnique({
             where: { id },
-            include: {
-                documents: { orderBy: { createdAt: "desc" } },
-                createdMember: {
-                    select: {
-                        id: true,
-                        slug: true,
-                        tvId: true,
-                        membershipBillingType: true,
-                        membershipExpiresAt: true,
-                        goCardlessSubscriptionStatus: true,
-                    },
-                },
-            },
+            select: ADMIN_APPLICATION_FULL_SELECT,
         });
         res.json({
             memberProvisioned,
