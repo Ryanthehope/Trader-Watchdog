@@ -210,16 +210,22 @@ router.get("/dashboard", async (_req, res) => {
     let outstandingCents = settings.outstandingCents;
     let financialSource: "goCardless" | "fallback" = "fallback";
     let financialError: string | null = null;
-    const goCardless = await getGoCardlessClient();
-    if (goCardless) {
-      const snap = await fetchGoCardlessFinancialSnapshot(goCardless);
-      if (snap.ok) {
-        revenueMtdCents = snap.revenueMtdCents;
-        outstandingCents = snap.outstandingCents;
-        financialSource = "goCardless";
-      } else {
-        financialError = snap.error;
+    try {
+      const goCardless = await getGoCardlessClient();
+      if (goCardless) {
+        const snap = await fetchGoCardlessFinancialSnapshot(goCardless);
+        if (snap.ok) {
+          revenueMtdCents = snap.revenueMtdCents;
+          outstandingCents = snap.outstandingCents;
+          financialSource = "goCardless";
+        } else {
+          financialError = snap.error;
+        }
       }
+    } catch (error) {
+      financialError =
+        error instanceof Error ? error.message : "Billing snapshot unavailable";
+      console.error("[dashboard] billing snapshot failed", error);
     }
 
     res.json({
