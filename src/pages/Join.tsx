@@ -501,6 +501,89 @@ export function Join() {
     formatVatExclusiveLabel(registrationFeePricePence) ?? "£15 + VAT";
   const membershipPriceLabel =
     formatVatExclusiveLabel(membershipPricePence) ?? "£79 + VAT";
+  const progressSteps = applicantSummary
+    ? [
+        {
+          title: "Application approval",
+          status:
+            applicantStatus === "APPROVED"
+              ? "Complete"
+              : applicantStatus === "DECLINED"
+                ? "Not approved"
+                : "In review",
+          tone:
+            applicantStatus === "APPROVED"
+              ? "emerald"
+              : applicantStatus === "DECLINED"
+                ? "amber"
+                : "slate",
+          detail:
+            applicantStatus === "APPROVED"
+              ? "Trader Watchdog has approved this application."
+              : applicantStatus === "DECLINED"
+                ? "This application was not approved."
+                : "We are still reviewing the application and documents.",
+        },
+        {
+          title: "Registration fee",
+          status: applicantSummary.hasRegistrationFeePayment
+            ? "Paid"
+            : applicantSummary.canCheckoutRegistrationFee
+              ? "Ready to pay"
+              : applicantStatus === "APPROVED"
+                ? "Waiting"
+                : "Locked until approval",
+          tone: applicantSummary.hasRegistrationFeePayment
+            ? "emerald"
+            : applicantSummary.canCheckoutRegistrationFee
+              ? "brand"
+              : "slate",
+          detail: applicantSummary.hasRegistrationFeePayment
+            ? "Your registration fee payment has been recorded."
+            : applicantSummary.canCheckoutRegistrationFee
+              ? `Pay ${registrationFeePriceLabel} from this page when ready.`
+              : "This step unlocks after approval.",
+        },
+        {
+          title: "Annual membership",
+          status: applicantSummary.hasMembershipPayment
+            ? "Paid"
+            : applicantSummary.canCheckoutMembership
+              ? "Ready to pay"
+              : applicantStatus === "APPROVED"
+                ? "Waiting"
+                : "Locked until approval",
+          tone: applicantSummary.hasMembershipPayment
+            ? "emerald"
+            : applicantSummary.canCheckoutMembership
+              ? "brand"
+              : "slate",
+          detail: applicantSummary.hasMembershipPayment
+            ? "Your annual membership payment has been recorded."
+            : applicantSummary.canCheckoutMembership
+              ? `Pay ${membershipPriceLabel} from this page when ready.`
+              : "This step unlocks after approval.",
+        },
+        {
+          title: "Profile & login",
+          status: applicantSummary.profileLive
+            ? "Live"
+            : hasBothPayments
+              ? "Creating profile"
+              : "Waiting for payment",
+          tone: applicantSummary.profileLive
+            ? "emerald"
+            : hasBothPayments
+              ? "brand"
+              : "slate",
+          detail: applicantSummary.profileLive
+            ? "Your public profile and member portal are ready."
+            : hasBothPayments
+              ? "Both payments are in. We are creating the profile and login now."
+              : "The public profile and login are created after the payment steps complete.",
+        },
+      ]
+    : [];
   const introBody = "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
   const introSupport = publicSearchEnabled
     ? "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and public search by business name or telephone number once your profile is approved."
@@ -785,6 +868,43 @@ export function Join() {
 
             {sentVia === "api" && applicationId ? (
               <div className="mt-8 space-y-4 text-left">
+                {applicantSummary ? (
+                  <div className="rounded-2xl border border-white/10 bg-ink-950/60 p-6">
+                    <p className="text-sm font-semibold text-white">
+                      Application progress
+                    </p>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      {progressSteps.map((step) => (
+                        <div
+                          key={step.title}
+                          className="rounded-xl border border-white/10 bg-white/[0.03] p-4"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              {step.title}
+                            </p>
+                            <span
+                              className={
+                                step.tone === "emerald"
+                                  ? "rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-200"
+                                  : step.tone === "brand"
+                                    ? "rounded-full bg-brand-500/15 px-2.5 py-1 text-[11px] font-semibold text-brand-200"
+                                    : step.tone === "amber"
+                                      ? "rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold text-amber-200"
+                                      : "rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-300"
+                              }
+                            >
+                              {step.status}
+                            </span>
+                          </div>
+                          <p className="mt-3 text-sm text-slate-300">
+                            {step.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 {applicantSummary?.exists &&
                 applicantSummary.status === "DECLINED" ? (
                   <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-100/95">
