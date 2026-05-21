@@ -313,6 +313,8 @@ export function notifyApplicantVerificationOutcome(
     const memberLoginUrl = `${base}/member/login`;
     const joinUrl = `${base}/join`;
     const profileUrl = row.profileSlug ? `${base}/m/${row.profileSlug}` : null;
+    const qrMessage =
+      "Your verification page is live, and your Trader Watchdog QR code is ready to use on vehicles, websites, social media, flyers, business cards, quotes, and invoices.";
 
     const subject =
       row.status === "APPROVED"
@@ -327,6 +329,8 @@ export function notifyApplicantVerificationOutcome(
             profileUrl
               ? "Great news — your verification is approved and your Trader Watchdog profile is now live."
               : "Great news — your verification is approved. We have completed the document and identity checks for your application.",
+            "",
+            qrMessage,
             "",
             profileUrl ? `Public profile: ${profileUrl}` : null,
             profileUrl ? `Member login: ${memberLoginUrl}` : `Check progress: ${joinUrl}`,
