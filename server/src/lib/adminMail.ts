@@ -157,6 +157,31 @@ export async function sendAdminEmail(
   });
 }
 
+export async function sendApplicantEmail(
+  prisma: PrismaClient,
+  opts: { to: string; subject: string; text: string }
+): Promise<void> {
+  const transport = await getTransport(prisma);
+  if (!transport) {
+    return;
+  }
+  const to = opts.to.trim().toLowerCase();
+  if (!to) {
+    return;
+  }
+  const brand = await getBrandName(prisma);
+  const from = await mailFrom(prisma);
+  const subject = opts.subject.startsWith("[")
+    ? opts.subject
+    : `[${brand}] ${opts.subject}`;
+  await transport.sendMail({
+    from,
+    to,
+    subject,
+    text: opts.text,
+  });
+}
+
 export function notifyAdminsFireAndForget(
   prisma: PrismaClient,
   subject: string,
@@ -228,5 +253,48 @@ export function notifyApplicationDecision(
       text
     );
   })();
+}
+
+export function notifyApplicantSubmissionReceived(
+  prisma: PrismaClient,
+  row: {
+    id: string;
+    company: string;
+    trade: string;
+    email: string;
+  }
+): void {
+  void (async () => {
+    const base = await publicSiteBase(prisma);
+    const joinUrl = `${base}/join`;
+    const text = [
+      `Thanks for submitting your Trader Watchdog application for ${row.company}.`,
+      "",
+      "We have received your details and the team will now review the application, supporting documents, and verification requirements.",
+      "",
+      "What happens next:",
+      "1. We review the business details, documents, and any checks needed for your trade.",
+      "2. If we need anything else, we will contact you using this email address.",
+      "3. Once approved, we will email you again with the next steps for payment and profile setup.",
+      "",
+      "Important:",
+      "- No payment is taken at application stage.",
+      `- Your application reference is: ${row.id}`,
+      `- You can return to ${joinUrl} later to check progress using the same email address.`,
+      "",
+      `Trade / specialism: ${row.trade}`,
+      `Work email: ${row.email}`,
+      "",
+      "If you need to update anything after submitting, reply to this email.",
+    ].join("\n");
+
+    await sendApplicantEmail(prisma, {
+      to: row.email,
+      subject: `Application received — ${row.company}`,
+      text,
+    });
+  })().catch((e) => {
+    console.error("[admin-mail] applicant submission send failed", e);
+  });
 }
 
