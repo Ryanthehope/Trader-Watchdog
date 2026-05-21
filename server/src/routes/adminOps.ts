@@ -18,6 +18,7 @@ import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
 import {
   invalidateSmtpTransportCache,
   notifyApplicationDecision,
+  notifyApplicantVerificationOutcome,
 } from "../lib/adminMail.js";
 import {
   createSumsubApplicant,
@@ -1038,8 +1039,14 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
       where: { id },
       select: {
         id: true,
+        company: true,
+        email: true,
         createdMemberId: true,
+        verificationStatus: true,
         verificationProviderApplicantId: true,
+        createdMember: {
+          select: { slug: true },
+        },
       },
     });
     if (!application) {
@@ -1065,6 +1072,21 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
       await prisma.member.update({
         where: { id: application.createdMemberId },
         data: verificationData,
+      });
+    }
+
+    if (
+      verificationData.verificationStatus &&
+      verificationData.verificationStatus !== application.verificationStatus &&
+      (verificationData.verificationStatus === "APPROVED" ||
+        verificationData.verificationStatus === "REJECTED")
+    ) {
+      notifyApplicantVerificationOutcome(prisma, {
+        company: application.company,
+        email: application.email,
+        status: verificationData.verificationStatus,
+        failureReason: verificationData.verificationFailureReason ?? null,
+        profileSlug: application.createdMember?.slug ?? null,
       });
     }
 

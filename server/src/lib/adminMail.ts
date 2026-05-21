@@ -298,3 +298,61 @@ export function notifyApplicantSubmissionReceived(
   });
 }
 
+export function notifyApplicantVerificationOutcome(
+  prisma: PrismaClient,
+  row: {
+    company: string;
+    email: string;
+    status: "APPROVED" | "REJECTED";
+    failureReason?: string | null;
+    profileSlug?: string | null;
+  }
+): void {
+  void (async () => {
+    const base = await publicSiteBase(prisma);
+    const memberLoginUrl = `${base}/member/login`;
+    const joinUrl = `${base}/join`;
+    const profileUrl = row.profileSlug ? `${base}/m/${row.profileSlug}` : null;
+
+    const subject =
+      row.status === "APPROVED"
+        ? `Verification approved — ${row.company}`
+        : `We could not complete verification — ${row.company}`;
+
+    const text =
+      row.status === "APPROVED"
+        ? [
+            `Your verification review for ${row.company} is complete.`,
+            "",
+            profileUrl
+              ? "Great news — your verification is approved and your Trader Watchdog profile is now live."
+              : "Great news — your verification is approved. We have completed the document and identity checks for your application.",
+            "",
+            profileUrl ? `Public profile: ${profileUrl}` : null,
+            profileUrl ? `Member login: ${memberLoginUrl}` : `Check progress: ${joinUrl}`,
+            "",
+            "If you need anything, just reply to this email.",
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : [
+            `We reviewed the verification documents for ${row.company}, but could not complete verification at this time.`,
+            "",
+            row.failureReason
+              ? `Reason: ${row.failureReason}`
+              : "Reason: We still need corrected or additional evidence before we can approve the verification.",
+            "",
+            "If you can provide updated or correct documents, reply to this email and we will review them again.",
+            `You can also return to ${joinUrl} using the same email address to check the application status.`,
+          ].join("\n");
+
+    await sendApplicantEmail(prisma, {
+      to: row.email,
+      subject,
+      text,
+    });
+  })().catch((e) => {
+    console.error("[admin-mail] applicant verification send failed", e);
+  });
+}
+

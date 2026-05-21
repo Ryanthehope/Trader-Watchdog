@@ -1,91 +1,56 @@
 import { prisma } from "../db.js";
-import { getBrandName } from "./adminMail.js";
-import nodemailer from "nodemailer";
+import { getBrandName, publicSiteBase, sendApplicantEmail } from "./adminMail.js";
 
 interface AlertsSent {
     "30days"?: string;
     "14days"?: string;
-    "grace"?: string;
+    grace?: string;
 }
-
-/**
-*Get email transport (reusing from adminMail pattern)
-*/
-
-async function getTransport(): Promise<nodemailer.Transporter | null> {
-    const host = process.env.SMTP_HOST?.trim();
-    if (!host) return null;
-
-    const port = Number(process.env.SMTP_PORT) || 587;
-    const secureEnv = process.env.SMTP_SECURE?.trim().toLowerCase();
-    const secure = secureEnv === "true" || port === 465;
-    const user = process.env.SMTP_USER?.trim() || "";
-    const pass = process.env.SMTP_PASS?.trim() || "";
-    
-    return nodemailer.createTransport({
-        host,
-        port,
-        secure,
-        ...(user || pass ? { auth: { user, pass } } : {}),
-    });
-}
-
-/**
-* Generate email content for insurance expiry alert
-* */
 
 function generateAlertEmail(
     memberName: string,
     insuranceType: string,
     expiryDate: Date,
     daysUntilExpiry: number,
-    brandName: string)
-: { subject: string; html: string; text: string } {
-    const expiryDateStr = expiryDate.toLocaleDateString("en-gb"); 
+    brandName: string,
+    memberLoginUrl: string
+): { subject: string; text: string } {
+    const expiryDateStr = expiryDate.toLocaleDateString("en-GB");
 
-    let urgency = "";
-    let message = "";
+    let subject = "Your Insurance Renews Soon";
+    let message = `Your ${insuranceType} is due to expire on ${expiryDateStr}. Please upload your renewed policy before the expiry date so your verified status stays active.`;
 
-    if (daysUntilExpiry === 30) {
-        urgency = "30-Day Notice";
-        message = `Your ${insuranceType} will expire in 30 days (${expiryDateStr}). Please ensure you renew it before expiry to maintain your verified status.`;
-    } else if (daysUntilExpiry === 14) {
-        urgency = "14-Day Notice";
-        message = `Your ${insuranceType} will expire in 14 days (${expiryDateStr}). Please renew it now to avoid losing your verified status.`;
+    if (daysUntilExpiry === 14) {
+        subject = "Your Insurance Is About to Expire";
+        message = `Your ${insuranceType} is due to expire on ${expiryDateStr}. To stay verified, please upload your renewed policy as soon as possible.`;
     } else if (daysUntilExpiry < 0) {
-        urgency = "Expired Notice";
-        message = `Your ${insuranceType} expired on ${expiryDateStr}. You have 14 days grace period to renew before your listing is removed from ${brandName}`;
+        subject = "Your Verification Has Been Paused";
+        message = `Your ${insuranceType} expired on ${expiryDateStr}, so we have temporarily paused your verification. Upload your renewed policy and we will reactivate your verification once it has been reviewed.`;
     }
-    const subject = `${urgency}: ${insuranceType} Expiry - ${memberName}`;
-    const html = `
-    <h2>${urgency}</h2>
-    <p>Hello ${memberName},</p>
-    <p>${message}</p>
-    <p><strong>Insurance Details</strong></p>
-    <ul>
-    <li>Type: ${insuranceType}</li>
-    <li>Expiry Date: ${expiryDateStr}</li>
-    <li>Days ${daysUntilExpiry < 0 ? 'since expiry' : 'until expiry'}: ${Math.abs(daysUntilExpiry)}</li>
-    </ul>
-    <p>Please log into your ${brandName} account to manage your insurance details.</p>
-    <p>Best Regards,<br>${brandName} Team</p>`;
 
-    const text = `${urgency}\n\nHello ${memberName},\n\n${message}\n\nInsurance Details:\n- Type: ${insuranceType}\n- Expiry Date: ${expiryDateStr}\n- Days ${daysUntilExpiry < 0 ? 'since expiry' : 'until expiry'}: ${Math.abs(daysUntilExpiry)}\n\nPlease log into your ${brandName} account to manage your insurance details.\n\nBest Regards,\n${brandName} Team`;
-
-    return { subject, html, text };
+    return {
+        subject,
+        text: [
+            `Hi ${memberName},`,
+            "",
+            message,
+            "",
+            `Insurance type: ${insuranceType}`,
+            `Expiry date: ${expiryDateStr}`,
+            "",
+            `Log in to your ${brandName} account to manage your insurance details: ${memberLoginUrl}`,
+            "",
+            `Thanks,`,
+            `The ${brandName} Team`,
+        ].join("\n"),
+    };
 }
-
-/**
- * *Send insurance expiry alert email
- * */
 
 export async function sendInsuranceAlertEmail(
     insuranceId: string,
     alertType: "30days" | "14days" | "grace"
 ): Promise<boolean> {
-
     try {
-        // Get insurance and member details
         const insurance = await prisma.insurance.findUnique({
             where: { id: insuranceId },
             include: {
@@ -94,50 +59,41 @@ export async function sendInsuranceAlertEmail(
                         id: true,
                         name: true,
                         loginEmail: true,
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
 
         if (!insurance || !insurance.member.loginEmail) {
-            console.error(`Insurance or member not found or member has no email: ${insuranceId}`);
+            console.error(
+                `Insurance or member not found or member has no email: ${insuranceId}`
+            );
             return false;
         }
 
-        // Calculate days until expiry
         const today = new Date();
         const expiry = new Date(insurance.expiryDate);
-        const daysUntil = Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-        // Get transport and brand name
-        const transport = await getTransport();
-        if (!transport) {
-            console.error("Email transport not configured");
-            return false;
-        }
+        const daysUntil = Math.floor(
+            (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        );
 
         const brandName = await getBrandName(prisma);
-
-        // Generate email content
-        const { subject, html, text } = generateAlertEmail(
+        const memberLoginUrl = `${await publicSiteBase(prisma)}/member/login`;
+        const { subject, text } = generateAlertEmail(
             insurance.member.name,
             insurance.type,
             expiry,
             daysUntil,
-            brandName
+            brandName,
+            memberLoginUrl
         );
 
-        // Send email
-        const mailFrom = process.env.EMAIL_FROM?.trim() || `no-reply@${brandName.toLowerCase().replace(/\s+/g, "")}.com`;
-        await transport.sendMail({
-            from: mailFrom,
+        await sendApplicantEmail(prisma, {
             to: insurance.member.loginEmail,
             subject,
-            html,
-            text
+            text,
         });
 
-        // Update alertsSent tracking to prevent duplicates
         const currentAlerts = (insurance.alertsSent as AlertsSent) || {};
         currentAlerts[alertType] = new Date().toISOString();
 
@@ -146,10 +102,12 @@ export async function sendInsuranceAlertEmail(
             data: {
                 alertsSent: currentAlerts as any,
                 lastAlertSentAt: new Date(),
-            }
+            },
         });
 
-        console.log(`✅ Sent ${alertType} alert for ${insurance.type} to ${insurance.member.name}`);
+        console.log(
+            `✅ Sent ${alertType} alert for ${insurance.type} to ${insurance.member.name}`
+        );
         return true;
     } catch (error) {
         console.error("Error sending insurance alert:", error);
@@ -157,30 +115,25 @@ export async function sendInsuranceAlertEmail(
     }
 }
 
-/**
- * Check all insurance policies and send alerts if needed
- * This runs daily via cron job
- */
 export async function checkInsuranceExpiries(): Promise<{
     checked: number;
     alertsSent: number;
     statusesUpdated: number;
 }> {
-    try{
-        // Get all non-expired insurance policies
+    try {
         const policies = await prisma.insurance.findMany({
             where: {
-                status: { in: ["active", "expiring_soon", "in_grace"] }
-},
-include: {
-    member: {
-        select: {
-            id: true,
-            name: true,
-            loginEmail: true,
-        }
-    }
-}
+                status: { in: ["active", "expiring_soon", "in_grace"] },
+            },
+            include: {
+                member: {
+                    select: {
+                        id: true,
+                        name: true,
+                        loginEmail: true,
+                    },
+                },
+            },
         });
 
         let alertsSent = 0;
@@ -189,21 +142,19 @@ include: {
         for (const policy of policies) {
             const today = new Date();
             const expiry = new Date(policy.expiryDate);
-            const daysUntilExpiry = Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            const daysUntilExpiry = Math.floor(
+                (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+            );
 
-            // Determine new status
             let newStatus = policy.status;
             if (daysUntilExpiry < 0) {
-                // Check if in grace period
                 if (policy.graceExpiryDate) {
                     const graceExpiry = new Date(policy.graceExpiryDate);
-                    const daysUntilGraceExpiry = Math.floor((graceExpiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                    const daysUntilGraceExpiry = Math.floor(
+                        (graceExpiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+                    );
 
-                    if (daysUntilGraceExpiry < 0) {
-                        newStatus = "expired";
-                    } else {
-                        newStatus = "in_grace";
-                    }
+                    newStatus = daysUntilGraceExpiry < 0 ? "expired" : "in_grace";
                 } else {
                     newStatus = "expired";
                 }
@@ -213,42 +164,39 @@ include: {
                 newStatus = "active";
             }
 
-            // Update status if changed
             if (newStatus !== policy.status) {
                 await prisma.insurance.update({
                     where: { id: policy.id },
-                    data: { status: newStatus }
+                    data: { status: newStatus },
                 });
                 statusesUpdated++;
             }
 
-            // Check if alert needs sending
             const alerts = (policy.alertsSent as AlertsSent) || {};
-            // 30-day alert
             if (daysUntilExpiry === 30 && !alerts["30days"]) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "30days");
                 if (sent) alertsSent++;
             }
 
-            // 14-day alert
             if (daysUntilExpiry === 14 && !alerts["14days"]) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "14days");
                 if (sent) alertsSent++;
             }
-            
-            // Grace period alert (send when first enters grace)
-            if (newStatus === "in_grace" && !alerts["grace"]) {
+
+            if (newStatus === "in_grace" && !alerts.grace) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "grace");
                 if (sent) alertsSent++;
             }
         }
 
-        console.log(`✅ Insurance check complete: ${policies.length} checked, ${alertsSent} alerts sent, ${statusesUpdated} statuses updated`);
-        
+        console.log(
+            `✅ Insurance check complete: ${policies.length} checked, ${alertsSent} alerts sent, ${statusesUpdated} statuses updated`
+        );
+
         return {
             checked: policies.length,
             alertsSent,
-            statusesUpdated
+            statusesUpdated,
         };
     } catch (error) {
         console.error("Error checking insurance expiries:", error);
@@ -256,5 +204,4 @@ include: {
     }
 }
 
-
-export { AlertsSent, generateAlertEmail, getTransport };
+export { AlertsSent, generateAlertEmail };

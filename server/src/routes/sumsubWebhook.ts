@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../db.js";
+import { notifyApplicantVerificationOutcome } from "../lib/adminMail.js";
 import {
   getSumsubWebhookSecret,
   mapSumsubReviewToVerificationData,
@@ -79,10 +80,16 @@ export async function sumsubWebhookHandler(req: Request, res: Response) {
       where: applicationWhere,
       select: {
         id: true,
+        company: true,
+        email: true,
         createdMemberId: true,
+        verificationStatus: true,
         verificationSubmittedAt: true,
         verificationProviderApplicantId: true,
         verificationProviderSessionId: true,
+        createdMember: {
+          select: { slug: true },
+        },
       },
     });
 
@@ -117,6 +124,21 @@ export async function sumsubWebhookHandler(req: Request, res: Response) {
       await prisma.member.update({
         where: { id: application.createdMemberId },
         data: verificationData,
+      });
+    }
+
+    if (
+      verificationData.verificationStatus &&
+      verificationData.verificationStatus !== application.verificationStatus &&
+      (verificationData.verificationStatus === "APPROVED" ||
+        verificationData.verificationStatus === "REJECTED")
+    ) {
+      notifyApplicantVerificationOutcome(prisma, {
+        company: application.company,
+        email: application.email,
+        status: verificationData.verificationStatus,
+        failureReason: verificationData.verificationFailureReason ?? null,
+        profileSlug: application.createdMember?.slug ?? null,
       });
     }
 
