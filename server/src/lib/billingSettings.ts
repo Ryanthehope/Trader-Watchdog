@@ -54,9 +54,8 @@ export async function getGoCardlessClient(): Promise<GoCardless | null> {
 
 export function billingReady(s: {
   billingEnabled: boolean;
-  goCardlessPublishableKey: string | null;
 }): boolean {
-  return Boolean(s.billingEnabled && s.goCardlessPublishableKey?.trim());
+  return Boolean(s.billingEnabled);
 }
 
 type BillingRow = {

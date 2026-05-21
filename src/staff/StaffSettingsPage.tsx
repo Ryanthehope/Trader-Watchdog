@@ -283,9 +283,10 @@ export function StaffSettingsPage() {
             Billing &amp; GoCardless
           </h2>
           <p className="text-xs leading-relaxed text-slate-500">
-            Checkout is only available when billing is enabled, a publishable
-            key is set, and a GoCardless secret key exists either here or in
-            the server environment.
+            Checkout is available when billing is enabled and a GoCardless
+            secret key exists either here or in the server environment. The
+            publishable key can stay available for future client-side billing
+            surfaces, but the current checkout flow is server-side.
           </p>
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -310,7 +311,7 @@ export function StaffSettingsPage() {
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
               <p className="mt-1 text-xs text-slate-500">
-                Used by the app to decide whether checkout can be offered.
+                Reserved for future client-side billing surfaces.
               </p>
             </div>
             <div>
