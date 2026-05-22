@@ -436,18 +436,18 @@ function TradesCta() {
   return (
     <section
       id="why"
-      className="scroll-mt-24 border-b border-brand-800/60 bg-brand-800 py-20 sm:py-28"
+      className="scroll-mt-24 border-b border-slate-200 bg-white py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
+        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
           Become a Verified Trader Watchdog Business
         </p>
 
-        <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
+        <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
           An affordable, trusted public platform for genuine local traders
         </h2>
 
-        <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-300">
+        <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-700">
           Show customers you&apos;re insured, compliant, and operating properly.
           Trader Watchdog is designed to show proof first — not sell leads.
         </p>
