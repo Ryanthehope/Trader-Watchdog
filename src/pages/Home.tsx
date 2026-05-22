@@ -468,39 +468,133 @@ function TradesCta() {
 function Faq() {
   return (
     <section id="faq" className="border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <h2 className="text-center font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Common questions
         </h2>
-        <dl className="mt-12 space-y-6">
-          {faqItems.map((item) => (
-            <div
-              key={item.q}
-              className="rounded-lg border border-slate-300/60 bg-white px-6 py-6 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
-            >
-              <dt className="font-semibold text-slate-900">{item.q}</dt>
-              <dd className="mt-3 text-sm leading-relaxed text-slate-700">
-                {item.a}
-              </dd>
-            </div>
+        <div className="mt-12 grid gap-10 lg:grid-cols-2">
+          {faqGroups.map((group) => (
+            <section key={group.title} aria-labelledby={group.id}>
+              <h3
+                id={group.id}
+                className="text-xl font-display font-semibold text-slate-900"
+              >
+                {group.title}
+              </h3>
+              <dl className="mt-5 space-y-6">
+                {group.items.map((item) => (
+                  <div
+                    key={item.q}
+                    className="rounded-lg border border-slate-300/60 bg-white px-6 py-6 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
+                  >
+                    <dt className="font-semibold text-slate-900">{item.q}</dt>
+                    <dd className="mt-3 text-sm leading-relaxed text-slate-700">
+                      {item.a}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
           ))}
-        </dl>
+        </div>
       </div>
     </section>
   );
 }
-const faqItems = [
+
+type FaqItem = {
+  q: string;
+  a: string;
+};
+
+const traderFaqItems: FaqItem[] = [
+  {
+    q: "What does verification involve?",
+    a: "We verify your identity, business details, public liability insurance, and any relevant licences or memberships. Once approved, you receive a QR code and public verification page.",
+  },
+  {
+    q: "What fees do I pay?",
+    a: "There are two fees: a non-refundable registration fee and the first year's annual subscription.",
+  },
+  {
+    q: "When is payment taken?",
+    a: "After our diligence checks are completed. If you are verified, we collect the registration fee and first year's subscription. If you are not verified, we collect the registration fee only and no subscription payment is taken.",
+  },
+  {
+    q: "Why is the registration fee non-refundable?",
+    a: "It covers the cost of processing your application and completing verification checks, even if you are not approved.",
+  },
+  {
+    q: "How long does verification take?",
+    a: "Most applications are processed within a few working days, depending on document accuracy.",
+  },
+  {
+    q: "How does annual renewal work?",
+    a: "Your subscription renews automatically 12 months after approval. You will receive reminders 30 days before renewal and 14 days before renewal. You will also receive reminders for your insurances, licences, and registrations.",
+  },
+  {
+    q: "How do I cancel my subscription?",
+    a: "You can cancel at any time through your account or by contacting us. Your verification remains active until the end of your paid period. Registration fees and subscription payments are non-refundable.",
+  },
+  {
+    q: "What happens if my Direct Debit fails?",
+    a: "We may retry the payment or request updated details. Your verification may be paused until payment is successfully collected.",
+  },
+  {
+    q: "What happens if my insurance expires?",
+    a: "Your verification will show as 'Not Verified' until updated documents are provided.",
+  },
+  {
+    q: "Can I use the badge if I'm not verified?",
+    a: "No. Misuse of the QR code breaches our Misrepresentation Policy and may result in suspension or removal.",
+  },
+];
+
+const publicFaqItems: FaqItem[] = [
   {
     q: "What is Trader Watchdog?",
-    a: "Trader Watchdog is an independent consumer protection platform. We help householders check whether a trader can be verified before agreeing work or paying money.",
+    a: "Trader Watchdog is a UK verification platform that helps the public check whether a trader is genuine, insured and operating legitimately. It gives free, anonymous access to the checks recommended by police forces and local councils.",
   },
   {
-    q: "What happens when I search for a trader?",
-    a: "If the trader is listed, you are taken to their live Trader Watchdog profile so you can review the checks we show there. If they are not listed, you will see a no-match page and should ask the trader for evidence directly.",
+    q: "Is it free to use?",
+    a: "Yes, checking a trader on the Trader Watchdog platform is completely free.",
   },
   {
-    q: "Can I download a report?",
-    a: "Not yet. Today the service shows the trader's live profile and verification details on site. If downloadable reports are added later, the public wording should be updated at the same time.",
+    q: "Do I need to create an account?",
+    a: "No. All checks are anonymous. You don't need to sign up or share any personal details.",
+  },
+  {
+    q: "What information do you show about traders?",
+    a: "We show only essential business information: business name, trading name, business address, verification status, insurance validity (pass/fail only), and licence or membership confirmations. We never display sensitive documents or personal ID.",
+  },
+  {
+    q: "How do I check a trader?",
+    a: "Scan their QR code or search their name or telephone number on the Trader Watchdog website.",
+  },
+  {
+    q: "Do you show reviews?",
+    a: "No. We verify facts, not opinions. Reviews can be misleading, so our focus is on identity, insurance and legitimacy.",
+  },
+  {
+    q: "What does 'Verified' mean?",
+    a: "It means the trader has passed our checks for identity, business legitimacy, insurance and relevant licences.",
+  },
+  {
+    q: "What does 'Not Verified' mean?",
+    a: "It means the trader has not passed verification or has not completed the process. It does not automatically mean they are rogue, but you should proceed with caution.",
+  },
+];
+
+const faqGroups = [
+  {
+    id: "faq-traders",
+    title: "For traders",
+    items: traderFaqItems,
+  },
+  {
+    id: "faq-public",
+    title: "For the public",
+    items: publicFaqItems,
   },
 ];
 
