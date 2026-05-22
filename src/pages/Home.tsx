@@ -435,216 +435,33 @@ function Pillars() {
 function TradesCta() {
   return (
     <section
-  id="why"
-  className="scroll-mt-24 border-b border-brand-800/60 bg-brand-800 py-20 sm:py-28"
->
-  <div className="mx-auto max-w-6xl px-4 sm:px-6">
-    <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
-      Become a Verified Trader Watchdog Business
-    </p>
+      id="why"
+      className="scroll-mt-24 border-b border-brand-800/60 bg-brand-800 py-20 sm:py-28"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
+          Become a Verified Trader Watchdog Business
+        </p>
 
-    <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
-      An affordable, trusted public platform for genuine local traders
-    </h2>
+        <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-white sm:text-4xl">
+          An affordable, trusted public platform for genuine local traders
+        </h2>
 
-    <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-300">
-      Show customers you&apos;re insured, compliant, and operating properly.
-      Trader Watchdog is designed to show proof first — not sell leads.
-    </p>
+        <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-300">
+          Show customers you&apos;re insured, compliant, and operating properly.
+          Trader Watchdog is designed to show proof first — not sell leads.
+        </p>
 
-    <div className="mt-16 grid gap-8 lg:grid-cols-2">
-      {/* LEFT COLUMN */}
-      <div className="space-y-8">
-        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8">
-          <h3 className="font-display text-2xl font-semibold text-white">
-            Why Register?
-          </h3>
-
-          <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-300">
-            <li>• An affordable, trusted public platform for genuine local traders</li>
-            <li>• Show customers you&apos;re insured, compliant, and operating properly</li>
-            <li>• One fair fee, no area limits, no paid placements</li>
-            <li>• Help protect your community from rogue traders</li>
-            <li>• Automatic reminders for insurance, licences, memberships, and annual renewal</li>
-          </ul>
-        </div>
-
-        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8">
-          <h3 className="font-display text-2xl font-semibold text-white">
-            What It Means For Your Business
-          </h3>
-
-          <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-300">
-            <li>• Customers see you&apos;re insured and legitimate before they call</li>
-            <li>• Build trust without buying leads</li>
-            <li>• Stay visible with a public, searchable profile</li>
-            <li>• Adds credibility to your business</li>
-            <li>• Verified Trader logo for vehicles and advertising</li>
-          </ul>
-        </div>
-
-        <div className="rounded-2xl border border-brand-500/30 bg-brand-500/10 p-8">
-          <h3 className="font-display text-2xl font-semibold text-white">
-            What It Costs
-          </h3>
-
-          <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between rounded-xl bg-black/20 px-5 py-4">
-              <span className="text-sm text-slate-300">
-                One-off registration fee
-              </span>
-
-              <span className="text-xl font-bold text-white">£15 + VAT</span>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl bg-black/20 px-5 py-4">
-              <span className="text-sm text-slate-300">
-                Annual subscription
-              </span>
-
-              <span className="text-xl font-bold text-white">£79 + VAT</span>
-            </div>
-
-            <p className="text-xs text-slate-400">
-              Charges exclude VAT.
-            </p>
-          </div>
+        <div className="mt-10 flex justify-center">
+          <Link
+            to="/join"
+            className="inline-flex items-center justify-center rounded-xl bg-brand-600 px-8 py-4 text-sm font-semibold text-white transition hover:bg-brand-500"
+          >
+            REGISTER YOUR BUSINESS
+          </Link>
         </div>
       </div>
-
-      {/* RIGHT COLUMN */}
-      <div className="space-y-8">
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-8">
-          <h3 className="font-display text-2xl font-semibold text-white">
-            What Customers See
-          </h3>
-
-          <div className="mt-6 space-y-6">
-            <div>
-              <p className="text-lg font-semibold text-emerald-200">
-                Verified listing
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-200">
-                Your profile appears in public search by name or phone number,
-                showing your verified credentials.
-              </p>
-            </div>
-
-            <div className="border-t border-white/10 pt-6">
-              <p className="text-lg font-semibold text-red-300">
-                Not verified
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-200">
-                Householders are advised to be cautious and ask for documentary
-                proof directly.
-              </p>
-            </div>
-
-            <div className="border-t border-white/10 pt-6">
-              <p className="text-sm leading-relaxed text-slate-300">
-                Customers are asked to mention Trader Watchdog in all
-                communications.
-              </p>
-
-              <p className="mt-3 text-sm font-medium text-white">
-                Trader Watchdog is designed to show proof first — not sell
-                leads.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8">
-          <h3 className="font-display text-2xl font-semibold text-white">
-            How It Works
-          </h3>
-
-          <div className="mt-8 space-y-6">
-            <div className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
-                1
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-white">
-                  Add your business details
-                </h4>
-
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  Use the trading name, postcode, email, and phone number you
-                  already advertise.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
-                2
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-white">
-                  Upload your documents
-                </h4>
-
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  Insurance is required. Other documents (qualifications,
-                  memberships, scheme registrations) are optional but helpful.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
-                3
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-white">
-                  Complete your checks
-                </h4>
-
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  We guide you through identity, address, and liveness checks.
-                  We also review insurance and any required licences or
-                  registrations.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-bold text-white">
-                4
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-white">
-                  Pay only when approved
-                </h4>
-
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  No payment until your credentials are validated and your
-                  application is accepted.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <a
-              href="/join"
-              className="inline-flex w-full items-center justify-center rounded-xl bg-brand-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-brand-500"
-            >
-              APPLY NOW
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
   );
 }
 
