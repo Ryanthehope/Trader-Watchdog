@@ -65,8 +65,9 @@ This was added so the live admin portal can recover from an empty `staff` table 
 
 1. Set `GoCardless_SECRET_KEY` and `GoCardless_WEBHOOK_SECRET` on the backend
 2. Enable billing in staff settings and confirm the checkout amounts/names there
-3. Setup webhook endpoint: `https://yourdomain.com/api/webhooks/GoCardless`
-4. Use one-off checkout for the initial joining fee and member annual renewal
+3. Setup webhook endpoint: `https://your-backend-domain/api/goCardless/webhook`
+4. The checkout order is approval -> registration fee -> annual membership -> member provisioning
+5. Use one-off checkout for the initial joining fee and annual member renewals
 
 ## Project Structure
 

@@ -119,6 +119,12 @@ router.post("/checkout-membership", async (req, res) => {
             res.status(400).json({ error: "Membership payment is already recorded" });
             return;
         }
+        if (!application.registrationFeePaidAt) {
+            res.status(400).json({
+                error: "Registration fee must be paid before annual membership checkout is available.",
+            });
+            return;
+        }
         const origin = siteOrigin(req);
         const lines = checkoutLineConfig(settings);
         const session = await gocardless.checkout.sessions.create({

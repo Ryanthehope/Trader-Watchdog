@@ -1183,6 +1183,13 @@ router.post("/applications/:id/provision-member", async (req, res) => {
       });
       return;
     }
+    if (prov.kind === "membership_expiry_missing") {
+      res.status(400).json({
+        error:
+          "Membership payment is recorded without an expiry date. Re-save the membership payment before creating the profile.",
+      });
+      return;
+    }
     if (prov.kind === "not_approved") {
       res.status(400).json({ error: "Application is not approved" });
       return;
@@ -1328,6 +1335,13 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
     if (prov.kind === "email_in_use") {
       res.status(400).json({
         error: `The email ${prov.email} is already used for a member portal.`,
+      });
+      return;
+    }
+    if (prov.kind === "membership_expiry_missing") {
+      res.status(400).json({
+        error:
+          "Membership payment is recorded without an expiry date. Enter an expiry date and try again.",
       });
       return;
     }

@@ -10,7 +10,7 @@ export function isMemberMembershipAccessActive(member, now = nowUtc()) {
     if (!member.membershipBillingType)
         return true;
     if (!member.membershipExpiresAt) {
-        return (member.membershipBillingType !== "goCardless" ||
+        return (member.membershipBillingType === "goCardless" &&
             isGoCardlessMembershipActive(member.goCardlessSubscriptionStatus));
     }
     return member.membershipExpiresAt > now;

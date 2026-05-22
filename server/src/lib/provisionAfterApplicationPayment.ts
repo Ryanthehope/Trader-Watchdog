@@ -9,6 +9,7 @@ export type ProvisionAfterPaymentResult =
         | "not_found"
         | "not_approved"
         | "unpaid"
+        | "membership_expiry_missing"
         | "email_in_use"
         | "already_provisioned";
     };
@@ -33,6 +34,9 @@ export async function provisionIfApplicationPaid(
   const prov = await tryProvisionMemberForApplication(prisma, applicationId);
   if (prov.kind === "email_in_use") {
     return { ok: false, reason: "email_in_use" };
+  }
+  if (prov.kind === "membership_expiry_missing") {
+    return { ok: false, reason: "membership_expiry_missing" };
   }
   return { ok: true };
 }

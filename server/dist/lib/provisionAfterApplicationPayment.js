@@ -20,5 +20,8 @@ export async function provisionIfApplicationPaid(prisma, applicationId) {
     if (prov.kind === "email_in_use") {
         return { ok: false, reason: "email_in_use" };
     }
+    if (prov.kind === "membership_expiry_missing") {
+        return { ok: false, reason: "membership_expiry_missing" };
+    }
     return { ok: true };
 }

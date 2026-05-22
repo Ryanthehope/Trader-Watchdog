@@ -21,7 +21,7 @@ export function isMemberMembershipAccessActive(
   if (!member.membershipBillingType) return true;
   if (!member.membershipExpiresAt) {
     return (
-      member.membershipBillingType !== "goCardless" ||
+      member.membershipBillingType === "goCardless" &&
       isGoCardlessMembershipActive(member.goCardlessSubscriptionStatus)
     );
   }

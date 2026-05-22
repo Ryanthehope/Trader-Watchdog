@@ -550,6 +550,8 @@ export function Join() {
             ? "Paid"
             : applicantSummary.canCheckoutMembership
               ? "Ready to pay"
+              : applicantStatus === "APPROVED" && !applicantSummary.hasRegistrationFeePayment
+                ? "Waiting for registration fee"
               : applicantStatus === "APPROVED"
                 ? "Waiting"
                 : "Locked until approval",
@@ -562,6 +564,8 @@ export function Join() {
             ? "Your annual membership payment has been recorded."
             : applicantSummary.canCheckoutMembership
               ? `Pay ${membershipPriceLabel} from this page when ready.`
+              : applicantStatus === "APPROVED" && !applicantSummary.hasRegistrationFeePayment
+                ? "This unlocks after the registration fee is paid."
               : "This step unlocks after approval.",
         },
         {

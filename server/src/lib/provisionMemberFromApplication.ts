@@ -57,6 +57,7 @@ export type ProvisionResult =
       member: { id: string; slug: string; tvId: string };
     }
   | { kind: "not_approved" }
+  | { kind: "membership_expiry_missing" }
   | { kind: "email_in_use"; email: string };
 
 export async function tryProvisionMemberForApplication(
@@ -110,17 +111,15 @@ export async function tryProvisionMemberForApplication(
     const blurb = `${app.company} is a Trader Watchdog checked ${app.trade} business. This profile was published after staff vetting of the membership application.`;
     const membershipManual =
       Boolean(app.membershipSubscribed) && app.manualMembershipExpiresAt != null;
-    const membershipFromPayment =
-      membershipManual
-        ? {
-            membershipBillingType: "manual" as const,
-            membershipExpiresAt: app.manualMembershipExpiresAt!,
-          }
-        : Boolean(app.membershipSubscribed)
-          ? {
-              membershipBillingType: "membership" as const,
-            }
-        : {};
+    if (Boolean(app.membershipSubscribed) && !membershipManual) {
+      return { kind: "membership_expiry_missing" };
+    }
+    const membershipFromPayment = membershipManual
+      ? {
+          membershipBillingType: "manual" as const,
+          membershipExpiresAt: app.manualMembershipExpiresAt!,
+        }
+      : {};
 
     const member = await tx.member.create({
       data: {

@@ -252,6 +252,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
     const canCheckoutMembership =
       billingAvailable &&
       row.status === "APPROVED" &&
+      hasRegistrationFeePayment &&
       !hasMembershipPayment &&
       !profileLive;
     const now = new Date();
