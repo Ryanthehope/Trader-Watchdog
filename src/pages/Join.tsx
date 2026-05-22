@@ -10,6 +10,7 @@ const apiBase = () =>
   (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
 
 const JOIN_STORAGE_KEY = "Trader Watchdog_join_apply";
+const CHECKOUT_REQUEST_TIMEOUT_MS = 20_000;
 
 type ApplicantSummary = {
   exists: boolean;
@@ -446,6 +447,8 @@ export function Join() {
     if (!targetApplicationId || !targetEmail) return;
     setCheckoutLoading(kind);
     setFormError(null);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), CHECKOUT_REQUEST_TIMEOUT_MS);
     try {
       const path =
         kind === "registration"
@@ -454,6 +457,7 @@ export function Join() {
       const res = await fetch(`${apiBase()}${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           applicationId: targetApplicationId,
           email: targetEmail,
@@ -471,9 +475,16 @@ export function Join() {
       if (data.url) {
         window.location.href = data.url as string;
       }
-    } catch {
-      setFormError("Network error starting checkout.");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setFormError(
+          "Checkout is taking too long to respond. Please try again. If it keeps happening, GoCardless may not be responding from the backend."
+        );
+      } else {
+        setFormError("Network error starting checkout.");
+      }
     } finally {
+      window.clearTimeout(timeout);
       setCheckoutLoading(null);
     }
   };
