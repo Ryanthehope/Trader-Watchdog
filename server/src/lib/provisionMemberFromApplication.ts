@@ -1,6 +1,10 @@
 import { randomBytes, randomInt } from "crypto";
 import type { PrismaClient } from "@prisma/client";
 import { hashPortalPassword } from "./portalCredentials.js";
+import {
+  buildMemberBlurbFromApplication,
+  buildMemberVettingItemsFromApplication,
+} from "./memberPublicProfileFromApplication.js";
 
 type MemberDb = Pick<PrismaClient, "member">;
 
@@ -108,7 +112,8 @@ export async function tryProvisionMemberForApplication(
       "Insurance and claimed credentials reviewed against supplied evidence.",
       "Public-facing details checked for consistency before listing.",
     ];
-    const blurb = `${app.company} is a Trader Watchdog checked ${app.trade} business. This profile was published after staff vetting of the membership application.`;
+    const blurb = buildMemberBlurbFromApplication(app);
+    const vettingItems = buildMemberVettingItemsFromApplication(app);
     const membershipManual =
       Boolean(app.membershipSubscribed) && app.manualMembershipExpiresAt != null;
     if (Boolean(app.membershipSubscribed) && !membershipManual) {
@@ -130,6 +135,7 @@ export async function tryProvisionMemberForApplication(
         location: `${app.postcode.trim()} area`,
         invoicePhone: app.phone?.trim() || null,
         checks,
+        vettingItems,
         verifiedSince: monthYear,
         blurb,
         loginEmail: email,
