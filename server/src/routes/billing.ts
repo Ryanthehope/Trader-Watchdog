@@ -4,24 +4,14 @@ import {
   billingReady,
   checkoutLineConfig,
   getOrgBilling,
-  getGoCardlessClient,
+  getGoCardlessApiClient,
 } from "../lib/billingSettings.js";
+import { createGoCardlessHostedPaymentFlow } from "../lib/goCardlessHostedPaymentFlow.js";
 
 const router = Router();
 
-/** Card checkout links are only valid for a limited period after the relevant trigger. */
+/** Hosted payment links are only valid for a limited period after the relevant trigger. */
 const PAYMENT_WINDOW_MS = 1000 * 60 * 60 * 24 * 30;
-const CHECKOUT_SESSION_TIMEOUT_MS = 15_000;
-type CheckoutSessionResponse = { url?: string | null };
-
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string) {
-  return Promise.race<T>([
-    promise,
-    new Promise<T>((_, reject) => {
-      setTimeout(() => reject(new Error(`${label} timed out`)), timeoutMs);
-    }),
-  ]);
-}
 
 async function assertRegistrationCheckoutAllowed(
   applicationId: string,
@@ -106,7 +96,7 @@ router.post("/checkout-registration-fee", async (req, res) => {
       res.status(400).json({ error: "Billing is not enabled" });
       return;
     }
-    const gocardless = await getGoCardlessClient();
+    const gocardless = await getGoCardlessApiClient();
     if (!gocardless) {
       res.status(400).json({ error: "GoCardless is not configured" });
       return;
@@ -123,42 +113,28 @@ router.post("/checkout-registration-fee", async (req, res) => {
     }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const session = (await withTimeout(
-      gocardless.checkout.sessions.create({
-        mode: "payment",
-        customer_email: email,
-        line_items: [
-          {
-            price_data: {
-              currency: "gbp",
-              product_data: { name: lines.registrationFeeName },
-              unit_amount: lines.registrationFeePence,
-            },
-            quantity: 1,
-          },
-        ],
-        success_url: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}`,
-        cancel_url: `${origin}/join?cancelled=1`,
-        metadata: {
-          applicationId,
-          checkoutKind: "registration_fee",
-        },
-      }),
-      CHECKOUT_SESSION_TIMEOUT_MS,
-      "GoCardless checkout session"
-    )) as CheckoutSessionResponse;
-    if (!session.url) {
-      res.status(500).json({ error: "Could not create checkout session" });
-      return;
-    }
-    res.json({ url: session.url });
+    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+      amountPence: lines.registrationFeePence,
+      description: lines.registrationFeeName,
+      email,
+      companyName: application.company,
+      addressLine1: application.tradingAddress,
+      postalCode: application.postcode,
+      successRedirectUrl: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}`,
+      exitUrl: `${origin}/join?cancelled=1`,
+      metadata: {
+        applicationId,
+        checkoutKind: "registration_fee",
+      },
+    });
+    res.json({ url: flow.url });
   } catch (e) {
     console.error(e);
     const message = e instanceof Error ? e.message : String(e);
     if (/timed out/i.test(message)) {
       res.status(504).json({
         error:
-          "GoCardless did not respond in time. Please try again, and if it keeps happening check the GoCardless secret key and network access from the backend.",
+          "GoCardless did not respond in time. Please try again, and if it keeps happening check the GoCardless access token, environment, and network access from the backend.",
       });
       return;
     }
@@ -179,7 +155,7 @@ router.post("/checkout-membership", async (req, res) => {
       res.status(400).json({ error: "Billing is not enabled" });
       return;
     }
-    const gocardless = await getGoCardlessClient();
+    const gocardless = await getGoCardlessApiClient();
     if (!gocardless) {
       res.status(400).json({ error: "GoCardless is not configured" });
       return;
@@ -203,42 +179,29 @@ router.post("/checkout-membership", async (req, res) => {
     }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const session = (await withTimeout(
-      gocardless.checkout.sessions.create({
-        mode: "payment",
-        customer_email: email,
-        line_items: [
-          {
-            price_data: {
-              currency: "gbp",
-              product_data: { name: lines.membershipName },
-              unit_amount: lines.membershipPence,
-            },
-            quantity: 1,
-          },
-        ],
-        success_url: `${origin}/join?paid=membership&app=${encodeURIComponent(applicationId)}`,
-        cancel_url: `${origin}/join?cancelled=1`,
-        metadata: {
-          applicationId,
-          checkoutKind: "membership",
-        },
-      }),
-      CHECKOUT_SESSION_TIMEOUT_MS,
-      "GoCardless checkout session"
-    )) as CheckoutSessionResponse;
-    if (!session.url) {
-      res.status(500).json({ error: "Could not create checkout session" });
-      return;
-    }
-    res.json({ url: session.url });
+    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+      amountPence: lines.membershipPence,
+      description: lines.membershipName,
+      email,
+      companyName: application.company,
+      addressLine1: application.tradingAddress,
+      postalCode: application.postcode,
+      existingCustomerId: application.goCardlessCustomerId,
+      successRedirectUrl: `${origin}/join?paid=membership&app=${encodeURIComponent(applicationId)}`,
+      exitUrl: `${origin}/join?cancelled=1`,
+      metadata: {
+        applicationId,
+        checkoutKind: "membership",
+      },
+    });
+    res.json({ url: flow.url });
   } catch (e) {
     console.error(e);
     const message = e instanceof Error ? e.message : String(e);
     if (/timed out/i.test(message)) {
       res.status(504).json({
         error:
-          "GoCardless did not respond in time. Please try again, and if it keeps happening check the GoCardless secret key and network access from the backend.",
+          "GoCardless did not respond in time. Please try again, and if it keeps happening check the GoCardless access token, environment, and network access from the backend.",
       });
       return;
     }

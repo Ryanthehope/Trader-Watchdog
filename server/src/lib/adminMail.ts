@@ -150,6 +150,9 @@ export async function sendAdminEmail(
 ): Promise<void> {
   const transport = await getTransport(prisma);
   if (!transport) {
+    console.warn(
+      "[admin-mail] Skipped admin email: SMTP is not configured"
+    );
     return;
   }
   const redirectedTo = resolveRedirectRecipients();
@@ -182,10 +185,14 @@ export async function sendApplicantEmail(
 ): Promise<void> {
   const transport = await getTransport(prisma);
   if (!transport) {
+    console.warn(
+      `[admin-mail] Skipped applicant email to ${opts.to || "(blank)"}: SMTP is not configured`
+    );
     return;
   }
   const originalTo = opts.to.trim().toLowerCase();
   if (!originalTo) {
+    console.warn("[admin-mail] Skipped applicant email: recipient address is blank");
     return;
   }
   const redirectedTo = resolveRedirectRecipients();

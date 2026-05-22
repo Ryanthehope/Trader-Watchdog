@@ -1,40 +1,52 @@
 import type { Request, Response } from "express";
+import { parse as parseGoCardlessWebhooks } from "gocardless-nodejs/webhooks";
 import { prisma } from "../db.js";
 import {
-  getGoCardlessClient,
+  getGoCardlessApiClient,
   getGoCardlessWebhookSecret,
 } from "../lib/billingSettings.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import { notifySubscriptionRenewed } from "../lib/adminMail.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 
-type GoCardlessCheckoutSession = {
-  customer?: string | { id?: string | null } | null;
+type GoCardlessPayment = {
+  created_at?: string | null;
   metadata?: Record<string, string | undefined> | null;
-  created?: number | null;
+  status?: string | null;
 };
 
-type GoCardlessWebhookEvent = {
-  type?: string;
-  data?: {
-    object?: unknown;
+type GoCardlessEvent = {
+  action?: string;
+  links?: {
+    billing_request?: string;
+    payment?: string;
   };
+  resource_type?: string;
 };
 
-function customerIdFromSession(
-  session: GoCardlessCheckoutSession
-): string | null {
-  const c = session.customer;
-  if (typeof c === "string") return c;
-  if (c && typeof c === "object" && "id" in c) return c.id ?? null;
-  return null;
+async function customerIdFromBillingRequest(
+  gocardless: Awaited<ReturnType<typeof getGoCardlessApiClient>>,
+  billingRequestId: string | undefined
+) {
+  if (!gocardless || !billingRequestId) return null;
+  try {
+    const billingRequest = await gocardless.billingRequests.find(billingRequestId);
+    return billingRequest.resources?.customer?.id ?? null;
+  } catch (error) {
+    console.warn(
+      `[gocardless webhook] could not load billing request ${billingRequestId}`,
+      error
+    );
+    return null;
+  }
 }
 
 export async function goCardlessWebhookHandler(req: Request, res: Response) {
-  const sig = req.headers["gocardless-signature"];
+  const signatureHeader =
+    req.headers["webhook-signature"] ?? req.headers["gocardless-signature"];
   const secret = await getGoCardlessWebhookSecret();
-  const gocardless = await getGoCardlessClient();
-  if (!gocardless || !secret || typeof sig !== "string") {
+  const gocardless = await getGoCardlessApiClient();
+  if (!gocardless || !secret || typeof signatureHeader !== "string") {
     res.status(400).type("text/plain").send("Webhook not configured");
     return;
   }
@@ -43,9 +55,9 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
     res.status(400).type("text/plain").send("Expected raw body");
     return;
   }
-  let event: GoCardlessWebhookEvent;
+  let events: GoCardlessEvent[];
   try {
-    event = (gocardless as any).webhooks.constructEvent(buf, sig, secret);
+    events = parseGoCardlessWebhooks(buf, secret, signatureHeader) as GoCardlessEvent[];
   } catch (e) {
     console.warn("[gocardless webhook] signature failed", e);
     res.status(400).type("text/plain").send("Bad signature");
@@ -53,16 +65,27 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
-      const session = event.data?.object as GoCardlessCheckoutSession;
-      const kind = session.metadata?.checkoutKind;
-      const sessionCreatedAt = new Date(
-        (session.created ?? Math.floor(Date.now() / 1000)) * 1000
+    for (const event of events) {
+      if (event.resource_type !== "payments" || event.action !== "created") {
+        continue;
+      }
+      const paymentId = event.links?.payment;
+      if (!paymentId) continue;
+
+      const payment = (await gocardless.payments.find(paymentId)) as GoCardlessPayment;
+      const kind = payment.metadata?.checkoutKind;
+      if (!kind) continue;
+
+      const paymentCreatedAt = payment.created_at
+        ? new Date(payment.created_at)
+        : new Date();
+      const customerId = await customerIdFromBillingRequest(
+        gocardless,
+        event.links?.billing_request
       );
 
-      if (kind === "member_portal_renewal" && session.metadata?.memberId) {
-        const memberId = session.metadata.memberId;
-        const customerId = customerIdFromSession(session);
+      if (kind === "member_portal_renewal" && payment.metadata?.memberId) {
+        const memberId = payment.metadata.memberId;
         const member = await prisma.member.findUnique({
           where: { id: memberId },
           select: { membershipExpiresAt: true, name: true, loginEmail: true },
@@ -71,38 +94,43 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           console.warn(
             `[gocardless webhook] renewal completed for missing member ${memberId}`
           );
-        } else {
-          const baseDate =
-            member.membershipExpiresAt &&
-            member.membershipExpiresAt > sessionCreatedAt
-              ? member.membershipExpiresAt
-              : sessionCreatedAt;
-          const renewedUntil = addOneCalendarYearEndUtc(baseDate);
-          await prisma.member.update({
-            where: { id: memberId },
-            data: {
-              membershipBillingType: "manual",
-              membershipExpiresAt: renewedUntil,
-              goCardlessSubscriptionId: null,
-              goCardlessSubscriptionStatus: null,
-              ...(customerId ? { goCardlessCustomerId: customerId } : {}),
-            },
-          });
-          if (member.loginEmail?.trim()) {
-            notifySubscriptionRenewed(prisma, {
-              traderName: member.name,
-              email: member.loginEmail,
-              renewedUntil,
-            });
-          }
+          continue;
         }
-      } else {
-        const appId = session.metadata?.applicationId;
-        if (appId && kind === "registration_fee") {
-          await prisma.application.update({
-            where: { id: appId },
-            data: { registrationFeePaidAt: new Date() },
+        const baseDate =
+          member.membershipExpiresAt && member.membershipExpiresAt > paymentCreatedAt
+            ? member.membershipExpiresAt
+            : paymentCreatedAt;
+        const renewedUntil = addOneCalendarYearEndUtc(baseDate);
+        await prisma.member.update({
+          where: { id: memberId },
+          data: {
+            membershipBillingType: "manual",
+            membershipExpiresAt: renewedUntil,
+            goCardlessSubscriptionId: null,
+            goCardlessSubscriptionStatus: null,
+            ...(customerId ? { goCardlessCustomerId: customerId } : {}),
+          },
+        });
+        if (member.loginEmail?.trim()) {
+          notifySubscriptionRenewed(prisma, {
+            traderName: member.name,
+            email: member.loginEmail,
+            renewedUntil,
           });
+        }
+        continue;
+      }
+
+      const appId = payment.metadata?.applicationId;
+      if (appId && kind === "registration_fee") {
+        const updated = await prisma.application.updateMany({
+          where: { id: appId, registrationFeePaidAt: null },
+          data: {
+            registrationFeePaidAt: paymentCreatedAt,
+            ...(customerId ? { goCardlessCustomerId: customerId } : {}),
+          },
+        });
+        if (updated.count > 0) {
           const prov = await provisionIfApplicationPaid(prisma, appId);
           if (!prov.ok && prov.reason === "email_in_use") {
             console.error(
@@ -110,18 +138,18 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             );
           }
         }
-        if (appId && kind === "membership") {
-          const customerId = customerIdFromSession(session);
-          await prisma.application.update({
-            where: { id: appId },
-            data: {
-              membershipSubscribed: true,
-              manualMembershipExpiresAt: addOneCalendarYearEndUtc(
-                sessionCreatedAt
-              ),
-              ...(customerId ? { goCardlessCustomerId: customerId } : {}),
-            },
-          });
+      }
+
+      if (appId && kind === "membership") {
+        const updated = await prisma.application.updateMany({
+          where: { id: appId, membershipSubscribed: false },
+          data: {
+            membershipSubscribed: true,
+            manualMembershipExpiresAt: addOneCalendarYearEndUtc(paymentCreatedAt),
+            ...(customerId ? { goCardlessCustomerId: customerId } : {}),
+          },
+        });
+        if (updated.count > 0) {
           const prov = await provisionIfApplicationPaid(prisma, appId);
           if (!prov.ok && prov.reason === "email_in_use") {
             console.error(

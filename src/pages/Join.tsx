@@ -1055,7 +1055,7 @@ export function Join() {
                         : "Your checks are complete — activate annual membership"}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      Secure card checkout. Use the same email as on your
+                      Secure GoCardless checkout. Use the same email as on your
                       application ({savedEmail}).
                     </p>
                     <p className="mt-3 text-xs text-slate-600">

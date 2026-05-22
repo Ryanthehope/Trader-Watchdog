@@ -8,9 +8,11 @@ import { prisma } from "../db.js";
 import {
   billingReady,
   checkoutLineConfig,
-  getOrgBilling,
   getGoCardlessClient,
+  getOrgBilling,
+  getGoCardlessApiClient,
 } from "../lib/billingSettings.js";
+import { createGoCardlessHostedPaymentFlow } from "../lib/goCardlessHostedPaymentFlow.js";
 import { documentIssuerFromMember } from "../lib/documentIssuer.js";
 import {
   isMemberPublicListingVisible,
@@ -183,6 +185,7 @@ router.post("/membership/renew", async (req, res) => {
       where: { id: memberId },
       select: {
         loginEmail: true,
+        name: true,
         goCardlessCustomerId: true,
       },
     });
@@ -195,40 +198,27 @@ router.post("/membership/renew", async (req, res) => {
       res.status(400).json({ error: "Online billing is not enabled" });
       return;
     }
-    const gocardless = await getGoCardlessClient();
+    const gocardless = await getGoCardlessApiClient();
     if (!gocardless) {
       res.status(400).json({ error: "GoCardless is not configured" });
       return;
     }
     const origin = await siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const session = await gocardless.checkout.sessions.create({
-      mode: "payment",
-      ...(m.goCardlessCustomerId
-        ? { customer: m.goCardlessCustomerId }
-        : { customer_email: m.loginEmail.trim().toLowerCase() }),
-      line_items: [
-        {
-          price_data: {
-            currency: "gbp",
-            product_data: { name: `${lines.membershipName} renewal` },
-            unit_amount: lines.membershipPence,
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${origin}/member/billing?renewal=success`,
-      cancel_url: `${origin}/member/billing?renewal=cancelled`,
+    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+      amountPence: lines.membershipPence,
+      description: `${lines.membershipName} renewal`,
+      email: m.loginEmail.trim().toLowerCase(),
+      companyName: m.name,
+      existingCustomerId: m.goCardlessCustomerId,
+      successRedirectUrl: `${origin}/member/billing?renewal=success`,
+      exitUrl: `${origin}/member/billing?renewal=cancelled`,
       metadata: {
         checkoutKind: "member_portal_renewal",
         memberId,
       },
     });
-    if (!session.url) {
-      res.status(500).json({ error: "Could not create checkout session" });
-      return;
-    }
-    res.json({ url: session.url });
+    res.json({ url: flow.url });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Could not start renewal checkout" });

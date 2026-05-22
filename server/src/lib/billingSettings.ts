@@ -1,4 +1,8 @@
 import GoCardless from "gocardless";
+import gocardless, {
+  Environments,
+  type GoCardlessClient,
+} from "gocardless-nodejs";
 import { prisma } from "../db.js";
 import { getLaunchWindow } from "./launchWindow.js";
 const MIN_CHECKOUT_PENCE = 100; // £1.00 — GoCardless practical minimum for GBP
@@ -50,6 +54,24 @@ export async function getGoCardlessClient(): Promise<GoCardless | null> {
   const key = await getGoCardlessSecretKey();
   if (!key) return null;
   return new GoCardless(key);
+}
+
+function resolveGoCardlessEnvironment(key: string): Environments {
+  const configured =
+    process.env.GO_CARDLESS_ENVIRONMENT?.trim() ||
+    process.env.GOCARDLESS_ENVIRONMENT?.trim();
+  if (configured) {
+    return /sandbox/i.test(configured)
+      ? Environments.Sandbox
+      : Environments.Live;
+  }
+  return /sandbox/i.test(key) ? Environments.Sandbox : Environments.Live;
+}
+
+export async function getGoCardlessApiClient(): Promise<GoCardlessClient | null> {
+  const key = await getGoCardlessSecretKey();
+  if (!key) return null;
+  return gocardless(key, resolveGoCardlessEnvironment(key));
 }
 
 export function billingReady(s: {
