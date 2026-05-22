@@ -18,6 +18,7 @@ import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
 import {
   invalidateSmtpTransportCache,
   notifyApplicationDecision,
+  notifyApplicantApprovedForPayment,
   notifyApplicantVerificationOutcome,
 } from "../lib/adminMail.js";
 import {
@@ -913,6 +914,13 @@ router.patch("/applications/:id", async (req, res) => {
         email: full.email,
         status: full.status,
       });
+      if (data.status === "APPROVED") {
+        notifyApplicantApprovedForPayment(prisma, {
+          traderName: full.identifiablePerson,
+          company: full.company,
+          email: full.email,
+        });
+      }
     }
 
     res.json({
@@ -1054,6 +1062,13 @@ router.post("/applications/:id/sumsub-link", async (req, res) => {
       res.status(404).json({ error: "Not found" });
       return;
     }
+    if (!ensured.application.registrationFeePaidAt) {
+      res.status(400).json({
+        error:
+          "Record the registration fee first. Verification now starts after the upfront application payment.",
+      });
+      return;
+    }
 
     const link = await generateSumsubWebSdkLink({
       userId: ensured.externalUserId,
@@ -1087,6 +1102,7 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
       select: {
         id: true,
         company: true,
+        identifiablePerson: true,
         email: true,
         createdMemberId: true,
         identifiablePersonAddress: true,
@@ -1131,6 +1147,7 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
         verificationData.verificationStatus === "REJECTED")
     ) {
       notifyApplicantVerificationOutcome(prisma, {
+        traderName: application.identifiablePerson,
         company: application.company,
         email: application.email,
         status: verificationData.verificationStatus,

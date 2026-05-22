@@ -67,7 +67,7 @@ This was added so the live admin portal can recover from an empty `staff` table 
 1. Set `GoCardless_SECRET_KEY` and `GoCardless_WEBHOOK_SECRET` on the backend
 2. Enable billing in staff settings and confirm the checkout amounts/names there
 3. Setup webhook endpoint: `https://your-backend-domain/api/goCardless/webhook`
-4. The checkout order is approval -> registration fee -> annual membership -> member provisioning
+4. The checkout order is application -> registration fee -> verification/review -> approval -> annual membership -> member provisioning
 5. Use one-off checkout for the initial joining fee and annual member renewals
 
 ### 7. Test Email Routing
@@ -128,7 +128,7 @@ See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architectur
 - An unused `reviews` moderation slice has been removed from `adminOps.ts`
 - An unused `inbox` CRUD slice has been removed from `adminOps.ts`
 - Member portal business-details, documents, insurance, password, and billing screens are live
-- Trader application -> approval -> payment -> member provisioning flow is implemented
+- Trader application -> immediate registration fee -> verification/review -> approval -> annual membership -> member provisioning flow is implemented
 - 30-day / 14-day insurance reminders and 14-day grace-period visibility rules are implemented
 - Member portal stray analytics/settings routes now redirect back to real member pages
 - Staff applications can now create or reuse Sumsub sandbox applicants, open a launch link, and manually sync review status back into the application
@@ -149,13 +149,14 @@ See [STRUCTURE.md](./STRUCTURE.md) for detailed folder structure and architectur
 - Add broader regression testing for auth, billing, cron jobs, and member/staff flows
 - Improve public search/category exposure further if that remains part of current launch scope
 - Finish the final applicant-facing verification entry flow and validate webhook delivery end to end in sandbox/live
+- Decide whether trader-facing Sumsub launch should move out of staff-only flow now that registration fee is taken up front
 
 Sumsub is now partially integrated in sandbox. The remaining gap is production readiness, not first-time backend wiring.
 
 ## Current Priorities
 
 1. Tighten admin technical debt, especially legacy routes not represented in the Prisma schema.
-2. Expand validation around production-critical flows: application approval, annual billing/renewal, webhook, cron, and member visibility.
+2. Expand validation around production-critical flows: upfront registration payment, verification/approval, annual billing/renewal, webhook, cron, and member visibility.
 3. Improve public category/search exposure only if it remains part of immediate launch scope.
 4. Finish Sumsub production-readiness work: applicant entry UX, webhook delivery validation, and live-environment validation.
 
@@ -208,6 +209,6 @@ Use test cards:
 1. Fix `member/analytics` and `member/settings` so the member portal only exposes real member screens.
 2. Decide whether the member verification page should stay as a status page or become the applicant-facing launch entry for future Sumsub self-serve flow.
 3. Replace or retire legacy admin routes that do not match the current Prisma models.
-4. Run full regression checks across application approval, billing, insurance alerts, cron, public visibility rules, and Sumsub webhook-driven review-state updates.
+4. Run full regression checks across upfront registration payment, application approval, annual billing, insurance alerts, cron, public visibility rules, and Sumsub webhook-driven review-state updates.
 
 ---

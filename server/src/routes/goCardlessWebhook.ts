@@ -5,6 +5,7 @@ import {
   getGoCardlessWebhookSecret,
 } from "../lib/billingSettings.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
+import { notifySubscriptionRenewed } from "../lib/adminMail.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 
 type GoCardlessCheckoutSession = {
@@ -64,7 +65,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         const customerId = customerIdFromSession(session);
         const member = await prisma.member.findUnique({
           where: { id: memberId },
-          select: { membershipExpiresAt: true },
+          select: { membershipExpiresAt: true, name: true, loginEmail: true },
         });
         if (!member) {
           console.warn(
@@ -76,16 +77,24 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             member.membershipExpiresAt > sessionCreatedAt
               ? member.membershipExpiresAt
               : sessionCreatedAt;
+          const renewedUntil = addOneCalendarYearEndUtc(baseDate);
           await prisma.member.update({
             where: { id: memberId },
             data: {
               membershipBillingType: "manual",
-              membershipExpiresAt: addOneCalendarYearEndUtc(baseDate),
+              membershipExpiresAt: renewedUntil,
               goCardlessSubscriptionId: null,
               goCardlessSubscriptionStatus: null,
               ...(customerId ? { goCardlessCustomerId: customerId } : {}),
             },
           });
+          if (member.loginEmail?.trim()) {
+            notifySubscriptionRenewed(prisma, {
+              traderName: member.name,
+              email: member.loginEmail,
+              renewedUntil,
+            });
+          }
         }
       } else {
         const appId = session.metadata?.applicationId;

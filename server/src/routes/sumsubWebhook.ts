@@ -81,6 +81,7 @@ export async function sumsubWebhookHandler(req: Request, res: Response) {
       select: {
         id: true,
         company: true,
+        identifiablePerson: true,
         email: true,
         createdMemberId: true,
         verificationStatus: true,
@@ -132,6 +133,7 @@ export async function sumsubWebhookHandler(req: Request, res: Response) {
         verificationData.verificationStatus === "REJECTED")
     ) {
       notifyApplicantVerificationOutcome(prisma, {
+        traderName: application.identifiablePerson,
         company: application.company,
         email: application.email,
         status: verificationData.verificationStatus,

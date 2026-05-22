@@ -9,10 +9,44 @@ import {
 
 const router = Router();
 
-/** From approval (or application date if legacy); applicants pay after staff approve. */
+/** Card checkout links are only valid for a limited period after the relevant trigger. */
 const PAYMENT_WINDOW_MS = 1000 * 60 * 60 * 24 * 30;
 
-async function assertFreshApplication(applicationId: string, email: string) {
+async function assertRegistrationCheckoutAllowed(
+  applicationId: string,
+  email: string
+) {
+  const row = await prisma.application.findUnique({
+    where: { id: applicationId },
+  });
+  if (!row) {
+    return { error: "Application not found" as const };
+  }
+  if (row.email.toLowerCase() !== email.toLowerCase()) {
+    return { error: "Email does not match application" as const };
+  }
+  if (row.status === "DECLINED") {
+    return {
+      error:
+        "This application was declined, so online checkout is no longer available. Contact Trader Watchdog if you need this reviewed.",
+    } as const;
+  }
+  if (row.createdMemberId) {
+    return {
+      error: "This application already has a live member profile.",
+    } as const;
+  }
+  const windowStart = row.createdAt;
+  if (Date.now() - windowStart.getTime() > PAYMENT_WINDOW_MS) {
+    return { error: "Payment window expired — contact Trader Watchdog" } as const;
+  }
+  return { application: row };
+}
+
+async function assertMembershipCheckoutAllowed(
+  applicationId: string,
+  email: string
+) {
   const row = await prisma.application.findUnique({
     where: { id: applicationId },
   });
@@ -25,7 +59,12 @@ async function assertFreshApplication(applicationId: string, email: string) {
   if (row.status !== "APPROVED") {
     return {
       error:
-        "Your application is not approved yet. When Trader Watchdog approves it, you can return here to pay and activate your listing.",
+        "Annual membership unlocks after Trader Watchdog completes verification and approves your application.",
+    } as const;
+  }
+  if (row.createdMemberId) {
+    return {
+      error: "This application already has a live member profile.",
     } as const;
   }
   const windowStart = row.approvedAt ?? row.createdAt;
@@ -61,7 +100,7 @@ router.post("/checkout-registration-fee", async (req, res) => {
       res.status(400).json({ error: "GoCardless is not configured" });
       return;
     }
-    const check = await assertFreshApplication(applicationId, email);
+    const check = await assertRegistrationCheckoutAllowed(applicationId, email);
     if ("error" in check) {
       res.status(400).json({ error: check.error });
       return;
@@ -122,7 +161,7 @@ router.post("/checkout-membership", async (req, res) => {
       res.status(400).json({ error: "GoCardless is not configured" });
       return;
     }
-    const check = await assertFreshApplication(applicationId, email);
+    const check = await assertMembershipCheckoutAllowed(applicationId, email);
     if ("error" in check) {
       res.status(400).json({ error: check.error });
       return;

@@ -45,8 +45,8 @@ const validationSteps = [
     body: "Identity, address, and liveness checks are handled during verification. We also review insurance and, where relevant, ICO, waste carrier, Gas Safe, and Competent Person evidence.",
   },
   {
-    title: "Pay only after approval",
-    body: "No payment is taken until your credentials are validated and your application is approved. Once payment completes, your public profile and member portal are created.",
+    title: "Pay the registration fee to start formal checks",
+    body: "The registration fee is taken as soon as you apply. Trader Watchdog then completes identity, address, insurance, and supporting checks before annual membership is requested.",
   },
 ];
 
@@ -481,10 +481,8 @@ export function Join() {
     sentVia === "api" &&
     applicantSummaryReady &&
     applicantSummary != null &&
-    !canCheckoutAny &&
     !applicantSummary.profileLive &&
-    (applicantStatus === "DECLINED" ||
-      (applicantSummary.exists && applicantStatus !== "APPROVED"));
+    applicantStatus === "DECLINED";
 
   const formatSterling = (valuePence: number) => {
     const pounds = valuePence / 100;
@@ -504,45 +502,58 @@ export function Join() {
   const progressSteps = applicantSummary
     ? [
         {
-          title: "Application approval",
+          title: "Registration fee",
+          status:
+            applicantSummary.hasRegistrationFeePayment
+              ? "Paid"
+              : applicantSummary.canCheckoutRegistrationFee
+                ? "Ready to pay"
+                : applicantStatus === "DECLINED"
+                  ? "Closed"
+                  : "Waiting",
+          tone:
+            applicantSummary.hasRegistrationFeePayment
+              ? "emerald"
+              : applicantSummary.canCheckoutRegistrationFee
+                ? "brand"
+                : applicantStatus === "DECLINED"
+                  ? "amber"
+                  : "slate",
+          detail:
+            applicantSummary.hasRegistrationFeePayment
+              ? "Your registration fee payment has been recorded."
+              : applicantSummary.canCheckoutRegistrationFee
+                ? `Pay ${registrationFeePriceLabel} from this page to start formal checks.`
+                : applicantStatus === "DECLINED"
+                  ? "This application is closed."
+                  : "This step becomes available once Trader Watchdog confirms online billing is available for this application.",
+        },
+        {
+          title: "Verification & review",
           status:
             applicantStatus === "APPROVED"
-              ? "Complete"
+              ? "Approved"
               : applicantStatus === "DECLINED"
                 ? "Not approved"
-                : "In review",
+                : applicantSummary.hasRegistrationFeePayment
+                  ? "In progress"
+                  : "Waiting for payment",
           tone:
             applicantStatus === "APPROVED"
               ? "emerald"
               : applicantStatus === "DECLINED"
                 ? "amber"
-                : "slate",
+                : applicantSummary.hasRegistrationFeePayment
+                  ? "brand"
+                  : "slate",
           detail:
             applicantStatus === "APPROVED"
-              ? "Trader Watchdog has approved this application."
+              ? "Trader Watchdog has completed its checks and approved this application."
               : applicantStatus === "DECLINED"
                 ? "This application was not approved."
-                : "We are still reviewing the application and documents.",
-        },
-        {
-          title: "Registration fee",
-          status: applicantSummary.hasRegistrationFeePayment
-            ? "Paid"
-            : applicantSummary.canCheckoutRegistrationFee
-              ? "Ready to pay"
-              : applicantStatus === "APPROVED"
-                ? "Waiting"
-                : "Locked until approval",
-          tone: applicantSummary.hasRegistrationFeePayment
-            ? "emerald"
-            : applicantSummary.canCheckoutRegistrationFee
-              ? "brand"
-              : "slate",
-          detail: applicantSummary.hasRegistrationFeePayment
-            ? "Your registration fee payment has been recorded."
-            : applicantSummary.canCheckoutRegistrationFee
-              ? `Pay ${registrationFeePriceLabel} from this page when ready.`
-              : "This step unlocks after approval.",
+                : applicantSummary.hasRegistrationFeePayment
+                  ? "We are now completing identity, address, insurance, and supporting checks."
+                  : "Formal verification starts after the registration fee is paid.",
         },
         {
           title: "Annual membership",
@@ -550,11 +561,11 @@ export function Join() {
             ? "Paid"
             : applicantSummary.canCheckoutMembership
               ? "Ready to pay"
-              : applicantStatus === "APPROVED" && !applicantSummary.hasRegistrationFeePayment
-                ? "Waiting for registration fee"
               : applicantStatus === "APPROVED"
                 ? "Waiting"
-                : "Locked until approval",
+                : applicantSummary.hasRegistrationFeePayment
+                  ? "Locked until approval"
+                  : "Waiting for verification",
           tone: applicantSummary.hasMembershipPayment
             ? "emerald"
             : applicantSummary.canCheckoutMembership
@@ -564,9 +575,9 @@ export function Join() {
             ? "Your annual membership payment has been recorded."
             : applicantSummary.canCheckoutMembership
               ? `Pay ${membershipPriceLabel} from this page when ready.`
-              : applicantStatus === "APPROVED" && !applicantSummary.hasRegistrationFeePayment
-                ? "This unlocks after the registration fee is paid."
-              : "This step unlocks after approval.",
+              : applicantStatus === "APPROVED"
+                ? "Annual membership is the final payment before your profile goes live."
+                : "This step unlocks only after Trader Watchdog approves the application.",
         },
         {
           title: "Profile & login",
@@ -574,7 +585,9 @@ export function Join() {
             ? "Live"
             : hasBothPayments
               ? "Creating profile"
-              : "Waiting for payment",
+              : applicantSummary.hasRegistrationFeePayment
+                ? "Waiting for approval"
+                : "Waiting for payment",
           tone: applicantSummary.profileLive
             ? "emerald"
             : hasBothPayments
@@ -584,11 +597,13 @@ export function Join() {
             ? "Your public profile and member portal are ready."
             : hasBothPayments
               ? "Both payments are in. We are creating the profile and login now."
-              : "The public profile and login are created after the payment steps complete.",
+              : applicantSummary.hasRegistrationFeePayment
+                ? "Your public profile and login are created after approval and annual membership payment."
+                : "Your public profile and login are created after the verification and payment steps complete.",
         },
       ]
     : [];
-  const introBody = "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and no payment is taken until your credentials are validated and your application is approved.";
+  const introBody = "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and the registration fee is taken up front so formal checks can begin straight after application.";
   const introSupport = publicSearchEnabled
     ? "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and public search by business name or telephone number once your profile is approved."
     : "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and a searchable public profile using your business name and advertised telephone number once public search is enabled.";
@@ -617,7 +632,7 @@ export function Join() {
                 Annual membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> after approval.
               </p>
               <p className="mt-2 text-sm text-slate-300">
-                Registration fee: <span className="font-semibold text-white">{registrationFeePriceLabel}</span> after approval.
+                Registration fee: <span className="font-semibold text-white">{registrationFeePriceLabel}</span> on application.
               </p>
               <p className="mt-2 text-xs text-slate-400">
                 Renewals are handled annually rather than on a monthly subscription. VAT is added to the checkout total.
@@ -741,7 +756,7 @@ export function Join() {
           <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
             <span>
               Checkout was cancelled. When you&apos;re ready, complete payment from
-              this page (after approval).
+              this page.
             </span>
             <button
               type="button"
@@ -756,7 +771,7 @@ export function Join() {
           <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
             <span>
               Registration fee received. We&apos;re creating your Trader Watchdog
-              listing — refresh in a moment or check your email.
+              application record for formal checks. Trader Watchdog will now continue verification and this page will update when annual membership is ready.
             </span>
             <button
               type="button"
@@ -816,10 +831,7 @@ export function Join() {
               ) : (
                 <>
                   <p className="mt-2 text-sm text-slate-400">
-                    Your application is saved. Our team will run vetting
-                    (insurance, identity, and trade checks) and email you when
-                    you&apos;re approved. After approval, return to this page to
-                    pay your <span className="text-slate-300">{registrationFeePriceLabel}</span> registration fee and <span className="text-slate-300">{membershipPriceLabel}</span> annual membership — your public listing and member login are created when payment completes.
+                    Your application is saved. Complete the <span className="text-slate-300">{registrationFeePriceLabel}</span> registration fee from this page so Trader Watchdog can begin formal checks. Once the application is approved, this page unlocks the <span className="text-slate-300">{membershipPriceLabel}</span> annual membership and your public listing and member login are created after that final payment.
                   </p>
                   <p className="mt-3 text-xs text-slate-500">
                     Tip: bookmark this tab or keep your confirmation email so you
@@ -840,9 +852,10 @@ export function Join() {
                       What happens next
                     </p>
                     <ol className="mt-3 space-y-2 text-sm text-slate-300">
-                      <li>1. Trader Watchdog reviews the application and supporting documents.</li>
-                      <li>2. If approved, this page updates with the next payment step or contact instructions.</li>
-                      <li>3. Once payment is complete, the public listing and member login are created.</li>
+                      <li>1. Pay the registration fee from this page.</li>
+                      <li>2. Trader Watchdog runs verification and reviews the supporting documents.</li>
+                      <li>3. If approved, this page updates with the annual membership payment step.</li>
+                      <li>4. Once annual membership is complete, the public listing and member login are created.</li>
                     </ol>
                   </div>
                 </>
@@ -883,7 +896,7 @@ export function Join() {
                           key={step.title}
                           className="rounded-xl border border-white/10 bg-white/[0.03] p-4"
                         >
-                          <div className="flex items-center justify-between gap-2">
+                          <div className="flex flex-col items-start gap-3">
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                               {step.title}
                             </p>
@@ -1005,24 +1018,24 @@ export function Join() {
                     </p>
                     <p className="mt-2 text-amber-100/80">
                       Your card payment is recorded. Your listing is created
-                      after Trader Watchdog approves your application; this page will
-                      update when you&apos;re approved and we&apos;ve finished
-                      setup.
+                      after Trader Watchdog completes verification, approves your application, and receives annual membership; this page will update when the next step is ready.
                     </p>
                   </div>
                 ) : null}
                 {canCheckoutAny ? (
                   <div className="rounded-2xl border border-white/10 bg-ink-950/60 p-6">
                     <p className="text-sm font-semibold text-white">
-                      You&apos;re approved — complete the remaining payment steps
+                      {applicantSummary?.canCheckoutRegistrationFee
+                        ? "Complete the upfront registration fee"
+                        : "Your checks are complete — activate annual membership"}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
                       Secure card checkout. Use the same email as on your
                       application ({savedEmail}).
                     </p>
                     <p className="mt-3 text-xs text-slate-600">
-                      Use this page to pay. Starting another application clears
-                      this link until that new application is approved.
+                      Use this page to pay. This application stays linked to the
+                      current email address until it is completed or declined.
                     </p>
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                       {applicantSummary?.canCheckoutRegistrationFee ? (
@@ -1053,21 +1066,20 @@ export function Join() {
                   </div>
                 ) : null}
                 {applicantSummary?.exists &&
-                applicantSummary.status === "APPROVED" &&
+                applicantSummary.status !== "DECLINED" &&
                 !canCheckoutAny &&
-                !hasAnyPayment &&
+                !applicantSummary.hasRegistrationFeePayment &&
                 !applicantSummary.profileLive &&
                 !applicantSummary.billingAvailable ? (
                   <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-100/90">
-                    You&apos;re approved, but online card payment isn&apos;t
-                    available right now. Please use{" "}
+                    Online card payment isn&apos;t available right now. Please use{" "}
                     <Link
                       to="/contact"
                       className="font-medium text-amber-200 underline"
                     >
                       Contact
                     </Link>{" "}
-                    to arrange payment.
+                    to arrange the registration fee.
                   </div>
                 ) : null}
                 {sentVia === "api" &&

@@ -178,10 +178,7 @@ export function MemberLogin() {
               </Link>
             </p>
             <p className="text-slate-400">
-              Staff member?{" "}
-              <Link to="/staff/login" className="font-semibold text-brand-300 hover:text-brand-200">
-                Go to staff login
-              </Link>
+              Staff access is available via the direct staff login URL.
             </p>
             <Link to="/" className="block text-slate-500 hover:text-slate-300">
               Back to main site

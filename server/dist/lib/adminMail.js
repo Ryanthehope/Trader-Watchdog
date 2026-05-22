@@ -221,31 +221,23 @@ export function notifyApplicationDecision(prisma, row) {
 }
 export function notifyApplicantSubmissionReceived(prisma, row) {
     void (async () => {
-        const base = await publicSiteBase(prisma);
-        const joinUrl = `${base}/join`;
+        const traderName = row.traderName?.trim() || row.company;
+        const supportEmail = process.env.CONTACT_EMAIL?.trim() || "support@traderwatchdog.co.uk";
         const text = [
-            `Thanks for submitting your Trader Watchdog application for ${row.company}.`,
+            `Hi ${traderName},`,
             "",
-            "We have received your details and the team will now review the application, supporting documents, and verification requirements.",
+            "Welcome to Trader Watchdog - great to have you with us. You've taken a big step toward showing customers you're genuine, insured, and accountable.",
             "",
-            "What happens next:",
-            "1. We review the business details, documents, and any checks needed for your trade.",
-            "2. If we need anything else, we will contact you using this email address.",
-            "3. Once approved, we will email you again with the next steps for payment and profile setup.",
+            "We'll now start reviewing your documents. If we need anything else, we'll let you know.",
             "",
-            "Important:",
-            "- No payment is taken at application stage.",
-            `- Your application reference is: ${row.id}`,
-            `- You can return to ${joinUrl} later to check progress using the same email address.`,
+            `If you ever need help, just email us at ${supportEmail}.`,
             "",
-            `Trade / specialism: ${row.trade}`,
-            `Work email: ${row.email}`,
-            "",
-            "If you need to update anything after submitting, reply to this email.",
+            "Thanks again for joining us,",
+            "The Trader Watchdog Team",
         ].join("\n");
         await sendApplicantEmail(prisma, {
             to: row.email,
-            subject: `Application received — ${row.company}`,
+            subject: "Welcome to Trader Watchdog - Let's Get You Verified",
             text,
         });
     })().catch((e) => {
@@ -256,38 +248,41 @@ export function notifyApplicantVerificationOutcome(prisma, row) {
     void (async () => {
         const base = await publicSiteBase(prisma);
         const memberLoginUrl = `${base}/member/login`;
-        const joinUrl = `${base}/join`;
-        const profileUrl = row.profileSlug ? `${base}/m/${row.profileSlug}` : null;
-        const qrMessage = "Your verification page is live, and your Trader Watchdog QR code is ready to use on vehicles, websites, social media, flyers, business cards, quotes, and invoices.";
+        const traderName = row.traderName?.trim() || row.company;
         const subject = row.status === "APPROVED"
-            ? `Verification approved — ${row.company}`
-            : `We could not complete verification — ${row.company}`;
+            ? "You're Verified - Your QR Is Ready"
+            : "We Couldn't Complete Your Verification";
         const text = row.status === "APPROVED"
             ? [
-                `Your verification review for ${row.company} is complete.`,
+                `Hi ${traderName},`,
                 "",
-                profileUrl
-                    ? "Great news — your verification is approved and your Trader Watchdog profile is now live."
-                    : "Great news — your verification is approved. We have completed the document and identity checks for your application.",
+                "Great news - you're now a verified Trader Watchdog member.",
                 "",
-                qrMessage,
+                "Your verification page is live, and your QR code is ready to use on:",
+                "- Vehicles",
+                "- Websites",
+                "- Social media",
+                "- Flyers and business cards",
+                "- Quotes and invoices",
                 "",
-                profileUrl ? `Public profile: ${profileUrl}` : null,
-                profileUrl ? `Member login: ${memberLoginUrl}` : `Check progress: ${joinUrl}`,
+                "This is your moment to stand out as a trusted, legitimate trader.",
                 "",
-                "If you need anything, just reply to this email.",
-            ]
-                .filter(Boolean)
-                .join("\n")
+                `Member login: ${memberLoginUrl}`,
+                "",
+                "If you need anything, we're here.",
+                "The Trader Watchdog Team",
+            ].join("\n")
             : [
-                `We reviewed the verification documents for ${row.company}, but could not complete verification at this time.`,
+                `Hi ${traderName},`,
                 "",
+                "We've reviewed your documents but unfortunately couldn't verify your account because:",
                 row.failureReason
-                    ? `Reason: ${row.failureReason}`
-                    : "Reason: We still need corrected or additional evidence before we can approve the verification.",
+                    ? `- ${row.failureReason}`
+                    : "- We still need corrected or additional evidence before we can approve the verification.",
                 "",
-                "If you can provide updated or correct documents, reply to this email and we will review them again.",
-                `You can also return to ${joinUrl} using the same email address to check the application status.`,
+                "If you can provide updated or correct documents, we're happy to review again.",
+                "If you need help, just reply to this email.",
+                "The Trader Watchdog Team",
             ].join("\n");
         await sendApplicantEmail(prisma, {
             to: row.email,
@@ -296,5 +291,56 @@ export function notifyApplicantVerificationOutcome(prisma, row) {
         });
     })().catch((e) => {
         console.error("[admin-mail] applicant verification send failed", e);
+    });
+}
+export function notifyApplicantApprovedForPayment(prisma, row) {
+    void (async () => {
+        const base = await publicSiteBase(prisma);
+        const joinUrl = `${base}/join`;
+        const traderName = row.traderName?.trim() || row.company;
+        const text = [
+            `Hi ${traderName},`,
+            "",
+            "Good news - your Trader Watchdog application has been approved.",
+            "",
+            "Your registration fee has already been recorded. To complete setup, return to the join page using the same email address and pay the annual membership.",
+            "",
+            `Continue here: ${joinUrl}`,
+            "",
+            "Once payment is complete, your public listing and member login will be created.",
+            "",
+            "If you need help, just reply to this email.",
+            "The Trader Watchdog Team",
+        ].join("\n");
+        await sendApplicantEmail(prisma, {
+            to: row.email,
+            subject: "Your Application Has Been Approved - Annual Membership Ready",
+            text,
+        });
+    })().catch((e) => {
+        console.error("[admin-mail] applicant approval send failed", e);
+    });
+}
+export function notifySubscriptionRenewed(prisma, row) {
+    void (async () => {
+        const traderName = row.traderName?.trim() || "there";
+        const renewedUntil = row.renewedUntil.toLocaleDateString("en-GB");
+        const text = [
+            `Hi ${traderName},`,
+            "",
+            "Your subscription has successfully renewed. Thanks for continuing to be part of Trader Watchdog - we're glad to have you with us.",
+            "",
+            `Your membership is now active until ${renewedUntil}.`,
+            "",
+            "If you need anything, we're here.",
+            "The Trader Watchdog Team",
+        ].join("\n");
+        await sendApplicantEmail(prisma, {
+            to: row.email,
+            subject: "Your Subscription Has Renewed",
+            text,
+        });
+    })().catch((e) => {
+        console.error("[admin-mail] renewal confirmation send failed", e);
     });
 }

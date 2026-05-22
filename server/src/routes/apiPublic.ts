@@ -246,7 +246,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
     const profileLive = Boolean(row.createdMemberId);
     const canCheckoutRegistrationFee =
       billingAvailable &&
-      row.status === "APPROVED" &&
+      row.status !== "DECLINED" &&
       !hasRegistrationFeePayment &&
       !profileLive;
     const canCheckoutMembership =
@@ -495,6 +495,7 @@ router.post(
       notifyApplicantSubmissionReceived(prisma, {
         id: row.id,
         company: row.company,
+        traderName: row.identifiablePerson,
         trade: row.trade,
         email: row.email,
       });

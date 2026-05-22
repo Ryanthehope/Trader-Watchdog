@@ -461,17 +461,25 @@ function ApplicationCard({
 
   const docs = row.documents ?? [];
   const linked = row.createdMember ?? null;
-  const hasPayment =
-    Boolean(row.registrationFeePaidAt) || Boolean(row.membershipSubscribed);
-  const awaitingPaymentAfterApproval =
-    row.status === "APPROVED" && !linked && !hasPayment;
+  const hasRegistrationFeePayment = Boolean(row.registrationFeePaidAt);
+  const hasMembershipPayment = Boolean(row.membershipSubscribed);
+  const awaitingRegistrationPayment =
+    row.status !== "DECLINED" && !linked && !hasRegistrationFeePayment;
+  const awaitingMembershipAfterApproval =
+    row.status === "APPROVED" &&
+    hasRegistrationFeePayment &&
+    !hasMembershipPayment &&
+    !linked;
   const paidAwaitingProfile =
-    row.status === "APPROVED" && hasPayment && !linked;
+    row.status === "APPROVED" &&
+    hasRegistrationFeePayment &&
+    hasMembershipPayment &&
+    !linked;
   const allDone = SECTIONS.every((s) => vetting[s.id]?.done);
   const sectionsDoneCount = SECTIONS.filter((s) => vetting[s.id]?.done).length;
   const verificationStatus = row.verificationStatus ?? "NOT_STARTED";
   const addressVerificationStatus = row.addressVerificationStatus ?? "NOT_STARTED";
-  const canUseSumsub = row.status !== "DECLINED";
+  const canUseSumsub = row.status !== "DECLINED" && hasRegistrationFeePayment;
 
   const save = async (nextStatus?: string) => {
     setSaving(true);
@@ -692,16 +700,21 @@ function ApplicationCard({
           <p className="mt-1 text-xs text-slate-600">
             Applied {new Date(row.createdAt).toLocaleString()}
           </p>
-          {(awaitingPaymentAfterApproval || paidAwaitingProfile || row.verificationProvider === "sumsub") && !expanded ? (
+          {(awaitingRegistrationPayment || awaitingMembershipAfterApproval || paidAwaitingProfile || row.verificationProvider === "sumsub") && !expanded ? (
             <div className="mt-2 flex flex-wrap gap-2">
-              {awaitingPaymentAfterApproval ? (
+              {awaitingRegistrationPayment ? (
                 <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-200">
-                  Awaiting payment
+                  Awaiting registration fee
+                </span>
+              ) : null}
+              {awaitingMembershipAfterApproval ? (
+                <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-200">
+                  Awaiting annual membership
                 </span>
               ) : null}
               {paidAwaitingProfile ? (
                 <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-[11px] font-medium text-brand-200">
-                  Paid — no profile
+                  Fully paid — no profile
                 </span>
               ) : null}
               {row.verificationProvider === "sumsub" ? (
@@ -771,9 +784,14 @@ function ApplicationCard({
               Applied {new Date(row.createdAt).toLocaleString()}
             </p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
-              {awaitingPaymentAfterApproval ? (
+              {awaitingRegistrationPayment ? (
                 <span className="rounded-full bg-amber-500/20 px-2.5 py-1 font-medium text-amber-200">
-                  Awaiting applicant payment
+                  Awaiting registration fee
+                </span>
+              ) : null}
+              {awaitingMembershipAfterApproval ? (
+                <span className="rounded-full bg-amber-500/20 px-2.5 py-1 font-medium text-amber-200">
+                  Awaiting annual membership
                 </span>
               ) : null}
               {paidAwaitingProfile ? (
@@ -826,6 +844,20 @@ function ApplicationCard({
                 </span>
               ) : null}
             </div>
+            {row.registrationFeePaidAt || row.membershipSubscribed ? (
+              <div className="mt-3 space-y-1 text-xs text-slate-500">
+                {row.registrationFeePaidAt ? (
+                  <p>
+                    Registration fee paid {new Date(row.registrationFeePaidAt).toLocaleString()}
+                  </p>
+                ) : null}
+                {row.membershipSubscribed ? (
+                  <p>
+                    Annual membership has been recorded on this application.
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             {row.verificationProvider === "sumsub" ? (
               <div className="mt-3 space-y-1 text-xs text-slate-500">
                 {row.verificationSubmittedAt ? (
@@ -953,6 +985,10 @@ function ApplicationCard({
                   </button>
                 ) : null}
               </>
+            ) : row.status !== "DECLINED" ? (
+              <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-slate-400">
+                Sumsub unlocks after the registration fee is paid
+              </span>
             ) : null}
             {row.status === "APPROVED" && !linked ? (
               <>

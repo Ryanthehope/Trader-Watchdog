@@ -18,31 +18,39 @@ function generateAlertEmail(
     const expiryDateStr = expiryDate.toLocaleDateString("en-GB");
 
     let subject = "Your Insurance Renews Soon";
-    let message = `Your ${insuranceType} is due to expire on ${expiryDateStr}. Please upload your renewed policy before the expiry date so your verified status stays active.`;
+    let intro = `Hi ${memberName},`;
+    let message = `Your insurance is due to expire on ${expiryDateStr}. To stay verified, please upload your renewed policy as soon as possible.`;
+    let outro = "We'll remind you again if we don't receive it.";
 
     if (daysUntilExpiry === 14) {
         subject = "Your Insurance Is About to Expire";
-        message = `Your ${insuranceType} is due to expire on ${expiryDateStr}. To stay verified, please upload your renewed policy as soon as possible.`;
+        message = `Your insurance is due to expire on ${expiryDateStr}. To stay verified, please upload your renewed policy as soon as possible.`;
+        outro = "If you need help, just let us know.";
     } else if (daysUntilExpiry < 0) {
         subject = "Your Verification Has Been Paused";
-        message = `Your ${insuranceType} expired on ${expiryDateStr}, so we have temporarily paused your verification. Upload your renewed policy and we will reactivate your verification once it has been reviewed.`;
+        message = "Your insurance has now expired, so we've temporarily paused your verification.";
+        outro = "Once you upload your renewed policy, we'll reactivate your badge and verification page.\n\nIf you need help, just let us know.";
     }
 
     return {
         subject,
         text: [
-            `Hi ${memberName},`,
+            intro,
             "",
             message,
             "",
             `Insurance type: ${insuranceType}`,
             `Expiry date: ${expiryDateStr}`,
             "",
-            `Log in to your ${brandName} account to manage your insurance details: ${memberLoginUrl}`,
+            daysUntilExpiry < 0
+              ? null
+              : `Log in to your ${brandName} account to manage your insurance details: ${memberLoginUrl}`,
             "",
-            `Thanks,`,
+            outro,
+            "",
+            "Thanks,",
             `The ${brandName} Team`,
-        ].join("\n"),
+        ].filter(Boolean).join("\n"),
     };
 }
 

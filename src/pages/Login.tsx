@@ -131,28 +131,15 @@ export function Login() {
               Trader Watchdog
             </span>
           </Link>
-          <div className="mt-8 flex items-center justify-center gap-2 rounded-full border border-slate-700/50 bg-slate-900/50 p-1">
-            <Link
-              to="/staff/login"
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                role === "staff"
-                  ? "bg-brand-500 text-white"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
+          {role === "staff" ? (
+            <div className="mt-8 inline-flex items-center justify-center rounded-full border border-slate-700/50 bg-slate-900/50 px-4 py-2 text-sm font-semibold text-white">
               Staff log in
-            </Link>
-            <Link
-              to="/member/login"
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                role === "member"
-                  ? "bg-brand-500 text-white"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
+            </div>
+          ) : (
+            <div className="mt-8 inline-flex items-center justify-center rounded-full border border-slate-700/50 bg-slate-900/50 px-4 py-2 text-sm font-semibold text-white">
               Trader log in
-            </Link>
-          </div>
+            </div>
+          )}
           <h1 className="mt-6 text-3xl font-bold text-white">{roleLabel} log in</h1>
           <p className="mt-3 text-sm text-slate-400">
             {role === "staff"

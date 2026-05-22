@@ -73,9 +73,6 @@ export function Layout() {
             </Link>
 
             <div className="hidden items-center gap-3 xl:flex xl:shrink-0">
-              <Link to="/staff/login" className={`${desktopLoginClass} bg-white/5`}>
-                Staff log in
-              </Link>
               <Link to="/member/login" className={`${desktopLoginClass} bg-white/10`}>
                 Trader log in
               </Link>
@@ -170,15 +167,8 @@ export function Layout() {
                 Join Trader Watchdog
               </Link>
               <Link
-                to="/staff/login"
-                className="mt-3 rounded-lg border border-white/10 px-3 py-2.5 text-center hover:bg-white/5 hover:text-white"
-                onClick={() => setMenuOpen(false)}
-              >
-                Staff log in
-              </Link>
-              <Link
                 to="/member/login"
-                className="rounded-lg border border-white/10 px-3 py-2.5 text-center hover:bg-white/5 hover:text-white"
+                className="mt-3 rounded-lg border border-white/10 px-3 py-2.5 text-center hover:bg-white/5 hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 Trader log in
@@ -233,12 +223,6 @@ export function Layout() {
                 className="transition-colors hover:text-white"
               >
                 Contact
-              </Link>
-              <Link
-                to="/staff/login"
-                className="text-slate-600 transition-colors hover:text-slate-400"
-              >
-                Staff log in
               </Link>
               <Link
                 to="/member/login"
