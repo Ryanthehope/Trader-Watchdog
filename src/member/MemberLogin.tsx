@@ -98,8 +98,11 @@ export function MemberLogin() {
           <div className="mb-8">
             <Link to="/" className="inline-flex items-center gap-3 text-white">
               <img
-                src="/traderwatchdog_logo.png"
+                src="/traderwatchdog_logo.webp"
                 alt="Trader Watchdog"
+                width="220"
+                height="72"
+                decoding="async"
                 className="h-11 w-auto rounded-md shadow-sm"
               />
               <span className="font-display text-2xl font-semibold">

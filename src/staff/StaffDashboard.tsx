@@ -8,7 +8,6 @@ type Dashboard = {
   membersPortalEnabled: number;
   guidesTotal: number;
   applicationsPending: number;
-  reviewsPending: number;
   revenueMtdCents: number;
   outstandingCents: number;
   financialSource?: "goCardless" | "fallback";
@@ -163,15 +162,6 @@ export function StaffDashboard() {
             </p>
             <p className="mt-2 text-xs text-slate-500">Pending review</p>
           </Link>
-          <div className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-              Reviews
-            </p>
-            <p className="mt-3 font-display text-3xl font-bold text-slate-900">
-              {data.reviewsPending}
-            </p>
-            <p className="mt-2 text-xs text-slate-500">Awaiting moderation</p>
-          </div>
           <Link
             to="/staff/members"
             className="block rounded-lg border border-slate-300/60 bg-slate-50 p-6 transition hover:border-brand-500/50"

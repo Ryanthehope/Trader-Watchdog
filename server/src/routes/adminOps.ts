@@ -42,7 +42,6 @@ async function ensureOrgSettings() {
 }
 
 const inboxUnreadCount = 0;
-const reviewsPendingCount = 0;
 
 function settledValue<T>(
   result: PromiseSettledResult<T>,
@@ -252,7 +251,6 @@ router.get("/dashboard", async (_req, res) => {
       financialSource,
       financialError,
       inboxUnread: inboxUnreadCount,
-      reviewsPending: reviewsPendingCount,
       activity,
     });
   } catch (e) {

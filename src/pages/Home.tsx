@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSiteData } from "../context/SiteDataContext";
 import { VerifyForm } from "../components/VerifyForm";
 import { getLaunchWindow } from "../lib/launchWindow";
-import ghostTradersImage from "../../ghost traders.jpg";
+import ghostTradersImage from "../../ghost traders.webp";
 
 
 function Stats() {
@@ -751,6 +751,10 @@ export function Home() {
               <img
                 src={ghostTradersImage}
                 alt="Tradespeople illustration used in the Trader Watchdog hero"
+                width="420"
+                height="420"
+                fetchPriority="high"
+                decoding="async"
                 className="w-full object-contain"
               />
             </div>
@@ -807,8 +811,12 @@ export function Home() {
           <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-12">
             <div className="flex items-start gap-5 rounded-3xlborder-b border-brand-900/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
               <img
-                src="/Green%20flag2.png"
+                src="/Green%20flag2.webp"
                 alt="Green flag"
+                width="64"
+                height="64"
+                loading="lazy"
+                decoding="async"
                 className="h-16 w-16 shrink-0 object-contain"
               />
 
@@ -824,8 +832,12 @@ export function Home() {
 
             <div className="flex items-start gap-5 rounded-3xl border-b border-brand-900/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
               <img
-                src="/Red%20flag2.png"
+                src="/Red%20flag2.webp"
                 alt="Red flag"
+                width="64"
+                height="64"
+                loading="lazy"
+                decoding="async"
                 className="h-16 w-16 shrink-0 object-contain"
               />
 

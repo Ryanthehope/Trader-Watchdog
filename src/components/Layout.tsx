@@ -19,8 +19,11 @@ function Logo({
   return (
     <div className={`flex shrink-0 items-center gap-3 ${className}`}>
       <img
-        src="/traderwatchdog_logo.png"
+        src="/traderwatchdog_logo.webp"
         alt={title}
+        width="320"
+        height="104"
+        decoding="async"
         className={`block ${sizeClass} w-auto max-w-none rounded-md shadow-sm`}
       />
     </div>
