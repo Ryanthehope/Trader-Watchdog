@@ -414,6 +414,16 @@ export function Join() {
         /* ignore */
       }
     }
+    if (
+      result.applicationId &&
+      result.via === "api" &&
+      result.billingAvailable
+    ) {
+      void startCheckout("registration", {
+        applicationId: result.applicationId,
+        email: emailNorm,
+      });
+    }
   };
 
   const clearJoinSession = () => {
@@ -431,8 +441,13 @@ export function Join() {
     setApplicantSummaryReady(false);
   };
 
-  const startCheckout = async (kind: "registration" | "member") => {
-    if (!applicationId || !savedEmail) return;
+  const startCheckout = async (
+    kind: "registration" | "member",
+    options?: { applicationId?: string | null; email?: string | null }
+  ) => {
+    const targetApplicationId = options?.applicationId ?? applicationId;
+    const targetEmail = options?.email ?? savedEmail;
+    if (!targetApplicationId || !targetEmail) return;
     setCheckoutLoading(kind);
     setFormError(null);
     try {
@@ -443,7 +458,10 @@ export function Join() {
       const res = await fetch(`${apiBase()}${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ applicationId, email: savedEmail }),
+        body: JSON.stringify({
+          applicationId: targetApplicationId,
+          email: targetEmail,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
