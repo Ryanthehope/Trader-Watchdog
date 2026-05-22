@@ -115,6 +115,21 @@ async function resolveRecipients(prisma: PrismaClient): Promise<string[]> {
   return [];
 }
 
+function resolveRedirectRecipients(): string[] {
+  const envList = process.env.EMAIL_REDIRECT_TO?.trim();
+  if (!envList) return [];
+  return envList
+    .split(/[,;]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function redirectedText(originalTo: string, text: string): string {
+  return [`[Email redirect active] Original recipient: ${originalTo}`, "", text].join(
+    "\n"
+  );
+}
+
 export async function publicSiteBase(prisma: PrismaClient): Promise<string> {
   const org = await prisma.organizationSettings.findUnique({
     where: { id: "default" },
@@ -137,10 +152,11 @@ export async function sendAdminEmail(
   if (!transport) {
     return;
   }
-  const to = await resolveRecipients(prisma);
+  const redirectedTo = resolveRedirectRecipients();
+  const to = redirectedTo.length > 0 ? redirectedTo : await resolveRecipients(prisma);
   if (to.length === 0) {
     console.warn(
-      "[admin-mail] Skipped (no recipients): set ADMIN_NOTIFY_EMAILS env, or Staff → Settings → notification emails / ops email, or CONTACT_EMAIL"
+      "[admin-mail] Skipped (no recipients): set EMAIL_REDIRECT_TO for test routing, ADMIN_NOTIFY_EMAILS env, Staff -> Settings notification emails / ops email, or CONTACT_EMAIL"
     );
     return;
   }
@@ -153,7 +169,10 @@ export async function sendAdminEmail(
     from,
     to: to.join(", "),
     subject,
-    text: opts.text,
+    text:
+      redirectedTo.length > 0
+        ? redirectedText("admin notification list", opts.text)
+        : opts.text,
   });
 }
 
@@ -165,10 +184,12 @@ export async function sendApplicantEmail(
   if (!transport) {
     return;
   }
-  const to = opts.to.trim().toLowerCase();
-  if (!to) {
+  const originalTo = opts.to.trim().toLowerCase();
+  if (!originalTo) {
     return;
   }
+  const redirectedTo = resolveRedirectRecipients();
+  const to = redirectedTo.length > 0 ? redirectedTo.join(", ") : originalTo;
   const brand = await getBrandName(prisma);
   const from = await mailFrom(prisma);
   const subject = opts.subject.startsWith("[")
@@ -178,7 +199,10 @@ export async function sendApplicantEmail(
     from,
     to,
     subject,
-    text: opts.text,
+    text:
+      redirectedTo.length > 0
+        ? redirectedText(originalTo, opts.text)
+        : opts.text,
   });
 }
 

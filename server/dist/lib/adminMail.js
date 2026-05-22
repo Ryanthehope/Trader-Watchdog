@@ -105,6 +105,18 @@ async function resolveRecipients(prisma) {
         return [contact];
     return [];
 }
+function resolveRedirectRecipients() {
+    const envList = process.env.EMAIL_REDIRECT_TO?.trim();
+    if (!envList)
+        return [];
+    return envList
+        .split(/[,;]+/)
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+}
+function redirectedText(originalTo, text) {
+    return [`[Email redirect active] Original recipient: ${originalTo}`, "", text].join("\n");
+}
 export async function publicSiteBase(prisma) {
     const org = await prisma.organizationSettings.findUnique({
         where: { id: "default" },
@@ -123,9 +135,10 @@ export async function sendAdminEmail(prisma, opts) {
     if (!transport) {
         return;
     }
-    const to = await resolveRecipients(prisma);
+    const redirectedTo = resolveRedirectRecipients();
+    const to = redirectedTo.length > 0 ? redirectedTo : await resolveRecipients(prisma);
     if (to.length === 0) {
-        console.warn("[admin-mail] Skipped (no recipients): set ADMIN_NOTIFY_EMAILS env, or Staff → Settings → notification emails / ops email, or CONTACT_EMAIL");
+        console.warn("[admin-mail] Skipped (no recipients): set EMAIL_REDIRECT_TO for test routing, ADMIN_NOTIFY_EMAILS env, Staff -> Settings notification emails / ops email, or CONTACT_EMAIL");
         return;
     }
     const brand = await getBrandName(prisma);
@@ -137,7 +150,9 @@ export async function sendAdminEmail(prisma, opts) {
         from,
         to: to.join(", "),
         subject,
-        text: opts.text,
+        text: redirectedTo.length > 0
+            ? redirectedText("admin notification list", opts.text)
+            : opts.text,
     });
 }
 export async function sendApplicantEmail(prisma, opts) {
@@ -145,10 +160,12 @@ export async function sendApplicantEmail(prisma, opts) {
     if (!transport) {
         return;
     }
-    const to = opts.to.trim().toLowerCase();
-    if (!to) {
+    const originalTo = opts.to.trim().toLowerCase();
+    if (!originalTo) {
         return;
     }
+    const redirectedTo = resolveRedirectRecipients();
+    const to = redirectedTo.length > 0 ? redirectedTo.join(", ") : originalTo;
     const brand = await getBrandName(prisma);
     const from = await mailFrom(prisma);
     const subject = opts.subject.startsWith("[")
@@ -158,7 +175,9 @@ export async function sendApplicantEmail(prisma, opts) {
         from,
         to,
         subject,
-        text: opts.text,
+        text: redirectedTo.length > 0
+            ? redirectedText(originalTo, opts.text)
+            : opts.text,
     });
 }
 export function notifyAdminsFireAndForget(prisma, subject, text) {

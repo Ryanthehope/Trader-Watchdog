@@ -26,6 +26,7 @@ Important variables used by the current app:
 
 - Frontend: `VITE_API_URL`
 - Backend: `DATABASE_URL`, `JWT_SECRET`, `GoCardless_SECRET_KEY`, `GoCardless_WEBHOOK_SECRET`
+- Test mail routing: `EMAIL_REDIRECT_TO` redirects all outbound app emails to one inbox while testing
 - Staff bootstrap: `STAFF_SEED_EMAIL`, `STAFF_SEED_PASSWORD`, `STAFF_SEED_NAME`
 - Scheduled tasks: `CRON_SECRET`
 
@@ -68,6 +69,16 @@ This was added so the live admin portal can recover from an empty `staff` table 
 3. Setup webhook endpoint: `https://your-backend-domain/api/goCardless/webhook`
 4. The checkout order is approval -> registration fee -> annual membership -> member provisioning
 5. Use one-off checkout for the initial joining fee and annual member renewals
+
+### 7. Test Email Routing
+
+If SMTP is configured but you want all app emails to land in one inbox during testing, set:
+
+```bash
+EMAIL_REDIRECT_TO="your@email.com"
+```
+
+This redirects both admin notifications and applicant/member emails to that address and adds the original recipient to the message body.
 
 ## Project Structure
 
