@@ -414,11 +414,7 @@ export function Join() {
         /* ignore */
       }
     }
-    if (
-      result.applicationId &&
-      result.via === "api" &&
-      result.billingAvailable
-    ) {
+    if (result.applicationId && result.via === "api") {
       void startCheckout("registration", {
         applicationId: result.applicationId,
         email: emailNorm,
