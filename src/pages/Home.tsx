@@ -173,48 +173,6 @@ function FeatureHighlights() {
 }
 
 function CompetitorComparison() {
-  const rows: {
-    feature: string;
-    detail?: string;
-    tv: CompareCell;
-    other: CompareCell;
-    other2: CompareCell;
-  }[] = [
-    {
-      feature: "Free public business search",
-      tv: "yes",
-      other: "yes",
-      other2: "yes",
-    },
-    {
-      feature: "Public profile based on verified checks",
-      detail: "Shows identity, insurance, licenses, accreditations all on one page.",
-      tv: "yes",
-      other: "partial",
-      other2: "partial",
-    },
-    {
-      feature: "Searches are confidential",
-      detail: ".  Registering is not required, searching remains anonymous",
-      tv: "yes",
-      other: "no",
-      other2: "no",
-    },
-    {
-      feature: "Verification-first",
-      detail: "Public profile is built around verification – not advertisements.",
-      tv: "yes",
-      other: "partial",
-      other2: "partial",
-    },
-    {
-      feature: "In-app messaging between homeowner & trade",
-      tv: "no",
-      other: "partial",
-      other2: "yes",
-    },
-  ];
-
   return (
     <section
       id="compare"
@@ -227,129 +185,11 @@ function CompetitorComparison() {
         <h2 className="mt-2 text-center font-display text-2xl font-semibold text-slate-900 sm:text-3xl">
           How we&apos;re different from lead directories
         </h2>
-        <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-slate-700">
-          Trader Watchdog is a verification service with public profiles, not a lead marketplace. While lead platforms focus on selling job connections, we focus on verifying truth before you connect. 
-          Competitor columns are for general comparison only — features may vary by plan and change over time.
+        <p className="mx-auto mt-3 max-w-3xl text-center text-sm text-slate-700">
+          Lead directories are platforms for selling work from traders to the
+          public. Trader Watchdog is a platform that protects the public from
+          rogue traders.
         </p>
-
-        <div className="mt-10 space-y-4 md:hidden">
-  {rows.map((row) => (
-    <div
-      key={row.feature}
-      className="rounded-2xl border border-slate-300/70 bg-slate-50 p-4"
-    >
-      <h3 className="font-semibold text-slate-900">{row.feature}</h3>
-
-      {row.detail ? (
-        <p className="mt-1 text-xs text-slate-600">{row.detail}</p>
-      ) : null}
-
-      <div className="mt-4 space-y-3 text-sm">
-        <div className="flex items-center justify-between gap-4 rounded-xl bg-white p-3">
-          <span className="font-medium text-brand-700">Trader Watchdog</span>
-          <CompareCell value={row.tv} />
-        </div>
-
-        <div className="flex items-center justify-between gap-4 rounded-xl bg-white p-3">
-          <span className="font-medium text-slate-700">
-            Typical directory
-            <span className="block text-[10px] font-normal text-slate-500">
-              e.g. Checkatrade
-            </span>
-          </span>
-          <CompareCell value={row.other} />
-        </div>
-
-        <div className="flex items-center justify-between gap-4 rounded-xl bg-white p-3">
-          <span className="font-medium text-slate-700">
-            Typical directory
-            <span className="block text-[10px] font-normal text-slate-500">
-              e.g. MyBuilder
-            </span>
-          </span>
-          <CompareCell value={row.other2} />
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-
-{/* Desktop table */}
-<div className="mt-10 hidden overflow-x-auto rounded-2xl border border-slate-300/60 bg-slate-50 md:block">
-  <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-    <thead>
-      <tr className="border-b border-slate-300/60 bg-white">
-        <th
-          scope="col"
-          className="px-4 py-4 font-medium text-slate-700 sm:px-6"
-        >
-          Feature
-        </th>
-
-        <th
-          scope="col"
-          className="px-4 py-4 text-center font-display font-semibold text-brand-600 sm:px-6"
-        >
-          Trader Watchdog
-        </th>
-
-        <th
-          scope="col"
-          className="px-4 py-4 text-center font-medium text-slate-700 sm:px-6"
-        >
-          Typical directory
-          <span className="mt-1 block text-[10px] font-normal normal-case text-slate-600">
-            e.g. Checkatrade
-          </span>
-        </th>
-
-        <th
-          scope="col"
-          className="px-4 py-4 text-center font-medium text-slate-700 sm:px-6"
-        >
-          Typical directory
-          <span className="mt-1 block text-[10px] font-normal normal-case text-slate-600">
-            e.g. MyBuilder
-          </span>
-        </th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {rows.map((row, i) => (
-        <tr
-          key={row.feature}
-          className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}
-        >
-          <th
-            scope="row"
-            className="max-w-[220px] px-4 py-4 align-top font-medium text-slate-900 sm:px-6"
-          >
-            {row.feature}
-
-            {row.detail ? (
-              <span className="mt-1 block text-xs font-normal text-slate-600">
-                {row.detail}
-              </span>
-            ) : null}
-          </th>
-
-          <td className="px-4 py-4 text-center sm:px-6">
-            <CompareCell value={row.tv} />
-          </td>
-
-          <td className="px-4 py-4 text-center sm:px-6">
-            <CompareCell value={row.other} />
-          </td>
-
-          <td className="px-4 py-4 text-center sm:px-6">
-            <CompareCell value={row.other2} />
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
       </div>
     </section>
   );
@@ -508,6 +348,10 @@ type FaqItem = {
 };
 
 const traderFaqItems: FaqItem[] = [
+  {
+    q: "Can any trade be registered?",
+    a: " Yes, any trade that supplies services to households at the domestic property, from dog walkers to builders, from  tilers to  window cleaners, and hundreds more!",
+  },
   {
     q: "What does verification involve?",
     a: "We verify your identity, business details, public liability insurance, and any relevant licences or memberships. Once approved, you receive a QR code and public verification page.",
