@@ -13,6 +13,63 @@ const router = Router();
 /** Hosted payment links are only valid for a limited period after the relevant trigger. */
 const PAYMENT_WINDOW_MS = 1000 * 60 * 60 * 24 * 30;
 
+function goCardlessErrorDetails(error: unknown): {
+  statusCode: number;
+  message: string;
+} {
+  const fallback = {
+    statusCode: 500,
+    message: "Could not start checkout",
+  };
+
+  if (!(error instanceof Error)) {
+    return fallback;
+  }
+
+  const timedOut = /timed out/i.test(error.message);
+  if (timedOut) {
+    return {
+      statusCode: 504,
+      message:
+        "GoCardless did not respond in time. Please try again, and if it keeps happening check the GoCardless access token, environment, and network access from the backend.",
+    };
+  }
+
+  const maybeApiError = error as Error & {
+    errors?: Array<{ message?: string; reason?: string; field?: string }>;
+    statusCode?: number;
+    errorType?: string;
+    code?: string;
+    requestId?: string;
+  };
+
+  if (Array.isArray(maybeApiError.errors) && maybeApiError.errors.length > 0) {
+    const detail = maybeApiError.errors
+      .map((entry) => entry.message || entry.reason || entry.field)
+      .filter(Boolean)
+      .join("; ");
+    return {
+      statusCode:
+        typeof maybeApiError.statusCode === "number"
+          ? maybeApiError.statusCode
+          : 502,
+      message: detail || error.message || fallback.message,
+    };
+  }
+
+  if (error.message.trim()) {
+    return {
+      statusCode:
+        typeof maybeApiError.statusCode === "number"
+          ? maybeApiError.statusCode
+          : 500,
+      message: error.message,
+    };
+  }
+
+  return fallback;
+}
+
 async function assertRegistrationCheckoutAllowed(
   applicationId: string,
   email: string
@@ -129,16 +186,13 @@ router.post("/checkout-registration-fee", async (req, res) => {
     });
     res.json({ url: flow.url });
   } catch (e) {
-    console.error(e);
-    const message = e instanceof Error ? e.message : String(e);
-    if (/timed out/i.test(message)) {
-      res.status(504).json({
-        error:
-          "GoCardless did not respond in time. Please try again, and if it keeps happening check the GoCardless access token, environment, and network access from the backend.",
-      });
-      return;
-    }
-    res.status(500).json({ error: "Could not start checkout" });
+    const detail = goCardlessErrorDetails(e);
+    console.error("[billing] registration checkout failed", {
+      error: e,
+      statusCode: detail.statusCode,
+      message: detail.message,
+    });
+    res.status(detail.statusCode).json({ error: detail.message });
   }
 });
 
@@ -196,16 +250,13 @@ router.post("/checkout-membership", async (req, res) => {
     });
     res.json({ url: flow.url });
   } catch (e) {
-    console.error(e);
-    const message = e instanceof Error ? e.message : String(e);
-    if (/timed out/i.test(message)) {
-      res.status(504).json({
-        error:
-          "GoCardless did not respond in time. Please try again, and if it keeps happening check the GoCardless access token, environment, and network access from the backend.",
-      });
-      return;
-    }
-    res.status(500).json({ error: "Could not start checkout" });
+    const detail = goCardlessErrorDetails(e);
+    console.error("[billing] membership checkout failed", {
+      error: e,
+      statusCode: detail.statusCode,
+      message: detail.message,
+    });
+    res.status(detail.statusCode).json({ error: detail.message });
   }
 });
 
