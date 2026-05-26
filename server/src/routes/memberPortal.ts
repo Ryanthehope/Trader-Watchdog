@@ -13,6 +13,7 @@ import {
   getGoCardlessApiClient,
 } from "../lib/billingSettings.js";
 import { createGoCardlessHostedPaymentFlow } from "../lib/goCardlessHostedPaymentFlow.js";
+import { goCardlessErrorDetails } from "../lib/goCardlessErrors.js";
 import { documentIssuerFromMember } from "../lib/documentIssuer.js";
 import {
   isMemberPublicListingVisible,
@@ -220,8 +221,9 @@ router.post("/membership/renew", async (req, res) => {
     });
     res.json({ url: flow.url });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not start renewal checkout" });
+    console.error("[billing] membership renewal failed", { error: e });
+    const { statusCode, message } = goCardlessErrorDetails(e);
+    res.status(statusCode).json({ error: message });
   }
 });
 

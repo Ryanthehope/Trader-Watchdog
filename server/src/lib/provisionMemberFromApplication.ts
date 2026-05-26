@@ -99,7 +99,16 @@ export async function tryProvisionMemberForApplication(
       return { kind: "email_in_use", email };
     }
     const slug = await uniqueSlug(tx, app.company);
-    const tvId = await uniqueTvId(tx);
+    // Use the trader's mobile number as their Trader Watchdog ID.
+    // Fall back to a generated TW-XXXX code only if the phone is blank or already taken.
+    const rawPhone = (app.phone ?? "").trim().replace(/\s+/g, "");
+    let tvId: string;
+    if (rawPhone) {
+      const clash = await tx.member.findUnique({ where: { tvId: rawPhone } });
+      tvId = clash ? await uniqueTvId(tx) : rawPhone;
+    } else {
+      tvId = await uniqueTvId(tx);
+    }
     const temporaryPassword = generateTempPassword();
     const now = new Date();
     const monthYear = now.toLocaleString("en-GB", {

@@ -25,6 +25,36 @@ import { ensureSeedStaffFromEnv } from "./lib/ensureSeedStaff.js";
 import { goCardlessWebhookHandler } from "./routes/goCardlessWebhook.js";
 import { sumsubWebhookHandler } from "./routes/sumsubWebhook.js";
 import { prisma } from "./db.js";
+import { checkInsuranceExpiries } from "./lib/insuranceAlerts.js";
+
+/** Schedule the insurance-expiry check to run daily at 09:00 UTC. */
+function scheduleDailyInsuranceCheck(): void {
+  function msUntilHourUtc(hourUtc: number): number {
+    const now = new Date();
+    const next = new Date(now);
+    next.setUTCHours(hourUtc, 0, 0, 0);
+    if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+    return next.getTime() - now.getTime();
+  }
+
+  function runAndReschedule(): void {
+    console.log("[cron] Running daily insurance expiry check");
+    checkInsuranceExpiries()
+      .then((r) =>
+        console.log(
+          `[cron] Done — ${r.checked} checked, ${r.alertsSent} alerts sent, ${r.statusesUpdated} statuses updated`
+        )
+      )
+      .catch((e) => console.error("[cron] Insurance check failed", e));
+    setTimeout(runAndReschedule, msUntilHourUtc(9));
+  }
+
+  const delay = msUntilHourUtc(9);
+  setTimeout(runAndReschedule, delay);
+  console.log(
+    `[cron] Insurance check scheduled — first run in ${Math.round(delay / 60_000)} min (09:00 UTC)`
+  );
+}
 
 
 const rootDir = path.join(bootDir, "..", "..");
@@ -141,6 +171,8 @@ async function startServer() {
   } else {
     http.createServer(app).listen(port, onListen);
   }
+
+  scheduleDailyInsuranceCheck();
 }
 
 void startServer();

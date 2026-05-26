@@ -110,7 +110,6 @@ const ADMIN_APPLICATION_FULL_SELECT = {
       tvId: true,
       membershipBillingType: true,
       membershipExpiresAt: true,
-      goCardlessSubscriptionStatus: true,
     },
   },
 } satisfies Prisma.ApplicationSelect;
@@ -712,7 +711,6 @@ function serializeAdminApplication(a: {
     tvId: string;
     membershipBillingType?: string | null;
     membershipExpiresAt?: Date | null;
-    goCardlessSubscriptionStatus?: string | null;
   } | null;
 }) {
   const {
@@ -782,8 +780,6 @@ function serializeAdminApplication(a: {
           membershipBillingType: createdMember.membershipBillingType ?? null,
           membershipExpiresAt:
             createdMember.membershipExpiresAt?.toISOString() ?? null,
-          goCardlessSubscriptionStatus:
-            createdMember.goCardlessSubscriptionStatus ?? null,
         }
       : null,
     documents: documents.map((d) => ({

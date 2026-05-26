@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSiteData } from "../context/SiteDataContext";
 import { publicApiUrl } from "../lib/api";
 import type {
@@ -306,7 +306,7 @@ export function MemberProfile() {
                   ) : null}
                   <div className="min-w-0">
                 <p className="inline-flex rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-bold tracking-wide text-white">
-                  {member.tvId}
+                  Tel: {member.tvId}
                 </p>
                 <h1 className="mt-4 font-display text-3xl font-bold text-white sm:text-4xl">
                   {member.name}
@@ -397,7 +397,7 @@ export function MemberProfile() {
                 This public page is limited to the Trader Watchdog checks carried out on the business and the core information needed to identify it.
               </p>
               <div className="rounded-xl border border-white/10 bg-ink-950/50 p-4 text-sm text-slate-300">
-                Use the Trader Watchdog ID <span className="font-semibold text-white">{member.tvId}</span> and the business details shown on this page when comparing paperwork, quotes, or vans.
+                Use the mobile number <span className="font-semibold text-white">{member.tvId}</span> and the business details shown on this page when comparing paperwork, quotes, or vans.
               </div>
             </div>
             </div>
@@ -406,14 +406,14 @@ export function MemberProfile() {
 
         <div className="mt-8 rounded-2xl border border-dashed border-white/15 bg-ink-900/20 p-6 text-center">
           <p className="text-sm text-slate-400">
-            Hiring this trade? Confirm their Trader Watchdog ID on this site before
+            Hiring this trade? Confirm their mobile number on this site before
             you pay a deposit.
           </p>
           <Link
             to="/#verify"
             className="mt-4 inline-flex text-sm font-semibold text-brand-300 hover:text-brand-200"
           >
-            Verify another ID →
+            Verify another trader →
           </Link>
         </div>
       </div>

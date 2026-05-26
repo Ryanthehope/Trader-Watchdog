@@ -1,7 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
-// import { GuideArticle } from "./pages/GuideArticle";
-// import { GuidesIndex } from "./pages/GuidesIndex";
 import { Contact } from "./pages/Contact";
 import { Home } from "./pages/Home";
 import { Join } from "./pages/Join";

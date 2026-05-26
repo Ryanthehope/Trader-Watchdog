@@ -212,4 +212,5 @@ export async function checkInsuranceExpiries(): Promise<{
     }
 }
 
-export { AlertsSent, generateAlertEmail };
+export type { AlertsSent };
+export { generateAlertEmail };
