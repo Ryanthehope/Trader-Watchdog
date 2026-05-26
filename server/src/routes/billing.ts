@@ -36,33 +36,46 @@ function goCardlessErrorDetails(error: unknown): {
   }
 
   const maybeApiError = error as Error & {
-    errors?: Array<{ message?: string; reason?: string; field?: string }>;
+    errors?: Array<{ message?: string; reason?: string; field?: string; request_pointer?: string }>;
     statusCode?: number;
     errorType?: string;
-    code?: string;
+    /** GoCardless ApiError uses `code` (string) for the HTTP status, e.g. "401" */
+    code?: number | string;
     requestId?: string;
   };
 
+  // Map GoCardless `code` field (HTTP status as string/number) to a numeric status
+  const gcHttpStatus =
+    typeof maybeApiError.statusCode === "number"
+      ? maybeApiError.statusCode
+      : typeof maybeApiError.code === "number"
+        ? maybeApiError.code
+        : typeof maybeApiError.code === "string" && /^\d+$/.test(maybeApiError.code)
+          ? Number(maybeApiError.code)
+          : null;
+
   if (Array.isArray(maybeApiError.errors) && maybeApiError.errors.length > 0) {
     const detail = maybeApiError.errors
-      .map((entry) => entry.message || entry.reason || entry.field)
-      .filter(Boolean)
+      .map((entry) =>
+        [entry.reason, entry.message, entry.field, entry.request_pointer]
+          .filter(Boolean)
+          .join(" – ")
+      )
       .join("; ");
+    const gcMeta = [maybeApiError.errorType, gcHttpStatus ? `HTTP ${gcHttpStatus}` : null]
+      .filter(Boolean)
+      .join(" ");
     return {
-      statusCode:
-        typeof maybeApiError.statusCode === "number"
-          ? maybeApiError.statusCode
-          : 502,
-      message: detail || error.message || fallback.message,
+      statusCode: gcHttpStatus ?? 502,
+      message: [detail || error.message || fallback.message, gcMeta || null]
+        .filter(Boolean)
+        .join(" | "),
     };
   }
 
   if (error.message.trim()) {
     return {
-      statusCode:
-        typeof maybeApiError.statusCode === "number"
-          ? maybeApiError.statusCode
-          : 500,
+      statusCode: gcHttpStatus ?? 500,
       message: error.message,
     };
   }
