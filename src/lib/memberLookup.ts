@@ -16,8 +16,10 @@ export function findMemberInDirectory(
   return members.find((m) => {
     if (m.slug.toLowerCase() === qLower) return true;
     if (m.name.toLowerCase().includes(qLower)) return true;
-    const memberPhoneDigits = phoneDigits(m.phone);
-    if (qDigits.length >= 6 && memberPhoneDigits.includes(qDigits)) return true;
+    if (qDigits.length >= 6) {
+      if (phoneDigits(m.tvId).includes(qDigits)) return true;
+      if (m.phone && phoneDigits(m.phone).includes(qDigits)) return true;
+    }
     return false;
   });
 }

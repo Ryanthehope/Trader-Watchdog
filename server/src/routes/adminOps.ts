@@ -1,4 +1,4 @@
-// @ts-nocheck
+import fs from "fs";
 import type { Request, Response } from "express";
 import { Router } from "express";
 import type { ApplicationStatus, Prisma } from "@prisma/client";
@@ -955,6 +955,7 @@ async function ensureSumsubApplicantForApplication(id: string) {
       company: true,
       identifiablePerson: true,
       identifiablePersonAddress: true,
+      registrationFeePaidAt: true,
       verificationProvider: true,
       verificationProviderApplicantId: true,
       verificationProviderSessionId: true,
@@ -1156,7 +1157,7 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
     });
 
     res.json({
-      reviewStatus: review.reviewStatus,
+      reviewStatus: verificationData.verificationStatus ?? null,
       application: full ? serializeAdminApplication(full) : undefined,
     });
   } catch (e) {

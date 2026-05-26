@@ -55,9 +55,9 @@ export function LookupMiss() {
               {i > 0 ? " · " : null}
               <Link
                 to={`/m/${m.slug}`}
-                className="font-mono text-slate-400 underline-offset-2 hover:text-brand-300 hover:underline"
+                className="text-slate-400 underline-offset-2 hover:text-brand-300 hover:underline"
               >
-                {m.tvId}
+                {m.name}
               </Link>
             </span>
           ))}
