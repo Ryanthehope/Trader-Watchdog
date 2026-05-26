@@ -51,6 +51,9 @@ export async function createGoCardlessHostedPaymentFlow(
         description: options.description,
         metadata: options.metadata,
       },
+      mandate_request: {
+        scheme: "bacs",
+      },
     }),
     CHECKOUT_FLOW_TIMEOUT_MS,
     "GoCardless billing request"
