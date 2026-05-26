@@ -25,13 +25,15 @@ type HostedPaymentFlowOptions = {
 };
 
 function prefilledCustomer(options: HostedPaymentFlowOptions) {
-  return {
-    email: options.email,
-    company_name: options.companyName?.trim() || null,
-    address_line1: options.addressLine1?.trim() || null,
-    postal_code: options.postalCode?.trim() || null,
-    country_code: "GB",
-  };
+  const customer: Record<string, string> = { country_code: "GB" };
+  if (options.email) customer.email = options.email;
+  const name = options.companyName?.trim();
+  if (name) customer.company_name = name;
+  const addr = options.addressLine1?.trim();
+  if (addr) customer.address_line1 = addr;
+  const pc = options.postalCode?.trim();
+  if (pc) customer.postal_code = pc;
+  return customer;
 }
 
 export async function createGoCardlessHostedPaymentFlow(
@@ -60,7 +62,6 @@ export async function createGoCardlessHostedPaymentFlow(
       redirect_uri: options.successRedirectUrl,
       exit_uri: options.exitUrl,
       links: { billing_request: billingRequest.id },
-      lock_customer_details: !options.existingCustomerId,
       prefilled_customer: options.existingCustomerId
         ? undefined
         : prefilledCustomer(options),
