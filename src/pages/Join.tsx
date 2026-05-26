@@ -25,43 +25,15 @@ type ApplicantSummary = {
   oneTimePassword: string | null;
 };
 
-const traderBenefits = [
-  "Protect your reputation and show customers your business is insured, compliant, and real.",
-  "One fee regardless of employee count, with no area caps and fair visibility for all traders.",
-  "Help reduce rogue trading in your community while giving householders one place to check your business.",
-  "Receive renewal reminders for insurance, licences, memberships, and your Trader Watchdog annual renewal.",
-];
-
-const validationSteps = [
-  {
-    title: "Register the business details you actually advertise",
-    body: "Apply using your trading name, main trading postcode, work email, and the telephone number customers will search for.",
-  },
-  {
-    title: "Upload supporting evidence",
-    body: "Insurance evidence is required before approval. Qualifications, memberships, and relevant scheme registrations help support your application.",
-  },
-  {
-    title: "Complete verification checks",
-    body: "Identity, address, and liveness checks are handled during verification. We also review insurance and, where relevant, ICO, waste carrier, Gas Safe, and Competent Person evidence.",
-  },
-  {
-    title: "Pay the registration fee to start formal checks",
-    body: "The registration fee is taken as soon as you apply. Trader Watchdog then completes identity, address, insurance, and supporting checks before annual membership is requested.",
-  },
-];
-
-const customerOutcomes = [
-  {
-    title: "Verified listing",
-    tone: "emerald",
-    body: "Customers can find your business by name or telephone number, view your live Trader Watchdog profile, and review the checks shown there before agreeing work.",
-  },
-  {
-    title: "No verified listing",
-    tone: "red",
-    body: "If a trader is not verified, customers are told to proceed cautiously and ask to see the evidence directly before agreeing work or paying money.",
-  },
+const applicationRequirements = [
+  "Proof of identity, address, and liveness for the verification checks handled through Sumsub.",
+  "Your insurance documents showing cover, insurer, and start or renewal date.",
+  "Your Waste Carrier Licence number, if applicable.",
+  "Your ICO registration number.",
+  "Your Gas Safe registration number, if applicable.",
+  "Certificates and memberships to enhance your portfolio, optional upload.",
+  "Up to 100 words describing your business, optional.",
+  "Upload PDFs or images, up to 8 files, 10 MB each.",
 ];
 
 export function Join() {
@@ -628,10 +600,10 @@ export function Join() {
         },
       ]
     : [];
-  const introBody = "Trader Watchdog gives householders confidence that they are dealing with an honest, legitimate trader. We do not sell leads, do not limit the number of traders in an area, and the registration fee is taken up front so formal checks can begin straight after application.";
-  const introSupport = publicSearchEnabled
-    ? "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and public search by business name or telephone number once your profile is approved."
-    : "One fee regardless of employee count, fair visibility for all, annual renewal reminders for insurance, licences, and membership, and a searchable public profile using your business name and advertised telephone number once public search is enabled.";
+  const introBody =
+    "Complete the form below and upload the supporting evidence needed for review. Identity, address, and liveness checks are handled during verification.";
+  const introSupport =
+    "We will contact you within 3 working days when our processes are complete or if further information is required.";
   const pricingHeading = "Annual membership";
 
   return (
@@ -642,7 +614,7 @@ export function Join() {
             For tradespeople
           </p>
           <h1 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">
-            Apply to become a verified Trader Watchdog business
+            Trader Watchdog Verified Trader Application
           </h1>
           <p className="mt-4 text-slate-400">
             {introBody}
@@ -651,126 +623,87 @@ export function Join() {
             {introSupport}
           </p>
           {membershipPriceLabel ? (
-            <div className="mt-6 rounded-xl border border-brand-400/20 bg-brand-500/10 px-4 py-4 text-left">
-              <p className="text-sm font-semibold text-white">{pricingHeading}</p>
-              <p className="mt-2 text-sm text-slate-300">
-                Annual membership: <span className="font-semibold text-white">{membershipPriceLabel}</span> after approval.
-              </p>
-              <p className="mt-2 text-sm text-slate-300">
-                Registration fee: <span className="font-semibold text-white">{registrationFeePriceLabel}</span> on application.
-              </p>
-              <p className="mt-2 text-xs text-slate-400">
-                Renewals are handled annually rather than on a monthly subscription. VAT is added to the checkout total.
-              </p>
+            <div className="mt-6 grid gap-3 rounded-2xl border border-brand-400/20 bg-brand-500/10 p-4 text-left sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-ink-950/30 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-200">
+                  Registration fee
+                </p>
+                <p className="mt-2 text-sm font-semibold text-white">
+                  {registrationFeePriceLabel}
+                </p>
+                <p className="mt-2 text-xs text-slate-400">
+                  Charged from this page once your application record is created.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-ink-950/30 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-200">
+                  {pricingHeading}
+                </p>
+                <p className="mt-2 text-sm font-semibold text-white">
+                  {membershipPriceLabel}
+                </p>
+                <p className="mt-2 text-xs text-slate-400">
+                  Requested after approval. VAT is included in the displayed total.
+                </p>
+              </div>
             </div>
           ) : null}
         </div>
       </div>
 
-      <section className="border-b border-white/5 bg-ink-950/40 py-12 sm:py-16">
+      <section className="border-b border-white/5 bg-ink-950/30 py-10 sm:py-14">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
           <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6 sm:p-8">
             <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-              Why register with Trader Watchdog?
+              To complete your application, you will require
             </p>
-            <h2 className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
-              An affordable public platform for legitimate traders
-            </h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {traderBenefits.map((benefit) => (
-                <div
-                  key={benefit}
-                  className="rounded-xl border border-white/8 bg-white/[0.03] p-4 text-sm leading-relaxed text-slate-300"
-                >
-                  {benefit}
-                </div>
+            <ul className="mt-5 space-y-3 text-sm leading-relaxed text-slate-300">
+              {applicationRequirements.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-400" />
+                  <span>{item}</span>
+                </li>
               ))}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-brand-400/20 bg-brand-500/10 p-6 sm:p-8">
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-200">
-              What this means for your business
-            </p>
-            <ul className="mt-5 space-y-4 text-sm text-slate-200">
-              <li>Show customers you are insured, licensed, and compliant before they pick up the phone.</li>
-              <li>Build trust without paying for leads or competing for paid placement in your area.</li>
-              <li>Stay visible with a searchable public profile once your application is approved.</li>
-              <li>Get 30 and 14 day reminders before key renewal dates.</li>
             </ul>
           </div>
-        </div>
-      </section>
 
-      <section className="border-b border-white/5 bg-ink-950/20 py-12 sm:py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-              How validation works
-            </p>
-            <h2 className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
-              A clearer version of the process traders actually go through
-            </h2>
-          </div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-4">
-            {validationSteps.map((step, index) => (
-              <div
-                key={step.title}
-                className="rounded-2xl border border-white/10 bg-ink-900/60 p-6"
-              >
-                <p className="text-xs font-semibold uppercase tracking-wider text-brand-300">
-                  Step {index + 1}
-                </p>
-                <h3 className="mt-3 text-base font-semibold text-white">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-400">
-                  {step.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-white/5 bg-ink-950/40 py-12 sm:py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
-              What customers will see
-            </p>
-            <h2 className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
-              Your public result needs to be clear at a glance
-            </h2>
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {customerOutcomes.map((outcome) => (
-              <div
-                key={outcome.title}
-                className={
-                  outcome.tone === "emerald"
-                    ? "rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6"
-                    : "rounded-2xl border border-red-500/30 bg-red-500/10 p-6"
-                }
-              >
-                <p
-                  className={
-                    outcome.tone === "emerald"
-                      ? "text-sm font-semibold uppercase tracking-wider text-emerald-200"
-                      : "text-sm font-semibold uppercase tracking-wider text-red-200"
-                  }
-                >
-                  {outcome.title}
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-slate-200">
-                  {outcome.body}
-                </p>
-              </div>
-            ))}
-            <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6 md:col-span-2">
-              <p className="text-sm leading-relaxed text-slate-400">
-                If customers contact you after checking your profile, we ask them to mention Trader Watchdog. The public-facing experience is designed to show proof first, not sell leads.
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6">
+              <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+                Before you continue
               </p>
+              <p className="mt-4 text-sm leading-relaxed text-slate-300">
+                Waste Carrier Licence: if you transport any waste you can be
+                fined up to 5,000 pounds for non-compliance. A Tier 1 licence is
+                free and a lower tier licence is currently 191.02 pounds. Please
+                allow 3 working days from application for licences before you
+                complete the Trader Watchdog application.
+              </p>
+              <a
+                href="https://www.gov.uk/register-renew-waste-carrier-broker-dealer-england"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex text-sm font-medium text-brand-300 underline underline-offset-4"
+              >
+                Waste Carrier information and registration
+              </a>
+            </div>
+            <div className="rounded-2xl border border-brand-400/20 bg-brand-500/10 p-6">
+              <p className="text-sm font-semibold uppercase tracking-wider text-brand-200">
+                ICO registration
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-slate-200">
+                If you store personal data you are legally required to register
+                with the ICO. The cost for most businesses is 52 pounds.
+              </p>
+              <a
+                href="https://ico.org.uk/for-organisations/advice-for-small-organisations/"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex text-sm font-medium text-brand-100 underline underline-offset-4"
+              >
+                ICO advice for small organisations
+              </a>
             </div>
           </div>
         </div>
@@ -1166,7 +1099,7 @@ export function Join() {
                 htmlFor="legalStructure"
                 className="block text-sm font-medium text-slate-300"
               >
-                Business structure
+                Sole trader / Partnership / Limited company?
               </label>
               <select
                 id="legalStructure"
@@ -1222,14 +1155,17 @@ export function Join() {
                 htmlFor="businessDescription"
                 className="block text-sm font-medium text-slate-300"
               >
-                Short business description
+                Describe your business
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Maximum 100 words, optional.
+              </p>
               <textarea
                 id="businessDescription"
                 name="businessDescription"
                 rows={3}
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
-                placeholder="What work do you mainly carry out?"
+                placeholder="Describe the work you carry out and the type of customers you help."
               />
             </div>
             <div>
@@ -1239,6 +1175,9 @@ export function Join() {
               >
                 Identifiable person
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Sole trader, lead partner, or PSC of the limited company.
+              </p>
               <input
                 id="identifiablePerson"
                 name="identifiablePerson"
@@ -1254,6 +1193,9 @@ export function Join() {
               >
                 Identifiable person address
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                This is not shown on the public profile unless it is also the trading address.
+              </p>
               <textarea
                 id="identifiablePersonAddress"
                 name="identifiablePersonAddress"
@@ -1268,7 +1210,7 @@ export function Join() {
                 htmlFor="email"
                 className="block text-sm font-medium text-slate-300"
               >
-                Work email
+                Business email
               </label>
               <input
                 id="email"
@@ -1317,6 +1259,9 @@ export function Join() {
               >
                 Does your business require a Waste Carrier Licence?
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                If no, your profile will state that you do not remove or carry waste.
+              </p>
               <select
                 id="wasteCarrierRequired"
                 name="wasteCarrierRequired"
@@ -1336,7 +1281,7 @@ export function Join() {
                 htmlFor="wasteCarrierNumber"
                 className="block text-sm font-medium text-slate-300"
               >
-                Waste Carrier Licence number, if applicable
+                Waste Carrier Licence number, if yes
               </label>
               <input
                 id="wasteCarrierNumber"
@@ -1349,7 +1294,7 @@ export function Join() {
                 htmlFor="gasSafeRequired"
                 className="block text-sm font-medium text-slate-300"
               >
-                Does your business require Gas Safe registration?
+                Does your business require registration with Gas Safe?
               </label>
               <select
                 id="gasSafeRequired"
@@ -1370,7 +1315,7 @@ export function Join() {
                 htmlFor="gasSafeNumber"
                 className="block text-sm font-medium text-slate-300"
               >
-                Gas Safe registration number, if applicable
+                Gas Safe registration number, if yes
               </label>
               <input
                 id="gasSafeNumber"
@@ -1383,7 +1328,7 @@ export function Join() {
                 htmlFor="icoNumber"
                 className="block text-sm font-medium text-slate-300"
               >
-                ICO registration number, if applicable
+                Your ICO registration number
               </label>
               <input
                 id="icoNumber"
@@ -1396,10 +1341,10 @@ export function Join() {
                 htmlFor="files"
                 className="block text-sm font-medium text-slate-300"
               >
-                Supporting documents
+                Insurance documents upload
               </label>
               <p className="mt-1 text-xs text-slate-500">
-                PDF or images, up to 8 files, 10 MB each. Insurance evidence will be required before approval, so upload it here if you have it ready. Other documents such as qualifications, memberships, waste carrier registration, ICO evidence, or scheme registrations are optional and help support your application. Identity, address, and liveness checks will be handled separately during verification.
+                Upload PDFs or images, up to 8 files, 10 MB each. Your insurance documents should show cover, insurer, and start or renewal date. Certificates and memberships are optional and can be uploaded here as supporting evidence.
               </p>
               <input
                 id="files"
@@ -1413,22 +1358,19 @@ export function Join() {
             <label className="flex gap-3 text-sm text-slate-300">
               <input name="documentsConfirmed" type="checkbox" required />
               <span>
-                I understand licences and registrations must be held in the
-                trading name where required.
+                I confirm the details supplied are accurate and that licences and registrations are held in the trading name where required.
               </span>
             </label>
             <label className="flex gap-3 text-sm text-slate-300">
               <input name="agreementAccepted" type="checkbox" required />
               <span>
-                I have read and understand the Trader Watchdog Verified Trader
-                Agreement.
+                I have read, understand and accept the Trader Watchdog Verified Trader Agreement.
               </span>
             </label>
             <label className="flex gap-3 text-sm text-slate-300">
               <input name="enquiriesAccepted" type="checkbox" required />
               <span>
-                I agree to Trader Watchdog making enquiries necessary to
-                validate the information supplied.
+                I have read, understand and accept the Trader Watchdog Terms and Conditions.
               </span>
             </label>
             {recaptchaSiteKey ? (
@@ -1442,8 +1384,11 @@ export function Join() {
               disabled={submitting}
               className="w-full rounded-xl bg-brand-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/30 hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? "Submitting…" : "Apply now"}
+              {submitting ? "Submitting…" : "Submit"}
             </button>
+            <p className="text-center text-xs text-slate-500">
+              We will contact you within 3 working days when our processes are complete or if further information is required.
+            </p>
           </form>
         )}
       </div>
