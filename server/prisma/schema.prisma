@@ -52,6 +52,10 @@ model Member {
   passwordHash             String?
   /// After provisioning with a temp password; cleared when they set a new password.
   mustChangePassword       Boolean          @default(false)
+  /// SHA-256 hash of a random token sent to the member for password reset.
+  passwordResetToken       String?
+  /// When the passwordResetToken expires (1 hour from issue).
+  passwordResetExpiry      DateTime?
   /// When set with membershipBillingType, access ends after this instant (GoCardless period end or manual term).
   membershipExpiresAt      DateTime?
   /// "goCardless" | "manual" — null with null expiry = legacy grandfathered access.

@@ -364,13 +364,13 @@ function TradesCta() {
                 <p className="font-semibold text-slate-900">
                   One-off registration fee
                 </p>
-                <p className="mt-1">15 pounds, 18 pounds including VAT</p>
+                <p className="mt-1">£15, £18 including VAT</p>
               </div>
               <div className="rounded-2xl border border-white bg-white p-4">
                 <p className="font-semibold text-slate-900">
                   Annual subscription
                 </p>
-                <p className="mt-1">79 pounds, 94.80 pounds including VAT</p>
+                <p className="mt-1">£79, £94.80 including VAT</p>
               </div>
             </div>
           </div>

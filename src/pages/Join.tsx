@@ -674,8 +674,8 @@ export function Join() {
               </p>
               <p className="mt-4 text-sm leading-relaxed text-slate-300">
                 Waste Carrier Licence: if you transport any waste you can be
-                fined up to 5,000 pounds for non-compliance. A Tier 1 licence is
-                free and a lower tier licence is currently 191.02 pounds. Please
+                fined up to £5,000 for non-compliance. A Tier 1 licence is
+                free and a lower tier licence is currently £191.02. Please
                 allow 3 working days from application for licences before you
                 complete the Trader Watchdog application.
               </p>
@@ -694,7 +694,7 @@ export function Join() {
               </p>
               <p className="mt-4 text-sm leading-relaxed text-slate-200">
                 If you store personal data you are legally required to register
-                with the ICO. The cost for most businesses is 52 pounds.
+                with the ICO. The cost for most businesses is £52.
               </p>
               <a
                 href="https://ico.org.uk/for-organisations/advice-for-small-organisations/"

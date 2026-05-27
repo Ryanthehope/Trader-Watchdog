@@ -1,5 +1,6 @@
 export { MemberAuthProvider, useMemberAuth } from "./MemberAuthContext";
 export { MemberDocuments } from "./MemberDocuments";
+export { MemberForgotPassword } from "./MemberForgotPassword";
 export { MemberInsurance } from "./MemberInsurance";
 export { MemberBilling } from "./MemberBilling";
 export { MemberBusiness } from "./MemberBusiness";
@@ -8,4 +9,5 @@ export { MemberLogin } from "./MemberLogin";
 export { MemberOverview } from "./MemberOverview";
 export { MemberPassword } from "./MemberPassword";
 export { MemberRequireAuth } from "./MemberRequireAuth";
+export { MemberResetPassword } from "./MemberResetPassword";
 export { MemberVerification } from "./MemberVerification";

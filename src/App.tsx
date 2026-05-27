@@ -26,11 +26,13 @@ import {  MemberAuthProvider,
   MemberBilling,
   MemberBusiness,
   MemberDocuments,
+  MemberForgotPassword,
   MemberInsurance,
   MemberLayout,
   MemberLogin,
   MemberOverview,
   MemberPassword,
+  MemberResetPassword,
   MemberVerification,
   MemberRequireAuth,
 } from "./member";
@@ -43,6 +45,8 @@ export default function App() {
         <Route path="login" element={<Login />} />
         <Route path="staff/login" element={<StaffLogin />} />
         <Route path="member/login" element={<MemberLogin />} />
+        <Route path="member/forgot-password" element={<MemberForgotPassword />} />
+        <Route path="member/reset-password" element={<MemberResetPassword />} />
         <Route
           path="member"
           element={

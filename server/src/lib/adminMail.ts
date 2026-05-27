@@ -424,6 +424,35 @@ export function notifyApplicantApprovedForPayment(
   });
 }
 
+export async function sendPasswordResetEmail(
+  prisma: PrismaClient,
+  toEmail: string,
+  name: string,
+  resetUrl: string
+): Promise<void> {
+  const transport = await getTransport(prisma);
+  if (!transport) return;
+  const brand = await getBrandName(prisma);
+  const from = await mailFrom(prisma);
+  await transport.sendMail({
+    from,
+    to: toEmail,
+    subject: `Reset your ${brand} password`,
+    text: [
+      `Hi ${name},`,
+      "",
+      `Someone requested a password reset for your ${brand} member portal account.`,
+      "",
+      "Reset your password using the link below (expires in 1 hour):",
+      resetUrl,
+      "",
+      "If you did not request this, you can safely ignore this email — your password will not change.",
+      "",
+      `The ${brand} Team`,
+    ].join("\n"),
+  });
+}
+
 export function notifySubscriptionRenewed(
   prisma: PrismaClient,
   row: {

@@ -171,6 +171,12 @@ export function MemberLogin() {
             >
               {pending ? "Signing in..." : "Open trader portal"}
             </button>
+            <Link
+              to="/member/forgot-password"
+              className="mt-3 block text-center text-xs text-slate-500 hover:text-slate-300"
+            >
+              Forgot your password?
+            </Link>
           </form>
 
           <div className="mt-6 space-y-3 text-sm">
