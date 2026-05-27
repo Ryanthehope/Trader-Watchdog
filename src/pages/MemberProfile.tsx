@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useSiteData } from "../context/SiteDataContext";
 import { publicApiUrl } from "../lib/api";
 import type {
+  InsuranceSummaryPublic,
   VettingFactPublic,
   VettingItemPublic,
   VettingSectionPublic,
@@ -80,6 +81,28 @@ function VettingFacts({ facts }: { facts: VettingFactPublic[] }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+function InsuranceBadge({ status }: { status: InsuranceSummaryPublic["status"] }) {
+  if (status === "expiring_soon") {
+    return (
+      <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-semibold text-amber-300">
+        Expiring soon
+      </span>
+    );
+  }
+  if (status === "in_grace") {
+    return (
+      <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-xs font-semibold text-orange-300">
+        Grace period
+      </span>
+    );
+  }
+  return (
+    <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+      Current
+    </span>
   );
 }
 
@@ -396,9 +419,47 @@ export function MemberProfile() {
               <p className="text-sm leading-relaxed text-slate-400">
                 This public page is limited to the Trader Watchdog checks carried out on the business and the core information needed to identify it.
               </p>
+              <dl className="space-y-2.5 text-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="shrink-0 text-slate-500">Trade</dt>
+                  <dd className="text-right font-medium text-slate-200">{member.trade}</dd>
+                </div>
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="shrink-0 text-slate-500">Location</dt>
+                  <dd className="text-right font-medium text-slate-200">{member.location}</dd>
+                </div>
+                {member.phone ? (
+                  <div className="flex items-start justify-between gap-3">
+                    <dt className="shrink-0 text-slate-500">Contact</dt>
+                    <dd>
+                      <a
+                        href={`tel:${member.phone}`}
+                        className="font-medium text-brand-300 hover:text-brand-200"
+                      >
+                        {member.phone}
+                      </a>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
               <div className="rounded-xl border border-white/10 bg-ink-950/50 p-4 text-sm text-slate-300">
                 Use the mobile number <span className="font-semibold text-white">{member.tvId}</span> and the business details shown on this page when comparing paperwork, quotes, or vans.
               </div>
+              {member.insurancePolicies && member.insurancePolicies.length > 0 ? (
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Insurance
+                  </p>
+                  <ul className="space-y-2">
+                    {member.insurancePolicies.map((pol, i) => (
+                      <li key={i} className="flex items-center justify-between gap-2 text-sm">
+                        <span className="text-slate-300">{pol.type}</span>
+                        <InsuranceBadge status={pol.status} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
             </div>
           </aside>

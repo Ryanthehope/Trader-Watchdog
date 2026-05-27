@@ -24,6 +24,11 @@ export type VettingSectionPublic = {
   items: VettingItemPublic[];
 };
 
+export type InsuranceSummaryPublic = {
+  type: string;
+  status: "active" | "expiring_soon" | "in_grace";
+};
+
 export type PublicMember = {
   slug: string;
   tvId: string;
@@ -37,6 +42,8 @@ export type PublicMember = {
   blurb: string;
   /** Public profile has an uploaded logo image. */
   profileLogo: boolean;
+  /** Active or expiring insurance policies — type and status only, no sensitive details. */
+  insurancePolicies: InsuranceSummaryPublic[];
 };
 
 function slugId(s: string): string {
@@ -130,11 +137,16 @@ function checksToFallbackSections(checks: string[]): VettingSectionPublic[] {
   ];
 }
 
-export function memberToPublic(m: Member): PublicMember {
+export function memberToPublic(
+  m: Member & { insurancePolicies?: Array<{ type: string; status: string }> }
+): PublicMember {
   const checks = parseChecksJson(m.checks);
   const parsed = parseVettingItems(m.vettingItems);
   const vettingSections =
     parsed ?? (checks.length ? checksToFallbackSections(checks) : []);
+  const insurancePolicies: InsuranceSummaryPublic[] = (m.insurancePolicies ?? [])
+    .filter((p) => p.status === "active" || p.status === "expiring_soon" || p.status === "in_grace")
+    .map((p) => ({ type: p.type, status: p.status as InsuranceSummaryPublic["status"] }));
   return {
     slug: m.slug,
     tvId: m.tvId,
@@ -147,6 +159,7 @@ export function memberToPublic(m: Member): PublicMember {
     verifiedSince: m.verifiedSince,
     blurb: m.blurb,
     profileLogo: Boolean(m.profileLogoStoredName?.trim()),
+    insurancePolicies,
   };
 }
 

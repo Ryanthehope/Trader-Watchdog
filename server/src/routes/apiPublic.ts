@@ -525,6 +525,12 @@ router.get("/members", async (_req, res) => {
   try {
     const rows = await prisma.member.findMany({
       orderBy: { name: "asc" },
+      include: {
+        insurancePolicies: {
+          select: { type: true, status: true },
+          where: { status: { not: "expired" } },
+        },
+      },
     });
     res.json({
       members: rows
@@ -612,6 +618,12 @@ async function memberBySlugHandler(
   try {
     const m = await prisma.member.findUnique({
       where: { slug: req.params.slug },
+      include: {
+        insurancePolicies: {
+          select: { type: true, status: true },
+          where: { status: { not: "expired" } },
+        },
+      },
     });
     if (!m || !isMemberPublicListingVisible(m)) {
       res.status(404).json({ error: "Not found" });

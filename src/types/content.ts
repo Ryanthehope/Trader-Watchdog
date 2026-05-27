@@ -20,6 +20,11 @@ export type VettingSectionPublic = {
   items: VettingItemPublic[];
 };
 
+export type InsuranceSummaryPublic = {
+  type: string;
+  status: "active" | "expiring_soon" | "in_grace";
+};
+
 export type VerifiedMember = {
   slug: string;
   tvId: string;
@@ -33,6 +38,8 @@ export type VerifiedMember = {
   blurb: string;
   /** Public profile includes a logo image. */
   profileLogo?: boolean;
+  /** Active or expiring insurance policies \u2014 type and status only. */
+  insurancePolicies?: InsuranceSummaryPublic[];
 };
 
 export type Guide = {

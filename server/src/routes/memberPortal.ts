@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import bcrypt from "bcryptjs";
 import multer from "multer";
+import QRCode from "qrcode";
 import { prisma } from "../db.js";
 import {
   billingReady,
@@ -38,6 +39,11 @@ const ALLOWED_DOC_MIME = new Set([
 
 const MAX_DOC_BYTES = 10 * 1024 * 1024;
 const MAX_MEMBER_DOCUMENTS = 5;
+
+const QR_STICKER_SIZE_PX = 886; // 75mm at 300 DPI.
+const QR_SMALL_SIZE_PX = 236; // 20mm at 300 DPI.
+
+type QrVariant = "sticker" | "small";
 
 function memberDocDir(memberId: string) {
   return path.join(UPLOAD_ROOT, memberId);
@@ -122,6 +128,43 @@ async function siteOrigin(req: {
   return u.replace(/\/$/, "");
 }
 
+function isMemberQrEligible(m: {
+  verificationStatus: string;
+  membershipUnlimited: boolean;
+  membershipBillingType: string | null;
+  membershipExpiresAt: Date | null;
+  goCardlessSubscriptionStatus: string | null;
+}) {
+  if (m.verificationStatus !== "APPROVED") return false;
+  return isMemberPublicListingVisible({
+    membershipUnlimited: m.membershipUnlimited,
+    membershipBillingType: m.membershipBillingType,
+    membershipExpiresAt: m.membershipExpiresAt,
+    goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
+  });
+}
+
+async function memberPublicProfileAbsoluteUrl(
+  req: { get: (h: string) => string | undefined },
+  slug: string
+) {
+  const origin = await siteOrigin(req);
+  return `${origin}/m/${encodeURIComponent(slug)}`;
+}
+
+function qrVariantConfig(variant: QrVariant) {
+  if (variant === "sticker") {
+    return {
+      sizePx: QR_STICKER_SIZE_PX,
+      fileSuffix: "75mm",
+    };
+  }
+  return {
+    sizePx: QR_SMALL_SIZE_PX,
+    fileSuffix: "20mm",
+  };
+}
+
 router.get("/me", async (req, res) => {
   try {
     const memberId = (req as unknown as { memberId: string }).memberId;
@@ -143,39 +186,164 @@ router.get("/me", async (req, res) => {
       membershipExpiresAt: m.membershipExpiresAt,
       goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
     });
+    const qrEligible = isMemberQrEligible(m);
+    const publicProfileAbsoluteUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
+
     res.json({
-  memberId: m.id,
-  profile,
-  profileLive,
-  loginEmail: m.loginEmail,
-  publicProfileUrl: `/m/${m.slug}`,
-  mustChangePassword: m.mustChangePassword,
-  membership,
-  verification: {
-    provider: m.verificationProvider,
-    status: m.verificationStatus,
-    submittedAt: m.verificationSubmittedAt?.toISOString() ?? null,
-    approvedAt: m.verificationApprovedAt?.toISOString() ?? null,
-    rejectedAt: m.verificationRejectedAt?.toISOString() ?? null,
-    providerApplicantId: m.verificationProviderApplicantId,
-    providerSessionId: m.verificationProviderSessionId,
-    failureReason: m.verificationFailureReason,
-  },
-  documentBranding: {
-    ...documentIssuerFromMember(m),
-    documentAccentHex: m.documentAccentHex?.trim() || null,
-    documentLayout: m.documentLayout === "bold" ? "bold" : "standard",
-    invoiceAddress: m.invoiceAddress ?? "",
-    invoiceBankDetails: m.invoiceBankDetails ?? "",
-    invoicePhone: m.invoicePhone ?? "",
-    invoiceEmail: m.invoiceEmail ?? "",
-    vatNumber: m.vatNumber ?? "",
-    vatRegistered: Boolean(m.vatRegistered),
-  },
-});
+      memberId: m.id,
+      profile,
+      profileLive,
+      loginEmail: m.loginEmail,
+      publicProfileUrl: `/m/${m.slug}`,
+      mustChangePassword: m.mustChangePassword,
+      membership,
+      verification: {
+        provider: m.verificationProvider,
+        status: m.verificationStatus,
+        submittedAt: m.verificationSubmittedAt?.toISOString() ?? null,
+        approvedAt: m.verificationApprovedAt?.toISOString() ?? null,
+        rejectedAt: m.verificationRejectedAt?.toISOString() ?? null,
+        providerApplicantId: m.verificationProviderApplicantId,
+        providerSessionId: m.verificationProviderSessionId,
+        failureReason: m.verificationFailureReason,
+      },
+      qr: {
+        eligible: qrEligible,
+        reason: qrEligible
+          ? null
+          : "QR downloads are enabled once verification is approved and your public profile is live.",
+        profileUrl: publicProfileAbsoluteUrl,
+        stickerDownloadUrl: "/api/member/portal/qr-code/sticker",
+        smallDownloadUrl: "/api/member/portal/qr-code/small",
+        svgDownloadUrl: "/api/member/portal/qr-code/svg",
+        stickerPixels: QR_STICKER_SIZE_PX,
+        smallPixels: QR_SMALL_SIZE_PX,
+      },
+      documentBranding: {
+        ...documentIssuerFromMember(m),
+        documentAccentHex: m.documentAccentHex?.trim() || null,
+        documentLayout: m.documentLayout === "bold" ? "bold" : "standard",
+        invoiceAddress: m.invoiceAddress ?? "",
+        invoiceBankDetails: m.invoiceBankDetails ?? "",
+        invoicePhone: m.invoicePhone ?? "",
+        invoiceEmail: m.invoiceEmail ?? "",
+        vatNumber: m.vatNumber ?? "",
+        vatRegistered: Boolean(m.vatRegistered),
+      },
+    });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Could not load profile" });
+  }
+});
+
+router.get("/qr-code/svg", async (req, res) => {
+  try {
+    const memberId = (req as unknown as { memberId: string }).memberId;
+    const m = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        slug: true,
+        tvId: true,
+        verificationStatus: true,
+        membershipUnlimited: true,
+        membershipBillingType: true,
+        membershipExpiresAt: true,
+        goCardlessSubscriptionStatus: true,
+      },
+    });
+    if (!m) {
+      res.status(404).json({ error: "Account not found" });
+      return;
+    }
+    if (!isMemberQrEligible(m)) {
+      res.status(403).json({
+        error:
+          "QR downloads are enabled once verification is approved and your public profile is live.",
+      });
+      return;
+    }
+
+    const profileUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
+    const svg = await QRCode.toString(profileUrl, {
+      type: "svg",
+      errorCorrectionLevel: "M",
+      margin: 2,
+      color: {
+        dark: "#000000",
+        light: "#FFFFFF",
+      },
+    });
+
+    const safeId = m.tvId.replace(/[^A-Za-z0-9_-]/g, "");
+    const filename = `trader-watchdog-${safeId}-qr.svg`;
+    res.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.type("image/svg+xml");
+    res.send(svg);
+  } catch (e) {
+    console.error("[member portal] qr-code svg failed", e);
+    res.status(500).json({ error: "Could not generate QR code" });
+  }
+});
+
+router.get("/qr-code/:variant", async (req, res) => {
+  try {
+    const memberId = (req as unknown as { memberId: string }).memberId;
+    const variantRaw = String(req.params.variant ?? "").trim().toLowerCase();
+    if (variantRaw !== "sticker" && variantRaw !== "small") {
+      res.status(400).json({ error: "Variant must be sticker or small" });
+      return;
+    }
+    const variant = variantRaw as QrVariant;
+
+    const m = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        slug: true,
+        tvId: true,
+        verificationStatus: true,
+        membershipUnlimited: true,
+        membershipBillingType: true,
+        membershipExpiresAt: true,
+        goCardlessSubscriptionStatus: true,
+      },
+    });
+    if (!m) {
+      res.status(404).json({ error: "Account not found" });
+      return;
+    }
+    if (!isMemberQrEligible(m)) {
+      res.status(403).json({
+        error:
+          "QR downloads are enabled once verification is approved and your public profile is live.",
+      });
+      return;
+    }
+
+    const profileUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
+    const cfg = qrVariantConfig(variant);
+
+    const png = await QRCode.toBuffer(profileUrl, {
+      type: "png",
+      errorCorrectionLevel: "M",
+      margin: 2,
+      width: cfg.sizePx,
+      color: {
+        dark: "#000000",
+        light: "#FFFFFFFF",
+      },
+    });
+
+    const safeId = m.tvId.replace(/[^A-Za-z0-9_-]/g, "");
+    const filename = `trader-watchdog-${safeId}-qr-${cfg.fileSuffix}.png`;
+    res.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
+    res.setHeader("Content-Disposition", `attachment; filename=\"${filename}\"`);
+    res.type("image/png");
+    res.send(png);
+  } catch (e) {
+    console.error("[member portal] qr-code download failed", e);
+    res.status(500).json({ error: "Could not generate QR code" });
   }
 });
 
