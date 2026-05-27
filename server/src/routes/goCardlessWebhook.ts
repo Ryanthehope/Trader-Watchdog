@@ -6,7 +6,7 @@ import {
   getGoCardlessWebhookSecret,
 } from "../lib/billingSettings.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
-import { notifySubscriptionRenewed } from "../lib/adminMail.js";
+import { notifySubscriptionRenewed, notifyMemberWelcome } from "../lib/adminMail.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 
 type GoCardlessPayment = {
@@ -137,6 +137,9 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
               "[gocardless webhook] provision blocked: applicant email already has a member portal"
             );
           }
+          if (prov.ok && prov.newlyCreated) {
+            notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
+          }
         }
       }
 
@@ -155,6 +158,9 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             console.error(
               "[gocardless webhook] provision blocked: applicant email already has a member portal"
             );
+          }
+          if (prov.ok && prov.newlyCreated) {
+            notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
           }
         }
       }

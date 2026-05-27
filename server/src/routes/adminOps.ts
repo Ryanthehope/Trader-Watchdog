@@ -20,6 +20,7 @@ import {
   notifyApplicationDecision,
   notifyApplicantApprovedForPayment,
   notifyApplicantVerificationOutcome,
+  notifyMemberWelcome,
   sendAdminEmail,
 } from "../lib/adminMail.js";
 import {
@@ -118,6 +119,7 @@ const ADMIN_APPLICATION_FULL_SELECT = {
 const ADMIN_APPLICATION_MUTATION_SELECT = {
   id: true,
   company: true,
+  identifiablePerson: true,
   trade: true,
   email: true,
   phone: true,
@@ -1237,6 +1239,11 @@ router.post("/applications/:id/provision-member", async (req, res) => {
         temporaryPassword: prov.temporaryPassword,
         member: prov.member,
       };
+      notifyMemberWelcome(prisma, {
+        email: before.email.trim().toLowerCase(),
+        name: (before.identifiablePerson?.trim() || before.company).trim(),
+        temporaryPassword: prov.temporaryPassword,
+      });
     } else if (prov.kind === "already_linked") {
       memberProvisioned = {
         member: prov.member,
@@ -1392,6 +1399,11 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
         temporaryPassword: prov.temporaryPassword,
         member: prov.member,
       };
+      notifyMemberWelcome(prisma, {
+        email: before.email.trim().toLowerCase(),
+        name: (before.identifiablePerson?.trim() || before.company).trim(),
+        temporaryPassword: prov.temporaryPassword,
+      });
     } else if (prov.kind === "already_linked") {
       memberProvisioned = {
         member: prov.member,

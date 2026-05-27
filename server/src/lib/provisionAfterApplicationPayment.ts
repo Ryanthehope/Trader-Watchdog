@@ -2,7 +2,8 @@ import type { PrismaClient } from "@prisma/client";
 import { tryProvisionMemberForApplication } from "./provisionMemberFromApplication.js";
 
 export type ProvisionAfterPaymentResult =
-  | { ok: true }
+  | { ok: true; newlyCreated: true; temporaryPassword: string; email: string; name: string }
+  | { ok: true; newlyCreated: false }
   | {
       ok: false;
       reason:
@@ -38,5 +39,14 @@ export async function provisionIfApplicationPaid(
   if (prov.kind === "membership_expiry_missing") {
     return { ok: false, reason: "membership_expiry_missing" };
   }
-  return { ok: true };
+  if (prov.kind === "created") {
+    return {
+      ok: true,
+      newlyCreated: true,
+      temporaryPassword: prov.temporaryPassword,
+      email: app.email.trim().toLowerCase(),
+      name: (app.identifiablePerson?.trim() || app.company).trim(),
+    };
+  }
+  return { ok: true, newlyCreated: false };
 }

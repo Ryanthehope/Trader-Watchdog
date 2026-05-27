@@ -772,19 +772,7 @@ export function Join() {
               applicantSummary?.profileLive ? (
                 <p className="mt-2 text-sm text-slate-400">
                   Your public listing is live and your member portal is ready.
-                  {applicantSummary?.oneTimePassword ? (
-                    <>
-                      {" "}
-                      Use the one-time password below for your first sign-in,
-                      then you&apos;ll choose a new password.
-                    </>
-                  ) : (
-                    <>
-                      {" "}
-                      Sign in with the password you chose (or the one Trader Watchdog
-                      gave you if you haven&apos;t changed it yet).
-                    </>
-                  )}
+                  {" "}Your sign-in details have been sent to your email.
                 </p>
               ) : (
                 <>
@@ -904,48 +892,33 @@ export function Join() {
                       <span className="text-white">{savedEmail}</span>
                     </p>
                     {applicantSummary.oneTimePassword ? (
-                      <div className="mt-4 rounded-xl border border-white/10 bg-ink-950/70 p-4 text-left">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          One-time password
-                        </p>
-                        <p className="mt-2 break-all font-mono text-base text-white">
-                          {applicantSummary.oneTimePassword}
-                        </p>
-                        <p className="mt-2 text-xs text-slate-500">
-                          Save this now — it disappears after you sign in or
-                          after 14 days. You will be asked to set a new password
-                          before using the portal.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void navigator.clipboard.writeText(
-                              applicantSummary.oneTimePassword ?? ""
-                            )
-                          }
-                          className="mt-3 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/15"
-                        >
-                          Copy password
-                        </button>
-                      </div>
+                      <p className="mt-3 text-sm text-emerald-100/85">
+                        Your sign-in details have been sent to{" "}
+                        <span className="text-white">{savedEmail}</span>. Check
+                        your inbox (and spam folder) for an email with your
+                        password.
+                      </p>
                     ) : (
                       <p className="mt-3 text-xs text-slate-500">
-                        No one-time password is shown here after your{" "}
-                        <strong className="text-slate-400">first successful</strong>{" "}
-                        portal login (it is removed for security), or if this
-                        listing was set up before passwords were shown on this
-                        page. Use the password you set at first login; forgot it?{" "}
+                        Sign in with the password from your welcome email. Forgot
+                        it?{" "}
+                        <Link
+                          to="/member/forgot-password"
+                          className="text-brand-300 hover:text-brand-200"
+                        >
+                          Reset your password
+                        </Link>{" "}
+                        or{" "}
                         <Link
                           to="/contact"
                           className="text-brand-300 hover:text-brand-200"
                         >
-                          Contact
-                        </Link>{" "}
-                        Trader Watchdog.
+                          contact us
+                        </Link>.
                       </p>
                     )}
                     <Link
-                      to="/login"
+                      to="/member/login"
                       className="mt-4 inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-900 hover:bg-slate-100"
                     >
                       Log in

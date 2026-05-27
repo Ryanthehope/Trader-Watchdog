@@ -434,6 +434,44 @@ export function notifyApplicantApprovedForPayment(
   });
 }
 
+export function notifyMemberWelcome(
+  prisma: PrismaClient,
+  row: {
+    email: string;
+    name: string;
+    temporaryPassword: string;
+  }
+): void {
+  void (async () => {
+    const base = await publicSiteBase(prisma);
+    const loginUrl = `${base}/member/login`;
+    const brand = await getBrandName(prisma);
+    const text = [
+      `Hi ${row.name},`,
+      "",
+      `Your ${brand} member portal account is ready.`,
+      "",
+      "Sign in using the details below:",
+      `  Email:    ${row.email}`,
+      `  Password: ${row.temporaryPassword}`,
+      "",
+      `Log in here: ${loginUrl}`,
+      "",
+      "You will be asked to set a new password after your first sign-in. Save the password above before logging in.",
+      "",
+      "If you need any help, just reply to this email.",
+      `The ${brand} Team`,
+    ].join("\n");
+    await sendApplicantEmail(prisma, {
+      to: row.email,
+      subject: "Your member portal is ready — sign-in details inside",
+      text,
+    });
+  })().catch((e) => {
+    console.error("[admin-mail] member welcome send failed", e);
+  });
+}
+
 export async function sendPasswordResetEmail(
   prisma: PrismaClient,
   toEmail: string,
