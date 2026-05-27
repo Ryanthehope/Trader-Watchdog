@@ -896,7 +896,8 @@ export function Join() {
                         Your sign-in details have been sent to{" "}
                         <span className="text-white">{savedEmail}</span>. Check
                         your inbox (and spam folder) for an email with your
-                        password.
+                        password. You can safely close this tab — your login
+                        details will be in your email whenever you&apos;re ready.
                       </p>
                     ) : (
                       <p className="mt-3 text-xs text-slate-500">
