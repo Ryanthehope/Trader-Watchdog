@@ -1,5 +1,22 @@
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import type { PrismaClient } from "@prisma/client";
+
+async function sendViaResend(
+  apiKey: string,
+  opts: { from: string; to: string; subject: string; text: string }
+): Promise<void> {
+  const resend = new Resend(apiKey);
+  const result = await resend.emails.send({
+    from: opts.from,
+    to: opts.to.split(/,\s*/).map((s) => s.trim()).filter(Boolean),
+    subject: opts.subject,
+    text: opts.text,
+  });
+  if (result.error) {
+    throw new Error(`Resend: ${result.error.message}`);
+  }
+}
 
 let cachedTransport: nodemailer.Transporter | null | undefined;
 
@@ -149,13 +166,14 @@ export async function sendAdminEmail(
   prisma: PrismaClient,
   opts: { subject: string; text: string; overrideTo?: string }
 ): Promise<void> {
-  const transport = await getTransport(prisma);
-  if (!transport) {
+  const resendKey = process.env.RESEND_API_KEY?.trim();
+  const transport = resendKey ? null : await getTransport(prisma);
+  if (!resendKey && !transport) {
     if (opts.overrideTo) {
-      throw new Error("SMTP is not configured. Save your SMTP settings first.");
+      throw new Error("Email is not configured. Set RESEND_API_KEY or save SMTP settings first.");
     }
     console.warn(
-      "[admin-mail] Skipped admin email: SMTP is not configured"
+      "[admin-mail] Skipped admin email: email is not configured"
     );
     return;
   }
@@ -177,26 +195,27 @@ export async function sendAdminEmail(
   const subject = opts.subject.startsWith("[")
     ? opts.subject
     : `[${brand}] ${opts.subject}`;
-  await transport.sendMail({
-    from,
-    to: to.join(", "),
-    subject,
-    text: opts.overrideTo ? opts.text : (
-      resolveRedirectRecipients().length > 0
-        ? redirectedText("admin notification list", opts.text)
-        : opts.text
-    ),
-  });
+  const text = opts.overrideTo ? opts.text : (
+    resolveRedirectRecipients().length > 0
+      ? redirectedText("admin notification list", opts.text)
+      : opts.text
+  );
+  if (resendKey) {
+    await sendViaResend(resendKey, { from, to: to.join(", "), subject, text });
+  } else {
+    await transport!.sendMail({ from, to: to.join(", "), subject, text });
+  }
 }
 
 export async function sendApplicantEmail(
   prisma: PrismaClient,
   opts: { to: string; subject: string; text: string }
 ): Promise<void> {
-  const transport = await getTransport(prisma);
-  if (!transport) {
+  const resendKey = process.env.RESEND_API_KEY?.trim();
+  const transport = resendKey ? null : await getTransport(prisma);
+  if (!resendKey && !transport) {
     console.warn(
-      `[admin-mail] Skipped applicant email to ${opts.to || "(blank)"}: SMTP is not configured`
+      `[admin-mail] Skipped applicant email to ${opts.to || "(blank)"}: email is not configured`
     );
     return;
   }
@@ -212,15 +231,12 @@ export async function sendApplicantEmail(
   const subject = opts.subject.startsWith("[")
     ? opts.subject
     : `[${brand}] ${opts.subject}`;
-  await transport.sendMail({
-    from,
-    to,
-    subject,
-    text:
-      redirectedTo.length > 0
-        ? redirectedText(originalTo, opts.text)
-        : opts.text,
-  });
+  const text = redirectedTo.length > 0 ? redirectedText(originalTo, opts.text) : opts.text;
+  if (resendKey) {
+    await sendViaResend(resendKey, { from, to, subject, text });
+  } else {
+    await transport!.sendMail({ from, to, subject, text });
+  }
 }
 
 export function notifyAdminsFireAndForget(
@@ -478,27 +494,29 @@ export async function sendPasswordResetEmail(
   name: string,
   resetUrl: string
 ): Promise<void> {
-  const transport = await getTransport(prisma);
-  if (!transport) return;
+  const resendKey = process.env.RESEND_API_KEY?.trim();
+  const transport = resendKey ? null : await getTransport(prisma);
+  if (!resendKey && !transport) return;
   const brand = await getBrandName(prisma);
   const from = await mailFrom(prisma);
-  await transport.sendMail({
-    from,
-    to: toEmail,
-    subject: `Reset your ${brand} password`,
-    text: [
-      `Hi ${name},`,
-      "",
-      `Someone requested a password reset for your ${brand} member portal account.`,
-      "",
-      "Reset your password using the link below (expires in 1 hour):",
-      resetUrl,
-      "",
-      "If you did not request this, you can safely ignore this email — your password will not change.",
-      "",
-      `The ${brand} Team`,
-    ].join("\n"),
-  });
+  const subject = `Reset your ${brand} password`;
+  const text = [
+    `Hi ${name},`,
+    "",
+    `Someone requested a password reset for your ${brand} member portal account.`,
+    "",
+    "Reset your password using the link below (expires in 1 hour):",
+    resetUrl,
+    "",
+    "If you did not request this, you can safely ignore this email — your password will not change.",
+    "",
+    `The ${brand} Team`,
+  ].join("\n");
+  if (resendKey) {
+    await sendViaResend(resendKey, { from, to: toEmail, subject, text });
+  } else {
+    await transport!.sendMail({ from, to: toEmail, subject, text });
+  }
 }
 
 export function notifySubscriptionRenewed(
