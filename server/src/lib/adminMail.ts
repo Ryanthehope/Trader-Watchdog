@@ -143,25 +143,34 @@ export async function publicSiteBase(prisma: PrismaClient): Promise<string> {
 
 /**
  * Sends a plain-text email to ops addresses when SMTP + at least one recipient exist.
+ * Pass `overrideTo` to send to a specific address instead (used for SMTP testing).
  */
 export async function sendAdminEmail(
   prisma: PrismaClient,
-  opts: { subject: string; text: string }
+  opts: { subject: string; text: string; overrideTo?: string }
 ): Promise<void> {
   const transport = await getTransport(prisma);
   if (!transport) {
+    if (opts.overrideTo) {
+      throw new Error("SMTP is not configured. Save your SMTP settings first.");
+    }
     console.warn(
       "[admin-mail] Skipped admin email: SMTP is not configured"
     );
     return;
   }
-  const redirectedTo = resolveRedirectRecipients();
-  const to = redirectedTo.length > 0 ? redirectedTo : await resolveRecipients(prisma);
-  if (to.length === 0) {
-    console.warn(
-      "[admin-mail] Skipped (no recipients): set EMAIL_REDIRECT_TO for test routing, ADMIN_NOTIFY_EMAILS env, Staff -> Settings notification emails / ops email, or CONTACT_EMAIL"
-    );
-    return;
+  let to: string[];
+  if (opts.overrideTo) {
+    to = [opts.overrideTo];
+  } else {
+    const redirectedTo = resolveRedirectRecipients();
+    to = redirectedTo.length > 0 ? redirectedTo : await resolveRecipients(prisma);
+    if (to.length === 0) {
+      console.warn(
+        "[admin-mail] Skipped (no recipients): set EMAIL_REDIRECT_TO for test routing, ADMIN_NOTIFY_EMAILS env, Staff -> Settings notification emails / ops email, or CONTACT_EMAIL"
+      );
+      return;
+    }
   }
   const brand = await getBrandName(prisma);
   const from = await mailFrom(prisma);
@@ -172,10 +181,11 @@ export async function sendAdminEmail(
     from,
     to: to.join(", "),
     subject,
-    text:
-      redirectedTo.length > 0
+    text: opts.overrideTo ? opts.text : (
+      resolveRedirectRecipients().length > 0
         ? redirectedText("admin notification list", opts.text)
-        : opts.text,
+        : opts.text
+    ),
   });
 }
 

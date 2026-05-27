@@ -20,6 +20,7 @@ import {
   notifyApplicationDecision,
   notifyApplicantApprovedForPayment,
   notifyApplicantVerificationOutcome,
+  sendAdminEmail,
 } from "../lib/adminMail.js";
 import {
   createSumsubApplicant,
@@ -621,6 +622,26 @@ router.patch("/organization-settings", patchOrganizationSettings);
 router.post("/organization-settings", patchOrganizationSettings);
 /** Prefer this URL in the app: avoids proxies that return 406 on POST to the same path as GET. */
 router.post("/organization-settings/save", patchOrganizationSettings);
+
+router.post("/organization-settings/test-email", async (req, res) => {
+  try {
+    const to = String(req.body?.to ?? "").trim().toLowerCase();
+    if (!to || !to.includes("@")) {
+      res.status(400).json({ error: "A valid recipient email address is required." });
+      return;
+    }
+    const result = await sendAdminEmail(prisma, {
+      subject: "SMTP test",
+      text: `This is a test email confirming SMTP is working correctly.\n\nSent: ${new Date().toISOString()}`,
+      overrideTo: to,
+    });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("[test-email]", e);
+    const detail = e instanceof Error ? e.message : String(e);
+    res.status(500).json({ error: `Send failed: ${detail}` });
+  }
+});
 
 router.get("/analytics-summary", async (_req, res) => {
   try {

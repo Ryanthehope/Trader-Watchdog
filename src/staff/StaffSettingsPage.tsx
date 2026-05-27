@@ -38,6 +38,9 @@ export function StaffSettingsPage() {
   const [smtpPass, setSmtpPass] = useState("");
   const [clearSmtpPassword, setClearSmtpPassword] = useState(false);
   const [mailFrom, setMailFrom] = useState("");
+  const [testEmailTo, setTestEmailTo] = useState("");
+  const [testEmailPending, setTestEmailPending] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [billingEnabled, setBillingEnabled] = useState(false);
   const [goCardlessPublishableKey, setGoCardlessPublishableKey] = useState("");
   const [goCardlessSecretKey, setGoCardlessSecretKey] = useState("");
@@ -531,6 +534,51 @@ export function StaffSettingsPage() {
                 placeholder="Acme Verify &lt;noreply@example.com&gt;"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-300">
+                Send a test email
+              </label>
+              <p className="mt-1 text-xs text-slate-400">
+                Send a test message to confirm SMTP is working. Save your settings first.
+              </p>
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="email"
+                  value={testEmailTo}
+                  onChange={(e) => { setTestEmailTo(e.target.value); setTestEmailResult(null); }}
+                  placeholder="you@example.com"
+                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-ink-950 px-4 py-2.5 text-sm text-white"
+                />
+                <button
+                  type="button"
+                  disabled={testEmailPending || !testEmailTo.includes("@")}
+                  onClick={async () => {
+                    setTestEmailPending(true);
+                    setTestEmailResult(null);
+                    try {
+                      await apiSend("/api/admin/organization-settings/test-email", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ to: testEmailTo }),
+                      });
+                      setTestEmailResult({ ok: true, message: "Test email sent — check your inbox." });
+                    } catch (err) {
+                      setTestEmailResult({ ok: false, message: err instanceof Error ? err.message : "Send failed." });
+                    } finally {
+                      setTestEmailPending(false);
+                    }
+                  }}
+                  className="shrink-0 rounded-xl bg-slate-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {testEmailPending ? "Sending…" : "Send test"}
+                </button>
+              </div>
+              {testEmailResult ? (
+                <p className={`mt-2 text-xs ${testEmailResult.ok ? "text-green-400" : "text-red-400"}`}>
+                  {testEmailResult.message}
+                </p>
+              ) : null}
             </div>
           </div>
         </section>
