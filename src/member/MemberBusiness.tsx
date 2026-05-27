@@ -19,16 +19,6 @@ export function MemberBusiness() {
   });
   const [profileLogo, setProfileLogo] = useState(false);
   const [logoBusy, setLogoBusy] = useState(false);
-  const [documentAccentHex, setDocumentAccentHex] = useState("#0d9488");
-  const [documentLayout, setDocumentLayout] = useState<"standard" | "bold">(
-    "standard"
-  );
-  const [invoiceAddress, setInvoiceAddress] = useState("");
-  const [invoiceBankDetails, setInvoiceBankDetails] = useState("");
-  const [invoicePhone, setInvoicePhone] = useState("");
-  const [invoiceEmail, setInvoiceEmail] = useState("");
-  const [vatNumber, setVatNumber] = useState("");
-  const [vatRegistered, setVatRegistered] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -36,19 +26,7 @@ export function MemberBusiness() {
 
   useEffect(() => {
     let cancelled = false;
-    apiGetMember<{
-      profile: VerifiedMember;
-      documentBranding?: {
-        documentAccentHex: string | null;
-        documentLayout?: "standard" | "bold";
-        invoiceAddress: string;
-        invoiceBankDetails?: string;
-        invoicePhone: string;
-        invoiceEmail: string;
-        vatNumber: string;
-        vatRegistered?: boolean;
-      };
-    }>("/api/member/portal/me")
+    apiGetMember<{ profile: VerifiedMember }>("/api/member/portal/me")
       .then((d) => {
         if (cancelled) return;
         const p = d.profile;
@@ -58,19 +36,6 @@ export function MemberBusiness() {
         setBlurb(p.blurb);
         setReadOnly({ tvId: p.tvId, slug: p.slug, checks: p.checks });
         setProfileLogo(Boolean(p.profileLogo));
-        const b = d.documentBranding;
-        if (b) {
-          setDocumentAccentHex(b.documentAccentHex?.trim() || "#0d9488");
-          setInvoiceAddress(b.invoiceAddress ?? "");
-          setInvoiceBankDetails(b.invoiceBankDetails ?? "");
-          setInvoicePhone(b.invoicePhone ?? "");
-          setInvoiceEmail(b.invoiceEmail ?? "");
-          setVatNumber(b.vatNumber ?? "");
-          setVatRegistered(Boolean(b.vatRegistered));
-          setDocumentLayout(
-            b.documentLayout === "bold" ? "bold" : "standard"
-          );
-        }
       })
       .catch((e) => {
         if (!cancelled) setError(e instanceof Error ? e.message : "Load failed");
@@ -91,20 +56,7 @@ export function MemberBusiness() {
     try {
       await apiSendMember("/api/member/portal/profile", {
         method: "PUT",
-        body: JSON.stringify({
-          name,
-          trade,
-          location,
-          blurb,
-          documentAccentHex,
-          documentLayout,
-          invoiceAddress,
-          invoiceBankDetails,
-          invoicePhone,
-          invoiceEmail,
-          vatNumber,
-          vatRegistered,
-        }),
+        body: JSON.stringify({ name, trade, location, blurb }),
       });
       setMessage("Saved. Your public profile will show these updates.");
     } catch (err) {
@@ -246,9 +198,7 @@ export function MemberBusiness() {
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
-          <div className="min-w-0">
-            <div className="h-min rounded-xl border border-slate-200 bg-slate-50/90 p-4 shadow-sm sm:p-5">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/90 p-4 shadow-sm sm:p-5">
               <h2 className="text-sm font-semibold text-slate-900">
                 Business profile
               </h2>
@@ -304,134 +254,6 @@ export function MemberBusiness() {
                   />
                 </div>
               </div>
-            </div>
-          </div>
-
-          <aside className="min-w-0">
-            <div className="h-min rounded-xl border border-slate-200 bg-slate-50/90 p-4 shadow-sm sm:p-5">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Quotes &amp; customer invoices
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                On customer PDFs — not your membership bill. Uses your profile
-                logo.
-              </p>
-              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <label className="block text-xs font-medium text-slate-600 sm:col-span-2">
-                  Business address
-                  <textarea
-                    value={invoiceAddress}
-                    onChange={(e) => setInvoiceAddress(e.target.value)}
-                    rows={2}
-                    placeholder="Street, town, postcode"
-                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-                  />
-                </label>
-                <label className="block text-xs font-medium text-slate-600">
-                  Phone on documents
-                  <input
-                    value={invoicePhone}
-                    onChange={(e) => setInvoicePhone(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-                  />
-                </label>
-                <label className="block text-xs font-medium text-slate-600">
-                  Email on documents
-                  <input
-                    type="email"
-                    value={invoiceEmail}
-                    onChange={(e) => setInvoiceEmail(e.target.value)}
-                    placeholder="Uses portal login if empty"
-                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-                  />
-                </label>
-                <label className="block text-xs font-medium text-slate-600 sm:col-span-2">
-                  Bank details for customer invoices
-                  <textarea
-                    value={invoiceBankDetails}
-                    onChange={(e) => setInvoiceBankDetails(e.target.value)}
-                    rows={4}
-                    placeholder="Account name, sort code, account number — and payment reference if you use one"
-                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-                  />
-                  <span className="mt-1 block text-[11px] font-normal leading-snug text-slate-500">
-                    Shown on printed/PDF invoices so customers can pay you by bank
-                    transfer. You are responsible for accuracy.
-                  </span>
-                </label>
-                <label className="flex cursor-pointer items-start gap-2.5 sm:col-span-2">
-                  <input
-                    type="checkbox"
-                    checked={vatRegistered}
-                    onChange={(e) => setVatRegistered(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                  />
-                  <span>
-                    <span className="text-xs font-medium text-slate-700">
-                      VAT registered
-                    </span>
-                    <span className="mt-0.5 block text-[11px] leading-snug text-slate-500">
-                      Customer invoices show VAT lines and your VAT number on PDFs
-                      when enabled.
-                    </span>
-                  </span>
-                </label>
-                {vatRegistered ? (
-                  <label className="block text-xs font-medium text-slate-600 sm:col-span-2">
-                    VAT number (optional)
-                    <input
-                      value={vatNumber}
-                      onChange={(e) => setVatNumber(e.target.value)}
-                      className="mt-1 w-full max-w-md rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-                    />
-                  </label>
-                ) : null}
-                <div className="flex flex-col gap-1.5 sm:col-span-1">
-                  <span className="text-xs font-medium text-slate-600">
-                    Accent colour
-                  </span>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <input
-                      type="color"
-                      value={
-                        /^#[0-9A-Fa-f]{6}$/.test(documentAccentHex)
-                          ? documentAccentHex
-                          : "#0d9488"
-                      }
-                      onChange={(e) => setDocumentAccentHex(e.target.value)}
-                      className="h-9 w-12 shrink-0 cursor-pointer rounded border border-slate-200 bg-white p-0.5"
-                      title="Pick colour"
-                    />
-                    <input
-                      value={documentAccentHex}
-                      onChange={(e) => setDocumentAccentHex(e.target.value)}
-                      placeholder="#0d9488"
-                      className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 font-mono text-xs text-slate-900"
-                    />
-                  </div>
-                </div>
-                <label className="block text-xs font-medium text-slate-600 sm:col-span-1">
-                  PDF layout
-                  <select
-                    value={documentLayout}
-                    onChange={(e) =>
-                      setDocumentLayout(
-                        e.target.value === "bold" ? "bold" : "standard"
-                      )
-                    }
-                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-                  >
-                    <option value="standard">
-                      Standard — clean border accent
-                    </option>
-                    <option value="bold">
-                      Bold — tinted header and solid table heading bar
-                    </option>
-                  </select>
-                </label>
-              </div>
-            </div>
-          </aside>
         </div>
 
         <button
