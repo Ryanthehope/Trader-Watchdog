@@ -42,7 +42,7 @@ function Stats() {
     },
   ];
   return (
-    <section className="border-b border-slate-200 bg-white py-16">
+    <section className="border-b border-slate-200/70 bg-[#F2F4F7] py-16">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 md:grid-cols-2 xl:grid-cols-4 sm:px-6">
         {items.map((item) => (
           <div
@@ -176,7 +176,7 @@ function CompetitorComparison() {
   return (
     <section
       id="compare"
-      className="scroll-mt-24 border-b border-slate-200 bg-white py-16 sm:py-20"
+      className="scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
@@ -274,7 +274,7 @@ function Pillars() {
 
 function Faq() {
   return (
-    <section id="faq" className="border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
+    <section id="faq" className="border-y border-slate-200/70 bg-[#F2F4F7] py-20 sm:py-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <h2 className="text-center font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Common questions
