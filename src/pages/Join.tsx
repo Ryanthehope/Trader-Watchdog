@@ -36,6 +36,47 @@ const applicationRequirements = [
   "Upload PDFs or images, up to 8 files, 10 MB each.",
 ];
 
+const traderPoints = [
+  "An affordable, trusted public platform showing transparency for genuine local traders.",
+  "Show customers you are insured, compliant, and professional.",
+  "One fair fee, no area limits, no paid placements, no extras.",
+  "Help protect your community from rogue traders.",
+  "Automatic reminders for insurance, licences, memberships, and annual renewal.",
+  "A QR code for vehicles, stationery, and advertising that connects to your portal.",
+];
+
+const customerViews = [
+  {
+    title: "Verified listing",
+    body: "A search of your business name or telephone number connects to your business portal and shows a Green Flag. Your trading name, address, and telephone number display as verified. Your insurances and applicable licences display as verified. Your current qualifications and memberships display as visually confirmed, and your business description is shown.",
+    tone: "border-emerald-200 bg-emerald-50 text-slate-800",
+  },
+  {
+    title: "Not listed",
+    body: "A search of your business name or telephone number shows a Red Flag. Householders are advised that the trader does not have a verified listing and should be cautious, not entering an agreement without visual proof of insurance and legally required licences and registrations.",
+    tone: "border-rose-200 bg-rose-50 text-slate-800",
+  },
+];
+
+const howItWorks = [
+  {
+    title: "Add your business details",
+    body: "Use the trading name, postcode, email, and phone number you already advertise.",
+  },
+  {
+    title: "Upload your documents",
+    body: "Insurance is required. Other documents such as qualifications, memberships, and scheme registrations are optional but helpful.",
+  },
+  {
+    title: "Complete your checks",
+    body: "We guide you through identity, address, and liveness checks. We also review insurance and any required licences or registrations.",
+  },
+  {
+    title: "Pay only when approved",
+    body: "No payment until your credentials are validated and your application is accepted.",
+  },
+];
+
 export function Join() {
   const joinStatusRef = useRef<HTMLDivElement | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -607,7 +648,82 @@ export function Join() {
   const pricingHeading = "Annual membership";
 
   return (
-    <main className="border-b border-white/5 pb-24">
+    <>
+      <section className="border-b border-slate-200 bg-white py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
+            Proudly display you are a professional, legitimate business
+          </p>
+          <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
+            Verified. Legit. Trusted
+          </h2>
+          <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-700">
+            Trader Watchdog is not a platform to attract the public to traders.
+            It is a platform to protect the public from traders, providing
+            something that marketplaces, job registers, advertising, and social
+            media cannot: trust.
+          </p>
+          <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8">
+              <ul className="space-y-4 text-sm leading-relaxed text-slate-700 sm:text-base">
+                {traderPoints.map((point) => (
+                  <li key={point} className="flex gap-3">
+                    <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-600" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-brand-200 bg-brand-50 p-8">
+              <p className="text-sm font-semibold uppercase tracking-wider text-brand-700">
+                What it costs
+              </p>
+              <div className="mt-5 space-y-4 text-sm text-slate-700 sm:text-base">
+                <div className="rounded-2xl border border-white bg-white p-4">
+                  <p className="font-semibold text-slate-900">One-off registration fee</p>
+                  <p className="mt-1">£15, £18 including VAT</p>
+                </div>
+                <div className="rounded-2xl border border-white bg-white p-4">
+                  <p className="font-semibold text-slate-900">Annual subscription</p>
+                  <p className="mt-1">£79, £94.80 including VAT</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-12">
+            <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
+              What customers see
+            </p>
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
+              {customerViews.map((view) => (
+                <div key={view.title} className={`rounded-3xl border p-6 ${view.tone}`}>
+                  <h3 className="font-display text-xl font-semibold text-slate-900">{view.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed sm:text-base">{view.body}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mx-auto mt-6 max-w-3xl text-center text-sm leading-relaxed text-slate-700 sm:text-base">
+              Customers are asked to mention Trader Watchdog in all communications.
+              Trader Watchdog is designed to show proof first, not sell leads.
+            </p>
+          </div>
+          <div className="mt-12 rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.16)]">
+            <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
+              How it works
+            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {howItWorks.map((step, index) => (
+                <div key={step.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">Step {index + 1}</p>
+                  <h3 className="mt-3 font-display text-lg font-semibold text-slate-900">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-700">{step.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      <main className="border-b border-white/5 pb-24">
       <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-12 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
@@ -1367,5 +1483,6 @@ export function Join() {
         )}
       </div>
     </main>
+    </>
   );
 }
