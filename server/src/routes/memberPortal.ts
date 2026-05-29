@@ -61,17 +61,19 @@ const VAN_STICKER_CONFIGS = {
     templateFile: "van-sticker-1.jpg",
     mmWidth: 250,
     mmHeight: 100,
-    qrLeft: 145,  // px from left inside white box
-    qrTop: 72,    // px from top inside white box
-    qrSize: 950,  // QR code square (px)
+    // Outlined box detected at x=41–928, y=42–927 (887×885px, near-perfect square)
+    qrLeft: 62,   // px from left — centered inside outlined box with 20px inset
+    qrTop: 62,    // px from top
+    qrSize: 845,  // QR code square (px)
   },
   "2": {
     templateFile: "van-sticker-2.jpg",
     mmWidth: 187,
     mmHeight: 93,
-    qrLeft: 91,   // px from left inside white box
-    qrTop: 131,   // px from top inside white box
-    qrSize: 835,  // QR code square (px)
+    // Outlined box detected at x=37–994, y=42–1078 (957×1036px)
+    qrLeft: 57,   // px from left — centered inside outlined box with 20px inset
+    qrTop: 101,   // px from top
+    qrSize: 917,  // QR code square (px)
   },
 } as const;
 
