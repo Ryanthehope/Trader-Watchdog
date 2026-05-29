@@ -235,9 +235,30 @@ export function Layout() {
               </Link>
             </nav>
           </div>
-          <p className="mt-10 border-t border-white/5 pt-8 text-center text-xs text-slate-600">
-            © {new Date().getFullYear()} {brandName}. All rights reserved.
-          </p>
+          <div className="mt-10 border-t border-white/5 pt-8 space-y-1 text-center text-xs text-slate-600">
+            <p>
+              Trader Watchdog Ltd. Company number 17173750 registered in England and Wales.
+            </p>
+            <p>Registered office: 4th Floor Office, 205 Regent Street, London, W1B 4HB</p>
+            <p>
+              Email:{" "}
+              <a href="mailto:admin@traderwatchdog.co.uk" className="hover:text-slate-400">
+                admin@traderwatchdog.co.uk
+              </a>
+            </p>
+            <p className="pt-2">© {new Date().getFullYear()} Trader Watchdog Ltd</p>
+            <p>
+              Website design{" "}
+              <a
+                href="https://headstartwebdevelopment.co.uk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-slate-400"
+              >
+                Headstart Web Development
+              </a>
+            </p>
+          </div>
         </div>
       </footer>
     </div>
