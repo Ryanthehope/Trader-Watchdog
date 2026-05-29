@@ -2,9 +2,11 @@ import { Router } from "express";
 import { randomUUID } from "crypto";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import multer from "multer";
 import QRCode from "qrcode";
+import sharp from "sharp";
 import { prisma } from "../db.js";
 import {
   billingReady,
@@ -44,6 +46,36 @@ const QR_STICKER_SIZE_PX = 886; // 75mm at 300 DPI.
 const QR_SMALL_SIZE_PX = 236; // 20mm at 300 DPI.
 
 type QrVariant = "sticker" | "small";
+
+const ASSETS_DIR = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../assets"
+);
+
+// Van sticker composite configurations.
+// QR box coordinates are measured in pixels within the template images.
+// Template sizes: van1 = 2962×1174px (250×100mm @ ~300dpi), van2 = 2212×1108px (187×93mm @ ~300dpi).
+// Adjust qrLeft/qrTop/qrSize if positioning needs fine-tuning after a test print.
+const VAN_STICKER_CONFIGS = {
+  "1": {
+    templateFile: "van-sticker-1.jpg",
+    mmWidth: 250,
+    mmHeight: 100,
+    qrLeft: 145,  // px from left inside white box
+    qrTop: 72,    // px from top inside white box
+    qrSize: 950,  // QR code square (px)
+  },
+  "2": {
+    templateFile: "van-sticker-2.jpg",
+    mmWidth: 187,
+    mmHeight: 93,
+    qrLeft: 91,   // px from left inside white box
+    qrTop: 131,   // px from top inside white box
+    qrSize: 835,  // QR code square (px)
+  },
+} as const;
+
+type VanStickerId = keyof typeof VAN_STICKER_CONFIGS;
 
 function memberDocDir(memberId: string) {
   return path.join(UPLOAD_ROOT, memberId);
@@ -216,6 +248,8 @@ router.get("/me", async (req, res) => {
         stickerDownloadUrl: "/api/member/portal/qr-code/sticker",
         smallDownloadUrl: "/api/member/portal/qr-code/small",
         svgDownloadUrl: "/api/member/portal/qr-code/svg",
+        van1DownloadUrl: "/api/member/portal/qr-code/van-sticker/1",
+        van2DownloadUrl: "/api/member/portal/qr-code/van-sticker/2",
         stickerPixels: QR_STICKER_SIZE_PX,
         smallPixels: QR_SMALL_SIZE_PX,
       },
@@ -284,6 +318,79 @@ router.get("/qr-code/svg", async (req, res) => {
   } catch (e) {
     console.error("[member portal] qr-code svg failed", e);
     res.status(500).json({ error: "Could not generate QR code" });
+  }
+});
+
+// Van sticker composite: QR code composited into the white box on the sticker template.
+router.get("/qr-code/van-sticker/:id", async (req, res) => {
+  try {
+    const memberId = (req as unknown as { memberId: string }).memberId;
+    const idRaw = String(req.params.id ?? "").trim();
+    if (idRaw !== "1" && idRaw !== "2") {
+      res.status(400).json({ error: "Van sticker id must be 1 or 2" });
+      return;
+    }
+    const stickerId = idRaw as VanStickerId;
+    const cfg = VAN_STICKER_CONFIGS[stickerId];
+
+    const m = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        slug: true,
+        tvId: true,
+        verificationStatus: true,
+        membershipUnlimited: true,
+        membershipBillingType: true,
+        membershipExpiresAt: true,
+        goCardlessSubscriptionStatus: true,
+      },
+    });
+    if (!m) {
+      res.status(404).json({ error: "Account not found" });
+      return;
+    }
+    if (!isMemberQrEligible(m)) {
+      res.status(403).json({
+        error:
+          "QR downloads are enabled once verification is approved and your public profile is live.",
+      });
+      return;
+    }
+
+    const profileUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
+
+    // Generate QR code at the required size.
+    const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
+      type: "png",
+      errorCorrectionLevel: "H", // High error correction for van use
+      margin: 1,
+      width: cfg.qrSize,
+      color: { dark: "#000000", light: "#FFFFFFFF" },
+    });
+
+    // Load the template and composite the QR code into the white placeholder box.
+    // Output as PNG (lossless) so QR code edges stay artifact-free for the printer.
+    const templatePath = path.join(ASSETS_DIR, cfg.templateFile);
+    const output = await sharp(templatePath)
+      .composite([
+        {
+          input: qrPngBuffer,
+          left: cfg.qrLeft,
+          top: cfg.qrTop,
+        },
+      ])
+      .png({ compressionLevel: 9 })
+      .toBuffer();
+
+    const safeId = m.tvId.replace(/[^A-Za-z0-9_-]/g, "");
+    const filename = `trader-watchdog-${safeId}-van-sticker-${stickerId}-${cfg.mmWidth}x${cfg.mmHeight}mm.png`;
+    res.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.type("image/png");
+    res.send(output);
+  } catch (e) {
+    console.error("[member portal] van sticker composite failed", e);
+    res.status(500).json({ error: "Could not generate van sticker" });
   }
 });
 

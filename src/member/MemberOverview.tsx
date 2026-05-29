@@ -34,6 +34,8 @@ type MemberOverviewData = {
     stickerDownloadUrl: string;
     smallDownloadUrl: string;
     svgDownloadUrl: string;
+    van1DownloadUrl: string;
+    van2DownloadUrl: string;
     stickerPixels: number;
     smallPixels: number;
   };
@@ -81,7 +83,7 @@ export function MemberOverview() {
   const { member } = useMemberAuth();
   const [data, setData] = useState<MemberOverviewData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [qrBusy, setQrBusy] = useState<"sticker" | "small" | "svg" | null>(null);
+  const [qrBusy, setQrBusy] = useState<"sticker" | "small" | "svg" | "van1" | "van2" | null>(null);
   const [qrError, setQrError] = useState<string | null>(null);
   const [qrPreviewUrl, setQrPreviewUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -203,6 +205,22 @@ export function MemberOverview() {
       saveBlob(blob, `trader-watchdog-${tvId}-qr.svg`);
     } catch (e) {
       setQrError(e instanceof Error ? e.message : "Could not download SVG QR");
+    } finally {
+      setQrBusy(null);
+    }
+  }
+
+  async function downloadVanSticker(id: "van1" | "van2") {
+    try {
+      setQrError(null);
+      setQrBusy(id);
+      const url = id === "van1" ? qr.van1DownloadUrl : qr.van2DownloadUrl;
+      const label = id === "van1" ? "250x100mm" : "187x93mm";
+      const blob = await apiGetMemberBlob(url);
+      const tvId = p.tvId.trim().replace(/[^A-Za-z0-9_-]/g, "");
+      saveBlob(blob, `trader-watchdog-${tvId}-van-sticker-${label}.png`);
+    } catch (e) {
+      setQrError(e instanceof Error ? e.message : "Could not download van sticker");
     } finally {
       setQrBusy(null);
     }
@@ -386,6 +404,30 @@ export function MemberOverview() {
                             >
                               {qrBusy === "svg" ? "Preparing..." : "Download SVG (resolution-independent)"}
                             </button>
+                          </div>
+
+                          <div className="mt-4">
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                              Van sticker templates (print-ready, send to printer)
+                            </p>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <button
+                                type="button"
+                                onClick={() => void downloadVanSticker("van1")}
+                                disabled={qrBusy !== null}
+                                className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {qrBusy === "van1" ? "Preparing..." : "Van sticker 1 — 250×100mm"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => void downloadVanSticker("van2")}
+                                disabled={qrBusy !== null}
+                                className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {qrBusy === "van2" ? "Preparing..." : "Van sticker 2 — 187×93mm"}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ) : (
