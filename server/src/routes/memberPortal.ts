@@ -767,14 +767,13 @@ router.get("/invoices", async (req, res) => {
       res.status(503).json({ error: "Billing is not configured" });
       return;
     }
-    const list = await gocardless.invoices.list({
-      customer: m.goCardlessCustomerId,
-      limit: 36,
-    });
-    res.json({
-      goCardlessCustomerId: m.goCardlessCustomerId,
-      branding,
-      invoices: list.data.map((inv: any) => ({
+    let invoices: Array<Record<string, unknown>> = [];
+    try {
+      const list = await gocardless.invoices.list({
+        customer: m.goCardlessCustomerId,
+        limit: 36,
+      });
+      invoices = list.data.map((inv: any) => ({
         id: inv.id,
         number: inv.number,
         status: inv.status,
@@ -785,7 +784,17 @@ router.get("/invoices", async (req, res) => {
         created: inv.created,
         hostedInvoiceUrl: inv.hosted_invoice_url,
         invoicePdf: inv.invoice_pdf,
-      })),
+      }));
+    } catch (e) {
+      console.warn(
+        "[member portal] GoCardless invoices unavailable — account may not support the invoices API",
+        e
+      );
+    }
+    res.json({
+      goCardlessCustomerId: m.goCardlessCustomerId,
+      branding,
+      invoices,
     });
   } catch (e) {
     console.error(e);

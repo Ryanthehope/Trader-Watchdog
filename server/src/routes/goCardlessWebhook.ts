@@ -66,9 +66,10 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
 
   try {
     for (const event of events) {
-      if (event.resource_type !== "payments" || event.action !== "created") {
-        continue;
-      }
+      if (event.resource_type !== "payments") continue;
+      const action = event.action;
+      if (action !== "created" && action !== "confirmed") continue;
+
       const paymentId = event.links?.payment;
       if (!paymentId) continue;
 
@@ -76,13 +77,36 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
       const kind = payment.metadata?.checkoutKind;
       if (!kind) continue;
 
+      // On `created`: the billing_request link is available — capture the GoCardless
+      // customer ID and persist it. Do NOT provision yet; wait for `confirmed` to
+      // ensure the money has actually been collected (covers Bacs/Direct Debit).
+      if (action === "created") {
+        const customerId = await customerIdFromBillingRequest(
+          gocardless,
+          event.links?.billing_request
+        );
+        if (!customerId) continue;
+        const appId = payment.metadata?.applicationId;
+        if (appId && (kind === "registration_fee" || kind === "membership")) {
+          await prisma.application.updateMany({
+            where: { id: appId },
+            data: { goCardlessCustomerId: customerId },
+          });
+        }
+        const memberId = payment.metadata?.memberId;
+        if (memberId && kind === "member_portal_renewal") {
+          await prisma.member.updateMany({
+            where: { id: memberId },
+            data: { goCardlessCustomerId: customerId },
+          });
+        }
+        continue;
+      }
+
+      // action === "confirmed" — payment collected, safe to activate/provision
       const paymentCreatedAt = payment.created_at
         ? new Date(payment.created_at)
         : new Date();
-      const customerId = await customerIdFromBillingRequest(
-        gocardless,
-        event.links?.billing_request
-      );
 
       if (kind === "member_portal_renewal" && payment.metadata?.memberId) {
         const memberId = payment.metadata.memberId;
@@ -92,7 +116,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         });
         if (!member) {
           console.warn(
-            `[gocardless webhook] renewal completed for missing member ${memberId}`
+            `[gocardless webhook] renewal confirmed for missing member ${memberId}`
           );
           continue;
         }
@@ -108,7 +132,6 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             membershipExpiresAt: renewedUntil,
             goCardlessSubscriptionId: null,
             goCardlessSubscriptionStatus: null,
-            ...(customerId ? { goCardlessCustomerId: customerId } : {}),
           },
         });
         if (member.loginEmail?.trim()) {
@@ -125,10 +148,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
       if (appId && kind === "registration_fee") {
         const updated = await prisma.application.updateMany({
           where: { id: appId, registrationFeePaidAt: null },
-          data: {
-            registrationFeePaidAt: paymentCreatedAt,
-            ...(customerId ? { goCardlessCustomerId: customerId } : {}),
-          },
+          data: { registrationFeePaidAt: paymentCreatedAt },
         });
         if (updated.count > 0) {
           const prov = await provisionIfApplicationPaid(prisma, appId);
@@ -149,7 +169,6 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           data: {
             membershipSubscribed: true,
             manualMembershipExpiresAt: addOneCalendarYearEndUtc(paymentCreatedAt),
-            ...(customerId ? { goCardlessCustomerId: customerId } : {}),
           },
         });
         if (updated.count > 0) {
