@@ -181,12 +181,12 @@ export async function checkInsuranceExpiries(): Promise<{
             }
 
             const alerts = (policy.alertsSent as AlertsSent) || {};
-            if (daysUntilExpiry === 30 && !alerts["30days"]) {
+            if (daysUntilExpiry <= 30 && daysUntilExpiry > 14 && !alerts["30days"]) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "30days");
                 if (sent) alertsSent++;
             }
 
-            if (daysUntilExpiry === 14 && !alerts["14days"]) {
+            if (daysUntilExpiry <= 14 && daysUntilExpiry >= 0 && !alerts["14days"]) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "14days");
                 if (sent) alertsSent++;
             }

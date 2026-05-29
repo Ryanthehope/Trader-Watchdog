@@ -419,18 +419,22 @@ export function notifyApplicantApprovedForPayment(
     traderName?: string | null;
     company: string;
     email: string;
+    registrationFeePaid: boolean;
   }
 ): void {
   void (async () => {
     const base = await publicSiteBase(prisma);
     const joinUrl = `${base}/join`;
     const traderName = row.traderName?.trim() || row.company;
+    const nextStep = row.registrationFeePaid
+      ? "Your registration fee has already been recorded. To complete setup, return to the join page using the same email address and pay the annual membership."
+      : "To get started, return to the join page using the same email address to pay the registration fee. The annual membership step will then unlock automatically.";
     const text = [
       `Hi ${traderName},`,
       "",
       "Good news - your Trader Watchdog application has been approved.",
       "",
-      "Your registration fee has already been recorded. To complete setup, return to the join page using the same email address and pay the annual membership.",
+      nextStep,
       "",
       `Continue here: ${joinUrl}`,
       "",

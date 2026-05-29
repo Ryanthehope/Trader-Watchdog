@@ -936,6 +936,7 @@ router.patch("/applications/:id", async (req, res) => {
           traderName: full.identifiablePerson,
           company: full.company,
           email: full.email,
+          registrationFeePaid: Boolean(before.registrationFeePaidAt),
         });
       }
     }
