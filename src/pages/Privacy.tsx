@@ -7,216 +7,276 @@ export function Privacy() {
         Trader Watchdog
       </p>
       <h1 className="mt-2 font-display text-3xl font-bold text-white">
-        Privacy policy
+        Privacy Policy
       </h1>
-      <p className="mt-4 text-sm text-slate-500">Last updated: March 2026</p>
+      <p className="mt-4 text-sm text-slate-500">Effective: 1 June 2026</p>
 
       <div className="prose prose-invert mt-10 max-w-none space-y-8 text-sm leading-relaxed text-slate-400">
-        <p>
-          This policy explains how Trader Watchdog collects, uses, stores, and
-          protects personal information when you use our website, apply to
-          become a verified member, use the member portal, or interact with
-          verified business profiles. We process personal data in line with UK
-          data protection law (including the UK GDPR and the Data Protection Act
-          2018).
-        </p>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            Who we are
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">1. Introduction</h2>
           <p className="mt-2">
-            Trader Watchdog operates the verification and directory service
-            available at this website. For data protection purposes, we act as
-            the controller of personal data described in this policy (except
-            where trades process homeowner data themselves — for example when
-            you contact a member directly).
+            Trader Watchdog Ltd ("we", "us", "our") is committed to protecting your personal data and
+            respecting your privacy. This Privacy Policy explains how we collect, use, store, share,
+            and protect your information when you use the Trader Watchdog website, services, and
+            verification platform.
+          </p>
+          <p className="mt-2">
+            We comply with the UK General Data Protection Regulation (UK GDPR) and the Data Protection
+            Act 2018.
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            What we collect
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">2. Who We Are</h2>
           <p className="mt-2">
-            Depending on how you use the service, we may process:
+            Trader Watchdog Ltd — registered in England and Wales, Company No: 17173750.<br />
+            Registered Office: 4th Floor, 205 Regent St, London, W1B 4HB, England.<br />
+            Email:{" "}
+            <a href="mailto:admin@traderwatchdog.co.uk" className="text-brand-300 hover:text-brand-200">
+              admin@traderwatchdog.co.uk
+            </a>
           </p>
-          <ul className="mt-3 list-inside list-disc space-y-2 text-slate-400">
+          <p className="mt-2">
+            We are the data controller for all personal data processed through our website and
+            verification platform.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-display text-lg font-semibold text-white">3. Data We Collect</h2>
+
+          <h3 className="mt-4 font-semibold text-slate-300">3.1 Information you provide directly</h3>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>Name and contact details</li>
+            <li>Business name and trading address</li>
+            <li>Email address and phone number</li>
+            <li>Verification documents (insurance certificates, licences, qualifications)</li>
+            <li>Identity documents (for verification only; never published)</li>
+            <li>Payment and subscription information</li>
+            <li>Complaint or enquiry details</li>
+          </ul>
+
+          <h3 className="mt-4 font-semibold text-slate-300">3.2 Information collected automatically</h3>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>IP address</li>
+            <li>Device and browser information</li>
+            <li>Usage data and analytics</li>
             <li>
-              <strong className="text-slate-300">Identity and contact details</strong>{" "}
-              — for example name, email address, telephone number, and postcode
-              when you submit an application, contact a
-              verified member through our site, sign in to an account, or
-              contact us.
+              Cookie data (see our{" "}
+              <Link to="/cookies" className="text-brand-300 hover:text-brand-200">
+                Cookie Policy
+              </Link>
+              )
             </li>
-            <li>
-              <strong className="text-slate-300">Application and verification data</strong>{" "}
-              — information and documents you provide so we can carry out checks
-              and maintain an accurate listing (for example trade category,
-              insurance references, company details, and uploaded files where
-              applicable).
-            </li>
-            <li>
-              <strong className="text-slate-300">Account and membership data</strong>{" "}
-              — portal login identifiers, subscription or billing references where
-              you pay online, and records of membership status.
-            </li>
-            <li>
-              <strong className="text-slate-300">Usage and technical data</strong>{" "}
-              — such as IP address, browser type, approximate location derived
-              from IP, and security logs where needed to protect the service.
-            </li>
-            <li>
-              <strong className="text-slate-300">Communications</strong> — content
-              of messages you send us, and (where enabled) spam-prevention data
-              such as reCAPTCHA results.
-            </li>
-            <li>
-              <strong className="text-slate-300">Reviews and enquiries</strong>{" "}
-              — text you submit as a homeowner review, or messages routed
-              through profile contact forms, including the details needed to
-              display or deliver them.
-            </li>
+          </ul>
+
+          <h3 className="mt-4 font-semibold text-slate-300">3.3 Information from third parties</h3>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>Insurance providers (for validation)</li>
+            <li>Licensing bodies</li>
+            <li>Public registers</li>
+            <li>Payment processors</li>
+          </ul>
+
+          <h3 className="mt-4 font-semibold text-slate-300">3.4 Information we do not collect</h3>
+          <p className="mt-2">
+            We do not collect, store, or process personal information from members of the public who
+            use the Trader Watchdog website to view trader verification pages. Householders can search
+            and view trader information anonymously without creating an account or providing any
+            personal details.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-display text-lg font-semibold text-white">4. How We Use Your Information</h2>
+          <p className="mt-2">We use personal data for the following purposes:</p>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>To operate and manage the Trader Watchdog platform</li>
+            <li>To verify trader identity, insurance, and legal compliance</li>
+            <li>To manage trader subscriptions and accounts</li>
+            <li>To respond to enquiries, complaints, and support requests</li>
+            <li>To improve website performance and user experience</li>
+            <li>To meet our legal and regulatory obligations</li>
+          </ul>
+
+          <h3 className="mt-4 font-semibold text-slate-300">4.1 Creation of a Public Verification Portal</h3>
+          <p className="mt-2">
+            When a trader is successfully verified, we use the information they provide (such as
+            business name, trading address, insurance details, licences, memberships, and verification
+            status) to create a publicly accessible verification portal. This portal allows householders
+            to confirm that the trader is verified by Trader Watchdog Ltd.
+          </p>
+          <p className="mt-2">
+            Only information relevant to verification is displayed publicly. We do not publish sensitive
+            personal data, identity documents, or any information not required for public verification.
+          </p>
+
+          <h3 className="mt-4 font-semibold text-slate-300">4.2 QR Code Access</h3>
+          <p className="mt-2">
+            Verified traders are issued a unique QR code that links directly to their public
+            verification portal. The QR code is not displayed on the portal, but may be used by the
+            trader on vehicles, stationery, advertising, or other materials to allow the public to
+            access their portal quickly.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-display text-lg font-semibold text-white">5. Public Information</h2>
+
+          <h3 className="mt-4 font-semibold text-slate-300">5.1 What may be displayed publicly</h3>
+          <p className="mt-2">
+            We may display the following trader information on their public verification portal:
+          </p>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>Business name</li>
+            <li>Trading name</li>
+            <li>Business address</li>
+            <li>Verification status</li>
+            <li>Insurance validity (pass/fail only)</li>
+            <li>Licence, qualifications, or membership confirmations</li>
+          </ul>
+
+          <h3 className="mt-4 font-semibold text-slate-300">5.2 Personal Data Used as Business Information</h3>
+          <p className="mt-2">
+            We display the same business information that a trader uses on their invoices, business
+            documents, and public-facing materials. If a trader chooses to operate under their personal
+            name or uses their home address as their business address, this information will appear
+            publicly on their verification portal. This is because it forms part of their official
+            business identity and is required to confirm that the trader is genuine and contactable.
+          </p>
+          <p className="mt-2">
+            Traders may provide alternative business contact details if they do not wish to use
+            personal information for public display.
+          </p>
+
+          <h3 className="mt-4 font-semibold text-slate-300">5.3 What we never display</h3>
+          <p className="mt-2">We do not display:</p>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>Identity documents</li>
+            <li>Full insurance documents</li>
+            <li>Personal home addresses (unless used as the business address by the trader)</li>
+            <li>Personal phone numbers (unless used as the business phone number)</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            How we use your information
-          </h2>
-          <p className="mt-2">We use personal data to:</p>
-          <ul className="mt-3 list-inside list-disc space-y-2">
-            <li>Provide the directory, verification, and member portal features.</li>
-            <li>
-              Process applications, carry out checks, and publish or update
-              verified listings as described on the site.
-            </li>
-            <li>
-              Communicate with you about your account, membership, or support
-              requests.
-            </li>
-            <li>
-              Process payments where you subscribe or pay fees through our
-              payment providers.
-            </li>
-            <li>
-              Operate security, prevent abuse, enforce our terms, and meet legal
-              obligations.
-            </li>
-            <li>
-              Improve the service and understand aggregate usage (we do not sell
-              your personal data as a product).
-            </li>
+          <h2 className="font-display text-lg font-semibold text-white">6. Legal Bases for Processing</h2>
+          <p className="mt-2">We process personal data under the following lawful bases:</p>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li><strong>Contract</strong> – to provide our services to traders and users</li>
+            <li><strong>Legitimate interests</strong> – to operate a safe and trustworthy verification platform</li>
+            <li><strong>Legal obligation</strong> – to comply with regulatory requirements</li>
+            <li><strong>Consent</strong> – for cookies and optional communications</li>
           </ul>
-          <p className="mt-3">
-            Where UK GDPR applies, we rely on appropriate lawful bases — for
-            example performance of a contract, legitimate interests (such as
-            running a secure platform and improving the service), compliance
-            with legal obligations, or consent where we ask for it clearly
-            (such as non-essential cookies).
+        </section>
+
+        <section>
+          <h2 className="font-display text-lg font-semibold text-white">7. Sharing Your Information</h2>
+          <p className="mt-2">We may share personal data with:</p>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>Identity and document verification partners</li>
+            <li>Insurance validation partners</li>
+            <li>Payment processors</li>
+            <li>IT and hosting providers</li>
+            <li>Councils or enforcement bodies (where legally required)</li>
+          </ul>
+          <p className="mt-2">We never sell personal data.</p>
+        </section>
+
+        <section>
+          <h2 className="font-display text-lg font-semibold text-white">8. Data Retention</h2>
+          <p className="mt-2">
+            We retain personal data in accordance with our Data Retention &amp; Deletion Policy,
+            ensuring data is kept only as long as necessary for legal, operational, or verification
+            purposes.
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            Sharing and processors
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">9. Your Rights</h2>
+          <p className="mt-2">Under UK GDPR, you have the right to:</p>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            <li>Access your personal data</li>
+            <li>Correct inaccurate data</li>
+            <li>Request deletion</li>
+            <li>Restrict processing</li>
+            <li>Object to processing</li>
+            <li>Withdraw consent</li>
+            <li>Request data portability</li>
+            <li>Make a complaint to the ICO</li>
+          </ul>
           <p className="mt-2">
-            We may share data with trusted service providers who help us host the
-            site, send email, take payments, prevent fraud, or analyse errors —
-            only on our instructions and under appropriate contracts. We may
-            disclose information if required by law or to protect rights and
-            safety. Verified member profiles are published as you would expect in
-            a directory; do not post sensitive information you do not want shown.
+            To exercise your rights, contact us at:{" "}
+            <a href="mailto:admin@traderwatchdog.co.uk" className="text-brand-300 hover:text-brand-200">
+              admin@traderwatchdog.co.uk
+            </a>
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            International transfers
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">10. Cookies</h2>
           <p className="mt-2">
-            Where any provider processes data outside the UK, we ensure
-            appropriate safeguards (such as UK adequacy regulations or standard
-            contractual clauses) are in place where required.
+            We use cookies to improve website performance, analyse usage, and support secure login.
+            For full details, see our{" "}
+            <Link to="/cookies" className="text-brand-300 hover:text-brand-200">
+              Cookie Policy
+            </Link>
+            .
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            How long we keep data
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">11. Data Security</h2>
           <p className="mt-2">
-            We retain personal data only as long as necessary for the purposes
-            above — for example for the life of an active listing and a reasonable
-            period afterwards for legal, accounting, or dispute resolution
-            purposes. Review moderation records and security logs may be kept for
-            shorter or longer periods depending on the context.
+            We use technical and organisational measures to protect your data, including encryption,
+            secure servers, access controls, and regular security reviews. However, no online system
+            is completely secure.
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            Security
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">12. International Transfers</h2>
           <p className="mt-2">
-            We use appropriate technical and organisational measures to protect
-            personal data. No online service can be guaranteed 100% secure; if
-            you have reason to believe there has been unauthorised access,
-            please tell us promptly.
+            If we transfer data outside the UK, we ensure appropriate safeguards are in place, such
+            as adequacy regulations or standard contractual clauses.
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            Your rights
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">13. Complaints</h2>
           <p className="mt-2">
-            Under UK data protection law you may have the right to request access
-            to your personal data, correction of inaccuracies, erasure in certain
-            cases, restriction of processing, objection to processing based on
-            legitimate interests, and data portability where applicable. You may
-            also lodge a complaint with the Information Commissioner&apos;s
-            Office (ICO). To exercise your rights or ask questions, contact us via
-            the{" "}
-            <Link to="/contact" className="text-brand-400 hover:text-brand-300">
-              Contact
-            </Link>{" "}
-            page.
+            If you have concerns about how we handle your data, contact us at{" "}
+            <a href="mailto:admin@traderwatchdog.co.uk" className="text-brand-300 hover:text-brand-200">
+              admin@traderwatchdog.co.uk
+            </a>
+            . You may also contact the{" "}
+            <strong>Information Commissioner's Office (ICO)</strong>.
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            Cookies
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">14. Changes to This Policy</h2>
           <p className="mt-2">
-            We use cookies and similar technologies as needed for the site to
-            function, for security, and (where we offer them) for analytics or
-            preferences. You can control cookies through your browser settings;
-            disabling some cookies may limit features.
+            We may update this Privacy Policy from time to time. The latest version will always be
+            available on our website.
           </p>
         </section>
 
         <section>
-          <h2 className="font-display text-lg font-semibold text-white">
-            Changes
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-white">15. Contact Us</h2>
+          <p className="mt-2">For questions about this Privacy Policy:</p>
           <p className="mt-2">
-            We may update this policy from time to time. The &quot;Last
-            updated&quot; date at the top will change when we do; continued use
-            of the site after changes means you accept the updated policy where
-            the law allows.
+            Trader Watchdog Ltd<br />
+            Registered Office: 4th Floor, 205 Regent St, London, W1B 4HB, England<br />
+            Email:{" "}
+            <a href="mailto:admin@traderwatchdog.co.uk" className="text-brand-300 hover:text-brand-200">
+              admin@traderwatchdog.co.uk
+            </a>
           </p>
         </section>
+
       </div>
-
-      <Link
-        to="/"
-        className="mt-12 inline-block text-sm font-medium text-brand-400 hover:text-brand-300"
-      >
-        ← Back to home
-      </Link>
     </main>
   );
 }
