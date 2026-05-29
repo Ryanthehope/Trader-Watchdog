@@ -6,6 +6,12 @@ import { Join } from "./pages/Join";
 import { Login } from "./pages/Login";
 import { Privacy } from "./pages/Privacy";
 import { Terms } from "./pages/Terms";
+import { CookiePolicy } from "./pages/CookiePolicy";
+import { RefundsPolicy } from "./pages/RefundsPolicy";
+import { AccessibilityStatement } from "./pages/AccessibilityStatement";
+import { ComplaintsPolicy } from "./pages/ComplaintsPolicy";
+import { QrCodePolicy } from "./pages/QrCodePolicy";
+import { VerificationMethodology } from "./pages/VerificationMethodology";
 import { LookupMiss } from "./pages/LookupMiss";
 import { MemberProfile } from "./pages/MemberProfile";
 
@@ -97,7 +103,13 @@ export default function App() {
           {/* Removed post-job route */}
           {/* Guides/advice routes removed */}
           <Route path="privacy" element={<Privacy />} />
+          <Route path="cookies" element={<CookiePolicy />} />
           <Route path="terms" element={<Terms />} />
+          <Route path="refunds" element={<RefundsPolicy />} />
+          <Route path="accessibility" element={<AccessibilityStatement />} />
+          <Route path="complaints" element={<ComplaintsPolicy />} />
+          <Route path="qr-code-policy" element={<QrCodePolicy />} />
+          <Route path="verification-methodology" element={<VerificationMethodology />} />
           <Route path="contact" element={<Contact />} />
         </Route>
       </Routes>

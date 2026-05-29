@@ -198,33 +198,37 @@ export function Layout() {
               </p>
             </div>
             <nav
-              className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-slate-400"
+              className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-400"
               aria-label="Footer"
             >
-              {/* Guides link removed from footer */}
-              {/* Post a job link removed from footer */}
-              <Link
-                to="/join"
-                className="transition-colors hover:text-white"
-              >
+              <Link to="/join" className="transition-colors hover:text-white">
                 Apply
               </Link>
-              <Link
-                to="/privacy"
-                className="transition-colors hover:text-white"
-              >
-                Privacy
+              <Link to="/privacy" className="transition-colors hover:text-white">
+                Privacy Policy
               </Link>
-              <Link
-                to="/terms"
-                className="transition-colors hover:text-white"
-              >
-                Terms
+              <Link to="/cookies" className="transition-colors hover:text-white">
+                Cookie Policy
               </Link>
-              <Link
-                to="/contact"
-                className="transition-colors hover:text-white"
-              >
+              <Link to="/terms" className="transition-colors hover:text-white">
+                Terms of Use
+              </Link>
+              <Link to="/refunds" className="transition-colors hover:text-white">
+                Refund &amp; Cancellation Policy
+              </Link>
+              <Link to="/accessibility" className="transition-colors hover:text-white">
+                Accessibility
+              </Link>
+              <Link to="/complaints" className="transition-colors hover:text-white">
+                Complaints Policy
+              </Link>
+              <Link to="/qr-code-policy" className="transition-colors hover:text-white">
+                QR Code Use
+              </Link>
+              <Link to="/verification-methodology" className="transition-colors hover:text-white">
+                Verification Methodology
+              </Link>
+              <Link to="/contact" className="transition-colors hover:text-white">
                 Contact
               </Link>
               <Link
