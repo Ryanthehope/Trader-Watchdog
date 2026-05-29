@@ -20,11 +20,9 @@ export type MemberSession = {
   slug: string;
   mustChangePassword: boolean;
   membershipAccessActive: boolean;
-  membershipLegacyUnlimited: boolean;
-  membershipAdminUnlimited: boolean;
+  membershipUnlimited: boolean;
   membershipBillingType: string | null;
   membershipExpiresAt: string | null;
-  goCardlessSubscriptionStatus: string | null;
 };
 
 type Value = {
@@ -53,11 +51,9 @@ export function MemberAuthProvider({ children }: { children: ReactNode }) {
       mustChangePassword: boolean;
       membership?: {
         accessActive: boolean;
-        legacyUnlimited: boolean;
-        adminUnlimited: boolean;
+        membershipUnlimited: boolean;
         billingType: string | null;
         expiresAt: string | null;
-        subscriptionStatus: string | null;
       };
     }>("/api/member/portal/me");
     const m = data.membership;
@@ -68,11 +64,9 @@ export function MemberAuthProvider({ children }: { children: ReactNode }) {
       slug: data.profile.slug,
       mustChangePassword: Boolean(data.mustChangePassword),
       membershipAccessActive: m?.accessActive ?? false,
-      membershipLegacyUnlimited: m?.legacyUnlimited ?? false,
-      membershipAdminUnlimited: m?.adminUnlimited ?? false,
+      membershipUnlimited: m?.membershipUnlimited ?? false,
       membershipBillingType: m?.billingType ?? null,
       membershipExpiresAt: m?.expiresAt ?? null,
-      goCardlessSubscriptionStatus: m?.subscriptionStatus ?? null,
     });
   }, []);
 

@@ -130,8 +130,6 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           data: {
             membershipBillingType: "manual",
             membershipExpiresAt: renewedUntil,
-            goCardlessSubscriptionId: null,
-            goCardlessSubscriptionStatus: null,
           },
         });
         if (member.loginEmail?.trim()) {

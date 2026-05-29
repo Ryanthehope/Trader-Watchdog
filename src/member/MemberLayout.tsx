@@ -40,7 +40,7 @@ export function MemberLayout() {
 
   const membershipLocked =
     Boolean(member) &&
-    !member!.membershipLegacyUnlimited &&
+    !member!.membershipUnlimited &&
     !member!.membershipAccessActive;
 
   useEffect(() => {

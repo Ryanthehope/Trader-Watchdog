@@ -28,7 +28,6 @@ type CreatedMemberRef = {
   tvId: string;
   membershipBillingType?: string | null;
   membershipExpiresAt?: string | null;
-  goCardlessSubscriptionStatus?: string | null;
 };
 
 type AppRow = {
@@ -59,7 +58,6 @@ type AppRow = {
   registrationFeePaidAt: string | null;
   membershipSubscribed: boolean;
   manualMembershipExpiresAt?: string | null;
-  goCardlessSubscriptionStatus?: string | null;
   verificationProvider?: string | null;
   verificationStatus?: string | null;
   verificationSubmittedAt?: string | null;

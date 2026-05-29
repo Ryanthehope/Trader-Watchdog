@@ -5,11 +5,9 @@ import { useMemberAuth } from "./MemberAuthContext";
 
 type MembershipSummary = {
   accessActive: boolean;
-  legacyUnlimited: boolean;
-  adminUnlimited: boolean;
+  membershipUnlimited: boolean;
   billingType: string | null;
   expiresAt: string | null;
-  subscriptionStatus: string | null;
 };
 
 type VerificationSummary = {
