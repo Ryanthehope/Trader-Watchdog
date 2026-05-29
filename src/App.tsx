@@ -12,6 +12,8 @@ import { AccessibilityStatement } from "./pages/AccessibilityStatement";
 import { ComplaintsPolicy } from "./pages/ComplaintsPolicy";
 import { QrCodePolicy } from "./pages/QrCodePolicy";
 import { VerificationMethodology } from "./pages/VerificationMethodology";
+import { DataRetention } from "./pages/DataRetention";
+import { TraderAgreement } from "./pages/TraderAgreement";
 import { LookupMiss } from "./pages/LookupMiss";
 import { MemberProfile } from "./pages/MemberProfile";
 
@@ -110,6 +112,8 @@ export default function App() {
           <Route path="complaints" element={<ComplaintsPolicy />} />
           <Route path="qr-code-policy" element={<QrCodePolicy />} />
           <Route path="verification-methodology" element={<VerificationMethodology />} />
+          <Route path="data-retention" element={<DataRetention />} />
+          <Route path="agreement" element={<TraderAgreement />} />
           <Route path="contact" element={<Contact />} />
         </Route>
       </Routes>

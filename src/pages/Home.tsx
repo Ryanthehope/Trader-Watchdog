@@ -172,28 +172,7 @@ function FeatureHighlights() {
   );
 }
 
-function CompetitorComparison() {
-  return (
-    <section
-      id="compare"
-      className="scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20"
-    >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
-          Comparison
-        </p>
-        <h2 className="mt-2 text-center font-display text-2xl font-semibold text-slate-900 sm:text-3xl">
-          How we&apos;re different from lead directories
-        </h2>
-        <p className="mx-auto mt-3 max-w-3xl text-center text-sm text-slate-700">
-          Lead directories are platforms for selling work from traders to the
-          public. Trader Watchdog is a platform that protects the public from
-          rogue traders.
-        </p>
-      </div>
-    </section>
-  );
-}
+
 
 function Pillars() {
   const pillars = [
@@ -522,16 +501,16 @@ export function Home() {
       <Stats />
       <FeatureHighlights />
 
-      <section className="border-b border-brand-800/40 bg-brand-800 py-16 sm:py-20">
+      <section className="border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="font-display text-4xl font-bold text-white sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold text-slate-900 sm:text-5xl">
               What you will see
             </h2>
           </div>
 
           <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-12">
-            <div className="flex items-start gap-5 rounded-3xlborder-b border-brand-900/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
+            <div className="flex items-start gap-5 rounded-3xl border border-slate-200/70 bg-white p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-50">
               <img
                 src="/Green%20flag2.webp"
                 alt="Green flag"
@@ -542,7 +521,7 @@ export function Home() {
                 className="h-16 w-16 shrink-0 object-contain"
               />
 
-              <p className="text-base leading-relaxed text-white sm:text-lg">
+              <p className="text-base leading-relaxed text-slate-700 sm:text-lg">
                 <span className="font-bold">
                   A green flag
                 </span>{" "}
@@ -552,7 +531,7 @@ export function Home() {
               </p>
             </div>
 
-            <div className="flex items-start gap-5 rounded-3xl border-b border-brand-900/40 bg-white/5 p-6 text-left backdrop-blur-sm transition-all duration-200 hover:bg-white/10">
+            <div className="flex items-start gap-5 rounded-3xl border border-slate-200/70 bg-white p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-50">
               <img
                 src="/Red%20flag2.webp"
                 alt="Red flag"
@@ -563,7 +542,7 @@ export function Home() {
                 className="h-16 w-16 shrink-0 object-contain"
               />
 
-              <p className="text-base leading-relaxed text-white sm:text-lg">
+              <p className="text-base leading-relaxed text-slate-700 sm:text-lg">
                 <span className="font-bold">
                   A red flag
                 </span>{" "}
@@ -576,7 +555,6 @@ export function Home() {
         </div>
       </section>
 
-      <CompetitorComparison />
       <Pillars />
       <Faq />
       {/* GuidesTeaser removed */}

@@ -228,6 +228,12 @@ export function Layout() {
               <Link to="/verification-methodology" className="transition-colors hover:text-white">
                 Verification Methodology
               </Link>
+              <Link to="/data-retention" className="transition-colors hover:text-white">
+                Data Retention
+              </Link>
+              <Link to="/agreement" className="transition-colors hover:text-white">
+                Trader Agreement
+              </Link>
               <Link to="/contact" className="transition-colors hover:text-white">
                 Contact
               </Link>
