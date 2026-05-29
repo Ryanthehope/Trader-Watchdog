@@ -113,7 +113,7 @@ export function VerificationMethodology() {
             <li>Coverage type</li>
           </ul>
           <p className="mt-2">
-            The public portal displays pass/fail only, not full policy details.
+            The public portal shows which types of insurance are held and their current status, but not full policy details.
           </p>
         </section>
 
