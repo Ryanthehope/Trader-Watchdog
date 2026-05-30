@@ -48,20 +48,24 @@ export function Login() {
 
   useEffect(() => {
     if (!ready) return;
-    if (staff) {
-      const target =
-        from && from.startsWith("/staff") && from !== "/login"
-          ? from
-          : "/staff";
-      navigate(target, { replace: true });
-    } else if (member) {
-      const target =
-        from && from.startsWith("/member") && from !== "/login"
-          ? from
-          : "/member";
-      navigate(target, { replace: true });
+    if (role === "staff") {
+      if (staff) {
+        const target =
+          from && from.startsWith("/staff") && from !== "/login"
+            ? from
+            : "/staff";
+        navigate(target, { replace: true });
+      }
+    } else {
+      if (member) {
+        const target =
+          from && from.startsWith("/member") && from !== "/login"
+            ? from
+            : "/member";
+        navigate(target, { replace: true });
+      }
     }
-  }, [ready, staff, member, navigate, from]);
+  }, [ready, role, staff, member, navigate, from]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();

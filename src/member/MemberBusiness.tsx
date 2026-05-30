@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useState } from "react";
 import type { VerifiedMember } from "../types/content";
 import {
   apiGetMember,
-  apiPostMemberForm,
   apiSendMember,
   publicApiUrl,
 } from "../lib/api";
@@ -17,8 +16,6 @@ export function MemberBusiness() {
     slug: "",
     checks: [] as string[],
   });
-  const [profileLogo, setProfileLogo] = useState(false);
-  const [logoBusy, setLogoBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -35,7 +32,6 @@ export function MemberBusiness() {
         setLocation(p.location);
         setBlurb(p.blurb);
         setReadOnly({ tvId: p.tvId, slug: p.slug, checks: p.checks });
-        setProfileLogo(Boolean(p.profileLogo));
       })
       .catch((e) => {
         if (!cancelled) setError(e instanceof Error ? e.message : "Load failed");
@@ -83,91 +79,6 @@ export function MemberBusiness() {
       </p>
 
       <div className="mt-5 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
-        <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-          <h2 className="text-sm font-semibold text-slate-900">Profile logo</h2>
-          <p className="mt-1 text-xs text-slate-500">
-            Optional image shown on your public Trader Watchdog profile (PNG, JPEG, or
-            WebP, max 2 MB).
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-4">
-            {profileLogo ? (
-              <img
-                src={publicApiUrl(
-                  `/api/members/by-slug/${encodeURIComponent(readOnly.slug)}/profile-logo`
-                )}
-                alt=""
-                className="h-20 w-20 rounded-lg border border-slate-200 object-contain"
-              />
-            ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-slate-200 text-xs text-slate-400">
-                No logo
-              </div>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <label className="cursor-pointer rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">
-                {logoBusy ? "Uploading…" : "Upload"}
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="sr-only"
-                  disabled={logoBusy}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    e.target.value = "";
-                    if (!file) return;
-                    setLogoBusy(true);
-                    setError(null);
-                    setMessage(null);
-                    try {
-                      const fd = new FormData();
-                      fd.append("logo", file);
-                      const d = await apiPostMemberForm<{ profile: VerifiedMember }>(
-                        "/api/member/portal/profile-logo",
-                        fd
-                      );
-                      setProfileLogo(Boolean(d.profile.profileLogo));
-                      setMessage("Logo updated.");
-                    } catch (err) {
-                      setError(
-                        err instanceof Error ? err.message : "Upload failed"
-                      );
-                    } finally {
-                      setLogoBusy(false);
-                    }
-                  }}
-                />
-              </label>
-              {profileLogo ? (
-                <button
-                  type="button"
-                  disabled={logoBusy}
-                  onClick={async () => {
-                    setLogoBusy(true);
-                    setError(null);
-                    try {
-                      const d = await apiSendMember<{ profile: VerifiedMember }>(
-                        "/api/member/portal/profile-logo",
-                        { method: "DELETE" }
-                      );
-                      setProfileLogo(Boolean(d.profile.profileLogo));
-                      setMessage("Logo removed.");
-                    } catch (err) {
-                      setError(
-                        err instanceof Error ? err.message : "Remove failed"
-                      );
-                    } finally {
-                      setLogoBusy(false);
-                    }
-                  }}
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  Remove
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </div>
-
         <div className="min-w-0 rounded-xl border border-amber-200/90 bg-amber-50 px-3 py-3 text-amber-950 shadow-sm sm:px-4 sm:py-3.5">
           <p className="text-xs font-semibold uppercase tracking-wide text-amber-900/90">
             Staff-managed

@@ -318,15 +318,11 @@ export function MemberProfile() {
             <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:justify-between sm:p-8">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start gap-4">
-                  {member.profileLogo ? (
-                    <img
-                      src={publicApiUrl(
-                        `/api/members/by-slug/${encodeURIComponent(member.slug)}/profile-logo`
-                      )}
-                      alt=""
+                  <img
+                      src="/traderwatchdog_logo.webp"
+                      alt="Trader Watchdog"
                       className="h-16 w-16 shrink-0 rounded-xl border border-white/15 bg-slate-900/50 object-contain ring-1 ring-white/10 sm:h-20 sm:w-20"
                     />
-                  ) : null}
                   <div className="min-w-0">
                 <p className="inline-flex rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-bold tracking-wide text-white">
                   Tel: {member.tvId}
