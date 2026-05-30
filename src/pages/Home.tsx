@@ -219,7 +219,7 @@ function Pillars() {
           With just one click
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-600">
-          We check if they are who they say they are, they are based where they say they&apos;re based, they are insured to carry out the work, and they comply with legal environmental and data requirements for traders working at domestic properties.
+          We check if they are who they say they are. <br />They are based where they say they&apos;re based. <br />They are insured to carry out the work. <br />And they comply with legal environmental and data requirements for traders working at domestic properties.
         </p>
         <div className="mt-14 grid gap-8 sm:grid-cols-2">
           {pillars.map((p) => (

@@ -192,13 +192,13 @@ export function Layout() {
               <Link to="/" className="inline-block outline-none ring-brand-500 focus-visible:ring-2">
                 <Logo title={brandName} variant="footer" />
               </Link>
-              <p className="mt-4 text-sm leading-relaxed text-slate-500">
+              <p className="mt-4 text-base leading-relaxed text-white/75">
                 Independent verification for trades and homeowners — confirm
                 credentials before you hire.
               </p>
             </div>
             <nav
-              className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-400"
+              className="flex flex-wrap gap-x-6 gap-y-3 text-base text-white/75"
               aria-label="Footer"
             >
               <Link to="/join" className="transition-colors hover:text-white">
@@ -239,13 +239,13 @@ export function Layout() {
               </Link>
               <Link
                 to="/member/login"
-                className="text-slate-600 transition-colors hover:text-slate-400"
+                className="text-white/40 transition-colors hover:text-white/75"
               >
                 Trader log in
               </Link>
             </nav>
           </div>
-          <div className="mt-10 border-t border-white/5 pt-8 space-y-1 text-center text-xs text-slate-600">
+          <div className="mt-10 border-t border-white/5 pt-8 space-y-1 text-center text-sm text-white/60">
             <p>
               Trader Watchdog Ltd. Company number 17173750 registered in England and Wales.
             </p>
@@ -253,7 +253,7 @@ export function Layout() {
             <p>VAT number: 518 4466 75</p>
             <p>
               Email:{" "}
-              <a href="mailto:admin@traderwatchdog.co.uk" className="hover:text-slate-400">
+              <a href="mailto:admin@traderwatchdog.co.uk" className="hover:text-white">
                 admin@traderwatchdog.co.uk
               </a>
             </p>
@@ -264,7 +264,7 @@ export function Layout() {
                 href="https://headstartwebdevelopment.co.uk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-slate-400"
+                className="hover:text-white"
               >
                 Headstart Web Development
               </a>
