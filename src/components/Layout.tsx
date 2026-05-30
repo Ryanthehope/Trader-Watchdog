@@ -251,6 +251,7 @@ export function Layout() {
             </p>
             <p>Registered office: 4th Floor Office, 205 Regent Street, London, W1B 4HB</p>
             <p>VAT number: 518 4466 75</p>
+            <p>ICO registration: ZC158586</p>
             <p>
               Email:{" "}
               <a href="mailto:admin@traderwatchdog.co.uk" className="hover:text-white">

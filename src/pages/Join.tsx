@@ -77,6 +77,55 @@ const howItWorks = [
   },
 ];
 
+type FaqItem = { q: string; a: string };
+
+const traderFaqItems: FaqItem[] = [
+  {
+    q: "Can any trade be registered?",
+    a: " Yes, any trade that supplies services to households at the domestic property, from dog walkers to builders, from  tilers to  window cleaners, and hundreds more!",
+  },
+  {
+    q: "What does verification involve?",
+    a: "We verify your identity, business details, public liability insurance, and any relevant licences or memberships. Once approved, you receive a QR code and public verification page.",
+  },
+  {
+    q: "What fees do I pay?",
+    a: "There are two fees: a non-refundable registration fee and the first year's annual subscription.",
+  },
+  {
+    q: "When is payment taken?",
+    a: "After our diligence checks are completed. If you are verified, we collect the registration fee and first year's subscription. If you are not verified, we collect the registration fee only and no subscription payment is taken.",
+  },
+  {
+    q: "Why is the registration fee non-refundable?",
+    a: "It covers the cost of processing your application and completing verification checks, even if you are not approved.",
+  },
+  {
+    q: "How long does verification take?",
+    a: "Most applications are processed within a few working days, depending on document accuracy.",
+  },
+  {
+    q: "How does annual renewal work?",
+    a: "Your subscription renews automatically 12 months after approval. You will receive reminders 30 days before renewal and 14 days before renewal. You will also receive reminders for your insurances, licences, and registrations.",
+  },
+  {
+    q: "How do I cancel my subscription?",
+    a: "You can cancel at any time through your account or by contacting us. Your verification remains active until the end of your paid period. Registration fees and subscription payments are non-refundable.",
+  },
+  {
+    q: "What happens if my Direct Debit fails?",
+    a: "We may retry the payment or request updated details. Your verification may be paused until payment is successfully collected.",
+  },
+  {
+    q: "What happens if my insurance expires?",
+    a: "Your verification will show as 'Not Verified' until updated documents are provided.",
+  },
+  {
+    q: "Can I use the badge if I'm not verified?",
+    a: "No. Misuse of the QR code breaches our Misrepresentation Policy and may result in suspension or removal.",
+  },
+];
+
 export function Join() {
   const joinStatusRef = useRef<HTMLDivElement | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1483,6 +1532,27 @@ export function Join() {
         )}
       </div>
     </main>
+
+    <section className="border-b border-brand-800/60 bg-brand-800 py-20 sm:py-24">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
+        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          Common questions for traders
+        </h2>
+        <dl className="mt-12 space-y-6">
+          {traderFaqItems.map((item) => (
+            <div
+              key={item.q}
+              className="rounded-lg border border-slate-700/60 bg-slate-800/50 px-6 py-6 transition-all duration-200 hover:border-slate-500"
+            >
+              <dt className="font-semibold text-white">{item.q}</dt>
+              <dd className="mt-3 text-sm leading-relaxed text-slate-300">
+                {item.a}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
     </>
   );
 }

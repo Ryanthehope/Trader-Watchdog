@@ -218,9 +218,12 @@ function Pillars() {
         <h2 className="mt-3 max-w-3xl text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:mx-auto sm:text-4xl">
           With just one click
         </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-600">
-          We check if they are who they say they are. <br />They are based where they say they&apos;re based. <br />They are insured to carry out the work. <br />And they comply with legal environmental and data requirements for traders working at domestic properties.
-        </p>
+        <ul className="mx-auto mt-6 max-w-2xl space-y-2 text-center text-base text-slate-600">
+          <li>We check if they are who they say they are.</li>
+          <li>They are based where they say they&apos;re based.</li>
+          <li>They are insured to carry out the work.</li>
+          <li>They comply with legal environmental and data requirements for traders working at domestic properties.</li>
+        </ul>
         <div className="mt-14 grid gap-8 sm:grid-cols-2">
           {pillars.map((p) => (
             <div
@@ -258,31 +261,19 @@ function Faq() {
         <h2 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Common questions
         </h2>
-        <div className="mt-12 grid gap-10 lg:grid-cols-2">
-          {faqGroups.map((group) => (
-            <section key={group.title} aria-labelledby={group.id}>
-              <h3
-                id={group.id}
-                className="text-xl font-display font-semibold text-white"
-              >
-                {group.title}
-              </h3>
-              <dl className="mt-5 space-y-6">
-                {group.items.map((item) => (
-                  <div
-                    key={item.q}
-                    className="rounded-lg border border-slate-700/60 bg-slate-800/50 px-6 py-6 transition-all duration-200 hover:border-slate-500"
-                  >
-                    <dt className="font-semibold text-white">{item.q}</dt>
-                    <dd className="mt-3 text-sm leading-relaxed text-slate-300">
-                      {item.a}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
+        <dl className="mt-12 space-y-6">
+          {publicFaqItems.map((item) => (
+            <div
+              key={item.q}
+              className="rounded-lg border border-slate-700/60 bg-slate-800/50 px-6 py-6 transition-all duration-200 hover:border-slate-500"
+            >
+              <dt className="font-semibold text-white">{item.q}</dt>
+              <dd className="mt-3 text-sm leading-relaxed text-slate-300">
+                {item.a}
+              </dd>
+            </div>
           ))}
-        </div>
+        </dl>
       </div>
     </section>
   );
@@ -292,53 +283,6 @@ type FaqItem = {
   q: string;
   a: string;
 };
-
-const traderFaqItems: FaqItem[] = [
-  {
-    q: "Can any trade be registered?",
-    a: " Yes, any trade that supplies services to households at the domestic property, from dog walkers to builders, from  tilers to  window cleaners, and hundreds more!",
-  },
-  {
-    q: "What does verification involve?",
-    a: "We verify your identity, business details, public liability insurance, and any relevant licences or memberships. Once approved, you receive a QR code and public verification page.",
-  },
-  {
-    q: "What fees do I pay?",
-    a: "There are two fees: a non-refundable registration fee and the first year's annual subscription.",
-  },
-  {
-    q: "When is payment taken?",
-    a: "After our diligence checks are completed. If you are verified, we collect the registration fee and first year's subscription. If you are not verified, we collect the registration fee only and no subscription payment is taken.",
-  },
-  {
-    q: "Why is the registration fee non-refundable?",
-    a: "It covers the cost of processing your application and completing verification checks, even if you are not approved.",
-  },
-  {
-    q: "How long does verification take?",
-    a: "Most applications are processed within a few working days, depending on document accuracy.",
-  },
-  {
-    q: "How does annual renewal work?",
-    a: "Your subscription renews automatically 12 months after approval. You will receive reminders 30 days before renewal and 14 days before renewal. You will also receive reminders for your insurances, licences, and registrations.",
-  },
-  {
-    q: "How do I cancel my subscription?",
-    a: "You can cancel at any time through your account or by contacting us. Your verification remains active until the end of your paid period. Registration fees and subscription payments are non-refundable.",
-  },
-  {
-    q: "What happens if my Direct Debit fails?",
-    a: "We may retry the payment or request updated details. Your verification may be paused until payment is successfully collected.",
-  },
-  {
-    q: "What happens if my insurance expires?",
-    a: "Your verification will show as 'Not Verified' until updated documents are provided.",
-  },
-  {
-    q: "Can I use the badge if I'm not verified?",
-    a: "No. Misuse of the QR code breaches our Misrepresentation Policy and may result in suspension or removal.",
-  },
-];
 
 const publicFaqItems: FaqItem[] = [
   {
@@ -375,18 +319,7 @@ const publicFaqItems: FaqItem[] = [
   },
 ];
 
-const faqGroups = [
-  {
-    id: "faq-traders",
-    title: "For traders",
-    items: traderFaqItems,
-  },
-  {
-    id: "faq-public",
-    title: "For the public",
-    items: publicFaqItems,
-  },
-];
+
 
 function useHashScroll() {
   const { pathname, hash } = useLocation();
