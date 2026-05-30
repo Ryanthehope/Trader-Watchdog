@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useSiteData } from "../context/SiteDataContext";
+import { getConsentStatus } from "./CookieBanner";
 
 type GtagWindow = Window & {
   dataLayer?: unknown[];
@@ -20,9 +21,18 @@ export function GoogleAnalytics() {
   const location = useLocation();
   const id = googleAnalyticsMeasurementId?.trim() ?? "";
   const lastConfiguredId = useRef<string | null>(null);
+  const [consent, setConsent] = useState<string | null>(() => getConsentStatus());
+
+  // Re-check consent when the user accepts via the banner
+  useEffect(() => {
+    const handler = () => setConsent(getConsentStatus());
+    window.addEventListener("tw:consent-changed", handler);
+    return () => window.removeEventListener("tw:consent-changed", handler);
+  }, []);
 
   useEffect(() => {
     if (!id || location.pathname.startsWith("/staff")) return;
+    if (consent !== "accepted") return;
 
     const w = window as GtagWindow;
     w.dataLayer = w.dataLayer ?? [];
@@ -63,7 +73,7 @@ export function GoogleAnalytics() {
       sendPageView();
     };
     document.head.appendChild(script);
-  }, [id, location.pathname, location.search]);
+  }, [id, location.pathname, location.search, consent]);
 
   return null;
 }
