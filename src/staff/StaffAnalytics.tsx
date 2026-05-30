@@ -127,7 +127,7 @@ export function StaffAnalytics() {
             Open Google Analytics
           </a>
           <Link
-            to="/staff/integrations?tab=ga"
+            to="/staff/settings"
             className="inline-flex rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/5"
           >
             Edit Measurement ID

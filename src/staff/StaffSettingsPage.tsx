@@ -22,6 +22,9 @@ type Settings = {
   checkoutRegistrationFeePence: number;
   hasGoCardlessSecret: boolean;
   hasGoCardlessWebhookSecret: boolean;
+  googleAnalyticsMeasurementId: string | null;
+  googleAnalyticsPropertyId: string | null;
+  hasGoogleAnalyticsServiceAccount: boolean;
 };
 
 export function StaffSettingsPage() {
@@ -54,6 +57,9 @@ export function StaffSettingsPage() {
   const [checkoutMembershipPence, setCheckoutMembershipPence] = useState("");
   const [checkoutRegistrationFeePence, setCheckoutRegistrationFeePence] =
     useState("");
+  const [gaMeasurementId, setGaMeasurementId] = useState("");
+  const [gaPropertyId, setGaPropertyId] = useState("");
+  const [gaServiceAccountJson, setGaServiceAccountJson] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -87,6 +93,9 @@ export function StaffSettingsPage() {
         setCheckoutRegistrationFeePence(
           String(s.checkoutRegistrationFeePence ?? 1800)
         );
+        setGaMeasurementId(s.googleAnalyticsMeasurementId ?? "");
+        setGaPropertyId(s.googleAnalyticsPropertyId ?? "");
+        setGaServiceAccountJson("");
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
       .finally(() => setLoading(false));
@@ -143,6 +152,12 @@ export function StaffSettingsPage() {
       )
         ? registrationFeePenceNum
         : 1800;
+
+      body.googleAnalyticsMeasurementId = gaMeasurementId.trim() || null;
+      body.googleAnalyticsPropertyId = gaPropertyId.trim() || null;
+      if (gaServiceAccountJson.trim()) {
+        body.googleAnalyticsServiceAccountJson = gaServiceAccountJson.trim();
+      }
 
       if (clearGoCardlessSecret) {
         body.goCardlessSecretKey = null;
@@ -580,6 +595,58 @@ export function StaffSettingsPage() {
                 </p>
               ) : null}
             </div>
+          </div>
+        </section>
+
+        {/* Google Analytics */}
+        <section className="space-y-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Google Analytics
+          </h2>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-300">
+              Measurement ID
+              <span className="ml-1 text-xs font-normal text-slate-500">(e.g. G-XXXXXXXXXX — loads the tracking tag on the public site)</span>
+            </label>
+            <input
+              type="text"
+              value={gaMeasurementId}
+              onChange={(e) => setGaMeasurementId(e.target.value)}
+              placeholder="G-XXXXXXXXXX"
+              className="w-full rounded-xl border border-white/12 bg-ink-950 px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-300">
+              Property ID
+              <span className="ml-1 text-xs font-normal text-slate-500">(numeric ID — used to pull live traffic stats into the Analytics page)</span>
+            </label>
+            <input
+              type="text"
+              value={gaPropertyId}
+              onChange={(e) => setGaPropertyId(e.target.value)}
+              placeholder="123456789"
+              className="w-full rounded-xl border border-white/12 bg-ink-950 px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-300">
+              Service account JSON
+              <span className="ml-1 text-xs font-normal text-slate-500">(paste the full JSON key — required for the Data API traffic stats)</span>
+            </label>
+            <textarea
+              value={gaServiceAccountJson}
+              onChange={(e) => setGaServiceAccountJson(e.target.value)}
+              rows={4}
+              placeholder={settings?.hasGoogleAnalyticsServiceAccount ? "Key already saved — paste a new one to replace it" : "Paste the full contents of the service account .json key file"}
+              className="w-full rounded-xl border border-white/12 bg-ink-950 px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            />
+            {settings?.hasGoogleAnalyticsServiceAccount ? (
+              <p className="text-xs text-emerald-400">Service account key is saved.</p>
+            ) : null}
           </div>
         </section>
 
