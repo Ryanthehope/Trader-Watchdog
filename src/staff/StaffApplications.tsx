@@ -72,6 +72,7 @@ type AppRow = {
   addressVerificationFailureReason?: string | null;
   addressVerificationMatchedAddress?: string | null;
   addressVerificationMatchedApplication?: boolean | null;
+  approvedByStaffName?: string | null;
   createdAt: string;
   documents: AppDoc[];
   createdMember: CreatedMemberRef | null;
@@ -839,6 +840,11 @@ function ApplicationCard({
               {row.verificationProviderApplicantId ? (
                 <span className="rounded-full bg-white/5 px-2.5 py-1 text-slate-500">
                   Applicant linked
+                </span>
+              ) : null}
+              {row.status === "APPROVED" && row.approvedByStaffName ? (
+                <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 font-medium text-emerald-300">
+                  Approved by {row.approvedByStaffName}
                 </span>
               ) : null}
             </div>

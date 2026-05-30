@@ -200,6 +200,8 @@ model Application {
   addressVerificationFailureReason    String?
   addressVerificationMatchedAddress   String?
   addressVerificationMatchedApplication Boolean?
+  /// First name of the staff member who set the application status to APPROVED.
+  approvedByStaffName             String?
   goCardlessCustomerId             String?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?

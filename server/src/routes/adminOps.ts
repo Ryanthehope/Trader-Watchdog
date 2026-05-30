@@ -1,4 +1,5 @@
 import fs from "fs";
+import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 import { Router } from "express";
 import type { ApplicationStatus, Prisma } from "@prisma/client";
@@ -90,6 +91,7 @@ const ADMIN_APPLICATION_FULL_SELECT = {
   addressVerificationFailureReason: true,
   addressVerificationMatchedAddress: true,
   addressVerificationMatchedApplication: true,
+  approvedByStaffName: true,
   pendingPortalPassword: true,
   pendingPortalPasswordExpires: true,
   createdAt: true,
@@ -716,6 +718,7 @@ function serializeAdminApplication(a: {
   addressVerificationFailureReason?: string | null;
   addressVerificationMatchedAddress?: string | null;
   addressVerificationMatchedApplication?: boolean | null;
+  approvedByStaffName?: string | null;
   pendingPortalPassword?: string | null;
   pendingPortalPasswordExpires?: Date | null;
   vettingState: unknown;
@@ -761,12 +764,14 @@ function serializeAdminApplication(a: {
     addressVerificationMatchedAddress,
     addressVerificationMatchedApplication,
     vettingState,
+    approvedByStaffName,
     pendingPortalPassword: _pendingPw,
     pendingPortalPasswordExpires: _pendingPwExp,
     ...rest
   } = a;
   return {
     ...rest,
+    approvedByStaffName: approvedByStaffName ?? null,
     notes: sanitizeNullableDbString(notes),
     vettingChecklist: sanitizeNullableDbString(vettingChecklist),
     vettingState: mergeVettingStateFromDb(vettingState),
@@ -850,12 +855,15 @@ router.patch("/applications/:id", async (req, res) => {
       "DECLINED",
     ];
     const { vettingChecklist, vettingState: vettingStateBody } = req.body ?? {};
+    const staffId = (req as Request & { staffId?: string }).staffId;
+
     const data: {
       status?: ApplicationStatus;
       notes?: string | null;
       vettingChecklist?: string | null;
       vettingState?: Prisma.InputJsonValue;
       approvedAt?: Date | null;
+      approvedByStaffName?: string | null;
     } = {};
     if (status !== undefined) {
       const s = String(status) as ApplicationStatus;
@@ -886,9 +894,17 @@ router.patch("/applications/:id", async (req, res) => {
 
     if (transitioningToApproved) {
       data.approvedAt = new Date();
+      if (staffId) {
+        const staffRow = await prisma.staff.findUnique({
+          where: { id: staffId },
+          select: { name: true },
+        });
+        data.approvedByStaffName = (staffRow?.name ?? "").split(" ")[0].trim() || null;
+      }
     }
     if (transitioningFromApproved) {
       data.approvedAt = null;
+      data.approvedByStaffName = null;
     }
 
     if (transitioningToApproved && !before.createdMemberId) {
@@ -1468,5 +1484,125 @@ router.get(
     }
   }
 );
+
+/** ── Staff accounts management ─────────────────────────── */
+
+router.get("/staff", async (_req, res) => {
+  try {
+    const rows = await prisma.staff.findMany({
+      orderBy: { createdAt: "asc" },
+      select: { id: true, name: true, email: true, createdAt: true },
+    });
+    res.json({ staff: rows.map((s) => ({ ...s, createdAt: s.createdAt.toISOString() })) });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not list staff" });
+  }
+});
+
+router.post("/staff", async (req, res) => {
+  try {
+    const name = String(req.body?.name ?? "").trim();
+    const email = String(req.body?.email ?? "").trim().toLowerCase();
+    const password = String(req.body?.password ?? "").replace(/[\r\n]+/g, "").trim();
+    if (!name) {
+      res.status(400).json({ error: "Name is required" });
+      return;
+    }
+    if (!email || !email.includes("@")) {
+      res.status(400).json({ error: "A valid email is required" });
+      return;
+    }
+    if (password.length < 8) {
+      res.status(400).json({ error: "Password must be at least 8 characters" });
+      return;
+    }
+    const existing = await prisma.staff.findUnique({ where: { email } });
+    if (existing) {
+      res.status(400).json({ error: "A staff account with that email already exists" });
+      return;
+    }
+    const hash = await bcrypt.hash(password, 12);
+    const created = await prisma.staff.create({
+      data: { name, email, password: hash },
+      select: { id: true, name: true, email: true, createdAt: true },
+    });
+    res.status(201).json({ staff: { ...created, createdAt: created.createdAt.toISOString() } });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not create staff account" });
+  }
+});
+
+router.patch("/staff/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const requestingStaffId = (req as Request & { staffId?: string }).staffId;
+    const name = typeof req.body?.name === "string" ? req.body.name.trim() || null : undefined;
+    const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() || null : undefined;
+    const newPassword = typeof req.body?.password === "string"
+      ? req.body.password.replace(/[\r\n]+/g, "").trim() || null
+      : null;
+
+    const target = await prisma.staff.findUnique({ where: { id }, select: { id: true } });
+    if (!target) {
+      res.status(404).json({ error: "Staff member not found" });
+      return;
+    }
+
+    const data: { name?: string; email?: string; password?: string } = {};
+    if (name !== undefined && name !== null) data.name = name;
+    if (email !== undefined && email !== null) {
+      if (!email.includes("@")) {
+        res.status(400).json({ error: "Invalid email address" });
+        return;
+      }
+      const taken = await prisma.staff.findFirst({ where: { email, NOT: { id } } });
+      if (taken) {
+        res.status(400).json({ error: "That email is already used by another staff account" });
+        return;
+      }
+      data.email = email;
+    }
+    if (newPassword) {
+      if (newPassword.length < 8) {
+        res.status(400).json({ error: "Password must be at least 8 characters" });
+        return;
+      }
+      data.password = await bcrypt.hash(newPassword, 12);
+    }
+
+    const updated = await prisma.staff.update({
+      where: { id },
+      data,
+      select: { id: true, name: true, email: true, createdAt: true },
+    });
+    res.json({ staff: { ...updated, createdAt: updated.createdAt.toISOString() } });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not update staff account" });
+  }
+});
+
+router.delete("/staff/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const requestingStaffId = (req as Request & { staffId?: string }).staffId;
+    if (requestingStaffId === id) {
+      res.status(400).json({ error: "You cannot delete your own account" });
+      return;
+    }
+    const total = await prisma.staff.count();
+    if (total <= 1) {
+      res.status(400).json({ error: "Cannot delete the last staff account" });
+      return;
+    }
+    await prisma.staff.delete({ where: { id } });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not delete staff account" });
+  }
+});
 
 export default router;

@@ -28,6 +28,7 @@ import { StaffMembers } from "./staff/StaffMembers";
 import { StaffAnalytics } from "./staff/StaffAnalytics";
 import { StaffApplications } from "./staff/StaffApplications";
 import { StaffInsurance } from "./staff/StaffInsurance";
+import { StaffAccounts } from "./staff/StaffAccounts";
 import { StaffRequireAuth } from "./staff/StaffRequireAuth";
 import { StaffSettingsPage } from "./staff/StaffSettingsPage";
 import {  MemberAuthProvider,
@@ -95,6 +96,7 @@ export default function App() {
           <Route path="guides/:id" element={<StaffGuideForm />} />
           <Route path="analytics" element={<StaffAnalytics />} />
           <Route path="settings" element={<StaffSettingsPage />} />
+          <Route path="accounts" element={<StaffAccounts />} />
         </Route>
 
         <Route element={<Layout />}>
