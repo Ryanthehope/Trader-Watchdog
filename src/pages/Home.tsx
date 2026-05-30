@@ -12,25 +12,25 @@ function Stats() {
       value: "£3.5bn",
       label: "estimated lost to rogue traders each year",
       cardClass:
-        "border-slate-300/60 bg-white text-slate-900 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.16)]",
-      valueClass: "text-brand-700",
-      labelClass: "text-slate-700",
+        "border-slate-700/60 bg-slate-800/50 text-white shadow-[0_20px_45px_-30px_rgba(0,0,0,0.3)]",
+      valueClass: "text-brand-300",
+      labelClass: "text-slate-300",
     },
     {
       value: "1.26m",
       label: "fly-tipping incidents reported every year",
       cardClass:
-        "border-slate-300/60 bg-slate-50 text-slate-900 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.14)]",
-      valueClass: "text-brand-700",
-      labelClass: "text-slate-700",
+        "border-slate-700/60 bg-slate-800/50 text-white shadow-[0_20px_45px_-30px_rgba(0,0,0,0.3)]",
+      valueClass: "text-brand-300",
+      labelClass: "text-slate-300",
     },
     {
       value: "50%",
       label: "of traders are under-insured or have no insurance at all",
       cardClass:
-        "border-slate-300/60 bg-slate-100 text-slate-900 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.14)]",
-      valueClass: "text-brand-700",
-      labelClass: "text-slate-700",
+        "border-slate-700/60 bg-slate-800/50 text-white shadow-[0_20px_45px_-30px_rgba(0,0,0,0.3)]",
+      valueClass: "text-brand-300",
+      labelClass: "text-slate-300",
     },
     {
       value: "Fake Reviews",
@@ -42,7 +42,7 @@ function Stats() {
     },
   ];
   return (
-    <section className="border-b border-slate-200/70 bg-[#F2F4F7] py-16">
+    <section className="border-b border-brand-800/60 bg-brand-800 py-16">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 md:grid-cols-2 xl:grid-cols-4 sm:px-6">
         {items.map((item) => (
           <div
@@ -149,19 +149,19 @@ function FeatureHighlights() {
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-brand-800/40 bg-brand-800 py-16 sm:py-20"
+      className="scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-10 md:grid-cols-3">
           {cards.map((c) => (
             <div
               key={c.title}
-              className="rounded-lg border border-slate-700/60 bg-slate-800/50 p-8 text-center transition-all duration-200 hover:border-slate-500 hover:bg-slate-800/70"
+              className="rounded-lg border border-slate-200 bg-white p-8 text-center transition-all duration-200 hover:border-brand-500/30 hover:bg-slate-50"
             >
-              <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
+              <h3 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 {c.title}
               </h3>
-              <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-white/85">
+              <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-slate-600">
                 {c.body}
               </p>
             </div>
@@ -210,25 +210,25 @@ function Pillars() {
     }
   ];
   return (
-    <section id="why" className="scroll-mt-24 border-b border-brand-800/60 bg-brand-800 py-20 sm:py-28">
+    <section id="why" className="scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-400">
+        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
           What We Verify For You
         </p>
-        <h2 className="mt-3 max-w-3xl text-center font-display text-3xl font-bold leading-tight text-white sm:mx-auto sm:text-4xl">
+        <h2 className="mt-3 max-w-3xl text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:mx-auto sm:text-4xl">
           With just one click
         </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-300">
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base text-slate-600">
           We check if they are who they say they are, they are based where they say they&apos;re based, they are insured to carry out the work, and they comply with legal environmental and data requirements for traders working at domestic properties.
         </p>
         <div className="mt-14 grid gap-8 sm:grid-cols-2">
           {pillars.map((p) => (
             <div
               key={p.title}
-              className="flex gap-5 rounded-lg border border-slate-700/60 bg-slate-800/50 p-8 transition-all duration-200 hover:border-slate-500 hover:bg-slate-800/70"
+              className="flex gap-5 rounded-lg border border-slate-200 bg-white p-8 transition-all duration-200 hover:border-brand-500/30 hover:bg-slate-50"
             >
               <span
-                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-brand-300"
+                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
                 aria-hidden
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -236,10 +236,10 @@ function Pillars() {
                 </svg>
               </span>
               <div>
-                <h3 className="font-display text-lg font-semibold text-white">
+                <h3 className="font-display text-lg font-semibold text-slate-900">
                   {p.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
                   {p.body}
                 </p>
               </div>
@@ -253,9 +253,9 @@ function Pillars() {
 
 function Faq() {
   return (
-    <section id="faq" className="border-y border-slate-200/70 bg-[#F2F4F7] py-20 sm:py-24">
+    <section id="faq" className="border-y border-brand-800/60 bg-brand-800 py-20 sm:py-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Common questions
         </h2>
         <div className="mt-12 grid gap-10 lg:grid-cols-2">
@@ -263,7 +263,7 @@ function Faq() {
             <section key={group.title} aria-labelledby={group.id}>
               <h3
                 id={group.id}
-                className="text-xl font-display font-semibold text-slate-900"
+                className="text-xl font-display font-semibold text-white"
               >
                 {group.title}
               </h3>
@@ -271,10 +271,10 @@ function Faq() {
                 {group.items.map((item) => (
                   <div
                     key={item.q}
-                    className="rounded-lg border border-slate-300/60 bg-white px-6 py-6 transition-all duration-200 hover:border-brand-500/50 hover:shadow-sm"
+                    className="rounded-lg border border-slate-700/60 bg-slate-800/50 px-6 py-6 transition-all duration-200 hover:border-slate-500"
                   >
-                    <dt className="font-semibold text-slate-900">{item.q}</dt>
-                    <dd className="mt-3 text-sm leading-relaxed text-slate-700">
+                    <dt className="font-semibold text-white">{item.q}</dt>
+                    <dd className="mt-3 text-sm leading-relaxed text-slate-300">
                       {item.a}
                     </dd>
                   </div>
@@ -437,12 +437,12 @@ export function Home() {
 
   return (
     <>
-      <section id="verify" className="relative overflow-hidden scroll-mt-24 border-b border-brand-800/40 bg-brand-800 px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+      <section id="verify" className="relative overflow-hidden scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-6xl text-center">
-          <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-2xl">
+          <p className="text-2xl font-bold uppercase tracking-tight text-slate-900 sm:text-2xl">
             {heroTopLine}
           </p>
-          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#A5A6A8]/85 sm:text-sm">
+          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-600 sm:text-sm">
             {heroSubLine}
           </p>
 
@@ -461,17 +461,17 @@ export function Home() {
             </div>
 
             <div className="w-full max-w-[36rem] text-center md:text-left">
-              <h1 className="font-display text-5xl font-bold leading-none text-orange-400 sm:text-6xl lg:text-[4.8rem]">
+              <h1 className="font-display text-5xl font-bold leading-none text-orange-500 sm:text-6xl lg:text-[4.8rem]">
                 ROGUE or LEGIT?
               </h1>
 
-              <h2 className="mt-5 max-w-[30rem] font-display text-2xl font-bold leading-tight text-white sm:text-5xl">
+              <h2 className="mt-5 max-w-[30rem] font-display text-2xl font-bold leading-tight text-slate-900 sm:text-5xl">
                 Don&apos;t take their word for it
               </h2>
             </div>
           </div>
 
-          <p className="mx-auto mt-10 max-w-5xl text-center text-2xl font-bold uppercase leading-snug text-white sm:text-2xl">
+          <p className="mx-auto mt-10 max-w-5xl text-center text-2xl font-bold uppercase leading-snug text-slate-900 sm:text-2xl">
             {heroSupport}
           </p>
         </div>
@@ -483,7 +483,7 @@ export function Home() {
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link
               to="/#verify"
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white/15"
+              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-8 py-4 text-base font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-100"
             >
               {heroSecondaryCta}
             </Link>
@@ -501,16 +501,16 @@ export function Home() {
       <Stats />
       <FeatureHighlights />
 
-      <section className="border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20">
+      <section className="border-b border-brand-800/60 bg-brand-800 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="font-display text-4xl font-bold text-slate-900 sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold text-white sm:text-5xl">
               What you will see
             </h2>
           </div>
 
           <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-12">
-            <div className="flex items-start gap-5 rounded-3xl border border-slate-200/70 bg-white p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-50">
+            <div className="flex items-start gap-5 rounded-3xl border border-slate-700/60 bg-slate-800/50 p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-800/70">
               <img
                 src="/Green%20flag2.webp"
                 alt="Green flag"
@@ -521,8 +521,8 @@ export function Home() {
                 className="h-16 w-16 shrink-0 object-contain"
               />
 
-              <p className="text-base leading-relaxed text-slate-700 sm:text-lg">
-                <span className="font-bold">
+              <p className="text-base leading-relaxed text-slate-300 sm:text-lg">
+                <span className="font-bold text-white">
                   A green flag
                 </span>{" "}
                 shows a professional, legitimate trader. Their identity,
@@ -531,7 +531,7 @@ export function Home() {
               </p>
             </div>
 
-            <div className="flex items-start gap-5 rounded-3xl border border-slate-200/70 bg-white p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-50">
+            <div className="flex items-start gap-5 rounded-3xl border border-slate-700/60 bg-slate-800/50 p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-800/70">
               <img
                 src="/Red%20flag2.webp"
                 alt="Red flag"
@@ -542,8 +542,8 @@ export function Home() {
                 className="h-16 w-16 shrink-0 object-contain"
               />
 
-              <p className="text-base leading-relaxed text-slate-700 sm:text-lg">
-                <span className="font-bold">
+              <p className="text-base leading-relaxed text-slate-300 sm:text-lg">
+                <span className="font-bold text-white">
                   A red flag
                 </span>{" "}
                 shows no verified listing. Be cautious. Do not enter an
