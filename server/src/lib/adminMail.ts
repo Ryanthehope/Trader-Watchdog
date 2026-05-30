@@ -477,6 +477,8 @@ export function notifyMemberWelcome(
       "",
       `Log in here: ${loginUrl}`,
       "",
+      "In the portal you can also find a QR code to add to your website and one to add to a van sticker.",
+      "",
       "You will be asked to set a new password after your first sign-in. Save the password above before logging in.",
       "",
       "If you need any help, just reply to this email.",
