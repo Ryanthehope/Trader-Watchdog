@@ -8,6 +8,9 @@ import {
 } from "../lib/billingSettings.js";
 import { createGoCardlessHostedPaymentFlow } from "../lib/goCardlessHostedPaymentFlow.js";
 import { goCardlessErrorDetails } from "../lib/goCardlessErrors.js";
+import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
+import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
+import { notifyMemberWelcome } from "../lib/adminMail.js";
 
 const router = Router();
 
@@ -83,6 +86,40 @@ function siteOrigin(req: { get: (h: string) => string | undefined }) {
     "http://localhost:5173"
   );
 }
+
+function resolveDiscountCode(code: string): { discountType: "full" | "partial30" } | null {
+  const upper = code.trim().toUpperCase();
+  const freeCode = (process.env.PROMO_CODE_FREE_MEMBERSHIP?.trim() || "NGB0").toUpperCase();
+  const off30Code = (process.env.PROMO_CODE_30_OFF?.trim() || "").toUpperCase();
+  if (upper === freeCode) return { discountType: "full" };
+  if (off30Code && upper === off30Code) return { discountType: "partial30" };
+  return null;
+}
+
+router.post("/validate-discount", async (req, res) => {
+  const code = String(req.body?.code ?? "").trim();
+  if (!code) {
+    res.json({ valid: false });
+    return;
+  }
+  const settings = await getOrgBilling();
+  if (!billingReady(settings)) {
+    res.json({ valid: false });
+    return;
+  }
+  const lines = checkoutLineConfig(settings);
+  const discount = resolveDiscountCode(code);
+  if (!discount) {
+    res.json({ valid: false });
+    return;
+  }
+  if (discount.discountType === "full") {
+    res.json({ valid: true, discountType: "full", savingsPence: lines.membershipPence, finalPricePence: 0 });
+  } else {
+    const savings = 3000;
+    res.json({ valid: true, discountType: "partial30", savingsPence: savings, finalPricePence: Math.max(0, lines.membershipPence - savings) });
+  }
+});
 
 router.post("/checkout-registration-fee", async (req, res) => {
   try {
@@ -177,8 +214,37 @@ router.post("/checkout-membership", async (req, res) => {
     }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
+
+    const discountCodeInput = String(req.body?.discountCode ?? "").trim();
+    const discount = discountCodeInput ? resolveDiscountCode(discountCodeInput) : null;
+
+    if (discount?.discountType === "full") {
+      // 100% off — provision directly without GoCardless
+      const now = new Date();
+      await prisma.application.update({
+        where: { id: applicationId },
+        data: {
+          membershipSubscribed: true,
+          manualMembershipExpiresAt: addOneCalendarYearEndUtc(now),
+        },
+      });
+      const prov = await provisionIfApplicationPaid(prisma, applicationId);
+      if (!prov.ok && prov.reason === "email_in_use") {
+        console.error("[billing] free membership provision blocked: email already in use");
+      }
+      if (prov.ok && prov.newlyCreated) {
+        notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
+      }
+      res.json({ url: `/join?paid=membership&app=${encodeURIComponent(applicationId)}` });
+      return;
+    }
+
+    const amountPence = discount?.discountType === "partial30"
+      ? Math.max(0, lines.membershipPence - 3000)
+      : lines.membershipPence;
+
     const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
-      amountPence: lines.membershipPence,
+      amountPence,
       description: lines.membershipName,
       email,
       companyName: application.company,

@@ -504,6 +504,50 @@ router.post("/membership/renew", async (req, res) => {
   }
 });
 
+router.post("/sticker-order", async (req, res) => {
+  try {
+    const memberId = (req as unknown as { memberId: string }).memberId;
+    const m = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        loginEmail: true,
+        name: true,
+        goCardlessCustomerId: true,
+        invoiceAddress: true,
+        location: true,
+      },
+    });
+    if (!m?.loginEmail?.trim()) {
+      res.status(400).json({ error: "No login email on file" });
+      return;
+    }
+    const gocardless = await getGoCardlessApiClient();
+    if (!gocardless) {
+      res.status(400).json({ error: "GoCardless is not configured" });
+      return;
+    }
+    const origin = await siteOrigin(req);
+    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+      amountPence: 1995,
+      description: "Van stickers (×2)",
+      email: m.loginEmail.trim().toLowerCase(),
+      companyName: m.name,
+      existingCustomerId: m.goCardlessCustomerId,
+      successRedirectUrl: `${origin}/member?sticker=ordered`,
+      exitUrl: `${origin}/member`,
+      metadata: {
+        checkoutKind: "van_sticker_order",
+        memberId,
+      },
+    });
+    res.json({ url: flow.url });
+  } catch (e) {
+    console.error("[member-portal] sticker order failed", { error: e });
+    const { statusCode, message } = goCardlessErrorDetails(e);
+    res.status(statusCode).json({ error: message });
+  }
+});
+
 router.post(
   "/profile-logo",
   requireMemberMembershipActive,

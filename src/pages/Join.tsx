@@ -145,6 +145,15 @@ export function Join() {
   const [checkoutLoading, setCheckoutLoading] = useState<
     "registration" | "member" | null
   >(null);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountApplied, setDiscountApplied] = useState<{
+    valid: true;
+    discountType: "full" | "partial30";
+    savingsPence: number;
+    finalPricePence: number;
+  } | null>(null);
+  const [discountValidating, setDiscountValidating] = useState(false);
+  const [discountError, setDiscountError] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [applicantSummary, setApplicantSummary] =
     useState<ApplicantSummary | null>(null);
@@ -523,6 +532,7 @@ export function Join() {
         body: JSON.stringify({
           applicationId: targetApplicationId,
           email: targetEmail,
+          ...(kind === "member" && discountApplied ? { discountCode: discountCode.trim() } : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -552,6 +562,36 @@ export function Join() {
   };
 
   const inbox = import.meta.env.VITE_APPLICATION_INBOX_EMAIL?.trim();
+
+  const applyDiscountCode = async () => {
+    const code = discountCode.trim();
+    if (!code || !applicationId || !savedEmail) return;
+    setDiscountValidating(true);
+    setDiscountError(null);
+    try {
+      const res = await fetch(`${apiBase()}/api/billing/validate-discount`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        valid?: boolean;
+        discountType?: string;
+        savingsPence?: number;
+        finalPricePence?: number;
+      };
+      if (!res.ok || !data.valid) {
+        setDiscountError("Invalid discount code. Please check and try again.");
+        setDiscountApplied(null);
+      } else {
+        setDiscountApplied(data as { valid: true; discountType: "full" | "partial30"; savingsPence: number; finalPricePence: number });
+      }
+    } catch {
+      setDiscountError("Could not validate code. Please try again.");
+    } finally {
+      setDiscountValidating(false);
+    }
+  };
 
   /**
    * Only offer a fresh application when it won’t drop an in-flight approval/payment.
@@ -704,13 +744,13 @@ export function Join() {
             Proudly display you are a professional, legitimate business
           </p>
           <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
-            Verified. Legit. Trusted
+            VERIFIED. LEGIT. TRUSTED
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-700">
             Trader Watchdog is not a platform to attract the public to traders.
             It is a platform to protect the public from traders, providing
             something that marketplaces, job registers, advertising, and social
-            media cannot: trust.
+            media cannot: TRUST.
           </p>
           <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8">
@@ -730,11 +770,11 @@ export function Join() {
               <div className="mt-5 space-y-4 text-sm text-slate-700 sm:text-base">
                 <div className="rounded-2xl border border-white bg-white p-4">
                   <p className="font-semibold text-slate-900">One-off registration fee</p>
-                  <p className="mt-1">£15, £18 including VAT</p>
+                  <p className="mt-1">£15 + VAT</p>
                 </div>
                 <div className="rounded-2xl border border-white bg-white p-4">
                   <p className="font-semibold text-slate-900">Annual subscription</p>
-                  <p className="mt-1">£79, £94.80 including VAT</p>
+                  <p className="mt-1">£79 + VAT</p>
                 </div>
               </div>
             </div>
@@ -1134,7 +1174,43 @@ export function Join() {
                       Use this page to pay. This application stays linked to the
                       current email address until it is completed or declined.
                     </p>
-                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                    <div className="mt-4">
+                      {applicantSummary?.canCheckoutMembership ? (
+                        <div className="mb-3">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={discountCode}
+                              onChange={(e) => {
+                                setDiscountCode(e.target.value.toUpperCase());
+                                setDiscountApplied(null);
+                                setDiscountError(null);
+                              }}
+                              placeholder="Discount code (optional)"
+                              className="flex-1 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                              disabled={discountValidating || checkoutLoading !== null}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void applyDiscountCode()}
+                              disabled={!discountCode.trim() || discountValidating || checkoutLoading !== null}
+                              className="rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-50"
+                            >
+                              {discountValidating ? "…" : "Apply"}
+                            </button>
+                          </div>
+                          {discountApplied ? (
+                            <p className="mt-1 text-xs text-emerald-400">
+                              ✓ {discountApplied.discountType === "full"
+                                ? "100% discount applied — annual membership is free"
+                                : `£${(discountApplied.savingsPence / 100).toFixed(2)} discount applied`}
+                            </p>
+                          ) : discountError ? (
+                            <p className="mt-1 text-xs text-amber-400">{discountError}</p>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <div className="flex flex-col gap-3 sm:flex-row">
                       {applicantSummary?.canCheckoutRegistrationFee ? (
                         <button
                           type="button"
@@ -1156,9 +1232,14 @@ export function Join() {
                         >
                           {checkoutLoading === "member"
                             ? "Redirecting…"
-                            : `Annual membership ${membershipPriceLabel}`}
+                            : discountApplied?.discountType === "full"
+                              ? "Annual membership — Free"
+                              : discountApplied?.discountType === "partial30"
+                                ? `Annual membership ${formatVatExclusiveLabel(discountApplied.finalPricePence) ?? "— Discounted"}`
+                                : `Annual membership ${membershipPriceLabel}`}
                         </button>
                       ) : null}
+                    </div>
                     </div>
                   </div>
                 ) : null}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { VerifiedMember } from "../types/content";
-import { apiGetMember, apiGetMemberBlob } from "../lib/api";
+import { apiGetMember, apiGetMemberBlob, apiSendMember } from "../lib/api";
 import { useMemberAuth } from "./MemberAuthContext";
 
 type MembershipSummary = {
@@ -207,6 +207,24 @@ export function MemberOverview() {
       setQrError(e instanceof Error ? e.message : "Could not download SVG QR");
     } finally {
       setQrBusy(null);
+    }
+  }
+
+  const [stickerOrderBusy, setStickerOrderBusy] = useState(false);
+
+  async function handleOrderPhysicalStickers() {
+    setStickerOrderBusy(true);
+    setQrError(null);
+    try {
+      const { url } = await apiSendMember<{ url: string }>(
+        "/api/member/portal/sticker-order",
+        { method: "POST", body: JSON.stringify({}) }
+      );
+      window.location.href = url;
+    } catch (e) {
+      setQrError(e instanceof Error ? e.message : "Could not start sticker order. Please try again.");
+    } finally {
+      setStickerOrderBusy(false);
     }
   }
 
@@ -435,6 +453,21 @@ export function MemberOverview() {
                           {data.qr.reason ?? "QR downloads are enabled after verification approval."}
                         </div>
                       )}
+
+                      <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
+                        <p className="text-sm font-semibold text-slate-900">Order physical van stickers</p>
+                        <p className="mt-1 text-sm text-slate-600">
+                          Get 2 professionally printed stickers delivered to your registered business address.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => void handleOrderPhysicalStickers()}
+                          disabled={stickerOrderBusy || qrBusy !== null}
+                          className="mt-3 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {stickerOrderBusy ? "Starting checkout…" : "Order now — £19.95 for 2"}
+                        </button>
+                      </div>
 
                       {qrError ? <p className="mt-4 text-sm text-red-600">{qrError}</p> : null}
                     </div>
