@@ -108,11 +108,6 @@ const SECTIONS: {
     hint: "Qualifications and registrations align with work they advertise.",
   },
   {
-    id: "digitalFootprint",
-    label: "Digital footprint",
-    hint: "Website, listings, and reviews look consistent with a real business.",
-  },
-  {
     id: "publicRecords",
     label: "Contact & public records",
     hint: "Phone and company identifiers checked; no major red flags in available records.",
@@ -1091,6 +1086,45 @@ function ApplicationCard({
       </div>
 
       <div className="px-5 py-6 sm:px-6">
+        <div className="mb-8">
+          <h3 className="font-display text-base font-semibold tracking-tight text-white">
+            Uploaded files
+          </h3>
+          <p className="mt-1 text-xs text-slate-500">
+            Open in a new tab. Same styling as applicant uploads on the join form.
+          </p>
+          {docs.length > 0 ? (
+            <ul className="mt-3 divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/12 bg-ink-950/55">
+              {docs.map((d) => (
+                <li
+                  key={d.id}
+                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 text-sm"
+                >
+                  <span className="min-w-0 truncate text-slate-200">
+                    {d.originalName}
+                  </span>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className="text-xs tabular-nums text-slate-500">
+                      {formatBytes(d.sizeBytes)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => void openApplicationDocument(row.id, d)}
+                      className="rounded-lg border border-white/12 bg-white/[0.06] px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-white/[0.1]"
+                    >
+                      Open
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 rounded-xl border border-dashed border-white/10 bg-ink-950/40 px-4 py-6 text-center text-sm text-slate-600">
+              No documents attached to this application.
+            </p>
+          )}
+        </div>
+
         <div className="flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h3 className="font-display text-base font-semibold tracking-tight text-white">
@@ -1156,45 +1190,6 @@ function ApplicationCard({
               </div>
             );
           })}
-        </div>
-
-        <div className="mt-8">
-          <h3 className="font-display text-base font-semibold tracking-tight text-white">
-            Uploaded files
-          </h3>
-          <p className="mt-1 text-xs text-slate-500">
-            Open in a new tab. Same styling as applicant uploads on the join form.
-          </p>
-          {docs.length > 0 ? (
-            <ul className="mt-3 divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/12 bg-ink-950/55">
-              {docs.map((d) => (
-                <li
-                  key={d.id}
-                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 text-sm"
-                >
-                  <span className="min-w-0 truncate text-slate-200">
-                    {d.originalName}
-                  </span>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <span className="text-xs tabular-nums text-slate-500">
-                      {formatBytes(d.sizeBytes)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => void openApplicationDocument(row.id, d)}
-                      className="rounded-lg border border-white/12 bg-white/[0.06] px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-white/[0.1]"
-                    >
-                      Open
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-3 rounded-xl border border-dashed border-white/10 bg-ink-950/40 px-4 py-6 text-center text-sm text-slate-600">
-              No documents attached to this application.
-            </p>
-          )}
         </div>
 
         <div className="mt-8 rounded-xl border border-white/12 bg-ink-950/40 p-4 sm:p-5">
