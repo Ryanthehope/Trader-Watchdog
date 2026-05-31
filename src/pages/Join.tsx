@@ -793,6 +793,30 @@ export function Join() {
             </div>
           </div>
           <div className="mt-12">
+            <div className="flex flex-wrap justify-center gap-6">
+              <img
+                src="/van-qr-1.jpg"
+                alt="Trader Watchdog van QR sign"
+                className="h-64 w-64 object-contain"
+                loading="lazy"
+              />
+              <img
+                src="/van-qr-2.jpg"
+                alt="Trader Watchdog van QR sign"
+                className="h-64 w-64 object-contain"
+                loading="lazy"
+              />
+            </div>
+            <div className="mt-6 flex justify-center">
+              <img
+                src="/sticker-250-website.jpg"
+                alt="Trader Watchdog verified trader sticker"
+                className="max-w-full"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div className="mt-12">
             <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
               What customers see
             </p>

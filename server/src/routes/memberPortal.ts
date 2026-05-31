@@ -59,22 +59,22 @@ const ASSETS_DIR = path.join(
 // Adjust qrLeft/qrTop/qrSize if positioning needs fine-tuning after a test print.
 const VAN_STICKER_CONFIGS = {
   "1": {
-    templateFile: "van-sticker-1.jpg",
+    templateFile: "van-qr-1.jpg",
     mmWidth: 250,
     mmHeight: 100,
-    // Outlined box detected at x=41–928, y=42–927 (887×885px, near-perfect square)
-    qrLeft: 62,   // px from left — centered inside outlined box with 20px inset
-    qrTop: 62,    // px from top
-    qrSize: 845,  // QR code square (px)
+    // QR placeholder box detected at x=42–927, y=44–927 (885×883px, near-square)
+    qrLeft: 57,   // px from left — inset 15px from box edge
+    qrTop: 59,    // px from top — inset 15px from box edge
+    qrSize: 855,  // QR code square (px), fits inside 885px-wide box with margin
   },
   "2": {
-    templateFile: "van-sticker-2.jpg",
+    templateFile: "van-qr-2.jpg",
     mmWidth: 187,
     mmHeight: 93,
-    // Outlined box detected at x=37–994, y=42–1078 (957×1036px)
-    qrLeft: 57,   // px from left — centered inside outlined box with 20px inset
-    qrTop: 101,   // px from top
-    qrSize: 917,  // QR code square (px)
+    // QR placeholder box detected at x=110–748, y=122–1006 (638×884px, width-limited)
+    qrLeft: 125,  // px from left — inset 15px from box edge
+    qrTop: 260,   // px from top — vertically centred: 122 + (884-608)/2
+    qrSize: 608,  // QR code square (px), fits inside 638px-wide box with margin
   },
 } as const;
 
