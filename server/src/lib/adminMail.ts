@@ -556,6 +556,37 @@ export function notifyVanStickerOrder(
   });
 }
 
+export function notifyVanStickerOrderAdditional(
+  prisma: PrismaClient,
+  member: {
+    name: string;
+    loginEmail?: string | null;
+    invoiceAddress?: string | null;
+    location?: string | null;
+  }
+): void {
+  void (async () => {
+    const address =
+      member.invoiceAddress?.trim() || member.location?.trim() || "(not provided)";
+    const text = [
+      "An additional van sticker order has been paid and is ready to dispatch.",
+      "",
+      `Trader: ${member.name}`,
+      `Address: ${address}`,
+      `Email: ${member.loginEmail ?? "(not set)"}`,
+      "",
+      "Please arrange dispatch with the sticker supplier.",
+    ].join("\n");
+    await sendAdminEmail(prisma, {
+      subject: `Additional van sticker order — ${member.name}`,
+      text,
+      overrideTo: "support@traderwatchdog.com",
+    });
+  })().catch((e) => {
+    console.error("[admin-mail] additional sticker order notification failed", e);
+  });
+}
+
 export function notifySubscriptionRenewed(
   prisma: PrismaClient,
   row: {

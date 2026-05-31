@@ -6,7 +6,7 @@ import {
   getGoCardlessWebhookSecret,
 } from "../lib/billingSettings.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
-import { notifySubscriptionRenewed, notifyMemberWelcome, notifyVanStickerOrder } from "../lib/adminMail.js";
+import { notifySubscriptionRenewed, notifyMemberWelcome, notifyVanStickerOrder, notifyVanStickerOrderAdditional } from "../lib/adminMail.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 
 type GoCardlessPayment = {
@@ -190,6 +190,17 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         });
         if (member) {
           notifyVanStickerOrder(prisma, member);
+        }
+      }
+
+      if (kind === "van_sticker_order_additional" && payment.metadata?.memberId) {
+        const memberId = payment.metadata.memberId;
+        const member = await prisma.member.findUnique({
+          where: { id: memberId },
+          select: { name: true, loginEmail: true, invoiceAddress: true, location: true },
+        });
+        if (member) {
+          notifyVanStickerOrderAdditional(prisma, member);
         }
       }
     }
