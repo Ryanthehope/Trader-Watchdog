@@ -22,6 +22,7 @@ import {
   isMemberPublicListingVisible,
   membershipSummaryForMember,
 } from "../lib/memberMembership.js";
+import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import { memberProfileLogoFilePath, memberProfileLogoDir } from "../lib/memberProfileLogoPaths.js";
 import { memberToPublic } from "../lib/memberSerialize.js";
 import { requireMember } from "../middleware/requireMember.js";
@@ -465,6 +466,7 @@ router.post("/membership/renew", async (req, res) => {
         loginEmail: true,
         name: true,
         goCardlessCustomerId: true,
+        membershipExpiresAt: true,
         membershipRenewalPricePence: true,
       },
     });
@@ -485,6 +487,22 @@ router.post("/membership/renew", async (req, res) => {
     const origin = await siteOrigin(req);
     const lines = checkoutLineConfig(settings);
     const renewalAmountPence = m.membershipRenewalPricePence ?? lines.membershipPence;
+
+    // Free-membership holders (100% discount for life) — extend without GoCardless.
+    if (renewalAmountPence === 0) {
+      const now = new Date();
+      const baseDate = m.membershipExpiresAt && m.membershipExpiresAt > now ? m.membershipExpiresAt : now;
+      await prisma.member.update({
+        where: { id: memberId },
+        data: {
+          membershipBillingType: "manual",
+          membershipExpiresAt: addOneCalendarYearEndUtc(baseDate),
+        },
+      });
+      res.json({ url: `/member/billing?renewal=success` });
+      return;
+    }
+
     const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
       amountPence: renewalAmountPence,
       description: `${lines.membershipName} renewal`,

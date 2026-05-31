@@ -226,6 +226,7 @@ router.post("/checkout-membership", async (req, res) => {
         data: {
           membershipSubscribed: true,
           manualMembershipExpiresAt: addOneCalendarYearEndUtc(now),
+          membershipRenewalPricePence: 0,
         },
       });
       const prov = await provisionIfApplicationPaid(prisma, applicationId);
