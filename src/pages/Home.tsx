@@ -497,9 +497,9 @@ export function Home() {
 
       <Pillars />
       <section className="border-b border-slate-200 bg-white py-12">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+        <div className="mx-auto max-w-xs px-4 text-center sm:px-6">
           <img
-            src="/sticker-250-website.jpg"
+            src="/sticker-25-website.jpg"
             alt="Trader Watchdog verified trader sticker"
             className="mx-auto max-w-full"
             loading="lazy"

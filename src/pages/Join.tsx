@@ -795,14 +795,14 @@ export function Join() {
           <div className="mt-12">
             <div className="flex flex-wrap justify-center gap-6">
               <img
-                src="/van-qr-1.jpg"
-                alt="Trader Watchdog van QR sign"
+                src="/sticker-120-website.jpg"
+                alt="Trader Watchdog verified trader sticker 120mm"
                 className="h-64 w-64 object-contain"
                 loading="lazy"
               />
               <img
-                src="/van-qr-2.jpg"
-                alt="Trader Watchdog van QR sign"
+                src="/sticker-120-website.jpg"
+                alt="Trader Watchdog verified trader sticker 120mm"
                 className="h-64 w-64 object-contain"
                 loading="lazy"
               />
@@ -810,7 +810,7 @@ export function Join() {
             <div className="mt-6 flex justify-center">
               <img
                 src="/sticker-250-website.jpg"
-                alt="Trader Watchdog verified trader sticker"
+                alt="Trader Watchdog verified trader sticker 250mm"
                 className="max-w-full"
                 loading="lazy"
               />
