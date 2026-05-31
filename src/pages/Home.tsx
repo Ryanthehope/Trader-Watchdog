@@ -350,7 +350,9 @@ export function Home() {
     ? "Verify a trader now"
     : "Public search coming soon";
 
-  const joinCta = "Register your business";
+  const joinCta = publicSearchEnabled
+    ? "Register your business"
+    : "Register your business before 1st July for a Special Offer";
 
   const verifyHeading = publicSearchEnabled
     ? "See if they are legit with one click"
