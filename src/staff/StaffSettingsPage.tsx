@@ -25,6 +25,9 @@ type Settings = {
   googleAnalyticsMeasurementId: string | null;
   googleAnalyticsPropertyId: string | null;
   hasGoogleAnalyticsServiceAccount: boolean;
+  recaptchaEnabled: boolean;
+  recaptchaSiteKey: string | null;
+  hasRecaptchaSecret: boolean;
 };
 
 export function StaffSettingsPage() {
@@ -60,6 +63,9 @@ export function StaffSettingsPage() {
   const [gaMeasurementId, setGaMeasurementId] = useState("");
   const [gaPropertyId, setGaPropertyId] = useState("");
   const [gaServiceAccountJson, setGaServiceAccountJson] = useState("");
+  const [turnstileEnabled, setTurnstileEnabled] = useState(false);
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState("");
+  const [turnstileSecretKey, setTurnstileSecretKey] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -96,6 +102,9 @@ export function StaffSettingsPage() {
         setGaMeasurementId(s.googleAnalyticsMeasurementId ?? "");
         setGaPropertyId(s.googleAnalyticsPropertyId ?? "");
         setGaServiceAccountJson("");
+        setTurnstileEnabled(Boolean(s.recaptchaEnabled));
+        setTurnstileSiteKey(s.recaptchaSiteKey ?? "");
+        setTurnstileSecretKey("");
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
       .finally(() => setLoading(false));
@@ -157,6 +166,12 @@ export function StaffSettingsPage() {
       body.googleAnalyticsPropertyId = gaPropertyId.trim() || null;
       if (gaServiceAccountJson.trim()) {
         body.googleAnalyticsServiceAccountJson = gaServiceAccountJson.trim();
+      }
+
+      body.recaptchaEnabled = turnstileEnabled;
+      body.recaptchaSiteKey = turnstileSiteKey.trim() || null;
+      if (turnstileSecretKey.trim()) {
+        body.recaptchaSecretKey = turnstileSecretKey.trim();
       }
 
       if (clearGoCardlessSecret) {
@@ -646,6 +661,56 @@ export function StaffSettingsPage() {
             />
             {settings?.hasGoogleAnalyticsServiceAccount ? (
               <p className="text-xs text-emerald-400">Service account key is saved.</p>
+            ) : null}
+          </div>
+        </section>
+
+        {/* Cloudflare Turnstile */}
+        <section className="space-y-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Cloudflare Turnstile (bot protection)
+          </h2>
+
+          <label className="flex cursor-pointer items-center gap-3">
+            <input
+              type="checkbox"
+              checked={turnstileEnabled}
+              onChange={(e) => setTurnstileEnabled(e.target.checked)}
+              className="h-4 w-4 rounded border-white/20 accent-brand-500"
+            />
+            <span className="text-sm font-medium text-slate-300">Enable Turnstile on the Join form</span>
+          </label>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-300">
+              Site Key
+              <span className="ml-1 text-xs font-normal text-slate-500">(public — shown in the browser)</span>
+            </label>
+            <input
+              type="text"
+              value={turnstileSiteKey}
+              onChange={(e) => setTurnstileSiteKey(e.target.value)}
+              placeholder="0x4AAAAAAA..."
+              className="w-full rounded-xl border border-white/12 bg-ink-950 px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-300">
+              Secret Key
+              <span className="ml-1 text-xs font-normal text-slate-500">
+                {settings?.hasRecaptchaSecret ? "Already saved — paste a new one to replace" : "Paste your Cloudflare Turnstile secret key"}
+              </span>
+            </label>
+            <input
+              type="password"
+              value={turnstileSecretKey}
+              onChange={(e) => setTurnstileSecretKey(e.target.value)}
+              placeholder={settings?.hasRecaptchaSecret ? "Secret key already saved" : "0x4AAAAAAA..."}
+              className="w-full rounded-xl border border-white/12 bg-ink-950 px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            />
+            {settings?.hasRecaptchaSecret ? (
+              <p className="text-xs text-emerald-400">Secret key is saved.</p>
             ) : null}
           </div>
         </section>

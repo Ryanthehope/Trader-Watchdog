@@ -125,9 +125,6 @@ export function Layout() {
               <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
                 What we check
               </Link>
-              <Link to="/#compare" className={`${desktopActionClass} bg-white/5`}>
-                Compare
-              </Link>
               <Link to="/#verify" className={`${desktopActionClass} bg-white/10`}>
                 Verify a trade
               </Link>
@@ -147,13 +144,6 @@ export function Layout() {
                 onClick={() => setMenuOpen(false)}
               >
                 What we check
-              </Link>
-              <Link
-                to="/#compare"
-                className={mobileLinkClass}
-                onClick={() => setMenuOpen(false)}
-              >
-                Compare
               </Link>
               <Link
                 to="/#verify"
