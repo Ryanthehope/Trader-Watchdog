@@ -409,15 +409,16 @@ router.post(
       const org = await getOrgBilling();
       if (org.recaptchaEnabled) {
         const secret =
+          process.env.TURNSTILE_SECRET_KEY?.trim() ||
           process.env.RECAPTCHA_SECRET_KEY?.trim() ||
           org.recaptchaSecretKey?.trim();
         if (!secret) {
-          res.status(500).json({ error: "reCAPTCHA is misconfigured" });
+          res.status(500).json({ error: "Turnstile is misconfigured" });
           return;
         }
         const ok = await verifyRecaptchaV2(secret, recaptchaToken);
         if (!ok) {
-          res.status(400).json({ error: "reCAPTCHA verification failed" });
+          res.status(400).json({ error: "Bot verification failed. Please try again." });
           return;
         }
       }

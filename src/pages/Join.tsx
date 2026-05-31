@@ -339,9 +339,9 @@ export function Join() {
 
   useEffect(() => {
     if (!recaptchaSiteKey) return;
-    if (document.querySelector('script[src*="google.com/recaptcha"]')) return;
+    if (document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) return;
     const s = document.createElement("script");
-    s.src = "https://www.google.com/recaptcha/api.js";
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
     s.async = true;
     s.defer = true;
     document.body.appendChild(s);
@@ -481,7 +481,7 @@ export function Join() {
     }
     if (recaptchaSiteKey) {
       try {
-        window.grecaptcha?.reset?.();
+        window.turnstile?.reset?.();
       } catch {
         /* ignore */
       }
@@ -1608,8 +1608,9 @@ export function Join() {
             </label>
             {recaptchaSiteKey ? (
               <div
-                className="g-recaptcha"
+                className="cf-turnstile"
                 data-sitekey={recaptchaSiteKey}
+                data-theme="light"
               />
             ) : null}
             <button

@@ -7,7 +7,7 @@ export async function verifyRecaptchaV2(
   const body = new URLSearchParams();
   body.set("secret", secret);
   body.set("response", t);
-  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
     method: "POST",
     body,
   });

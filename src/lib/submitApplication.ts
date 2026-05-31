@@ -35,30 +35,29 @@ const apiBase = () =>
 
 declare global {
   interface Window {
-    grecaptcha?: {
-      getResponse: (widgetId?: number) => string;
-      reset: (widgetId?: number) => void;
+    turnstile?: {
+      getResponse: (widgetId?: string) => string;
+      reset: (widgetId?: string) => void;
       render: (
-        container: HTMLElement,
-        parameters: { sitekey: string; theme?: "light" | "dark" }
-      ) => number;
-      ready: (callback: () => void) => void;
+        container: string | HTMLElement,
+        parameters: { sitekey: string; theme?: "light" | "dark"; size?: "normal" | "compact" | "invisible" }
+      ) => string;
     };
   }
 }
 
-/** First widget only — prefer {@link getRecaptchaResponse} when multiple widgets exist. */
+/** Returns the Turnstile token for the first widget on the page. */
 export function getRecaptchaToken(): string | undefined {
-  const t = window.grecaptcha?.getResponse?.();
+  const t = window.turnstile?.getResponse?.();
   return t?.trim() || undefined;
 }
 
-/** Response for a widget returned by `grecaptcha.render` (required when multiple widgets on one page). */
+/** @deprecated Use getRecaptchaToken — Turnstile widgetIds are strings, kept for API compatibility. */
 export function getRecaptchaResponse(
   widgetId: number | null | undefined
 ): string | undefined {
-  if (widgetId == null || !Number.isFinite(widgetId)) return undefined;
-  const t = window.grecaptcha?.getResponse?.(widgetId);
+  if (widgetId == null) return undefined;
+  const t = window.turnstile?.getResponse?.(String(widgetId));
   return t?.trim() || undefined;
 }
 
