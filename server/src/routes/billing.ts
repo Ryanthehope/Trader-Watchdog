@@ -243,6 +243,14 @@ router.post("/checkout-membership", async (req, res) => {
       ? Math.max(0, lines.membershipPence - 3000)
       : lines.membershipPence;
 
+    // Persist the discounted price so annual renewals honour the founder-member rate for life.
+    if (discount?.discountType === "partial30") {
+      await prisma.application.update({
+        where: { id: applicationId },
+        data: { membershipRenewalPricePence: amountPence },
+      });
+    }
+
     const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
       amountPence,
       description: lines.membershipName,

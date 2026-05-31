@@ -78,6 +78,8 @@ model Member {
   goCardlessSubscriptionId     String?
   /// Mirrors GoCardless subscription.status (active, canceled, past_due, …).
   goCardlessSubscriptionStatus String?
+  /// Discounted renewal price (pence) if a partial discount was applied at initial checkout. Null = full price.
+  membershipRenewalPricePence  Int?
   /// Staff-only: portal membership never expires (overrides billing/expiry).
   membershipUnlimited      Boolean          @default(false)
   createdAt                DateTime         @default(now())
@@ -203,6 +205,8 @@ model Application {
   /// First name of the staff member who set the application status to APPROVED.
   approvedByStaffName             String?
   goCardlessCustomerId             String?
+  /// Discounted renewal price (pence) set when a partial discount code was used at membership checkout.
+  membershipRenewalPricePence      Int?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?
   pendingPortalPasswordExpires DateTime?

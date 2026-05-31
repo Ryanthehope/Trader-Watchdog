@@ -465,6 +465,7 @@ router.post("/membership/renew", async (req, res) => {
         loginEmail: true,
         name: true,
         goCardlessCustomerId: true,
+        membershipRenewalPricePence: true,
       },
     });
     if (!m?.loginEmail?.trim()) {
@@ -483,8 +484,9 @@ router.post("/membership/renew", async (req, res) => {
     }
     const origin = await siteOrigin(req);
     const lines = checkoutLineConfig(settings);
+    const renewalAmountPence = m.membershipRenewalPricePence ?? lines.membershipPence;
     const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
-      amountPence: lines.membershipPence,
+      amountPence: renewalAmountPence,
       description: `${lines.membershipName} renewal`,
       email: m.loginEmail.trim().toLowerCase(),
       companyName: m.name,
