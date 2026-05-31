@@ -394,8 +394,11 @@ export function Home() {
             </div>
 
             <div className="w-full max-w-[36rem] text-center md:text-left">
-              <h1 className="font-display text-5xl font-bold leading-none text-orange-500 sm:text-6xl lg:text-[4.8rem]">
-                ROGUE or LEGIT?
+              <h1 className="font-display text-5xl font-bold leading-none sm:text-6xl lg:text-[4.8rem]">
+                <span className="text-[#C62828]">ROGUE</span>
+                <span className="text-[#4A5568]"> or </span>
+                <span className="text-[#3B4978]">LEGIT</span>
+                <span className="text-[#4A5568]">?</span>
               </h1>
 
               <h2 className="mt-5 max-w-[30rem] font-display text-2xl font-bold leading-tight text-slate-900 sm:text-5xl">

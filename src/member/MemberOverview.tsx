@@ -457,7 +457,8 @@ export function MemberOverview() {
                       <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
                         <p className="text-sm font-semibold text-slate-900">Order physical van stickers</p>
                         <p className="mt-1 text-sm text-slate-600">
-                          Get 2 professionally printed stickers delivered to your registered business address.
+                          2 stickers of the same design — <strong>£16.75 + VAT</strong>, delivered by Royal Mail Tracked.
+                          Additional stickers <strong>£6 + VAT</strong> each.
                         </p>
                         <button
                           type="button"
@@ -465,7 +466,7 @@ export function MemberOverview() {
                           disabled={stickerOrderBusy || qrBusy !== null}
                           className="mt-3 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {stickerOrderBusy ? "Starting checkout…" : "Order now — £19.95 for 2"}
+                          {stickerOrderBusy ? "Starting checkout…" : "Order now — £16.75 + VAT for 2"}
                         </button>
                       </div>
 
