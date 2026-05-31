@@ -363,8 +363,12 @@ export function Home() {
 
   const heroTopLine =
     "TRADER WATCHDOG IS A FREE CONSUMER PROTECTION SERVICE TO THE PUBLIC";
-  const heroSubLine =
-    "DILIGENCE RECOMMENDED BY POLICE, TRADING STANDARDS, COUNCILS AND COMMUNITY GROUPS";
+  const heroSubLine = (
+    <>
+      <span className="text-[#2BA24E]">DILIGENCE</span>
+      <span className="text-[#2E3A47]"> RECOMMENDED BY POLICE, TRADING STANDARDS, COUNCILS AND COMMUNITY GROUPS</span>
+    </>
+  );
   const heroSupport =
     "VERIFYING A TRADER IS ONLY A CLICK AWAY.";
 
@@ -395,10 +399,8 @@ export function Home() {
 
             <div className="w-full max-w-[36rem] text-center md:text-left">
               <h1 className="font-display text-5xl font-bold leading-none sm:text-6xl lg:text-[4.8rem]">
-                <span className="text-[#C62828]">ROGUE</span>
-                <span className="text-[#4A5568]"> or </span>
-                <span className="text-[#3B4978]">LEGIT</span>
-                <span className="text-[#4A5568]">?</span>
+                <span className="text-[#C62828]">ROGUE or</span>
+                <span className="text-[#3B4978]">LEGIT?</span>
               </h1>
 
               <h2 className="mt-5 max-w-[30rem] font-display text-2xl font-bold leading-tight text-slate-900 sm:text-5xl">
