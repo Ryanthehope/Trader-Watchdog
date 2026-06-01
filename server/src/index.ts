@@ -21,6 +21,7 @@ import memberAuthRouter from "./routes/memberAuth.js";
 import memberPortalRouter from "./routes/memberPortal.js";
 import insuranceRouter from "./routes/insurance.js";
 import cronRouter from "./routes/cron.js";
+import sitemapRouter from "./routes/sitemap.js";
 import { ensureSeedStaffFromEnv } from "./lib/ensureSeedStaff.js";
 import { goCardlessWebhookHandler } from "./routes/goCardlessWebhook.js";
 import { sumsubWebhookHandler } from "./routes/sumsubWebhook.js";
@@ -86,6 +87,10 @@ app.use("/api/billing", billingRouter);
 app.use("/api/insurance", insuranceRouter);
 app.use("/api/cron", cronRouter);
 app.use("/api", apiPublic);
+
+// Serve sitemap.xml and robots.txt dynamically (must be before express.static so
+// the dynamic versions take precedence over any static files in dist/).
+app.use(sitemapRouter);
 
 if (fs.existsSync(distDir)) {
   app.use(
