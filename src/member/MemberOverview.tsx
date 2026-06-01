@@ -87,6 +87,8 @@ export function MemberOverview() {
   const [qrError, setQrError] = useState<string | null>(null);
   const [qrPreviewUrl, setQrPreviewUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [stickerOrderBusy, setStickerOrderBusy] = useState(false);
+  const [additionalStickerBusy, setAdditionalStickerBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -209,9 +211,6 @@ export function MemberOverview() {
       setQrBusy(null);
     }
   }
-
-  const [stickerOrderBusy, setStickerOrderBusy] = useState(false);
-  const [additionalStickerBusy, setAdditionalStickerBusy] = useState(false);
 
   async function handleOrderPhysicalStickers() {
     setStickerOrderBusy(true);
