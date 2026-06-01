@@ -261,7 +261,7 @@ model OrganizationSettings {
   checkoutMembershipName            String?
   checkoutRegistrationFeeName       String?
   checkoutMembershipPence           Int     @default(9480)
-  checkoutRegistrationFeePence      Int     @default(1800)
+  checkoutRegistrationFeePence      Int     @default(1500)
   /// reCAPTCHA v2
   recaptchaEnabled                  Boolean @default(false)
   recaptchaSiteKey                  String?
