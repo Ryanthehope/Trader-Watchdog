@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useSiteData } from "../context/SiteDataContext";
 
 function Logo({
@@ -42,6 +42,11 @@ const mobileLinkClass =
 export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { error, reload, brandName } = useSiteData();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className="flex min-h-screen flex-col">
