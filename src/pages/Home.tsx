@@ -423,7 +423,7 @@ export function Home() {
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link
               to="/#verify"
-              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-8 py-4 text-base font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-100"
+              className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-500"
             >
               {heroSecondaryCta}
             </Link>
@@ -504,7 +504,7 @@ export function Home() {
             className="mx-auto max-w-full"
             loading="lazy"
           />
-          <p className="mt-4 text-base font-semibold text-slate-700">Look for the sign of a Verified Trader</p>
+          <p className="mt-4 text-xl font-semibold text-slate-700">Look for the sign of a Verified Trader</p>
         </div>
       </section>
       <Faq />

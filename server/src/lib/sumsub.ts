@@ -130,6 +130,22 @@ function cleanEnv(value: string | undefined): string {
   return value?.trim() ?? "";
 }
 
+/**
+ * Normalise a UK phone number to E.164 format expected by Sumsub.
+ * "07911 123456" → "+447911123456", "+447911123456" → "+447911123456"
+ * Returns null if the input is empty or can't be parsed.
+ */
+export function normalizePhoneE164(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return null;
+  if (digits.startsWith("44") && digits.length >= 12) return `+${digits}`;
+  if (digits.startsWith("0") && digits.length === 11) return `+44${digits.slice(1)}`;
+  // Already looks like international format without the +
+  if (digits.length >= 11) return `+${digits}`;
+  return null;
+}
+
 export function isSumsubConfigured(): boolean {
   return Boolean(cleanEnv(process.env.SUMSUB_APP_TOKEN)) &&
     Boolean(cleanEnv(process.env.SUMSUB_SECRET_KEY)) &&
@@ -208,7 +224,7 @@ export async function createSumsubApplicant(
   const body = JSON.stringify({
     externalUserId: input.externalUserId,
     email: input.email,
-    phone: input.phone ?? undefined,
+    phone: normalizePhoneE164(input.phone) ?? undefined,
     fixedInfo: {
       firstName: input.firstName ?? undefined,
       lastName: input.lastName ?? undefined,
@@ -229,9 +245,9 @@ export async function generateSumsubWebSdkLink(
     userId: input.userId,
     applicantIdentifiers: {
       email: input.email,
-      phone: input.phone ?? undefined,
+      phone: normalizePhoneE164(input.phone) ?? undefined,
     },
-    ttlInSecs: input.ttlInSecs ?? 1800,
+    ttlInSecs: input.ttlInSecs ?? 86400,
   });
 
   return sumsubJsonRequest<SumsubWebSdkLinkResponse>("POST", path, body);

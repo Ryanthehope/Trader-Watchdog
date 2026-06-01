@@ -366,7 +366,7 @@ export function notifyApplicantVerificationOutcome(
 
     const subject =
       row.status === "APPROVED"
-        ? "You're Verified - Your QR Is Ready"
+        ? "Identity Verification Complete - We'll Be In Touch"
         : "We Couldn't Complete Your Verification";
 
     const text =
@@ -374,20 +374,11 @@ export function notifyApplicantVerificationOutcome(
         ? [
             `Hi ${traderName},`,
             "",
-            "Great news - you're now a verified Trader Watchdog member.",
+            "Your identity verification is complete — thank you for completing that step.",
             "",
-            "Your verification page is live, and your QR code is ready to use on:",
-            "- Vehicles",
-            "- Websites",
-            "- Social media",
-            "- Flyers and business cards",
-            "- Quotes and invoices",
+            "Our team will now finish reviewing your application. We'll be in touch shortly to let you know the outcome and what happens next.",
             "",
-            "This is your moment to stand out as a trusted, legitimate trader.",
-            "",
-            `Member login: ${memberLoginUrl}`,
-            "",
-            "If you need anything, we're here.",
+            "If you need anything in the meantime, just reply to this email.",
             "The Trader Watchdog Team",
           ].join("\n")
         : [
@@ -420,26 +411,30 @@ export function notifyApplicantApprovedForPayment(
     company: string;
     email: string;
     registrationFeePaid: boolean;
+    applicationId: string;
+    mandateOnFile?: boolean;
   }
 ): void {
   void (async () => {
     const base = await publicSiteBase(prisma);
-    const joinUrl = `${base}/join`;
+    const joinUrl = `${base}/join?app=${row.applicationId}&email=${encodeURIComponent(row.email)}`;
     const traderName = row.traderName?.trim() || row.company;
-    const nextStep = row.registrationFeePaid
-      ? "Your registration fee has already been recorded. To complete setup, return to the join page using the same email address and pay the annual membership."
-      : "To get started, return to the join page using the same email address to pay the registration fee. The annual membership step will then unlock automatically.";
+    const nextStep = row.mandateOnFile
+      ? "Your registration fee is already paid and we are now processing your annual membership payment. Your member portal and public listing will be created automatically once the payment clears (usually 3–5 working days)."
+      : row.registrationFeePaid
+        ? "Your registration fee has already been recorded. To complete setup, return to the join page using the same email address and pay the annual membership."
+        : "To get started, return to the join page using the same email address to pay the registration fee. The annual membership step will then unlock automatically.";
+    const continueSection =
+      row.mandateOnFile
+        ? ""
+        : `\nContinue here: ${joinUrl}\n\nOnce payment is complete, your public listing and member login will be created.`;
     const text = [
       `Hi ${traderName},`,
       "",
       "Good news - your Trader Watchdog application has been approved.",
       "",
       nextStep,
-      "",
-      `Continue here: ${joinUrl}`,
-      "",
-      "Once payment is complete, your public listing and member login will be created.",
-      "",
+      continueSection,
       "If you need help, just reply to this email.",
       "The Trader Watchdog Team",
     ].join("\n");
@@ -451,6 +446,48 @@ export function notifyApplicantApprovedForPayment(
     });
   })().catch((e) => {
     console.error("[admin-mail] applicant approval send failed", e);
+  });
+}
+
+export function notifyApplicantVerificationLink(
+  prisma: PrismaClient,
+  row: {
+    traderName?: string | null;
+    company: string;
+    email: string;
+    verificationUrl: string;
+  }
+): void {
+  void (async () => {
+    const traderName = row.traderName?.trim() || row.company;
+    const brand = await getBrandName(prisma);
+    const text = [
+      `Hi ${traderName},`,
+      "",
+      `Thank you for paying your registration fee. Your ${brand} identity verification is now ready.`,
+      "",
+      "Please complete your verification using the secure link below. You will need to:",
+      "  • Take a photo of a government-issued ID (passport or driving licence)",
+      "  • Take a short selfie to confirm your likeness",
+      "  • Provide proof of your business address",
+      "",
+      `Start verification: ${row.verificationUrl}`,
+      "",
+      "The link is valid for 24 hours. If it has expired, you can request a new one from your application status page.",
+      "",
+      "Once verification is complete, our team will review your application and you will hear from us shortly.",
+      "",
+      "If you need help, just reply to this email.",
+      `The ${brand} Team`,
+    ].join("\n");
+
+    await sendApplicantEmail(prisma, {
+      to: row.email,
+      subject: `Action Required: Complete Your ${brand} Identity Verification`,
+      text,
+    });
+  })().catch((e) => {
+    console.error("[admin-mail] applicant verification link send failed", e);
   });
 }
 

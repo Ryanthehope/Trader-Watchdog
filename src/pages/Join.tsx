@@ -145,6 +145,8 @@ export function Join() {
   const [checkoutLoading, setCheckoutLoading] = useState<
     "registration" | "member" | null
   >(null);
+  const [verificationLinkLoading, setVerificationLinkLoading] = useState(false);
+  const [verificationLinkError, setVerificationLinkError] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState("");
   const [discountApplied, setDiscountApplied] = useState<{
     valid: true;
@@ -563,6 +565,31 @@ export function Join() {
 
   const inbox = import.meta.env.VITE_APPLICATION_INBOX_EMAIL?.trim();
 
+  const openVerificationLink = async () => {
+    if (!applicationId || !savedEmail) return;
+    setVerificationLinkLoading(true);
+    setVerificationLinkError(null);
+    try {
+      const res = await fetch(`${apiBase()}/api/applications/verification-link`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId, email: savedEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) {
+        setVerificationLinkError(
+          typeof data?.error === "string" ? data.error : "Could not create verification link"
+        );
+        return;
+      }
+      window.open(data.url as string, "_blank", "noopener,noreferrer");
+    } catch {
+      setVerificationLinkError("Network error. Please try again.");
+    } finally {
+      setVerificationLinkLoading(false);
+    }
+  };
+
   const applyDiscountCode = async () => {
     const code = discountCode.trim();
     if (!code || !applicationId || !savedEmail) return;
@@ -794,12 +821,6 @@ export function Join() {
           </div>
           <div className="mt-12">
             <div className="flex flex-wrap justify-center gap-6">
-              <img
-                src="/sticker-120-website.jpg"
-                alt="Trader Watchdog verified trader sticker 120mm"
-                className="h-64 w-64 object-contain"
-                loading="lazy"
-              />
               <img
                 src="/sticker-120-website.jpg"
                 alt="Trader Watchdog verified trader sticker 120mm"
@@ -1108,6 +1129,30 @@ export function Join() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                ) : null}
+                {/* Identity verification button — shown when reg fee is paid, not yet approved, and not declined */}
+                {applicantSummary?.exists &&
+                applicantSummary.hasRegistrationFeePayment &&
+                applicantStatus !== "APPROVED" &&
+                applicantStatus !== "DECLINED" &&
+                !applicantSummary.profileLive ? (
+                  <div className="rounded-2xl border border-brand-500/25 bg-brand-500/8 p-6">
+                    <p className="text-sm font-semibold text-white">Complete your identity verification</p>
+                    <p className="mt-1 text-sm text-slate-400">
+                      You will need a government-issued photo ID (passport or driving licence) and a short selfie. This is a secure, guided process handled by our verification partner.
+                    </p>
+                    {verificationLinkError && (
+                      <p className="mt-2 text-xs text-amber-300">{verificationLinkError}</p>
+                    )}
+                    <button
+                      type="button"
+                      disabled={verificationLinkLoading}
+                      onClick={() => void openVerificationLink()}
+                      className="mt-4 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-500 disabled:opacity-50"
+                    >
+                      {verificationLinkLoading ? "Preparing link…" : "Start identity verification →"}
+                    </button>
                   </div>
                 ) : null}
                 {applicantSummary?.exists &&

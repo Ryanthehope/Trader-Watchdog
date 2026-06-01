@@ -170,7 +170,8 @@ function isMemberQrEligible(m: {
   membershipExpiresAt: Date | null;
   goCardlessSubscriptionStatus: string | null;
 }) {
-  if (m.verificationStatus !== "APPROVED") return false;
+  // Block only if explicitly rejected — admin approval is the real verification gate.
+  if (m.verificationStatus === "REJECTED") return false;
   return isMemberPublicListingVisible({
     membershipUnlimited: m.membershipUnlimited,
     membershipBillingType: m.membershipBillingType,
@@ -246,7 +247,7 @@ router.get("/me", async (req, res) => {
         eligible: qrEligible,
         reason: qrEligible
           ? null
-          : "QR downloads are enabled once verification is approved and your public profile is live.",
+          : "QR downloads are available while your membership is active. Contact us if you need help.",
         profileUrl: publicProfileAbsoluteUrl,
         stickerDownloadUrl: "/api/member/portal/qr-code/sticker",
         smallDownloadUrl: "/api/member/portal/qr-code/small",
@@ -296,7 +297,7 @@ router.get("/qr-code/svg", async (req, res) => {
     if (!isMemberQrEligible(m)) {
       res.status(403).json({
         error:
-          "QR downloads are enabled once verification is approved and your public profile is live.",
+          "QR downloads are available while your membership is active. Contact us if you need help.",
       });
       return;
     }
@@ -355,7 +356,7 @@ router.get("/qr-code/van-sticker/:id", async (req, res) => {
     if (!isMemberQrEligible(m)) {
       res.status(403).json({
         error:
-          "QR downloads are enabled once verification is approved and your public profile is live.",
+          "QR downloads are available while your membership is active. Contact us if you need help.",
       });
       return;
     }
@@ -426,7 +427,7 @@ router.get("/qr-code/:variant", async (req, res) => {
     if (!isMemberQrEligible(m)) {
       res.status(403).json({
         error:
-          "QR downloads are enabled once verification is approved and your public profile is live.",
+          "QR downloads are available while your membership is active. Contact us if you need help.",
       });
       return;
     }
@@ -962,7 +963,7 @@ async function invoiceBrandingPayload() {
   };
 }
 
-/** GoCardless invoices for one-off joining and annual renewal payments. */
+/** GoCardless payment history for one-off joining and annual renewal payments. */
 router.get("/invoices", async (req, res) => {
   try {
     const memberId = (req as unknown as { memberId: string }).memberId;
@@ -986,25 +987,34 @@ router.get("/invoices", async (req, res) => {
     }
     let invoices: Array<Record<string, unknown>> = [];
     try {
-      const list = await gocardless.invoices.list({
+      const list = await gocardless.payments.list({
         customer: m.goCardlessCustomerId,
         limit: 36,
       });
-      invoices = list.data.map((inv: any) => ({
-        id: inv.id,
-        number: inv.number,
-        status: inv.status,
-        amountDue: inv.amount_due,
-        amountPaid: inv.amount_paid,
-        total: inv.total,
-        currency: inv.currency,
-        created: inv.created,
-        hostedInvoiceUrl: inv.hosted_invoice_url,
-        invoicePdf: inv.invoice_pdf,
-      }));
+      const payments = (list as unknown as { records: Array<Record<string, unknown>> }).records
+        ?? (list as unknown as { data: Array<Record<string, unknown>> }).data
+        ?? (Array.isArray(list) ? list : []);
+      invoices = payments
+        .filter((p: Record<string, unknown>) => p.status !== "failed" && p.status !== "cancelled")
+        .map((p: Record<string, unknown>) => ({
+          id: p.id,
+          number: null,
+          status: String(p.status ?? "").replace(/_/g, " "),
+          amountDue: 0,
+          amountPaid: typeof p.amount === "number" ? p.amount : 0,
+          total: typeof p.amount === "number" ? p.amount : 0,
+          currency: String(p.currency ?? "GBP"),
+          // GoCardless created_at is an ISO string; convert to Unix seconds for the frontend
+          created: p.created_at
+            ? Math.floor(new Date(String(p.created_at)).getTime() / 1000)
+            : 0,
+          description: p.description ?? null,
+          hostedInvoiceUrl: null,
+          invoicePdf: null,
+        }));
     } catch (e) {
       console.warn(
-        "[member portal] GoCardless invoices unavailable — account may not support the invoices API",
+        "[member portal] GoCardless payments list unavailable",
         e
       );
     }
@@ -1015,7 +1025,7 @@ router.get("/invoices", async (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: "Could not load invoices" });
+    res.status(500).json({ error: "Could not load billing history" });
   }
 });
 

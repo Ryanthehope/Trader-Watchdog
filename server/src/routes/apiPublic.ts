@@ -27,11 +27,14 @@ import {
   getBrandName,
   notifyApplicantSubmissionReceived,
   notifyNewApplication,
+  notifyApplicantVerificationLink,
   publicSiteBase,
 } from "../lib/adminMail.js";
 import { checkoutLineConfig } from "../lib/billingSettings.js";
 import { clampCheckoutPence } from "../lib/billingSettings.js";
 import { getLaunchWindow } from "../lib/launchWindow.js";
+import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
+import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 
 const router = Router();
 
@@ -277,6 +280,56 @@ router.post("/applications/applicant-summary", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Could not load application status" });
+  }
+});
+
+/**
+ * Applicant-facing: get (or create) a Sumsub verification link.
+ * Authenticated by applicationId + email match, and reg fee must be paid.
+ */
+router.post("/applications/verification-link", async (req, res) => {
+  try {
+    if (!isSumsubConfigured()) {
+      res.status(400).json({ error: "Identity verification is not available yet" });
+      return;
+    }
+    const applicationId = String(req.body?.applicationId ?? "").trim();
+    const email = String(req.body?.email ?? "").trim().toLowerCase();
+    if (!applicationId || !email) {
+      res.status(400).json({ error: "applicationId and email are required" });
+      return;
+    }
+    const row = await prisma.application.findUnique({
+      where: { id: applicationId },
+      select: { email: true, registrationFeePaidAt: true, status: true },
+    });
+    if (!row || row.email.toLowerCase() !== email) {
+      res.status(404).json({ error: "Application not found" });
+      return;
+    }
+    if (!row.registrationFeePaidAt) {
+      res.status(400).json({ error: "Verification starts after the registration fee is paid" });
+      return;
+    }
+    if (row.status === "DECLINED") {
+      res.status(400).json({ error: "This application is closed" });
+      return;
+    }
+    const ensured = await ensureSumsubApplicantForApplication(prisma, applicationId);
+    if (ensured.kind === "not_found") {
+      res.status(404).json({ error: "Application not found" });
+      return;
+    }
+    const link = await generateSumsubWebSdkLink({
+      userId: ensured.externalUserId,
+      email: ensured.email,
+      phone: ensured.phone,
+      lang: "en",
+    });
+    res.json({ url: link.url });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not create verification link" });
   }
 });
 

@@ -12,7 +12,8 @@ import {
 import { applicationDocumentResolvedPath } from "../lib/applicationDocuments.js";
 import { tryProvisionMemberForApplication } from "../lib/provisionMemberFromApplication.js";
 import { sanitizeNullableDbString } from "../lib/sanitizeDbText.js";
-import { getGoCardlessClient } from "../lib/billingSettings.js";
+import { getGoCardlessClient, getGoCardlessApiClient, getOrgBilling, checkoutLineConfig } from "../lib/billingSettings.js";
+import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 import { fetchGoCardlessFinancialSnapshot } from "../lib/goCardlessFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
@@ -21,17 +22,17 @@ import {
   notifyApplicationDecision,
   notifyApplicantApprovedForPayment,
   notifyApplicantVerificationOutcome,
+  notifyApplicantVerificationLink,
   notifyMemberWelcome,
   sendAdminEmail,
 } from "../lib/adminMail.js";
+import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
 import {
-  createSumsubApplicant,
   generateSumsubWebSdkLink,
   isSumsubConfigured,
 } from "../lib/sumsub.js";
 import {
   buildSumsubVerificationUpdate,
-  splitFullName,
 } from "../lib/sumsubVerificationSync.js";
 
 const router = Router();
@@ -131,6 +132,9 @@ const ADMIN_APPLICATION_MUTATION_SELECT = {
   registrationFeePaidAt: true,
   membershipSubscribed: true,
   manualMembershipExpiresAt: true,
+  goCardlessMandateId: true,
+  goCardlessCustomerId: true,
+  verificationStatus: true,
 } satisfies Prisma.ApplicationSelect;
 
 router.get("/dashboard", async (_req, res) => {
@@ -907,6 +911,14 @@ router.patch("/applications/:id", async (req, res) => {
       data.approvedByStaffName = null;
     }
 
+    if (transitioningToApproved && isSumsubConfigured() && before.verificationStatus !== "APPROVED") {
+      res.status(400).json({
+        error:
+          "Identity verification (Sumsub) must be completed and approved before the application can be approved.",
+      });
+      return;
+    }
+
     if (transitioningToApproved && !before.createdMemberId) {
       const taken = await prisma.member.findFirst({
         where: { loginEmail: before.email.trim().toLowerCase() },
@@ -935,6 +947,44 @@ router.patch("/applications/:id", async (req, res) => {
       return;
     }
 
+    // After approval: auto-charge membership from existing mandate, or provision if already paid
+    if (transitioningToApproved) {
+      // Attempt to provision if both fees were already paid before approval (edge case)
+      const prov = await provisionIfApplicationPaid(prisma, req.params.id);
+      if (prov.ok && prov.newlyCreated) {
+        notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
+      }
+
+      // Auto-charge membership from existing GoCardless mandate if not yet subscribed
+      if (
+        before.goCardlessMandateId &&
+        before.registrationFeePaidAt &&
+        !before.membershipSubscribed
+      ) {
+        try {
+          const gc = await getGoCardlessApiClient();
+          const billing = await getOrgBilling();
+          const { membershipPence, membershipName } = checkoutLineConfig(billing);
+          if (gc) {
+            await gc.payments.create({
+              amount: String(membershipPence),
+              currency: "GBP",
+              description: membershipName,
+              links: { mandate: before.goCardlessMandateId },
+              metadata: {
+                checkoutKind: "membership",
+                applicationId: req.params.id,
+              },
+              psu_interaction_type: "off_session",
+            });
+          }
+        } catch (err) {
+          console.error("[approval] auto-charge membership failed", err);
+          // Don't block the approval if this fails
+        }
+      }
+    }
+
     if (
       data.status !== undefined &&
       before.status !== data.status &&
@@ -953,6 +1003,8 @@ router.patch("/applications/:id", async (req, res) => {
           company: full.company,
           email: full.email,
           registrationFeePaid: Boolean(before.registrationFeePaidAt),
+          applicationId: full.id,
+          mandateOnFile: Boolean(before.goCardlessMandateId && before.registrationFeePaidAt && !before.membershipSubscribed),
         });
       }
     }
@@ -985,79 +1037,6 @@ router.patch("/applications/:id", async (req, res) => {
   }
 });
 
-async function ensureSumsubApplicantForApplication(id: string) {
-  const application = await prisma.application.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      email: true,
-      phone: true,
-      company: true,
-      identifiablePerson: true,
-      identifiablePersonAddress: true,
-      registrationFeePaidAt: true,
-      verificationProvider: true,
-      verificationProviderApplicantId: true,
-      verificationProviderSessionId: true,
-    },
-  });
-  if (!application) {
-    return { kind: "not_found" as const };
-  }
-
-  if (
-    application.verificationProvider === "sumsub" &&
-    application.verificationProviderApplicantId
-  ) {
-    return {
-      kind: "existing" as const,
-      application,
-      applicantId: application.verificationProviderApplicantId,
-      inspectionId: application.verificationProviderSessionId,
-      externalUserId: application.id,
-    };
-  }
-
-  const personName = splitFullName(
-    application.identifiablePerson || application.company
-  );
-
-  const applicant = await createSumsubApplicant({
-    externalUserId: application.id,
-    email: application.email,
-    phone: application.phone,
-    firstName: personName.firstName,
-    lastName: personName.lastName,
-  });
-
-  await prisma.application.update({
-    where: { id: application.id },
-    data: {
-      verificationProvider: "sumsub",
-      verificationStatus: "IN_PROGRESS",
-      verificationSubmittedAt: new Date(),
-      verificationApprovedAt: null,
-      verificationRejectedAt: null,
-      verificationProviderApplicantId: applicant.id,
-      verificationProviderSessionId: applicant.inspectionId ?? null,
-      verificationFailureReason: null,
-      addressVerificationStatus: "NOT_STARTED",
-      addressVerificationApprovedAt: null,
-      addressVerificationRejectedAt: null,
-      addressVerificationFailureReason: null,
-      addressVerificationMatchedAddress: null,
-      addressVerificationMatchedApplication: null,
-    },
-  });
-
-  return {
-    kind: "created" as const,
-    application,
-    applicantId: applicant.id,
-    inspectionId: applicant.inspectionId ?? null,
-    externalUserId: applicant.externalUserId ?? application.id,
-  };
-}
 
 router.post("/applications/:id/sumsub-applicant", async (req, res) => {
   try {
@@ -1067,7 +1046,7 @@ router.post("/applications/:id/sumsub-applicant", async (req, res) => {
     }
     const id = req.params.id;
 
-    const ensured = await ensureSumsubApplicantForApplication(id);
+    const ensured = await ensureSumsubApplicantForApplication(prisma, id);
     if (ensured.kind === "not_found") {
       res.status(404).json({ error: "Not found" });
       return;
@@ -1092,12 +1071,12 @@ router.post("/applications/:id/sumsub-link", async (req, res) => {
       return;
     }
     const id = req.params.id;
-    const ensured = await ensureSumsubApplicantForApplication(id);
+    const ensured = await ensureSumsubApplicantForApplication(prisma, id);
     if (ensured.kind === "not_found") {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    if (!ensured.application.registrationFeePaidAt) {
+    if (!ensured.registrationFeePaidAt) {
       res.status(400).json({
         error:
           "Record the registration fee first. Verification now starts after the upfront application payment.",
@@ -1107,13 +1086,28 @@ router.post("/applications/:id/sumsub-link", async (req, res) => {
 
     const link = await generateSumsubWebSdkLink({
       userId: ensured.externalUserId,
-      email: ensured.application.email,
-      phone: ensured.application.phone,
+      email: ensured.email,
+      phone: ensured.phone,
       lang: "en",
     });
 
+    // Email the link to the applicant rather than returning it to the admin.
+    // The admin's browser must not open the Sumsub URL — it is the trader's selfie.
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: { identifiablePerson: true, company: true },
+    });
+    const traderName = application?.identifiablePerson ?? application?.company ?? "Applicant";
+    await notifyApplicantVerificationLink(prisma, {
+      traderName,
+      company: application?.company ?? "",
+      email: ensured.email,
+      verificationUrl: link.url,
+    });
+
     res.json({
-      url: link.url,
+      emailed: true,
+      email: ensured.email,
       applicantId: ensured.applicantId,
       inspectionId: ensured.inspectionId ?? null,
       externalUserId: ensured.externalUserId,

@@ -205,6 +205,8 @@ model Application {
   /// First name of the staff member who set the application status to APPROVED.
   approvedByStaffName             String?
   goCardlessCustomerId             String?
+  /// GoCardless mandate ID captured from the billing request (used to auto-charge membership on approval).
+  goCardlessMandateId              String?
   /// Discounted renewal price (pence) set when a partial discount code was used at membership checkout.
   membershipRenewalPricePence      Int?
   /// Plain one-time password for /join until first login or expiry (14d at provision).

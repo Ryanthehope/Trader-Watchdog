@@ -21,6 +21,7 @@ type InvoiceRow = {
   total: number | null;
   currency: string;
   created: number;
+  description: string | null;
   hostedInvoiceUrl: string | null;
   invoicePdf: string | null;
 };
@@ -109,10 +110,10 @@ export function MemberBilling() {
   return (
     <div className="p-6 sm:p-8">
       <h1 className="font-display text-2xl font-semibold text-slate-900">
-        Billing & invoices
+        Billing &amp; payments
       </h1>
       <p className="mt-2 max-w-xl text-sm text-slate-600">
-        Billing history shown here is for your registration fee, annual
+        Payment history shown here is for your registration fee, annual
         membership payments, and any future annual renewals processed online.
       </p>
 
@@ -205,29 +206,25 @@ export function MemberBilling() {
 
       {goCardlessCustomerId && invoices.length === 0 ? (
         <p className="mt-6 text-sm text-slate-600">
-          No invoices yet. Future registration-fee, annual-membership, or
-          renewal charges will show here and in your email.
+          No payments recorded yet. Your registration fee, annual membership
+          payment, and future renewals will appear here once processed.
         </p>
       ) : null}
 
       {invoices.length > 0 ? (
         <div className="mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full min-w-[640px] text-left text-sm">
+          <table className="w-full min-w-[540px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Invoice</th>
+                <th className="px-4 py-3">Description</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Amount</th>
-                <th className="px-4 py-3 text-right">PDF</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {invoices.map((inv) => {
-                const cents =
-                  inv.status === "paid"
-                    ? inv.amountPaid
-                    : inv.amountDue || inv.total || 0;
+                const pence = inv.amountPaid || inv.total || inv.amountDue || 0;
                 const when = new Date(inv.created * 1000);
                 return (
                   <tr key={inv.id}>
@@ -238,37 +235,14 @@ export function MemberBilling() {
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-4 py-3 font-mono text-slate-800">
-                      {inv.number ?? inv.id.slice(0, 12)}
+                    <td className="px-4 py-3 text-slate-800">
+                      {inv.description ?? "Payment"}
                     </td>
                     <td className="px-4 py-3 capitalize text-slate-600">
-                      {inv.status?.replace(/_/g, " ") ?? "—"}
+                      {inv.status ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-right font-medium text-slate-900">
-                      {formatGBPFromCents(cents)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {inv.hostedInvoiceUrl ? (
-                        <a
-                          href={inv.hostedInvoiceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-medium text-brand-600 hover:text-brand-500"
-                        >
-                          View
-                        </a>
-                      ) : inv.invoicePdf ? (
-                        <a
-                          href={inv.invoicePdf}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-medium text-brand-600 hover:text-brand-500"
-                        >
-                          PDF
-                        </a>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
+                      {formatGBPFromCents(pence)}
                     </td>
                   </tr>
                 );

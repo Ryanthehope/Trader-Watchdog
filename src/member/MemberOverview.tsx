@@ -346,8 +346,13 @@ export function MemberOverview() {
 
     <div className="flex justify-between gap-4 border-b border-slate-200 pb-3">
       <dt className="text-slate-600">Membership</dt>
-      <dd className={`font-semibold ${membershipTone}`}>
+      <dd className={`text-right font-semibold ${membershipTone}`}>
         {membershipLabel}
+        {data.membership.expiresAt && data.membership.accessActive && !data.membership.membershipUnlimited && (
+          <p className="text-xs font-normal text-slate-500 mt-0.5">
+            Renews {new Date(data.membership.expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        )}
       </dd>
     </div>
 

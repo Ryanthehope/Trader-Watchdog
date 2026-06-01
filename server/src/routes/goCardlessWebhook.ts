@@ -6,8 +6,10 @@ import {
   getGoCardlessWebhookSecret,
 } from "../lib/billingSettings.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
-import { notifySubscriptionRenewed, notifyMemberWelcome, notifyVanStickerOrder, notifyVanStickerOrderAdditional } from "../lib/adminMail.js";
+import { notifySubscriptionRenewed, notifyMemberWelcome, notifyVanStickerOrder, notifyVanStickerOrderAdditional, notifyApplicantVerificationLink } from "../lib/adminMail.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
+import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
+import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 
 type GoCardlessPayment = {
   created_at?: string | null;
@@ -24,20 +26,24 @@ type GoCardlessEvent = {
   resource_type?: string;
 };
 
-async function customerIdFromBillingRequest(
+async function customerAndMandateFromBillingRequest(
   gocardless: Awaited<ReturnType<typeof getGoCardlessApiClient>>,
   billingRequestId: string | undefined
 ) {
-  if (!gocardless || !billingRequestId) return null;
+  if (!gocardless || !billingRequestId) return { customerId: null, mandateId: null };
   try {
     const billingRequest = await gocardless.billingRequests.find(billingRequestId);
-    return billingRequest.resources?.customer?.id ?? null;
+    return {
+      customerId: billingRequest.resources?.customer?.id ?? null,
+      // mandate_request_mandate is set once the customer completes the billing request
+      mandateId: (billingRequest.links as Record<string, string | undefined>)?.mandate_request_mandate ?? null,
+    };
   } catch (error) {
     console.warn(
       `[gocardless webhook] could not load billing request ${billingRequestId}`,
       error
     );
-    return null;
+    return { customerId: null, mandateId: null };
   }
 }
 
@@ -78,10 +84,10 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
       if (!kind) continue;
 
       // On `created`: the billing_request link is available — capture the GoCardless
-      // customer ID and persist it. Do NOT provision yet; wait for `confirmed` to
-      // ensure the money has actually been collected (covers Bacs/Direct Debit).
+      // customer ID and mandate ID and persist them. Do NOT provision yet; wait for
+      // `confirmed` to ensure the money has actually been collected (covers Bacs/Direct Debit).
       if (action === "created") {
-        const customerId = await customerIdFromBillingRequest(
+        const { customerId, mandateId } = await customerAndMandateFromBillingRequest(
           gocardless,
           event.links?.billing_request
         );
@@ -90,7 +96,10 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         if (appId && (kind === "registration_fee" || kind === "membership")) {
           await prisma.application.updateMany({
             where: { id: appId },
-            data: { goCardlessCustomerId: customerId },
+            data: {
+              goCardlessCustomerId: customerId,
+              ...(mandateId ? { goCardlessMandateId: mandateId } : {}),
+            },
           });
         }
         const memberId = payment.metadata?.memberId;
@@ -157,6 +166,37 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           }
           if (prov.ok && prov.newlyCreated) {
             notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
+          }
+
+          // Automatically create Sumsub applicant and email the verification link
+          if (isSumsubConfigured()) {
+            void (async () => {
+              try {
+                const ensured = await ensureSumsubApplicantForApplication(prisma, appId);
+                if (ensured.kind !== "not_found") {
+                  const link = await generateSumsubWebSdkLink({
+                    userId: ensured.externalUserId,
+                    email: ensured.email,
+                    phone: ensured.phone,
+                    lang: "en",
+                  });
+                  const app = await prisma.application.findUnique({
+                    where: { id: appId },
+                    select: { identifiablePerson: true, company: true, email: true },
+                  });
+                  if (app) {
+                    notifyApplicantVerificationLink(prisma, {
+                      traderName: app.identifiablePerson,
+                      company: app.company,
+                      email: app.email,
+                      verificationUrl: link.url,
+                    });
+                  }
+                }
+              } catch (err) {
+                console.error("[gocardless webhook] auto-sumsub link failed", err);
+              }
+            })();
           }
         }
       }

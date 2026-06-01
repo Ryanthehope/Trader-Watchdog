@@ -474,6 +474,8 @@ function ApplicationCard({
   const verificationStatus = row.verificationStatus ?? "NOT_STARTED";
   const addressVerificationStatus = row.addressVerificationStatus ?? "NOT_STARTED";
   const canUseSumsub = row.status !== "DECLINED" && hasRegistrationFeePayment;
+  // Sumsub must be APPROVED before the application can be approved (only enforced when Sumsub has been used)
+  const sumsubPending = verificationStatus !== "APPROVED" && verificationStatus !== "NOT_STARTED";
 
   const save = async (nextStatus?: string) => {
     setSaving(true);
@@ -632,15 +634,15 @@ function ApplicationCard({
   const launchSumsub = async () => {
     setSumsubBusy("launch");
     try {
-      const d = await apiSend<{ url: string }>(
+      const d = await apiSend<{ emailed: boolean; email: string }>(
         `/api/admin/applications/${row.id}/sumsub-link`,
         {
           method: "POST",
         }
       );
-      window.open(d.url, "_blank", "noopener,noreferrer");
+      alert(`Verification link emailed to ${d.email}. The applicant must complete verification in their own browser.`);
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Could not create Sumsub link");
+      alert(e instanceof Error ? e.message : "Could not send Sumsub link");
     } finally {
       setSumsubBusy(null);
       reload();
@@ -936,16 +938,24 @@ function ApplicationCard({
               {saving ? "Saving…" : "Save progress"}
             </button>
             {!linked ? (
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => void approve()}
-                className="rounded-xl bg-emerald-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {status === "APPROVED"
-                  ? "Save approval again"
-                  : "Approve application"}
-              </button>
+              <>
+                {sumsubPending ? (
+                  <p className="text-xs text-amber-300">
+                    ⚠ Verification must be approved in Sumsub before approving this application.
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  disabled={saving || sumsubPending}
+                  onClick={() => void approve()}
+                  className="rounded-xl bg-emerald-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  title={sumsubPending ? "Sumsub identity check must be approved first" : undefined}
+                >
+                  {status === "APPROVED"
+                    ? "Save approval again"
+                    : "Approve application"}
+                </button>
+              </>
             ) : null}
             {paidAwaitingProfile ? (
               <button
@@ -966,10 +976,10 @@ function ApplicationCard({
                   className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
                 >
                   {sumsubBusy === "launch"
-                    ? "Opening…"
+                    ? "Sending…"
                     : row.verificationProviderApplicantId
-                      ? "Open Sumsub link"
-                      : "Start Sumsub check"}
+                      ? "Re-send verification link"
+                      : "Email verification link to applicant"}
                 </button>
                 {row.verificationProviderApplicantId ? (
                   <button
