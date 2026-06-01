@@ -19,7 +19,6 @@ import {
 } from "../lib/billingSettings.js";
 // import { buildMemberBadgeSvgFromRow, buildTraderWatchdogBadgeSvg } from "../lib/memberBadgeSvg.js";
 import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
-import { memberProfileLogoFilePath } from "../lib/memberProfileLogoPaths.js";
 import { orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { verifyRecaptchaV2 } from "../lib/verifyRecaptcha.js";
@@ -609,62 +608,6 @@ function decodeSlugParam(raw: string): string {
   return slug;
 }
 
-async function memberProfileLogoGetHandler(
-  req: Request<{ slug: string }>,
-  res: Response
-): Promise<void> {
-  try {
-    const slug = decodeSlugParam(req.params.slug);
-    if (!slug) {
-      res.status(404).end();
-      return;
-    }
-    const member = await prisma.member.findUnique({
-      where: { slug },
-      select: {
-        id: true,
-        profileLogoStoredName: true,
-        ...MEMBER_PUBLIC_VISIBILITY_SELECT,
-      },
-    });
-    if (
-      !member ||
-      !isMemberPublicListingVisible(member) ||
-      !member.profileLogoStoredName
-    ) {
-      res.status(404).end();
-      return;
-    }
-
-    const abs = memberProfileLogoFilePath(member.id, member.profileLogoStoredName);
-    if (!fs.existsSync(abs)) {
-      res.status(404).end();
-      return;
-    }
-
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    const ext = path.extname(abs).toLowerCase();
-    if (ext === ".png") res.type("image/png");
-    else if (ext === ".webp") res.type("image/webp");
-    else res.type("image/jpeg");
-    res.sendFile(abs);
-  } catch (e) {
-    console.error(e);
-    res.status(500).end();
-  }
-}
-
-// removed unreachable review endpoints
-
-/** Contact this trade — creates a lead tied to the member (shown in their portal). */
-// Member inquiry endpoints removed
-
-/** Public availability calendar for a verified member profile */
-// Member availability endpoints removed
-
-/** Homeowner job request endpoints removed. */
-// Job post endpoints removed
-
 async function memberBySlugHandler(
   req: Request<{ slug: string }>,
   res: Response
@@ -692,8 +635,6 @@ async function memberBySlugHandler(
 
 router.get("/members/by-slug/:slug", memberBySlugHandler);
 router.get("/members/by_slug/:slug", memberBySlugHandler);
-router.get("/members/by-slug/:slug/profile-logo", memberProfileLogoGetHandler);
-router.get("/members/by_slug/:slug/profile-logo", memberProfileLogoGetHandler);
 
 router.get("/guides", async (_req, res) => {
   try {

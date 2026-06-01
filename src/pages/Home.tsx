@@ -504,7 +504,7 @@ export function Home() {
             className="mx-auto max-w-full"
             loading="lazy"
           />
-          <p className="mt-4 text-xl font-semibold text-slate-700">Look for the sign of a Verified Trader</p>
+          <p className="mt-4 text-2xl font-semibold text-slate-700">Look for the sign of a Verified Trader</p>
         </div>
       </section>
       <Faq />

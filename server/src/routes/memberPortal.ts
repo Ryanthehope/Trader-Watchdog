@@ -23,7 +23,6 @@ import {
   membershipSummaryForMember,
 } from "../lib/memberMembership.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
-import { memberProfileLogoFilePath, memberProfileLogoDir } from "../lib/memberProfileLogoPaths.js";
 import { memberToPublic } from "../lib/memberSerialize.js";
 import { requireMember } from "../middleware/requireMember.js";
 import { requireMemberMembershipActive } from "../middleware/requireMemberMembershipActive.js";
@@ -114,34 +113,6 @@ const docUpload = multer({
       return;
     }
     cb(new Error("Only PDF and common image types are allowed"));
-  },
-});
-
-const profileLogoUpload = multer({
-  storage: multer.diskStorage({
-    destination: (req, _file, cb) => {
-      const memberId = (req as unknown as { memberId: string }).memberId;
-      cb(null, memberProfileLogoDir(memberId));
-    },
-    filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname || "").toLowerCase();
-      const useExt = [".png", ".jpg", ".jpeg", ".webp"].includes(ext)
-        ? ext
-        : ".png";
-      cb(null, `${randomUUID()}${useExt}`);
-    },
-  }),
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (
-      file.mimetype === "image/png" ||
-      file.mimetype === "image/jpeg" ||
-      file.mimetype === "image/webp"
-    ) {
-      cb(null, true);
-      return;
-    }
-    cb(new Error("Use PNG, JPEG, or WebP for your profile logo"));
   },
 });
 
@@ -610,82 +581,6 @@ router.post("/sticker-order-additional", async (req, res) => {
     console.error("[member-portal] additional sticker order failed", { error: e });
     const { statusCode, message } = goCardlessErrorDetails(e);
     res.status(statusCode).json({ error: message });
-  }
-});
-
-router.post(
-  "/profile-logo",
-  requireMemberMembershipActive,
-  (req, res, next) => {
-    profileLogoUpload.single("logo")(req, res, (err: unknown) => {
-      if (err) {
-        res.status(400).json({
-          error: err instanceof Error ? err.message : "Upload failed",
-        });
-        return;
-      }
-      next();
-    });
-  },
-  async (req, res) => {
-    try {
-      const memberId = (req as unknown as { memberId: string }).memberId;
-      const file = (req as { file?: { filename: string } }).file;
-      if (!file?.filename) {
-        res.status(400).json({ error: "logo file is required (field name: logo)" });
-        return;
-      }
-      const existing = await prisma.member.findUnique({
-        where: { id: memberId },
-        select: { profileLogoStoredName: true },
-      });
-      if (existing?.profileLogoStoredName) {
-        try {
-          fs.unlink(
-            memberProfileLogoFilePath(memberId, existing.profileLogoStoredName),
-            () => {}
-          );
-        } catch {
-          /* ignore */
-        }
-      }
-      const updated = await prisma.member.update({
-        where: { id: memberId },
-        data: { profileLogoStoredName: file.filename },
-      });
-      res.json({ profile: memberToPublic(updated) });
-    } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: "Could not save logo" });
-    }
-  }
-);
-
-router.delete("/profile-logo", requireMemberMembershipActive, async (req, res) => {
-  try {
-    const memberId = (req as unknown as { memberId: string }).memberId;
-    const existing = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: { profileLogoStoredName: true },
-    });
-    if (existing?.profileLogoStoredName) {
-      try {
-        fs.unlink(
-          memberProfileLogoFilePath(memberId, existing.profileLogoStoredName),
-          () => {}
-        );
-      } catch {
-        /* ignore */
-      }
-    }
-    const updated = await prisma.member.update({
-      where: { id: memberId },
-      data: { profileLogoStoredName: null },
-    });
-    res.json({ profile: memberToPublic(updated) });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Could not remove logo" });
   }
 });
 

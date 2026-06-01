@@ -1,7 +1,6 @@
 import { Link, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useSiteData } from "../context/SiteDataContext";
-import { publicApiUrl } from "../lib/api";
 import type {
   InsuranceSummaryPublic,
   VettingFactPublic,
@@ -225,16 +224,6 @@ export function MemberProfile() {
   const { members, loading, error, reload } = useSiteData();
   const member = members.find((m) => m.slug === slug);
 
-  const badgeSrc = useMemo(
-    () =>
-      slug
-        ? publicApiUrl(
-            `/api/members/by-slug/${encodeURIComponent(slug)}/badge.svg`
-          )
-        : "",
-    [slug]
-  );
-
   if (loading) {
     return (
       <main className="flex min-h-[50vh] items-center justify-center px-4">
@@ -318,11 +307,6 @@ export function MemberProfile() {
             <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:justify-between sm:p-8">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start gap-4">
-                  <img
-                      src="/traderwatchdog_logo.webp"
-                      alt="Trader Watchdog"
-                      className="h-16 w-16 shrink-0 rounded-xl border border-white/15 bg-slate-900/50 object-contain ring-1 ring-white/10 sm:h-20 sm:w-20"
-                    />
                   <div className="min-w-0">
                 <p className="inline-flex rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-bold tracking-wide text-white">
                   Tel: {member.tvId}
@@ -340,15 +324,11 @@ export function MemberProfile() {
                 </div>
               </div>
               <div className="flex shrink-0 justify-center sm:justify-end">
-                <div className="overflow-hidden rounded-xl shadow-lg shadow-black/30 ring-1 ring-emerald-500/35">
-                  <img
-                    src={badgeSrc}
-                    width={320}
-                    height={88}
-                    alt=""
-                    className="h-auto max-w-[min(100%,320px)]"
-                  />
-                </div>
+                <img
+                  src="/traderwatchdog_logo.webp"
+                  alt="Trader Watchdog"
+                  className="h-24 w-24 rounded-2xl border border-white/15 bg-slate-900/50 object-contain ring-1 ring-white/10 sm:h-28 sm:w-28"
+                />
               </div>
             </div>
             <div className="flex items-center gap-2 border-t border-emerald-600/40 bg-emerald-600 px-6 py-3.5 sm:px-8">

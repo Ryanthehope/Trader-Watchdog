@@ -574,19 +574,31 @@ export function notifyVanStickerOrder(
   void (async () => {
     const address =
       member.invoiceAddress?.trim() || member.location?.trim() || "(not provided)";
-    const text = [
-      "A van sticker order has been paid and is ready to dispatch.",
+    const supplierText = [
+      "Dear Signs & Stickers,",
       "",
-      `Trader: ${member.name}`,
-      `Address: ${address}`,
-      `Email: ${member.loginEmail ?? "(not set)"}`,
+      "Please arrange dispatch of one van sticker pack to the following trader:",
       "",
-      "Please arrange dispatch with the sticker supplier.",
+      `Trader name: ${member.name}`,
+      `Delivery address: ${address}`,
+      "",
+      "This order has been placed and paid by:",
+      "",
+      "Trader Watchdog Ltd",
+      "Registered in England and Wales",
+      "Company number: 17173750",
+      "Registered office: 4th Floor Office, 205 Regent Street, London, W1B 4HB",
+      "VAT number: 518 4466 75",
+      "",
+      "If you have any questions please contact us at admin@traderwatchdog.co.uk.",
+      "",
+      "Thank you,",
+      "Trader Watchdog",
     ].join("\n");
     await sendAdminEmail(prisma, {
       subject: `Van sticker order — ${member.name}`,
-      text,
-      overrideTo: "support@traderwatchdog.com",
+      text: supplierText,
+      overrideTo: "david@signsandstickers.co.uk",
     });
   })().catch((e) => {
     console.error("[admin-mail] sticker order notification failed", e);
@@ -605,19 +617,31 @@ export function notifyVanStickerOrderAdditional(
   void (async () => {
     const address =
       member.invoiceAddress?.trim() || member.location?.trim() || "(not provided)";
-    const text = [
-      "An additional van sticker order has been paid and is ready to dispatch.",
+    const supplierText = [
+      "Dear Signs & Stickers,",
       "",
-      `Trader: ${member.name}`,
-      `Address: ${address}`,
-      `Email: ${member.loginEmail ?? "(not set)"}`,
+      "Please arrange dispatch of one additional van sticker pack to the following trader:",
       "",
-      "Please arrange dispatch with the sticker supplier.",
+      `Trader name: ${member.name}`,
+      `Delivery address: ${address}`,
+      "",
+      "This order has been placed and paid by:",
+      "",
+      "Trader Watchdog Ltd",
+      "Registered in England and Wales",
+      "Company number: 17173750",
+      "Registered office: 4th Floor Office, 205 Regent Street, London, W1B 4HB",
+      "VAT number: 518 4466 75",
+      "",
+      "If you have any questions please contact us at admin@traderwatchdog.co.uk.",
+      "",
+      "Thank you,",
+      "Trader Watchdog",
     ].join("\n");
     await sendAdminEmail(prisma, {
       subject: `Additional van sticker order — ${member.name}`,
-      text,
-      overrideTo: "support@traderwatchdog.com",
+      text: supplierText,
+      overrideTo: "david@signsandstickers.co.uk",
     });
   })().catch((e) => {
     console.error("[admin-mail] additional sticker order notification failed", e);
