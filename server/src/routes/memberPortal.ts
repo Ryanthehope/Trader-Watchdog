@@ -11,7 +11,6 @@ import { prisma } from "../db.js";
 import {
   billingReady,
   checkoutLineConfig,
-  getGoCardlessClient,
   getOrgBilling,
   getGoCardlessApiClient,
 } from "../lib/billingSettings.js";
@@ -875,7 +874,7 @@ router.get("/invoices", async (req, res) => {
       });
       return;
     }
-    const gocardless = await getGoCardlessClient();
+    const gocardless = await getGoCardlessApiClient();
     if (!gocardless) {
       res.status(503).json({ error: "Billing is not configured" });
       return;
@@ -884,11 +883,9 @@ router.get("/invoices", async (req, res) => {
     try {
       const list = await gocardless.payments.list({
         customer: m.goCardlessCustomerId,
-        limit: 36,
+        limit: "36",
       });
-      const payments = (list as unknown as { records: Array<Record<string, unknown>> }).records
-        ?? (list as unknown as { data: Array<Record<string, unknown>> }).data
-        ?? (Array.isArray(list) ? list : []);
+      const payments = list.payments ?? [];
       invoices = payments
         .filter((p: Record<string, unknown>) => p.status !== "failed" && p.status !== "cancelled")
         .map((p: Record<string, unknown>) => ({
