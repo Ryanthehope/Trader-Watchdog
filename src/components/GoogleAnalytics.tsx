@@ -37,9 +37,12 @@ export function GoogleAnalytics() {
     const w = window as GtagWindow;
     w.dataLayer = w.dataLayer ?? [];
     if (!w.gtag) {
-      w.gtag = function gtag(...args: unknown[]) {
-        w.dataLayer!.push(args);
-      };
+      // Must use `arguments` (not rest params) — Google's gtag.js distinguishes
+      // between an Arguments object and a plain Array when replaying the queue
+      // on startup. Using rest params creates Arrays which gtag.js silently ignores,
+      // so the tracker is never initialised and no collect requests are sent.
+      // eslint-disable-next-line prefer-rest-params
+      w.gtag = function () { (w.dataLayer as unknown[]).push(arguments); } as GtagWindow["gtag"];
     }
 
     const path = location.pathname + location.search;
