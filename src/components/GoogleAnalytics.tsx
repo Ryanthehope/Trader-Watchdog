@@ -60,16 +60,20 @@ export function GoogleAnalytics() {
 
     const existing = document.querySelector(gtagScriptSelector(id));
     if (existing) {
-      configureIfNeeded();
+      // gtag.js already loaded (SPA navigation) — just send the page view.
       sendPageView();
       return;
     }
+
+    // Queue init commands in dataLayer BEFORE the script loads.
+    // Google's gtag.js reads the dataLayer queue on initialisation, so these
+    // must be present when the script executes — not in the onload callback.
+    configureIfNeeded();
 
     const script = document.createElement("script");
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
     script.onload = () => {
-      configureIfNeeded();
       sendPageView();
     };
     document.head.appendChild(script);
