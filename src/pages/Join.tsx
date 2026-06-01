@@ -625,7 +625,7 @@ export function Join() {
   const registrationFeePriceLabel =
     formatVatExclusiveLabel(registrationFeePricePence) ?? "£15 + VAT";
   const membershipPriceLabel =
-    formatVatExclusiveLabel(membershipPricePence) ?? "£79 + VAT";
+    formatVatExclusiveLabel(baseMembershipPricePence ?? membershipPricePence) ?? "£79 + VAT";
   const progressSteps = applicantSummary
     ? [
         {
