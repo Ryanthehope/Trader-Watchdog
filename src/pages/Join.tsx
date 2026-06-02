@@ -828,7 +828,7 @@ export function Join() {
             </div>
           </div>
           <div className="mt-12">
-            <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600"> Decals available for vehicles, advertising and stationery. 
+            <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-brand-600"> Decals available for vehicles, advertising and stationery. 
               Your QR code connects the public and customers direct to your verified profile.
             </p> 
             <div className="flex flex-wrap justify-center gap-6">
