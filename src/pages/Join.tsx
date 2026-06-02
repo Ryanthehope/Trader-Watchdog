@@ -18,6 +18,7 @@ type ApplicantSummary = {
   billingAvailable: boolean;
   canCheckoutRegistrationFee: boolean;
   canCheckoutMembership: boolean;
+  membershipAutoChargePending: boolean;
   hasRegistrationFeePayment: boolean;
   hasMembershipPayment: boolean;
   profileLive: boolean;
@@ -272,6 +273,7 @@ export function Join() {
         billingAvailable: Boolean(data.billingAvailable),
         canCheckoutRegistrationFee: Boolean(data.canCheckoutRegistrationFee),
         canCheckoutMembership: Boolean(data.canCheckoutMembership),
+        membershipAutoChargePending: Boolean(data.membershipAutoChargePending),
         hasRegistrationFeePayment: Boolean(data.hasRegistrationFeePayment),
         hasMembershipPayment: Boolean(data.hasMembershipPayment),
         profileLive: Boolean(data.profileLive),
@@ -713,25 +715,31 @@ export function Join() {
           title: "Annual membership",
           status: applicantSummary.hasMembershipPayment
             ? "Paid"
-            : applicantSummary.canCheckoutMembership
-              ? "Ready to pay"
-              : applicantStatus === "APPROVED"
-                ? "Waiting"
-                : applicantSummary.hasRegistrationFeePayment
-                  ? "Locked until approval"
-                  : "Waiting for verification",
+            : applicantSummary.membershipAutoChargePending
+              ? "Payment in progress"
+              : applicantSummary.canCheckoutMembership
+                ? "Ready to pay"
+                : applicantStatus === "APPROVED"
+                  ? "Waiting"
+                  : applicantSummary.hasRegistrationFeePayment
+                    ? "Locked until approval"
+                    : "Waiting for verification",
           tone: applicantSummary.hasMembershipPayment
             ? "emerald"
-            : applicantSummary.canCheckoutMembership
+            : applicantSummary.membershipAutoChargePending
               ? "brand"
-              : "slate",
+              : applicantSummary.canCheckoutMembership
+                ? "brand"
+                : "slate",
           detail: applicantSummary.hasMembershipPayment
             ? "Your annual membership payment has been recorded."
-            : applicantSummary.canCheckoutMembership
-              ? `Pay ${membershipPriceLabel} from this page when ready.`
-              : applicantStatus === "APPROVED"
-                ? "Annual membership is the final payment before your profile goes live."
-                : "This step unlocks only after Trader Watchdog approves the application.",
+            : applicantSummary.membershipAutoChargePending
+              ? "Your annual membership payment is being processed via Direct Debit. No action needed — this updates once confirmed (usually 3–5 working days)."
+              : applicantSummary.canCheckoutMembership
+                ? `Pay ${membershipPriceLabel} from this page when ready.`
+                : applicantStatus === "APPROVED"
+                  ? "Annual membership is the final payment before your profile goes live."
+                  : "This step unlocks only after Trader Watchdog approves the application.",
         },
         {
           title: "Profile & login",
@@ -820,6 +828,9 @@ export function Join() {
             </div>
           </div>
           <div className="mt-12">
+            <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600"> Decals available for vehicles, advertising and stationery. 
+              Your QR code connects the public and customers direct to your verified profile.
+            </p> 
             <div className="flex flex-wrap justify-center gap-6">
               <img
                 src="/sticker-120-website.jpg"
@@ -1238,6 +1249,16 @@ export function Join() {
                     <p className="mt-2 text-amber-100/80">
                       Your card payment is recorded. Your listing is created
                       after Trader Watchdog completes verification, approves your application, and receives annual membership; this page will update when the next step is ready.
+                    </p>
+                  </div>
+                ) : null}
+                {applicantSummary?.membershipAutoChargePending ? (
+                  <div className="rounded-2xl border border-brand-800/40 bg-brand-950/40 p-6">
+                    <p className="text-sm font-semibold text-brand-300">
+                      Annual membership payment in progress
+                    </p>
+                    <p className="mt-2 text-xs text-slate-400">
+                      We have submitted your annual membership payment via your Direct Debit. No action is needed — your public profile and member login will be created automatically once the payment clears (usually 3–5 working days).
                     </p>
                   </div>
                 ) : null}

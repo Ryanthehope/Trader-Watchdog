@@ -246,6 +246,12 @@ router.post("/applications/applicant-summary", async (req, res) => {
     const hasMembershipPayment =
       Boolean(row.membershipSubscribed);  
     const profileLive = Boolean(row.createdMemberId);
+    // True when an off-session GC payment was created on approval but the
+    // Bacs confirmation webhook hasn't fired yet (~3-5 working days).
+    const membershipAutoChargePending =
+      Boolean(row.membershipAutoChargeInitiatedAt) &&
+      !hasMembershipPayment &&
+      !profileLive;
     const canCheckoutRegistrationFee =
       billingAvailable &&
       row.status !== "DECLINED" &&
@@ -256,6 +262,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
       row.status === "APPROVED" &&
       hasRegistrationFeePayment &&
       !hasMembershipPayment &&
+      !membershipAutoChargePending &&
       !profileLive;
     const now = new Date();
     const oneTimePassword =
@@ -271,6 +278,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
       billingAvailable,
       canCheckoutRegistrationFee,
       canCheckoutMembership,
+      membershipAutoChargePending,
       hasRegistrationFeePayment,
       hasMembershipPayment,
       profileLive,

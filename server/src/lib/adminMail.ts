@@ -420,14 +420,14 @@ export function notifyApplicantApprovedForPayment(
     const joinUrl = `${base}/join?app=${row.applicationId}&email=${encodeURIComponent(row.email)}`;
     const traderName = row.traderName?.trim() || row.company;
     const nextStep = row.mandateOnFile
-      ? "Your registration fee is already paid and we are now processing your annual membership payment. Your member portal and public listing will be created automatically once the payment clears (usually 3–5 working days)."
+      ? "Your registration fee is already paid. We have submitted your annual membership payment via the Direct Debit you set up — no further action is needed. Your public profile and member login will be created automatically once the payment clears (usually 3–5 working days)."
       : row.registrationFeePaid
-        ? "Your registration fee has already been recorded. To complete setup, return to the join page using the same email address and pay the annual membership."
-        : "To get started, return to the join page using the same email address to pay the registration fee. The annual membership step will then unlock automatically.";
+        ? "Your registration fee is confirmed. The final step is to pay the annual membership. Use the secure link below to complete this — once payment is confirmed, your public profile and member login will be created."
+        : "To complete your application, use the link below to pay the registration fee. The annual membership step will then unlock automatically.";
     const continueSection =
       row.mandateOnFile
         ? ""
-        : `\nContinue here: ${joinUrl}\n\nOnce payment is complete, your public listing and member login will be created.`;
+        : `\nComplete your payment here:\n${joinUrl}\n`;
     const text = [
       `Hi ${traderName},`,
       "",

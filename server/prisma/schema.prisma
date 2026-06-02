@@ -209,6 +209,9 @@ model Application {
   goCardlessMandateId              String?
   /// Discounted renewal price (pence) set when a partial discount code was used at membership checkout.
   membershipRenewalPricePence      Int?
+  /// Set when an off-session GoCardless payment was successfully created from the stored mandate on approval.
+  /// Prevents a second manual checkout while the Bacs payment is in flight (confirmed ~3-5 working days).
+  membershipAutoChargeInitiatedAt  DateTime?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?
   pendingPortalPasswordExpires DateTime?

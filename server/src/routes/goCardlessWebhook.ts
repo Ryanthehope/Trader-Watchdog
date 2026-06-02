@@ -13,6 +13,7 @@ import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 
 type GoCardlessPayment = {
   created_at?: string | null;
+  links?: { mandate?: string | null };
   metadata?: Record<string, string | undefined> | null;
   status?: string | null;
 };
@@ -153,6 +154,15 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
 
       const appId = payment.metadata?.applicationId;
       if (appId && kind === "registration_fee") {
+        // Backfill mandate ID if the payments.created handler missed it (timing race).
+        // By confirmed time the mandate is reliably present on payment.links.mandate.
+        const confirmedMandateId = payment.links?.mandate;
+        if (confirmedMandateId) {
+          await prisma.application.updateMany({
+            where: { id: appId, goCardlessMandateId: null },
+            data: { goCardlessMandateId: confirmedMandateId },
+          });
+        }
         const updated = await prisma.application.updateMany({
           where: { id: appId, registrationFeePaidAt: null },
           data: { registrationFeePaidAt: paymentCreatedAt },

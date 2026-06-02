@@ -134,6 +134,7 @@ const ADMIN_APPLICATION_MUTATION_SELECT = {
   manualMembershipExpiresAt: true,
   goCardlessMandateId: true,
   goCardlessCustomerId: true,
+  membershipAutoChargeInitiatedAt: true,
   verificationStatus: true,
 } satisfies Prisma.ApplicationSelect;
 
@@ -956,10 +957,12 @@ router.patch("/applications/:id", async (req, res) => {
       }
 
       // Auto-charge membership from existing GoCardless mandate if not yet subscribed
+      let autoChargeSucceeded = false;
       if (
         before.goCardlessMandateId &&
         before.registrationFeePaidAt &&
-        !before.membershipSubscribed
+        !before.membershipSubscribed &&
+        !before.membershipAutoChargeInitiatedAt // don't re-attempt if already in flight
       ) {
         try {
           const gc = await getGoCardlessApiClient();
@@ -977,11 +980,29 @@ router.patch("/applications/:id", async (req, res) => {
               },
               psu_interaction_type: "off_session",
             });
+            autoChargeSucceeded = true;
+            await prisma.application.update({
+              where: { id: req.params.id },
+              data: { membershipAutoChargeInitiatedAt: new Date() },
+            });
           }
         } catch (err) {
           console.error("[approval] auto-charge membership failed", err);
           // Don't block the approval if this fails
         }
+      }
+
+      // Send approval email only if the member wasn't just provisioned.
+      // If prov.newlyCreated is true, notifyMemberWelcome already covers the notification.
+      if (!(prov.ok && prov.newlyCreated)) {
+        notifyApplicantApprovedForPayment(prisma, {
+          traderName: full.identifiablePerson,
+          company: full.company,
+          email: full.email,
+          registrationFeePaid: Boolean(full.registrationFeePaidAt),
+          applicationId: full.id,
+          mandateOnFile: autoChargeSucceeded,
+        });
       }
     }
 
@@ -997,16 +1018,6 @@ router.patch("/applications/:id", async (req, res) => {
         email: full.email,
         status: full.status,
       });
-      if (data.status === "APPROVED") {
-        notifyApplicantApprovedForPayment(prisma, {
-          traderName: full.identifiablePerson,
-          company: full.company,
-          email: full.email,
-          registrationFeePaid: Boolean(before.registrationFeePaidAt),
-          applicationId: full.id,
-          mandateOnFile: Boolean(before.goCardlessMandateId && before.registrationFeePaidAt && !before.membershipSubscribed),
-        });
-      }
     }
 
     res.json({
