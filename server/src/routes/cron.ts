@@ -56,15 +56,22 @@ router.post("/create-admin", async (req, res) => {
         const password = process.env.STAFF_SEED_PASSWORD?.trim() || "ChangeThisPassword!";
         const name = process.env.STAFF_SEED_NAME?.trim() || "Administrator";
 
+        const existing = await prisma.staff.findUnique({ where: { email } });
+        if (existing) {
+            return res.json({
+                success: true,
+                message: "Admin user already exists — no changes made",
+                email: existing.email,
+                name: existing.name,
+            });
+        }
+
         const hash = await bcrypt.hash(password, 12);
-        
-        const staff = await prisma.staff.upsert({
-            where: { email },
-            create: { email, password: hash, name },
-            update: { password: hash, name },
+        const staff = await prisma.staff.create({
+            data: { email, password: hash, name },
         });
 
-        console.log(`✅ Admin user created/updated: ${email}`);
+        console.log(`✅ Admin user created: ${email}`);
         
         res.json({
             success: true,
