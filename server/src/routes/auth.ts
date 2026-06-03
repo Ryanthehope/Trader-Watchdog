@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { verifySync } from "otplib";
 import { prisma } from "../db.js";
+import rateLimit from "express-rate-limit";
 
 const router = Router();
 
@@ -20,11 +21,22 @@ function normalizePassword(value: unknown): string {
 
 function jwtSecret(): string {
   const s = process.env.JWT_SECRET?.trim();
-  if (!s) return "tradeverify-dev-insecure-secret";
+  if (!s) {
+    console.warn("[tradeverify] JWT_SECRET is not set; using insecure development default");
+    return "tradeverify-dev-insecure-secret";
+  }
   return s;
 }
 
-router.post("/login", async (req, res) => {
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many attempts, please try again later" },
+});
+
+router.post("/login", authLimiter, async (req, res) => {
   try {
     const email = normalizeEmail(req.body?.email);
     const password = normalizePassword(req.body?.password);
@@ -80,7 +92,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/verify-2fa", async (req, res) => {
+router.post("/verify-2fa", authLimiter, async (req, res) => {
   try {
     const pendingToken = String(req.body?.pendingToken ?? "");
     const code = String(req.body?.code ?? "").replace(/\s/g, "");

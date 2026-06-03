@@ -3,7 +3,12 @@ import jwt from "jsonwebtoken";
 
 function jwtSecret(): string {
   const s = process.env.JWT_SECRET?.trim();
-  if (!s) return "tradeverify-dev-insecure-secret";
+  if (!s) {
+    console.warn(
+      "[tradeverify] JWT_SECRET is not set; using insecure development default"
+    );
+    return "tradeverify-dev-insecure-secret";
+  }
   return s;
 }
 

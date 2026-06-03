@@ -12,6 +12,7 @@ dotenv.config();
 
 import "./lib/serverMeta.js";
 import cors from "cors";
+import helmet from "helmet";
 import express from "express";
 import apiAdmin from "./routes/apiAdmin.js";
 import apiPublic from "./routes/apiPublic.js";
@@ -62,7 +63,11 @@ const rootDir = path.join(bootDir, "..", "..");
 const distDir = path.join(rootDir, "dist");
 
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
+app.use(helmet());
+app.use(cors({
+  origin: ["https://traderwatchdog.co.uk", "https://www.traderwatchdog.co.uk"],
+  credentials: true,
+}));
 app.post(
   "/api/goCardless/webhook",
   express.raw({ type: "application/json" }),

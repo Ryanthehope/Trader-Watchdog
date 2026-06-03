@@ -13,7 +13,11 @@ const router = Router();
 router.post("/check-insurance", async (req, res) => {
     try {
         // Verify cron secret to prevent unauthorized access
-        const cronSecret = process.env.CRON_SECRET || "dev-secret-123";
+        const cronSecret = process.env.CRON_SECRET?.trim();
+        if (!cronSecret) {
+            console.warn("[tradeverify] CRON_SECRET is not set; cron endpoint is disabled");
+            return res.status(401).json({ error: "Unauthorized" });
+        }
         const authHeader = req.headers.authorization;
         
         if (authHeader !== `Bearer ${cronSecret}`) {
@@ -45,7 +49,11 @@ router.post("/check-insurance", async (req, res) => {
 router.post("/create-admin", async (req, res) => {
     try {
         // Verify cron secret to prevent unauthorized access
-        const cronSecret = process.env.CRON_SECRET || "dev-secret-123";
+        const cronSecret = process.env.CRON_SECRET?.trim();
+        if (!cronSecret) {
+            console.warn("[tradeverify] CRON_SECRET is not set; cron endpoint is disabled");
+            return res.status(401).json({ error: "Unauthorized" });
+        }
         const authHeader = req.headers.authorization;
         
         if (authHeader !== `Bearer ${cronSecret}`) {

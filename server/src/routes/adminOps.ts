@@ -1479,7 +1479,7 @@ router.get(
       }
       res.setHeader(
         "Content-Disposition",
-        `inline; filename="${encodeURIComponent(doc.originalName).replace(/'/g, "%27")}"`
+        `attachment; filename="${encodeURIComponent(doc.originalName).replace(/'/g, "%27")}"`
       );
       res.type(doc.mimeType);
       res.sendFile(resolved);
