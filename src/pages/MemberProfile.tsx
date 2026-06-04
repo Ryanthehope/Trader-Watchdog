@@ -327,7 +327,7 @@ export function MemberProfile() {
                 <img
                   src="/traderwatchdog_logo.webp"
                   alt="Trader Watchdog"
-                  className="h-24 w-24 rounded-2xl border border-white/15 bg-slate-900/50 object-contain ring-1 ring-white/10 sm:h-28 sm:w-28"
+                  className="h-32 w-32 rounded-2xl border border-white/15 bg-slate-900/50 object-contain ring-1 ring-white/10 sm:h-28 sm:w-28"
                 />
               </div>
             </div>
@@ -348,6 +348,9 @@ export function MemberProfile() {
               </svg>
               <p className="text-sm font-semibold text-white">
                 This business has been Trader Watchdog checked.
+              </p>
+              <p className="text-sm font-semibold text-white">
+                Please mention Trader Watchdog when communicating with traders.
               </p>
             </div>
           </div>

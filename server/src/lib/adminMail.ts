@@ -4,7 +4,7 @@ import type { PrismaClient } from "@prisma/client";
 
 async function sendViaResend(
   apiKey: string,
-  opts: { from: string; to: string; subject: string; text: string }
+  opts: { from: string; to: string; subject: string; text: string; html?: string }
 ): Promise<void> {
   const resend = new Resend(apiKey);
   const result = await resend.emails.send({
@@ -12,10 +12,19 @@ async function sendViaResend(
     to: opts.to.split(/,\s*/).map((s) => s.trim()).filter(Boolean),
     subject: opts.subject,
     text: opts.text,
+    ...(opts.html ? { html: opts.html } : {}),
   });
   if (result.error) {
     throw new Error(`Resend: ${result.error.message}`);
   }
+}
+
+function buildEmailHtml(textBody: string, footerImageUrl: string): string {
+  const lines = textBody
+    .split("\n")
+    .map((l) => (l.trim() === "" ? "<br>" : `${l.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}<br>`))
+    .join("\n");
+  return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:14px;color:#333;max-width:600px;margin:0 auto;padding:20px;"><div style="line-height:1.6;">${lines}</div><div style="margin-top:24px;border-top:1px solid #eee;padding-top:16px;"><img src="${footerImageUrl}" alt="Trader Watchdog Support Team" style="max-width:100%;height:auto;" /></div></body></html>`;
 }
 
 let cachedTransport: nodemailer.Transporter | null | undefined;
@@ -77,6 +86,17 @@ async function getTransport(
   });
   return cachedTransport;
 }
+
+const EMAIL_FOOTER = [
+  "",
+  "--",
+  "The Support Team",
+  "support@traderwatchdog.co.uk",
+  "www.traderwatchdog.co.uk",
+  "",
+  "Trader Watchdog Ltd. Company number 17173750",
+  "4th Floor Office, 205 Regent St, London W1B 4HB",
+].join("\n");
 
 export async function getBrandName(prisma: PrismaClient): Promise<string> {
   const s = await prisma.organizationSettings.findUnique({
@@ -231,11 +251,13 @@ export async function sendApplicantEmail(
   const subject = opts.subject.startsWith("[")
     ? opts.subject
     : `[${brand}] ${opts.subject}`;
-  const text = redirectedTo.length > 0 ? redirectedText(originalTo, opts.text) : opts.text;
+  const body = (redirectedTo.length > 0 ? redirectedText(originalTo, opts.text) : opts.text) + EMAIL_FOOTER;
+  const siteBase = await publicSiteBase(prisma);
+  const html = buildEmailHtml(body, `${siteBase}/email-footer.png`);
   if (resendKey) {
-    await sendViaResend(resendKey, { from, to, subject, text });
+    await sendViaResend(resendKey, { from, to, subject, text: body, html });
   } else {
-    await transport!.sendMail({ from, to, subject, text });
+    await transport!.sendMail({ from, to, subject, text: body, html });
   }
 }
 
@@ -554,11 +576,13 @@ export async function sendPasswordResetEmail(
     "If you did not request this, you can safely ignore this email — your password will not change.",
     "",
     `The ${brand} Team`,
-  ].join("\n");
+  ].join("\n") + EMAIL_FOOTER;
+  const siteBase = await publicSiteBase(prisma);
+  const html = buildEmailHtml(text, `${siteBase}/email-footer.png`);
   if (resendKey) {
-    await sendViaResend(resendKey, { from, to: toEmail, subject, text });
+    await sendViaResend(resendKey, { from, to: toEmail, subject, text, html });
   } else {
-    await transport!.sendMail({ from, to: toEmail, subject, text });
+    await transport!.sendMail({ from, to: toEmail, subject, text, html });
   }
 }
 
