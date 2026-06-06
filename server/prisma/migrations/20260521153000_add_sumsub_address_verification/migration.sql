@@ -1,3 +1,4 @@
+CREATE TYPE "VerificationStatus" AS ENUM ('NOT_STARTED', 'PENDING', 'APPROVED', 'REJECTED');
 ALTER TABLE "Application"
 ADD COLUMN "addressVerificationStatus" "VerificationStatus" NOT NULL DEFAULT 'NOT_STARTED',
 ADD COLUMN "addressVerificationApprovedAt" TIMESTAMP(3),

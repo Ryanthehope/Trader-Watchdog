@@ -286,6 +286,10 @@ model OrganizationSettings {
   googleAnalyticsPropertyId         String?
   /// Google Cloud service account JSON (Data API). Stored encrypted-at-rest only via your own DB backups policy.
   googleAnalyticsServiceAccountJson String?
+  /// Xero OAuth2 token set (JSON blob — access token, refresh token, expiry).
+  xeroTokenSetJson              String?
+  /// The Xero tenant/organisation ID to post invoices to.
+  xeroTenantId                  String?
 }
 
 model Guide {

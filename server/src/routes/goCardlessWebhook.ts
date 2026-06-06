@@ -10,6 +10,7 @@ import { notifySubscriptionRenewed, notifyMemberWelcome, notifyVanStickerOrder, 
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
 import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
+import { createPaidXeroInvoice }  from "../lib/xeroInvoice.js";
 
 type GoCardlessPayment = {
   created_at?: string | null;
@@ -149,6 +150,14 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             renewedUntil,
           });
         }
+        void createPaidXeroInvoice({
+          contactName: member.name,
+          contactEmail: member.loginEmail ?? "",
+          description: "Annual Membership Renewal",
+          amountPence: Number(payment.metadata?.amountPence ?? 9480),
+          reference: paymentId,
+          paidAt: paymentCreatedAt,
+        });
         continue;
       }
 
@@ -177,6 +186,15 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           if (prov.ok && prov.newlyCreated) {
             notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
           }
+
+          void createPaidXeroInvoice({
+            contactName: payment.metadata?.company ?? "Unknown Trader",
+            contactEmail: payment.metadata?.email ?? "",
+            description: "Registration Fee",
+            amountPence: Number(payment.metadata?.amountPence ?? 1800),
+            reference: paymentId,
+            paidAt: paymentCreatedAt,
+          });
 
           // Automatically create Sumsub applicant and email the verification link
           if (isSumsubConfigured()) {
@@ -229,6 +247,14 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           if (prov.ok && prov.newlyCreated) {
             notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
           }
+          void createPaidXeroInvoice({
+            contactName: payment.metadata?.company ?? "Unknown Trader",
+            contactEmail: payment.metadata?.email ?? "",
+            description: "Annual Membership",
+            amountPence: Number(payment.metadata?.amountPence ?? 9480),
+            reference: paymentId,
+            paidAt: paymentCreatedAt,
+          });
         }
       }
 
@@ -240,6 +266,14 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         });
         if (member) {
           notifyVanStickerOrder(prisma, member);
+          void createPaidXeroInvoice({
+            contactName: member.name,
+            contactEmail: member.loginEmail ?? "",
+            description: "Van Stickers (x2)",
+            amountPence: 2010,
+            reference: paymentId,
+            paidAt: paymentCreatedAt,
+          });
         }
       }
 
@@ -251,6 +285,14 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         });
         if (member) {
           notifyVanStickerOrderAdditional(prisma, member);
+          void createPaidXeroInvoice({
+            contactName: member.name,
+            contactEmail: member.loginEmail ?? "",
+            description: "Additional Van Sticker",
+            amountPence: 720,
+            reference: paymentId,
+            paidAt: paymentCreatedAt,
+          });
         }
       }
     }

@@ -28,6 +28,7 @@ import { goCardlessWebhookHandler } from "./routes/goCardlessWebhook.js";
 import { sumsubWebhookHandler } from "./routes/sumsubWebhook.js";
 import { prisma } from "./db.js";
 import { checkInsuranceExpiries } from "./lib/insuranceAlerts.js";
+import xeroRouter from "./routes/xero.js";
 
 /** Schedule the insurance-expiry check to run daily at 09:00 UTC. */
 function scheduleDailyInsuranceCheck(): void {
@@ -92,6 +93,7 @@ app.use("/api/billing", billingRouter);
 app.use("/api/insurance", insuranceRouter);
 app.use("/api/cron", cronRouter);
 app.use("/api", apiPublic);
+app.use("/api/xero", xeroRouter);
 
 // Serve sitemap.xml and robots.txt dynamically (must be before express.static so
 // the dynamic versions take precedence over any static files in dist/).

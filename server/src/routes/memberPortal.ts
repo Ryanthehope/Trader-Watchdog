@@ -485,6 +485,9 @@ router.post("/membership/renew", async (req, res) => {
       metadata: {
         checkoutKind: "member_portal_renewal",
         memberId,
+        amountPence: String(renewalAmountPence),
+        email: m.loginEmail.trim().toLowerCase(),
+        company: m.name
       },
     });
     res.json({ url: flow.url });
@@ -529,6 +532,9 @@ router.post("/sticker-order", async (req, res) => {
       metadata: {
         checkoutKind: "van_sticker_order",
         memberId,
+        amountPence: "2010",
+        email: m.loginEmail.trim().toLowerCase(),
+        company: m.name
       },
     });
     res.json({ url: flow.url });
@@ -573,6 +579,9 @@ router.post("/sticker-order-additional", async (req, res) => {
       metadata: {
         checkoutKind: "van_sticker_order_additional",
         memberId,
+        amountPence: "720",
+        email: m.loginEmail.trim().toLowerCase(),
+        company: m.name
       },
     });
     res.json({ url: flow.url });
