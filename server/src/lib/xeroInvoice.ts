@@ -11,7 +11,7 @@ export type XeroInvoicePayload = {
     paidAt: Date;               //when payment was confirmed
 };
 
-export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promise<void> {
+export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promise<string | null> {
     try {
         const client = await getAuthorisedXeroClient();
 
@@ -23,23 +23,21 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
         const tenantId = settings?.xeroTenantId;
         if (!tenantId) {
             console.warn("[xero] No tenant ID stored — skipping invoice creation");
-            return;
+            return null;
     }
 
      const amountGross = payload.amountPence / 100;
 
     let contactId: string | undefined;
     if (payload.contactEmail) {
-        const existing = await client.accountingApi.getContacts(
-            tenantId, undefined, 'EmailAddress="${payload.contactEmail}"'
-            );
-            contactId = existing.body.contacts?.[0]?.contactID;
-        
+      const existing = await client.accountingApi.getContacts(
+        tenantId, undefined, `EmailAddress="${payload.contactEmail}"`
+      );
+      contactId = existing.body.contacts?.[0]?.contactID;
     }
-    const contact: Contact = {
-      name: payload.contactName,
-      emailAddress: payload.contactEmail,
-    };
+    const contact: Contact = contactId
+      ? { contactID: contactId }
+      : { name: payload.contactName, emailAddress: payload.contactEmail };
 
     const lineItem: LineItem = {
       description: payload.description,
@@ -65,7 +63,7 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
 
     if (!invoiceId) {
       console.error("[xero] Invoice created but no ID returned", created.body);
-      return;
+      return null;
     }
 
     // Mark as paid immediately
@@ -79,8 +77,10 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
     await client.accountingApi.createPayment(tenantId, { payments: [payment] } as any);
 
     console.log(`[xero] Invoice ${invoiceId} created and marked paid for ${payload.contactName}`);
+    return invoiceId;
   } catch (err) {
     // Non-fatal — log but don't break the webhook flow
     console.error("[xero] Failed to create invoice", err);
+    return null;
   }
 }

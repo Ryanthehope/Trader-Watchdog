@@ -409,6 +409,7 @@ router.post(
       const wasteCarrierNumber = String(req.body?.wasteCarrierNumber ?? "").trim();
       const gasSafeRequired = String(req.body?.gasSafeRequired ?? "").trim();
       const gasSafeNumber = String(req.body?.gasSafeNumber ?? "").trim();
+      const icoRequired = String(req.body?.icoRequired ?? "").trim();
       const icoNumber = String(req.body?.icoNumber ?? "").trim();
       const businessDescription = String(
         req.body?.businessDescription ?? ""
@@ -433,6 +434,7 @@ router.post(
           wasteCarrierNumber ||
           gasSafeRequired ||
           gasSafeNumber ||
+          icoRequired ||
           icoNumber ||
           businessDescription ||
           Object.prototype.hasOwnProperty.call(req.body ?? {}, "documentsConfirmed") ||
@@ -447,7 +449,8 @@ router.post(
           !identifiablePerson ||
           !identifiablePersonAddress ||
           !wasteCarrierRequired ||
-          !gasSafeRequired)
+          !gasSafeRequired ||
+          !icoRequired)
       ) {
         res.status(400).json({
           error:
@@ -505,6 +508,7 @@ router.post(
             wasteCarrierNumber: wasteCarrierNumber || null,
             gasSafeRequired: gasSafeRequired || null,
             gasSafeNumber: gasSafeNumber || null,
+            icoRequired: icoRequired || null,
             icoNumber: icoNumber || null,
             businessDescription: businessDescription || null,
             documentsConfirmed,
@@ -536,6 +540,7 @@ router.post(
         wasteCarrierNumber,
         gasSafeRequired,
         gasSafeNumber,
+        icoRequired,
         icoNumber,
         businessDescription,
         documentsConfirmed,

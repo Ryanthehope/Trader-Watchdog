@@ -12,6 +12,7 @@ export type ApplicationPayload = {
   wasteCarrierNumber?: string;
   gasSafeRequired: string;
   gasSafeNumber?: string;
+  icoRequired: string;
   icoNumber?: string;
   businessDescription?: string;
   documentsConfirmed: boolean;

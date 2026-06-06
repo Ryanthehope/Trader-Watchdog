@@ -12,6 +12,7 @@ import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplican
 import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 import { createPaidXeroInvoice }  from "../lib/xeroInvoice.js";
 
+
 type GoCardlessPayment = {
   created_at?: string | null;
   links?: { mandate?: string | null };
@@ -153,10 +154,16 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         void createPaidXeroInvoice({
           contactName: member.name,
           contactEmail: member.loginEmail ?? "",
-          description: "Annual Membership Renewal",
+          description: `Annual Membership Renewal (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
           amountPence: Number(payment.metadata?.amountPence ?? 9480),
           reference: paymentId,
           paidAt: paymentCreatedAt,
+        }).then((xeroId) => {
+          if (xeroId) {
+            void prisma.member.update({ 
+              where: { id: memberId }, 
+              data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId } });
+          }
         });
         continue;
       }
@@ -194,6 +201,12 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             amountPence: Number(payment.metadata?.amountPence ?? 1800),
             reference: paymentId,
             paidAt: paymentCreatedAt,
+          }).then((xeroId) => {
+            if (xeroId && appId) {
+              void prisma.application.update({ 
+                where: { id: appId }, 
+                data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId } });
+            }
           });
 
           // Automatically create Sumsub applicant and email the verification link
@@ -250,10 +263,16 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           void createPaidXeroInvoice({
             contactName: payment.metadata?.company ?? "Unknown Trader",
             contactEmail: payment.metadata?.email ?? "",
-            description: "Annual Membership",
+            description: `Annual Membership (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${addOneCalendarYearEndUtc(paymentCreatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
             amountPence: Number(payment.metadata?.amountPence ?? 9480),
             reference: paymentId,
             paidAt: paymentCreatedAt,
+          }).then((xeroId) => {
+            if (xeroId && appId) {
+              void prisma.application.update({ 
+                where: { id: appId }, 
+                data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId } });
+            }
           });
         }
       }

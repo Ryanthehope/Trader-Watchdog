@@ -45,6 +45,7 @@ type AppRow = {
   wasteCarrierNumber?: string | null;
   gasSafeRequired?: string | null;
   gasSafeNumber?: string | null;
+  icoRequired?: string | null;
   icoNumber?: string | null;
   businessDescription?: string | null;
   documentsConfirmed?: boolean;

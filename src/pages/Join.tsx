@@ -30,7 +30,7 @@ const applicationRequirements = [
   "Proof of identity, address, and liveness for the verification checks handled through Sumsub.",
   "Your insurance documents showing cover, insurer, and start or renewal date.",
   "Your Waste Carrier Licence number, if applicable.",
-  "Your ICO registration number.",
+  "Your ICO registration number, if applicable.",
   "Your Gas Safe registration number, if applicable.",
   "Certificates and memberships to enhance your portfolio, optional upload.",
   "Up to 100 words describing your business, optional.",
@@ -74,7 +74,7 @@ const howItWorks = [
   },
   {
     title: "Pay only when approved",
-    body: "No payment until your credentials are validated and your application is accepted.",
+    body: "No payment for your subscription until your credentials are validated and your application is accepted.",
   },
 ];
 
@@ -107,7 +107,7 @@ const traderFaqItems: FaqItem[] = [
   },
   {
     q: "How does annual renewal work?",
-    a: "Your subscription renews automatically 12 months after approval. You will receive reminders 30 days before renewal and 14 days before renewal. You will also receive reminders for your insurances, licences, and registrations.",
+    a: "Your subscription renews automatically 12 months after approval. You will receive reminders 30 and 14 days before renewal. You will also receive reminders for your insurances, licences, and registrations.",
   },
   {
     q: "How do I cancel my subscription?",
@@ -391,6 +391,7 @@ export function Join() {
     const wasteCarrierNumber = String(fd.get("wasteCarrierNumber") ?? "").trim();
     const gasSafeRequired = String(fd.get("gasSafeRequired") ?? "").trim();
     const gasSafeNumber = String(fd.get("gasSafeNumber") ?? "").trim();
+    const icoRequired = String(fd.get("icoRequired") ?? "").trim();
     const icoNumber = String(fd.get("icoNumber") ?? "").trim();
     const businessDescription = String(
       fd.get("businessDescription") ?? ""
@@ -446,6 +447,7 @@ export function Join() {
         wasteCarrierNumber,
         gasSafeRequired,
         gasSafeNumber,
+        icoRequired,
         icoNumber,
         businessDescription,
         documentsConfirmed,
@@ -967,8 +969,8 @@ export function Join() {
                 ICO registration
               </p>
               <p className="mt-4 text-sm leading-relaxed text-slate-200">
-                If you store personal data you are legally required to register
-                with the ICO. The cost for most businesses is £52.
+                If you store and process personal data you may be legally
+                required to register with the ICO.
               </p>
               <a
                 href="https://ico.org.uk/for-organisations/advice-for-small-organisations/"
@@ -1648,10 +1650,34 @@ export function Join() {
             </div>
             <div>
               <label
+                htmlFor="icoRequired"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Does your business require registering with the ICO?
+              </label>
+              <p className="mt-1 text-xs text-slate-500">
+                If no, your profile will state that your business does not require ICO registration.
+              </p>
+              <select
+                id="icoRequired"
+                name="icoRequired"
+                required
+                defaultValue=""
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div>
+              <label
                 htmlFor="icoNumber"
                 className="block text-sm font-medium text-slate-300"
               >
-                Your ICO registration number
+                Your ICO registration number, if yes
               </label>
               <input
                 id="icoNumber"

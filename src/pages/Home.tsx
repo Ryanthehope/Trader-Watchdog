@@ -186,7 +186,7 @@ function Pillars() {
     },
     {
       title: "Keeping Your Personal Data Safe",
-      body: "Any trader storing customer details — even just your name and number in their phone — is legally required to be ICO registered. It shows they follow GDPR rules and handle your personal information safely and legally.",
+      body: "The Information Commissioners Office has strict rules addressing the way businesses store and process your personal data to help reduce identity theft. We ask all traders to check their status with the ICO and their portfolio will show if their registration has been verified.",
     },
     {
       title: "Gas Engineers",

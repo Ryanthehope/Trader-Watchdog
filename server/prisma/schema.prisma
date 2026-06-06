@@ -82,12 +82,16 @@ model Member {
   membershipRenewalPricePence  Int?
   /// Staff-only: portal membership never expires (overrides billing/expiry).
   membershipUnlimited      Boolean          @default(false)
+  /// Xero invoice ID for the most recent membership payment.
+  xeroInvoiceId            String?
   createdAt                DateTime         @default(now())
   updatedAt                DateTime         @updatedAt
   documents                MemberDocument[]
   /// Filled when this profile was auto-created from an approved application.
   sourceApplication        Application?     @relation("MemberFromApprovedApplication")
   insurancePolicies        Insurance[]
+  /// Set when Xero invoice creation failed so staff can retry manually.
+  xeroInvoiceFailed        Boolean @default(false)
 }
 
 model Insurance {
@@ -171,6 +175,7 @@ model Application {
   wasteCarrierNumber           String?
   gasSafeRequired              String?
   gasSafeNumber                String?
+  icoRequired                  String?
   icoNumber                    String?
   businessDescription          String?
   documentsConfirmed           Boolean               @default(false)
@@ -215,11 +220,15 @@ model Application {
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?
   pendingPortalPasswordExpires DateTime?
+  /// Xero invoice IDs: registration fee and membership (comma-separated if both set).
+  xeroInvoiceId                String?
   createdAt                    DateTime              @default(now())
   updatedAt                    DateTime              @updatedAt
   documents                    ApplicationDocument[]
   createdMemberId              String?               @unique
   createdMember                Member?               @relation("MemberFromApprovedApplication", fields: [createdMemberId], references: [id], onDelete: SetNull)
+  /// Set when Xero invoice creation failed so staff can retry manually.
+  xeroInvoiceFailed        Boolean @default(false)
 }
 
 model ApplicationDocument {
