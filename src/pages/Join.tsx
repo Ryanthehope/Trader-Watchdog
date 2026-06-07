@@ -824,7 +824,7 @@ export function Join() {
                 </div>
                 <div className="rounded-2xl border border-white bg-white p-4">
                   <p className="font-semibold text-slate-900">Annual subscription</p>
-                  <p className="mt-1">£79 + VAT</p>
+                  <p className="mt-1">£60 + VAT</p>
                 </div>
               </div>
             </div>
