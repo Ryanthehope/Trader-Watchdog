@@ -217,6 +217,15 @@ export function StaffSettingsPage() {
     return <p className="text-slate-500">Loading…</p>;
   }
 
+  const onXeroConnect = async () => {
+    try {
+      const data = await apiGetAuth<{ url: string }>("/api/admin/xero-consent-url");
+      window.location.href = data.url;
+    } catch {
+      alert("Could not start Xero connection. Please try again.");
+    }
+  };
+
   const onXeroDisconnect = async () => {
     if (!confirm("Disconnect Xero? Invoices will stop being created until you reconnect.")) return;
     setXeroDisconnecting(true);
@@ -751,9 +760,9 @@ export function StaffSettingsPage() {
               <p className="mt-1 text-xs text-slate-400">Tenant ID: {xeroStatus.tenantId}</p>
             </div>
             <div className="flex gap-3">
-              <a href="/api/xero/connect" className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20">
+              <button onClick={onXeroConnect} className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20">
                 Reconnect
-              </a>
+              </button>
               <button
                 onClick={onXeroDisconnect}
                 disabled={xeroDisconnecting}
@@ -766,9 +775,9 @@ export function StaffSettingsPage() {
         ) : (
           <div className="flex items-center justify-between">
             <p className="text-sm text-slate-400">Not connected</p>
-            <a href="/api/xero/connect" className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-500">
+            <button onClick={onXeroConnect} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-500">
               Connect Xero
-            </a>
+            </button>
           </div>
         )}
       </div>
