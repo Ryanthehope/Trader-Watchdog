@@ -6,7 +6,7 @@ export function buildXeroClient(): XeroClient {
         clientId: process.env.XERO_CLIENT_ID!,
         clientSecret: process.env.XERO_CLIENT_SECRET!,
         redirectUris: [process.env.XERO_REDIRECT_URI!],
-        scopes: ["offline_access", "accounting.transactions", "accounting.contacts"],
+        scopes: ["offline_access", "accounting.invoices", "accounting.payments", "accounting.contacts"],
     });
 }
 
