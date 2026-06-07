@@ -17,7 +17,7 @@ import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPaym
 import { fetchGoCardlessFinancialSnapshot } from "../lib/goCardlessFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
-import { buildXeroClient } from "../lib/xeroClient.js";
+import { buildXeroClient, buildConsentUrlAndStore } from "../lib/xeroClient.js";
 import {
   invalidateSmtpTransportCache,
   notifyApplicationDecision,
@@ -1640,8 +1640,7 @@ router.post("/xero-disconnect", async (_req, res) => {
 
 router.get("/xero-consent-url", async (_req, res) => {
   try {
-    const client = buildXeroClient();
-    const url = await client.buildConsentUrl();
+    const url = await buildConsentUrlAndStore();
     res.json({ url });
   } catch (e) {
     res.status(500).json({ error: "Could not build Xero consent URL" });

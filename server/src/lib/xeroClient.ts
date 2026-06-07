@@ -1,6 +1,10 @@
 import { XeroClient} from "xero-node";
 import { prisma} from "../db.js"
 
+// Held in memory between consent URL generation and callback
+// This is safe for a single-admin setup
+let _pendingAuthClient: XeroClient | null = null;
+
 export function buildXeroClient(): XeroClient {
     return new XeroClient({
         clientId: process.env.XERO_CLIENT_ID!,
@@ -8,6 +12,17 @@ export function buildXeroClient(): XeroClient {
         redirectUris: [process.env.XERO_REDIRECT_URI!],
         scopes: ["offline_access", "accounting.invoices", "accounting.payments", "accounting.contacts"],
     });
+}
+
+export async function buildConsentUrlAndStore(): Promise<string> {
+  _pendingAuthClient = buildXeroClient();
+  return await _pendingAuthClient.buildConsentUrl();
+}
+
+export function consumePendingAuthClient(): XeroClient {
+  const client = _pendingAuthClient ?? buildXeroClient();
+  _pendingAuthClient = null;
+  return client;
 }
 
 export async function getAuthorisedXeroClient(): Promise<XeroClient> {

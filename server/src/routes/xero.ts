@@ -1,21 +1,22 @@
 import { Router }  from 'express';
 import { prisma } from "../db.js";
 import { requireStaff } from "../middleware/requireStaff.js";
-import { buildXeroClient } from "../lib/xeroClient.js";
+import { consumePendingAuthClient } from "../lib/xeroClient.js";
 
 const router = Router();
 
-// Step 1: Staff clicks "Connect Xo" - redirects to Xero for OAuth2
+// Step 1: Staff clicks "Connect Xero" - now handled via /api/admin/xero-consent-url
+// This route is kept for direct-link fallback but requires auth header
 router.get("/connect", requireStaff, async (_req, res) => {
-  const client = buildXeroClient();
-  const consentUrl = await client.buildConsentUrl();
-  res.redirect(consentUrl);
+  const { buildConsentUrlAndStore } = await import("../lib/xeroClient.js");
+  const url = await buildConsentUrlAndStore();
+  res.redirect(url);
 });
 
 // Step 2: Xero redirects back here after Nigel approves
 router.get("/callback", async (req, res) => {
     try {
-        const client = buildXeroClient();
+        const client = consumePendingAuthClient();
         const tokenSet = await client.apiCallback(
             `${process.env.XERO_REDIRECT_URI}?${new URLSearchParams(req.query as Record<string, string>).toString()}`
         );
