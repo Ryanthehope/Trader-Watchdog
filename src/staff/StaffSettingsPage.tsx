@@ -751,7 +751,7 @@ export function StaffSettingsPage() {
               <p className="mt-1 text-xs text-slate-400">Tenant ID: {xeroStatus.tenantId}</p>
             </div>
             <div className="flex gap-3">
-              <a href="/xero/connect" className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20">
+              <a href="/api/xero/connect" className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20">
                 Reconnect
               </a>
               <button
@@ -766,7 +766,7 @@ export function StaffSettingsPage() {
         ) : (
           <div className="flex items-center justify-between">
             <p className="text-sm text-slate-400">Not connected</p>
-            <a href="/xero/connect" className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-500">
+            <a href="/api/xero/connect" className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-500">
               Connect Xero
             </a>
           </div>
