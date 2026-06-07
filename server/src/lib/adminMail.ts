@@ -4,7 +4,7 @@ import type { PrismaClient } from "@prisma/client";
 
 async function sendViaResend(
   apiKey: string,
-  opts: { from: string; to: string; subject: string; text: string; html?: string }
+  opts: { from: string; to: string; subject: string; text: string; html?: string; attachments?: { filename: string; content: Buffer; contentType: string }[] }
 ): Promise<void> {
   const resend = new Resend(apiKey);
   const result = await resend.emails.send({
@@ -13,6 +13,7 @@ async function sendViaResend(
     subject: opts.subject,
     text: opts.text,
     ...(opts.html ? { html: opts.html } : {}),
+    ...(opts.attachments?.length ? { attachments: opts.attachments.map(a => ({ filename: a.filename, content: a.content })) } : {}),
   });
   if (result.error) {
     throw new Error(`Resend: ${result.error.message}`);
@@ -229,7 +230,7 @@ export async function sendAdminEmail(
 
 export async function sendApplicantEmail(
   prisma: PrismaClient,
-  opts: { to: string; subject: string; text: string }
+  opts: { to: string; subject: string; text: string; attachments?: { filename: string; content: Buffer; contentType: string }[] }
 ): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY?.trim();
   const transport = resendKey ? null : await getTransport(prisma);
@@ -255,9 +256,10 @@ export async function sendApplicantEmail(
   const siteBase = await publicSiteBase(prisma);
   const html = buildEmailHtml(body, `${siteBase}/email-footer.png`);
   if (resendKey) {
-    await sendViaResend(resendKey, { from, to, subject, text: body, html });
+    await sendViaResend(resendKey, { from, to, subject, text: body, html, attachments: opts.attachments });
   } else {
-    await transport!.sendMail({ from, to, subject, text: body, html });
+    await transport!.sendMail({ from, to, subject, text: body, html, ...(opts.attachments ? { attachments: opts.attachments } : {}) });
+
   }
 }
 
@@ -704,3 +706,34 @@ export function notifySubscriptionRenewed(
   });
 }
 
+export async function sendXeroInvoiceToTrader(
+  prisma: PrismaClient,
+  opts: {
+    traderName: string;
+    email: string;
+    pdfBuffer: Buffer;
+    invoiceDescription: string;
+  }
+): Promise<void> {
+  const brand = await getBrandName(prisma);
+  const text = [
+    `Dear ${opts.traderName},`,
+    "",
+    `Thank you for your payment. Please find your VAT receipt attached for: ${opts.invoiceDescription}.`,
+    "",
+    "Please keep this for your records.",
+    "",
+    `The ${brand} Team`,
+  ].join("\n");
+
+  await sendApplicantEmail(prisma, {
+    to: opts.email,
+    subject: `Your VAT Receipt — ${opts.invoiceDescription}`,
+    text,
+    attachments: [{
+      filename: "receipt.pdf",
+      content: opts.pdfBuffer,
+      contentType: "application/pdf",
+    }],
+  });
+}  

@@ -28,6 +28,8 @@ type Settings = {
   recaptchaEnabled: boolean;
   recaptchaSiteKey: string | null;
   hasRecaptchaSecret: boolean;
+  xeroConnected: boolean;
+  xeroTenantId: string | null;
 };
 
 export function StaffSettingsPage() {
@@ -69,6 +71,8 @@ export function StaffSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [xeroStatus, setXeroStatus] = useState<{ connected: boolean; tenantId: string | null } | null>(null)
+  const [ xeroDisconnecting, setXeroDisconnecting ] = useState(false);
 
   useEffect(() => {
     apiGetAuth<{ settings: Settings }>("/api/admin/organization-settings")
@@ -108,6 +112,9 @@ export function StaffSettingsPage() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
       .finally(() => setLoading(false));
+      apiGetAuth<{ connected: boolean; tenantId: string | null }>("/api/admin/xero-status")
+        .then((d) => setXeroStatus(d))
+        .catch((e) => setXeroStatus(e instanceof Error ? { connected: false, tenantId: null } : { connected: false, tenantId: null }));
   }, []);
 
   const onSubmit = async (e: FormEvent) => {
@@ -209,6 +216,17 @@ export function StaffSettingsPage() {
   if (loading && !settings) {
     return <p className="text-slate-500">Loading…</p>;
   }
+
+  const onXeroDisconnect = async () => {
+    if (!confirm("Disconnect Xero? Invoices will stop being created until you reconnect.")) return;
+    setXeroDisconnecting(true);
+    try {
+      await apiSend("/api/admin/xero-disconnect", { method: "POST" });
+      setXeroStatus({ connected: false, tenantId: null });
+    } finally {
+      setXeroDisconnecting(false);
+    }
+  };
 
   return (
     <div>
@@ -722,6 +740,38 @@ export function StaffSettingsPage() {
           Save settings
         </button>
       </form>
+            <div className="mt-8 max-w-3xl space-y-4 rounded-2xl border border-white/10 bg-ink-900/40 p-6">
+        <h2 className="text-lg font-semibold text-white">Xero</h2>
+        {xeroStatus === null ? (
+          <p className="text-sm text-slate-400">Loading…</p>
+        ) : xeroStatus.connected ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-emerald-400">Connected</p>
+              <p className="mt-1 text-xs text-slate-400">Tenant ID: {xeroStatus.tenantId}</p>
+            </div>
+            <div className="flex gap-3">
+              <a href="/xero/connect" className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20">
+                Reconnect
+              </a>
+              <button
+                onClick={onXeroDisconnect}
+                disabled={xeroDisconnecting}
+                className="rounded-lg bg-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/30 disabled:opacity-50"
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-400">Not connected</p>
+            <a href="/xero/connect" className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-500">
+              Connect Xero
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -84,3 +84,82 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
     return null;
   }
 }
+
+export type XeroCreditNotePayload = {
+    contactName: string;        // traders company name
+    contactEmail: string;       // traders email
+    description: string;         // e.g. "Refund for Annual Membership"
+    amountPence: number;        // amount in pence, e.g. 1999 for £19.99 inc VAT if applicable
+    reference: string;          // e.g. goCardless ID
+    refundedAt: Date;           // when refund was issued
+  };
+
+export async function createXeroCreditNote(payload: XeroCreditNotePayload): Promise<void> {
+    try {
+      const client = await getAuthorisedXeroClient();
+      const settings = await prisma.organizationSettings.findUnique({
+        where: { id: "default" },
+        select: { xeroTenantId: true },
+      });
+      const tenantId = settings?.xeroTenantId;
+      if (!tenantId) {
+        console.warn("[xero] No tenant ID stored — skipping credit note creation");
+        return;
+      }
+      const amountGross = payload.amountPence / 100;
+
+      let contactId: string | undefined;
+      if (payload.contactEmail) {
+        const existing = await client.accountingApi.getContacts(
+          tenantId, undefined, `EmailAddress="${payload.contactEmail}"`
+        );
+        contactId = existing.body.contacts?.[0]?.contactID;
+      }
+
+      const contact: Contact = contactId
+        ? { contactID: contactId }
+        : { name: payload.contactName, emailAddress: payload.contactEmail };
+
+      const creditNote = {
+        type: "ACCRECCREDIT",
+        contact,
+        date: payload.refundedAt.toISOString().split("T")[0],
+        reference: payload.reference,
+        status: "AUTHORISED",
+        lineItems: [{
+          description: `Refund: ${payload.description}`,
+          quantity: 1.0,
+          unitAmount: amountGross,
+          taxType: "OUTPUT2",
+          accountCode: "200",
+        }],
+      };
+
+      await client.accountingApi.createCreditNotes(tenantId, { creditNotes: [creditNote] } as any);
+      console.log(`[xero] Credit note created for ${payload.contactName} - ${payload.reference}`);
+    } catch (err) {
+      console.error("[xero] Failed to create credit note", err);
+    }
+}
+
+    export async function fetchXeroInvoicePDF(invoiceId: string): Promise<Buffer | null> {
+      try {
+        const client = await getAuthorisedXeroClient();
+        const settings = await prisma.organizationSettings.findUnique({
+          where: { id: "default" },
+          select: { xeroTenantId: true },
+        });
+        const tenantId = settings?.xeroTenantId;
+        if (!tenantId) return null;
+
+        const response = await client.accountingApi.getInvoiceAsPdf(
+          tenantId,
+          invoiceId,
+          { headers: { "Accept": "application/pdf" } }
+        );
+        return Buffer.from(response.body as unknown as ArrayBuffer);
+      } catch (err) {
+        console.error("[xero] Failed to fetch invoice PDF", err);
+        return null;
+      }
+}

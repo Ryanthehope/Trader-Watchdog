@@ -1610,4 +1610,31 @@ router.delete("/staff/:id", async (req, res) => {
   }
 });
 
+router.get("/xero-status", async (_req, res) => {
+  try {
+    const settings = await prisma.organizationSettings.findUnique({
+      where: { id: "default" },
+      select: { xeroTenantId: true, xeroTokenSetJson: true },
+    });
+    res.json({
+      connected: Boolean(settings?.xeroTenantId && settings?.xeroTokenSetJson),
+      tenantId: settings?.xeroTenantId ?? null,
+    });
+  } catch (e) {
+    res.status(500).json({ error: "Could not read Xero status" });
+  }
+});
+
+router.post("/xero-disconnect", async (_req, res) => {
+  try {
+    await prisma.organizationSettings.update({
+      where: { id: "default" },
+      data: { xeroTokenSetJson: null, xeroTenantId: null },
+    });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: "Could not disconnect Xero" });
+  }
+});
+
 export default router;
