@@ -54,7 +54,7 @@ const customerViews = [
   },
   {
     title: "Not listed",
-    body: "A search of your business name or telephone number shows a Red Flag. Householders are advised that the trader does not have a verified listing and should be cautious, not entering an agreement without visual proof of insurance and legally required licences and registrations.",
+    body: "A search of your business name or telephone number shows a Red Flag. Householders are advised that the trader does not have a verified listing and they should be cautious, not entering an agreement without visual proof of insurance and legally required licences and registrations.",
     tone: "border-rose-200 bg-rose-50 text-slate-800",
   },
 ];
@@ -656,7 +656,7 @@ export function Join() {
   const registrationFeePriceLabel =
     formatVatExclusiveLabel(registrationFeePricePence) ?? "£15 + VAT";
   const membershipPriceLabel =
-    formatVatExclusiveLabel(baseMembershipPricePence ?? membershipPricePence) ?? "£79 + VAT";
+    formatVatExclusiveLabel(baseMembershipPricePence ?? membershipPricePence) ?? "£60 + VAT";
   const progressSteps = applicantSummary
     ? [
         {
@@ -793,7 +793,7 @@ export function Join() {
             Trader Watchdog is not a platform to attract the public to traders.
             It is a platform to protect the public from traders, providing
             something that marketplaces, job registers, advertising, and social
-            media cannot: TRUST.
+            media cannot: <strong>TRUST.</strong>
           </p>
           <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8">
@@ -919,7 +919,7 @@ export function Join() {
                   {membershipPriceLabel}
                 </p>
                 <p className="mt-2 text-xs text-slate-400">
-                  Requested after approval. VAT is included in the displayed total.
+                  Charged when approved by bank collection then annually by direct debit unless cancelled.
                 </p>
               </div>
             </div>
@@ -969,14 +969,14 @@ export function Join() {
                 ICO registration
               </p>
               <p className="mt-4 text-sm leading-relaxed text-slate-200">
-                If you store and process personal data you may be legally
-                required to register with the ICO.
+                If you process personal data you may be required to register
+                with the ICO.
               </p>
               <a
                 href="https://ico.org.uk/for-organisations/advice-for-small-organisations/"
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex text-sm font-medium text-brand-100 underline underline-offset-4"
+                className="mt-3 inline-flex text-sm font-medium text-brand-300 underline underline-offset-4"
               >
                 ICO advice for small organisations
               </a>

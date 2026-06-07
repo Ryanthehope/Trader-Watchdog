@@ -401,7 +401,8 @@ export function Home() {
 
             <div className="w-full max-w-[36rem] text-center md:text-left">
               <h1 className="font-display text-5xl font-bold leading-none sm:text-6xl lg:text-[4.8rem]">
-                <span className="text-[#C62828]">ROGUE or</span>
+                <span className="text-[#C62828]">ROGUE </span>
+                <span className="text-slate-400">or </span>
                 <span className="text-[#3B4978]">LEGIT?</span>
               </h1>
 

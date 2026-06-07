@@ -155,7 +155,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           contactName: member.name,
           contactEmail: member.loginEmail ?? "",
           description: `Annual Membership Renewal (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
-          amountPence: Number(payment.metadata?.amountPence ?? 9480),
+          amountPence: Number(payment.metadata?.amountPence ?? 7200),
           reference: paymentId,
           paidAt: paymentCreatedAt,
         }).then((xeroId) => {
@@ -264,7 +264,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             contactName: payment.metadata?.company ?? "Unknown Trader",
             contactEmail: payment.metadata?.email ?? "",
             description: `Annual Membership (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${addOneCalendarYearEndUtc(paymentCreatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
-            amountPence: Number(payment.metadata?.amountPence ?? 9480),
+            amountPence: Number(payment.metadata?.amountPence ?? 7200),
             reference: paymentId,
             paidAt: paymentCreatedAt,
           }).then((xeroId) => {

@@ -272,7 +272,7 @@ model OrganizationSettings {
   /// Shown on GoCardless Checkout (inline price_data — no Dashboard Price IDs required)
   checkoutMembershipName            String?
   checkoutRegistrationFeeName       String?
-  checkoutMembershipPence           Int     @default(9480)
+  checkoutMembershipPence           Int     @default(7200)
   checkoutRegistrationFeePence      Int     @default(1800)
   /// reCAPTCHA v2
   recaptchaEnabled                  Boolean @default(false)
