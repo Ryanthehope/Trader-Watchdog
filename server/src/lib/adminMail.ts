@@ -603,7 +603,7 @@ export function notifyVanStickerOrder(
     const supplierText = [
       "Dear Signs & Stickers,",
       "",
-      "Please arrange dispatch of one van sticker pack to the following trader:",
+      "Please arrange dispatch of 2 van stickers to the following trader:",
       "",
       `Trader name: ${member.name}`,
       `Delivery address: ${address}`,
