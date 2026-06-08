@@ -1,6 +1,15 @@
- import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiGetAuth, apiSend } from "../lib/api";
+
+type InsurancePolicy = {
+  id: string;
+  type: string;
+  provider: string | null;
+  policyNumber: string | null;
+  expiryDate: string;
+  status: "active" | "expiring_soon" | "in_grace" | "expired";
+};
 
 export function StaffMemberForm() {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +41,15 @@ export function StaffMemberForm() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Insurance
+  const [policies, setPolicies] = useState<InsurancePolicy[]>([]);
+  const [insType, setInsType] = useState("");
+  const [insProvider, setInsProvider] = useState("");
+  const [insPolicyNumber, setInsPolicyNumber] = useState("");
+  const [insExpiry, setInsExpiry] = useState("");
+  const [insAdding, setInsAdding] = useState(false);
+  const [insError, setInsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isNew || !id) {
@@ -87,6 +105,10 @@ export function StaffMemberForm() {
         setLoadedGoCardlessSubscriptionStatus(
           m.goCardlessSubscriptionStatus?.trim() || null
         );
+
+        // Load insurance policies
+        const insData = await apiGetAuth<InsurancePolicy[]>(`/api/insurance/${id}`);
+        if (!cancelled) setPolicies(insData);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Load failed");
       } finally {
@@ -97,6 +119,46 @@ export function StaffMemberForm() {
       cancelled = true;
     };
   }, [id, isNew]);
+
+  const addPolicy = async () => {
+    if (!insType.trim() || !insExpiry) {
+      setInsError("Type and expiry date are required.");
+      return;
+    }
+    setInsAdding(true);
+    setInsError(null);
+    try {
+      const created = await apiSend<InsurancePolicy>("/api/insurance", {
+        method: "POST",
+        body: JSON.stringify({
+          memberId: id,
+          type: insType.trim(),
+          provider: insProvider.trim() || null,
+          policyNumber: insPolicyNumber.trim() || null,
+          expiryDate: insExpiry,
+        }),
+      });
+      setPolicies((p) => [...p, created]);
+      setInsType("");
+      setInsProvider("");
+      setInsPolicyNumber("");
+      setInsExpiry("");
+    } catch (e) {
+      setInsError(e instanceof Error ? e.message : "Could not add policy");
+    } finally {
+      setInsAdding(false);
+    }
+  };
+
+  const deletePolicy = async (policyId: string) => {
+    if (!confirm("Delete this insurance policy? This cannot be undone.")) return;
+    try {
+      await apiSend(`/api/insurance/${policyId}`, { method: "DELETE" });
+      setPolicies((p) => p.filter((x) => x.id !== policyId));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not delete policy");
+    }
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -450,6 +512,119 @@ export function StaffMemberForm() {
             ) : null}
           </div>
         </div>
+
+        {!isNew ? (
+          <div className="sm:col-span-2 rounded-xl border border-sky-500/20 bg-sky-950/20 p-5">
+            <h2 className="text-sm font-semibold text-sky-200">Insurance policies</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Policies appear in the member portal and trigger automatic expiry reminders at 90, 60, and 30 days.
+            </p>
+
+            {policies.length > 0 ? (
+              <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
+                <table className="w-full text-xs">
+                  <thead className="border-b border-white/10 bg-ink-950/60">
+                    <tr>
+                      {["Type", "Provider", "Policy no.", "Expiry", "Status", ""].map((h) => (
+                        <th key={h} className="px-3 py-2 text-left font-semibold text-slate-400">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {policies.map((p) => {
+                      const statusColour =
+                        p.status === "active" ? "text-emerald-400" :
+                        p.status === "expiring_soon" ? "text-amber-400" :
+                        p.status === "in_grace" ? "text-orange-400" : "text-red-400";
+                      return (
+                        <tr key={p.id} className="hover:bg-white/[0.02]">
+                          <td className="px-3 py-2 text-slate-200">{p.type}</td>
+                          <td className="px-3 py-2 text-slate-400">{p.provider || "—"}</td>
+                          <td className="px-3 py-2 font-mono text-slate-400">{p.policyNumber || "—"}</td>
+                          <td className="px-3 py-2 text-slate-300">
+                            {new Date(p.expiryDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                          </td>
+                          <td className={`px-3 py-2 font-medium capitalize ${statusColour}`}>
+                            {p.status.replace("_", " ")}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            <button
+                              type="button"
+                              onClick={() => void deletePolicy(p.id)}
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500">No policies recorded yet.</p>
+            )}
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <p className="text-xs font-semibold text-slate-300">Add policy</p>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400">Type *</label>
+                <input
+                  type="text"
+                  value={insType}
+                  onChange={(e) => setInsType(e.target.value)}
+                  placeholder="Public Liability"
+                  className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400">Expiry date *</label>
+                <input
+                  type="date"
+                  value={insExpiry}
+                  onChange={(e) => setInsExpiry(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-3 py-2 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400">Provider</label>
+                <input
+                  type="text"
+                  value={insProvider}
+                  onChange={(e) => setInsProvider(e.target.value)}
+                  placeholder="Axa, Hiscox…"
+                  className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400">Policy number</label>
+                <input
+                  type="text"
+                  value={insPolicyNumber}
+                  onChange={(e) => setInsPolicyNumber(e.target.value)}
+                  placeholder="POL-12345"
+                  className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                />
+              </div>
+              {insError ? (
+                <p className="sm:col-span-2 text-xs text-red-300">{insError}</p>
+              ) : null}
+              <div className="sm:col-span-2">
+                <button
+                  type="button"
+                  disabled={insAdding}
+                  onClick={() => void addPolicy()}
+                  className="rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm font-medium text-sky-100 hover:bg-sky-500/16 disabled:opacity-50"
+                >
+                  {insAdding ? "Adding…" : "Add policy"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap gap-3 pt-2">
           <button
