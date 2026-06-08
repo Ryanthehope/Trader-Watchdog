@@ -16,6 +16,7 @@ import { createPaidXeroInvoice, createXeroCreditNote, fetchXeroInvoicePDF }  fro
 
 type GoCardlessPayment = {
   created_at?: string | null;
+  amount?: number | null;
   links?: { mandate?: string | null };
   metadata?: Record<string, string | undefined> | null;
   status?: string | null;
@@ -156,7 +157,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           contactName: member.name,
           contactEmail: member.loginEmail ?? "",
           description: `Annual Membership Renewal (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
-          amountPence: Number(payment.metadata?.amountPence ?? 7200),
+          amountPence: payment.amount ?? 7200,
           reference: paymentId,
           paidAt: paymentCreatedAt,
         }).then(async (xeroId) => {
@@ -204,31 +205,35 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
           }
 
-          void createPaidXeroInvoice({
-            contactName: payment.metadata?.company ?? "Unknown Trader",
-            contactEmail: payment.metadata?.email ?? "",
-            description: "Registration Fee",
-            amountPence: Number(payment.metadata?.amountPence ?? 1800),
-            reference: paymentId,
-            paidAt: paymentCreatedAt,
-          }).then(async (xeroId) => {
-            if (appId) {
-              void prisma.application.update({ 
-                where: { id: appId }, 
-                data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId } });
-              if (xeroId && payment.metadata?.email) {
-                const pdf = await fetchXeroInvoicePDF(xeroId);
-                if (pdf) {
-                  void sendXeroInvoiceToTrader(prisma, {
-                    traderName: payment.metadata.company ?? "Trader",
-                    email: payment.metadata.email,
-                    pdfBuffer: pdf,
-                    invoiceDescription: "Registration Fee",
-                  });
-                }
+          void (async () => {
+            const app = await prisma.application.findUnique({
+              where: { id: appId },
+              select: { email: true, company: true },
+            });
+            const xeroId = await createPaidXeroInvoice({
+              contactName: app?.company ?? "Unknown Trader",
+              contactEmail: app?.email ?? "",
+              description: "Registration Fee",
+              amountPence: payment.amount ?? 1800,
+              reference: paymentId,
+              paidAt: paymentCreatedAt,
+            });
+            void prisma.application.update({
+              where: { id: appId },
+              data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId },
+            });
+            if (xeroId && app?.email) {
+              const pdf = await fetchXeroInvoicePDF(xeroId);
+              if (pdf) {
+                void sendXeroInvoiceToTrader(prisma, {
+                  traderName: app.company ?? "Trader",
+                  email: app.email,
+                  pdfBuffer: pdf,
+                  invoiceDescription: "Registration Fee",
+                });
               }
             }
-          });
+          })();
 
           // Automatically create Sumsub applicant and email the verification link
           if (isSumsubConfigured()) {
@@ -281,31 +286,35 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           if (prov.ok && prov.newlyCreated) {
             notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
           }
-          void createPaidXeroInvoice({
-            contactName: payment.metadata?.company ?? "Unknown Trader",
-            contactEmail: payment.metadata?.email ?? "",
-            description: `Annual Membership (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${addOneCalendarYearEndUtc(paymentCreatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
-            amountPence: Number(payment.metadata?.amountPence ?? 7200),
-            reference: paymentId,
-            paidAt: paymentCreatedAt,
-          }).then(async (xeroId) => {
-            if (appId) {
-              void prisma.application.update({ 
-                where: { id: appId }, 
-                data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId } });
-              if (xeroId && payment.metadata?.email) {
-                const pdf = await fetchXeroInvoicePDF(xeroId);
-                if (pdf) {
-                  void sendXeroInvoiceToTrader(prisma, {
-                    traderName: payment.metadata.company ?? "Trader",
-                    email: payment.metadata.email,
-                    pdfBuffer: pdf,
-                    invoiceDescription: "Annual Membership",
-                  });
-                }
+          void (async () => {
+            const app = await prisma.application.findUnique({
+              where: { id: appId },
+              select: { email: true, company: true },
+            });
+            const xeroId = await createPaidXeroInvoice({
+              contactName: app?.company ?? "Unknown Trader",
+              contactEmail: app?.email ?? "",
+              description: `Annual Membership (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${addOneCalendarYearEndUtc(paymentCreatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
+              amountPence: payment.amount ?? 7200,
+              reference: paymentId,
+              paidAt: paymentCreatedAt,
+            });
+            void prisma.application.update({
+              where: { id: appId },
+              data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId },
+            });
+            if (xeroId && app?.email) {
+              const pdf = await fetchXeroInvoicePDF(xeroId);
+              if (pdf) {
+                void sendXeroInvoiceToTrader(prisma, {
+                  traderName: app.company ?? "Trader",
+                  email: app.email,
+                  pdfBuffer: pdf,
+                  invoiceDescription: "Annual Membership",
+                });
               }
             }
-          });
+          })();
         }
       }
 

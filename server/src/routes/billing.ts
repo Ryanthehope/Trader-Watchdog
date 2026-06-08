@@ -163,9 +163,6 @@ router.post("/checkout-registration-fee", async (req, res) => {
       metadata: {
         applicationId,
         checkoutKind: "registration_fee",
-        amountPence: String(lines.registrationFeePence),
-        email,
-        company: application.company,
       },
     });
     res.json({ url: flow.url });
@@ -268,9 +265,6 @@ router.post("/checkout-membership", async (req, res) => {
       metadata: {
         applicationId,
         checkoutKind: "membership",
-        amountPence: String(amountPence),
-        email,
-        company: application.company,
       },
     });
     res.json({ url: flow.url });
