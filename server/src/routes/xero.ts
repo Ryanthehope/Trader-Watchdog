@@ -23,7 +23,7 @@ router.get("/callback", async (req, res) => {
 
 // Get the list of orgs the token has access to and save the first one
        await client.setTokenSet(tokenSet);
-    const tenants = await client.updateTenants();
+    const tenants = await client.updateTenants(false);
     const tenantId = tenants[0]?.tenantId;
 
     if (!tenantId) {
