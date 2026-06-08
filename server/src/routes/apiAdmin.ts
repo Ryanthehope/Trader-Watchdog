@@ -92,6 +92,23 @@ router.get("/members/:id", async (req, res) => {
   try {
     const m = await prisma.member.findUnique({
       where: { id: req.params.id },
+      include: {
+        sourceApplication: {
+          select: {
+            id: true,
+            documents: {
+              orderBy: { createdAt: "asc" },
+              select: {
+                id: true,
+                originalName: true,
+                mimeType: true,
+                sizeBytes: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!m) {
       res.status(404).json({ error: "Not found" });
@@ -107,6 +124,15 @@ router.get("/members/:id", async (req, res) => {
         membershipBillingType: m.membershipBillingType,
         membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
         goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
+        sourceApplicationId: m.sourceApplication?.id ?? null,
+        sourceApplicationDocuments:
+          m.sourceApplication?.documents.map((doc) => ({
+            id: doc.id,
+            originalName: doc.originalName,
+            mimeType: doc.mimeType,
+            sizeBytes: doc.sizeBytes,
+            createdAt: doc.createdAt.toISOString(),
+          })) ?? [],
         createdAt: m.createdAt.toISOString(),
         updatedAt: m.updatedAt.toISOString(),
       },

@@ -11,6 +11,20 @@ type InsurancePolicy = {
   status: "active" | "expiring_soon" | "in_grace" | "expired";
 };
 
+type ApplicationDoc = {
+  id: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+};
+
+function formatBytes(n: number) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function StaffMemberForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -50,6 +64,8 @@ export function StaffMemberForm() {
   const [insExpiry, setInsExpiry] = useState("");
   const [insAdding, setInsAdding] = useState(false);
   const [insError, setInsError] = useState<string | null>(null);
+  const [sourceApplicationId, setSourceApplicationId] = useState<string | null>(null);
+  const [sourceApplicationDocuments, setSourceApplicationDocuments] = useState<ApplicationDoc[]>([]);
 
   useEffect(() => {
     if (isNew || !id) {
@@ -75,6 +91,8 @@ export function StaffMemberForm() {
             membershipBillingType?: string | null;
             membershipExpiresAt?: string | null;
             goCardlessSubscriptionStatus?: string | null;
+            sourceApplicationId?: string | null;
+            sourceApplicationDocuments?: ApplicationDoc[];
           };
         }>(`/api/admin/members/${id}`);
         if (cancelled) return;
@@ -105,6 +123,8 @@ export function StaffMemberForm() {
         setLoadedGoCardlessSubscriptionStatus(
           m.goCardlessSubscriptionStatus?.trim() || null
         );
+        setSourceApplicationId(m.sourceApplicationId ?? null);
+        setSourceApplicationDocuments(m.sourceApplicationDocuments ?? []);
 
         // Load insurance policies
         const insData = await apiGetAuth<InsurancePolicy[]>(`/api/insurance/${id}`);
@@ -157,6 +177,25 @@ export function StaffMemberForm() {
       setPolicies((p) => p.filter((x) => x.id !== policyId));
     } catch (e) {
       alert(e instanceof Error ? e.message : "Could not delete policy");
+    }
+  };
+
+  const openSourceApplicationDocument = async (doc: ApplicationDoc) => {
+    if (!sourceApplicationId) return;
+    try {
+      const res = await fetch(
+        `/api/admin/applications/${sourceApplicationId}/documents/${doc.id}/file`,
+        { credentials: "include" }
+      );
+      if (!res.ok) {
+        throw new Error(res.status === 404 ? "Document file not found" : "Could not open document");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not open document");
     }
   };
 
@@ -517,7 +556,7 @@ export function StaffMemberForm() {
           <div className="sm:col-span-2 rounded-xl border border-sky-500/20 bg-sky-950/20 p-5">
             <h2 className="text-sm font-semibold text-sky-200">Insurance policies</h2>
             <p className="mt-1 text-xs text-slate-500">
-              Policies appear in the member portal and trigger automatic expiry reminders at 90, 60, and 30 days.
+              Policies appear in the member portal and trigger automatic expiry reminders at 30 and 14 days.
             </p>
 
             {policies.length > 0 ? (
@@ -623,6 +662,43 @@ export function StaffMemberForm() {
                 </button>
               </div>
             </div>
+          </div>
+        ) : null}
+
+        {!isNew ? (
+          <div className="sm:col-span-2 rounded-xl border border-amber-500/20 bg-amber-950/20 p-5">
+            <h2 className="text-sm font-semibold text-amber-200">Original application uploads</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Files uploaded by the trader during their join application.
+            </p>
+            {sourceApplicationDocuments.length > 0 && sourceApplicationId ? (
+              <ul className="mt-4 divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/12 bg-ink-950/55">
+                {sourceApplicationDocuments.map((doc) => (
+                  <li
+                    key={doc.id}
+                    className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 text-sm"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-slate-200">{doc.originalName}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatBytes(doc.sizeBytes)} · {new Date(doc.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void openSourceApplicationDocument(doc)}
+                      className="rounded-lg border border-white/12 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/[0.1]"
+                    >
+                      Open
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500">
+                No join application uploads are linked to this member.
+              </p>
+            )}
           </div>
         ) : null}
 
