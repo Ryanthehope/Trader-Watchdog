@@ -22,6 +22,8 @@ type HostedPaymentFlowOptions = {
   successRedirectUrl: string;
   exitUrl: string;
   metadata: Record<string, string>;
+  /** When true, creates a one-off payment only — no mandate/Direct Debit setup */
+  oneOffPayment?: boolean;
 };
 
 function prefilledCustomer(options: HostedPaymentFlowOptions) {
@@ -51,9 +53,7 @@ export async function createGoCardlessHostedPaymentFlow(
         description: options.description,
         metadata: options.metadata,
       },
-      mandate_request: {
-        scheme: "bacs",
-      },
+      ...(options.oneOffPayment ? {} : { mandate_request: { scheme: "bacs" } }),
     }),
     CHECKOUT_FLOW_TIMEOUT_MS,
     "GoCardless billing request"
