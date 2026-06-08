@@ -181,6 +181,25 @@ export function Join() {
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
+      // First check for ?app=&email= URL params (from approval email link)
+      const urlApp = searchParams.get("app")?.trim();
+      const urlEmail = searchParams.get("email")?.trim().toLowerCase();
+      if (urlApp && urlEmail) {
+        try {
+          const res = await fetch(`${apiBase()}/api/applications/verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ applicationId: urlApp, email: urlEmail }),
+          });
+          const data = (await res.json().catch(() => ({}))) as { exists?: boolean };
+          if (!cancelled && res.ok && data.exists) {
+            applyStoredJoinSession({ applicationId: urlApp, email: urlEmail });
+          }
+        } catch { /* ignore */ }
+        if (!cancelled) setSessionChecked(true);
+        return;
+      }
+
       let raw: string | null = null;
       try {
         raw = sessionStorage.getItem(JOIN_STORAGE_KEY);

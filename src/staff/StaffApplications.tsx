@@ -93,12 +93,7 @@ const SECTIONS: {
   label: string;
   hint: string;
 }[] = [
-  {
-    id: "address",
-    label: "Address & operating area",
-    hint: "Confirmed operating address matches application; not a PO box-only shell.",
-  },
-  {
+    {
     id: "insurance",
     label: "Insurance & accreditations",
     hint: "PL (or relevant) cover and claimed registers (Gas Safe, NICEIC, etc.) checked.",
@@ -110,13 +105,8 @@ const SECTIONS: {
   },
   {
     id: "publicRecords",
-    label: "Contact & public records",
+    label: "Public Registers",
     hint: "Phone and company identifiers checked; no major red flags in available records.",
-  },
-  {
-    id: "applicationDocuments",
-    label: "Documents supplied",
-    hint: "Uploads reviewed (certificates, insurance, ID) and match what they claim.",
   },
 ];
 
