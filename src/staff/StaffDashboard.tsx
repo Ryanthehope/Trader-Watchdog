@@ -207,7 +207,7 @@ export function StaffDashboard() {
                   dateTime={a.at}
                   title={a.at}
                 >
-                  {new Date(a.at).toLocaleString()}
+                  {new Date(a.at).toLocaleString("en-GB")}
                 </time>
               </li>
             ))

@@ -179,7 +179,7 @@ export function MemberDocuments() {
                     {formatSize(d.sizeBytes)}
                   </td>
                   <td className="px-4 py-3 text-slate-500">
-                    {new Date(d.createdAt).toLocaleDateString()}
+                    {new Date(d.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

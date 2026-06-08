@@ -107,7 +107,7 @@ export function MemberVerification() {
             </dt>
             <dd className="mt-1 text-sm text-slate-900">
               {verification.submittedAt
-                ? new Date(verification.submittedAt).toLocaleString()
+                ? new Date(verification.submittedAt).toLocaleString("en-GB")
                 : "Not submitted yet"}
             </dd>
           </div>
@@ -118,7 +118,7 @@ export function MemberVerification() {
             </dt>
             <dd className="mt-1 text-sm text-slate-900">
               {verification.approvedAt
-                ? new Date(verification.approvedAt).toLocaleString()
+                ? new Date(verification.approvedAt).toLocaleString("en-GB")
                 : "Not approved yet"}
             </dd>
           </div>
@@ -129,7 +129,7 @@ export function MemberVerification() {
             </dt>
             <dd className="mt-1 text-sm text-slate-900">
               {verification.rejectedAt
-                ? new Date(verification.rejectedAt).toLocaleString()
+                ? new Date(verification.rejectedAt).toLocaleString("en-GB")
                 : "Not rejected"}
             </dd>
           </div>

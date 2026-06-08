@@ -685,7 +685,7 @@ function ApplicationCard({
             {[row.trade, row.email, row.phone, row.postcode].filter(Boolean).join(" · ")}
           </p>
           <p className="mt-1 text-xs text-slate-600">
-            Applied {new Date(row.createdAt).toLocaleString()}
+            Applied {new Date(row.createdAt).toLocaleString("en-GB")}
           </p>
           {(awaitingRegistrationPayment || awaitingMembershipAfterApproval || paidAwaitingProfile || row.verificationProvider === "sumsub") && !expanded ? (
             <div className="mt-2 flex flex-wrap gap-2">
@@ -768,7 +768,7 @@ function ApplicationCard({
               {[row.trade, row.email, row.phone, row.postcode].filter(Boolean).join(" · ")}
             </p>
             <p className="mt-1 text-xs text-slate-600">
-              Applied {new Date(row.createdAt).toLocaleString()}
+              Applied {new Date(row.createdAt).toLocaleString("en-GB")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
               {awaitingRegistrationPayment ? (
@@ -799,7 +799,7 @@ function ApplicationCard({
                 <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 font-medium text-emerald-200">
                   Membership paid
                   {row.manualMembershipExpiresAt
-                    ? ` · active until ${row.manualMembershipExpiresAt.slice(0, 10)}`
+                    ? ` · active until ${new Date(row.manualMembershipExpiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
                     : linked?.membershipBillingType === "goCardless"
                       ? " · legacy GoCardless link"
                       : ""}
@@ -840,7 +840,7 @@ function ApplicationCard({
               <div className="mt-3 space-y-1 text-xs text-slate-500">
                 {row.registrationFeePaidAt ? (
                   <p>
-                    Registration fee paid {new Date(row.registrationFeePaidAt).toLocaleString()}
+                    Registration fee paid {new Date(row.registrationFeePaidAt).toLocaleString("en-GB")}
                   </p>
                 ) : null}
                 {row.membershipSubscribed ? (
@@ -854,17 +854,17 @@ function ApplicationCard({
               <div className="mt-3 space-y-1 text-xs text-slate-500">
                 {row.verificationSubmittedAt ? (
                   <p>
-                    Submitted {new Date(row.verificationSubmittedAt).toLocaleString()}
+                    Submitted {new Date(row.verificationSubmittedAt).toLocaleString("en-GB")}
                   </p>
                 ) : null}
                 {row.verificationApprovedAt ? (
                   <p>
-                    Approved {new Date(row.verificationApprovedAt).toLocaleString()}
+                    Approved {new Date(row.verificationApprovedAt).toLocaleString("en-GB")}
                   </p>
                 ) : null}
                 {row.verificationRejectedAt ? (
                   <p>
-                    Rejected {new Date(row.verificationRejectedAt).toLocaleString()}
+                    Rejected {new Date(row.verificationRejectedAt).toLocaleString("en-GB")}
                   </p>
                 ) : null}
                 {row.verificationFailureReason ? (
@@ -874,12 +874,12 @@ function ApplicationCard({
                 ) : null}
                 {row.addressVerificationApprovedAt ? (
                   <p>
-                    Address verified {new Date(row.addressVerificationApprovedAt).toLocaleString()}
+                    Address verified {new Date(row.addressVerificationApprovedAt).toLocaleString("en-GB")}
                   </p>
                 ) : null}
                 {row.addressVerificationRejectedAt ? (
                   <p>
-                    Address rejected {new Date(row.addressVerificationRejectedAt).toLocaleString()}
+                    Address rejected {new Date(row.addressVerificationRejectedAt).toLocaleString("en-GB")}
                   </p>
                 ) : null}
                 {row.addressVerificationFailureReason ? (
