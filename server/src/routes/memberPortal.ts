@@ -70,9 +70,9 @@ const VAN_STICKER_CONFIGS = {
     mmWidth: 187,
     mmHeight: 93,
     // QR placeholder box detected at x=110–748, y=122–1006 (638×884px, width-limited)
-    qrLeft: 125,  // px from left — inset 15px from box edge
-    qrTop: 260,   // px from top — vertically centred: 122 + (884-608)/2
-    qrSize: 608,  // QR code square (px), fits inside 638px-wide box with margin
+    qrLeft: 112,  // px from left — 2px inset from box edge
+    qrTop: 247,   // px from top — vertically centred: 122 + (884-634)/2
+    qrSize: 634,  // QR code square (px), fills the full 638px-wide box
   },
 } as const;
 
