@@ -330,7 +330,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             contactName: member.name,
             contactEmail: member.loginEmail ?? "",
             description: "Van Stickers (x2)",
-            amountPence: 2010,
+            amountPence: 2100,
             reference: paymentId,
             paidAt: paymentCreatedAt,
           });

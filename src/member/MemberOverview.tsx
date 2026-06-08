@@ -478,7 +478,7 @@ export function MemberOverview() {
                       <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
                         <p className="text-sm font-semibold text-slate-900">Order physical van stickers</p>
                         <p className="mt-1 text-sm text-slate-600">
-                          2 stickers of the same design — <strong>£16.75 + VAT</strong>, delivered by Royal Mail Tracked.
+                          2 stickers of the same design — <strong>£17.50 + VAT</strong>, delivered by Royal Mail Tracked.
                           Additional stickers <strong>£6 + VAT</strong> each.
                         </p>
                         <div className="mt-3 flex flex-wrap gap-3">
@@ -488,7 +488,7 @@ export function MemberOverview() {
                             disabled={stickerOrderBusy || additionalStickerBusy || qrBusy !== null}
                             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {stickerOrderBusy ? "Starting checkout…" : "Order 2 stickers — £16.75 + VAT"}
+                            {stickerOrderBusy ? "Starting checkout…" : "Order 2 stickers £17.50 + VAT"}
                           </button>
                           <button
                             type="button"

@@ -519,7 +519,7 @@ router.post("/sticker-order", async (req, res) => {
     }
     const origin = await siteOrigin(req);
     const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
-      amountPence: 2010,
+      amountPence: 2100,
       description: "Van stickers (×2)",
       email: m.loginEmail.trim().toLowerCase(),
       companyName: m.name,
