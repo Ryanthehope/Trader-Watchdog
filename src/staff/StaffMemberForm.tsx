@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { apiGetAuth, apiSend } from "../lib/api";
+import { apiGetAuth, apiGetAuthBlob, apiSend } from "../lib/api";
 
 type InsurancePolicy = {
   id: string;
@@ -194,14 +194,9 @@ export function StaffMemberForm() {
   const openSourceApplicationDocument = async (doc: ApplicationDoc) => {
     if (!sourceApplicationId) return;
     try {
-      const res = await fetch(
-        `/api/admin/applications/${sourceApplicationId}/documents/${doc.id}/file`,
-        { credentials: "include" }
+      const blob = await apiGetAuthBlob(
+        `/api/admin/applications/${sourceApplicationId}/documents/${doc.id}/file`
       );
-      if (!res.ok) {
-        throw new Error(res.status === 404 ? "Document file not found" : "Could not open document");
-      }
-      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank", "noopener,noreferrer");
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
@@ -213,14 +208,9 @@ export function StaffMemberForm() {
   const openMemberDocument = async (doc: MemberDoc) => {
     if (!id) return;
     try {
-      const res = await fetch(
-        `/api/admin/members/${id}/documents/${doc.id}/file`,
-        { credentials: "include" }
+      const blob = await apiGetAuthBlob(
+        `/api/admin/members/${id}/documents/${doc.id}/file`
       );
-      if (!res.ok) {
-        throw new Error(res.status === 404 ? "Document file not found" : "Could not open document");
-      }
-      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank", "noopener,noreferrer");
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
