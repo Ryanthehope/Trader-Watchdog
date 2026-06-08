@@ -89,13 +89,13 @@ function DaysIndicator({ insurance }: { insurance: Insurance }) {
         );
     }
 
-    if (days <= 30) {
-        color = "text-red-400";
-        icon = "🚨";
-    } else if (days <= 14) {
+    if (days <= 14) {
+      color = "text-red-400";
+      icon = "🚨";
+    } else if (days <= 30) {
       color = "text-orange-400";
       icon = "⚠️";
-    } else if (days <= 30) {
+    } else if (days <= 60) {
         color = "text-yellow-400";
         icon = "⏰";
     } else {
@@ -208,7 +208,7 @@ export function StaffInsurance() {
             Insurance Policies
           </h1>
           <p className="mt-1 text-sm text-slate-400">
-            Track member insurance and send expiry alerts
+            Track member insurance and send 30-day and 14-day reminders
           </p>
         </div>
       </div>
