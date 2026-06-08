@@ -1327,7 +1327,7 @@ export function Join() {
                             <p className="mt-1 text-xs text-emerald-400">
                               ✓ {discountApplied.discountType === "full"
                                 ? "100% discount applied — annual membership is free"
-                                : `£${(discountApplied.savingsPence / 100).toFixed(2)} discount applied`}
+                                : `Discount applied — pay just ${formatVatExclusiveLabel(discountApplied.finalPricePence) ?? "£30 + VAT"}`}
                             </p>
                           ) : discountError ? (
                             <p className="mt-1 text-xs text-amber-400">{discountError}</p>
