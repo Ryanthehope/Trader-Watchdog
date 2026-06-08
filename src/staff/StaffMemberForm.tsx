@@ -19,6 +19,14 @@ type ApplicationDoc = {
   createdAt: string;
 };
 
+type MemberDoc = {
+  id: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+};
+
 function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
@@ -64,6 +72,7 @@ export function StaffMemberForm() {
   const [insExpiry, setInsExpiry] = useState("");
   const [insAdding, setInsAdding] = useState(false);
   const [insError, setInsError] = useState<string | null>(null);
+  const [memberDocuments, setMemberDocuments] = useState<MemberDoc[]>([]);
   const [sourceApplicationId, setSourceApplicationId] = useState<string | null>(null);
   const [sourceApplicationDocuments, setSourceApplicationDocuments] = useState<ApplicationDoc[]>([]);
 
@@ -91,6 +100,7 @@ export function StaffMemberForm() {
             membershipBillingType?: string | null;
             membershipExpiresAt?: string | null;
             goCardlessSubscriptionStatus?: string | null;
+            memberDocuments?: MemberDoc[];
             sourceApplicationId?: string | null;
             sourceApplicationDocuments?: ApplicationDoc[];
           };
@@ -123,6 +133,7 @@ export function StaffMemberForm() {
         setLoadedGoCardlessSubscriptionStatus(
           m.goCardlessSubscriptionStatus?.trim() || null
         );
+        setMemberDocuments(m.memberDocuments ?? []);
         setSourceApplicationId(m.sourceApplicationId ?? null);
         setSourceApplicationDocuments(m.sourceApplicationDocuments ?? []);
 
@@ -185,6 +196,25 @@ export function StaffMemberForm() {
     try {
       const res = await fetch(
         `/api/admin/applications/${sourceApplicationId}/documents/${doc.id}/file`,
+        { credentials: "include" }
+      );
+      if (!res.ok) {
+        throw new Error(res.status === 404 ? "Document file not found" : "Could not open document");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not open document");
+    }
+  };
+
+  const openMemberDocument = async (doc: MemberDoc) => {
+    if (!id) return;
+    try {
+      const res = await fetch(
+        `/api/admin/members/${id}/documents/${doc.id}/file`,
         { credentials: "include" }
       );
       if (!res.ok) {
@@ -662,6 +692,43 @@ export function StaffMemberForm() {
                 </button>
               </div>
             </div>
+          </div>
+        ) : null}
+
+        {!isNew ? (
+          <div className="sm:col-span-2 rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-5">
+            <h2 className="text-sm font-semibold text-emerald-200">Portal uploads</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Files uploaded by the trader from their member portal.
+            </p>
+            {memberDocuments.length > 0 ? (
+              <ul className="mt-4 divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/12 bg-ink-950/55">
+                {memberDocuments.map((doc) => (
+                  <li
+                    key={doc.id}
+                    className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 text-sm"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-slate-200">{doc.originalName}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatBytes(doc.sizeBytes)} · {new Date(doc.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void openMemberDocument(doc)}
+                      className="rounded-lg border border-white/12 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/[0.1]"
+                    >
+                      Open
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500">
+                No member portal uploads yet.
+              </p>
+            )}
           </div>
         ) : null}
 

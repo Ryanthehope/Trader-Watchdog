@@ -10,6 +10,8 @@ import { requireStaff } from "../middleware/requireStaff.js";
 import { getGoCardlessApiClient } from "../lib/billingSettings.js";
 import adminOps from "./adminOps.js";
 import { registerStaff2faRoutes } from "./staff2fa.js";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 router.use(requireStaff);
@@ -93,6 +95,16 @@ router.get("/members/:id", async (req, res) => {
     const m = await prisma.member.findUnique({
       where: { id: req.params.id },
       include: {
+        documents: {
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            originalName: true,
+            mimeType: true,
+            sizeBytes: true,
+            createdAt: true,
+          },
+        },
         sourceApplication: {
           select: {
             id: true,
@@ -124,6 +136,13 @@ router.get("/members/:id", async (req, res) => {
         membershipBillingType: m.membershipBillingType,
         membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
         goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
+        memberDocuments: m.documents.map((doc) => ({
+          id: doc.id,
+          originalName: doc.originalName,
+          mimeType: doc.mimeType,
+          sizeBytes: doc.sizeBytes,
+          createdAt: doc.createdAt.toISOString(),
+        })),
         sourceApplicationId: m.sourceApplication?.id ?? null,
         sourceApplicationDocuments:
           m.sourceApplication?.documents.map((doc) => ({
@@ -140,6 +159,39 @@ router.get("/members/:id", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Could not load member" });
+  }
+});
+
+router.get("/members/:memberId/documents/:documentId/file", async (req, res) => {
+  try {
+    const doc = await prisma.memberDocument.findFirst({
+      where: {
+        id: req.params.documentId,
+        memberId: req.params.memberId,
+      },
+    });
+    if (!doc) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    const uploadRoot =
+      process.env.MEMBER_UPLOAD_DIR?.trim() ||
+      path.join(process.cwd(), "uploads", "member-documents");
+    const base = path.resolve(uploadRoot, doc.memberId);
+    const resolved = path.resolve(base, path.basename(doc.storedName));
+    if ((!resolved.startsWith(base + path.sep) && resolved !== base) || !fs.existsSync(resolved)) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(doc.originalName).replace(/'/g, "%27")}"`
+    );
+    res.type(doc.mimeType);
+    res.sendFile(resolved);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not load file" });
   }
 });
 
