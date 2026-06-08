@@ -4,7 +4,6 @@ import { getBrandName, publicSiteBase, sendApplicantEmail } from "./adminMail.js
 interface AlertsSent {
     "30days"?: string;
     "14days"?: string;
-    grace?: string;
 }
 
 function generateAlertEmail(
@@ -56,7 +55,7 @@ function generateAlertEmail(
 
 export async function sendInsuranceAlertEmail(
     insuranceId: string,
-    alertType: "30days" | "14days" | "grace"
+    alertType: "30days" | "14days"
 ): Promise<boolean> {
     try {
         const insurance = await prisma.insurance.findUnique({
@@ -181,18 +180,13 @@ export async function checkInsuranceExpiries(): Promise<{
             }
 
             const alerts = (policy.alertsSent as AlertsSent) || {};
-            if (daysUntilExpiry <= 30 && daysUntilExpiry > 14 && !alerts["30days"]) {
+            if (daysUntilExpiry === 30 && !alerts["30days"]) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "30days");
                 if (sent) alertsSent++;
             }
 
-            if (daysUntilExpiry <= 14 && daysUntilExpiry >= 0 && !alerts["14days"]) {
+            if (daysUntilExpiry === 14 && !alerts["14days"]) {
                 const sent = await sendInsuranceAlertEmail(policy.id, "14days");
-                if (sent) alertsSent++;
-            }
-
-            if (newStatus === "in_grace" && !alerts.grace) {
-                const sent = await sendInsuranceAlertEmail(policy.id, "grace");
                 if (sent) alertsSent++;
             }
         }

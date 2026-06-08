@@ -13,10 +13,8 @@ type Insurance = {
     graceExpiryDate: string | null;
     status: "active" | "expiring_soon" | "expired" | "in_grace";
     alertsSent: {
-        "90days"?: string;
-        "60days"?: string;
         "30days"?: string;
-        "grace"?: string;
+      "14days"?: string;
     } | null;
     lastAlertSentAt: string | null;
     updatedAt: string;
@@ -94,10 +92,10 @@ function DaysIndicator({ insurance }: { insurance: Insurance }) {
     if (days <= 30) {
         color = "text-red-400";
         icon = "🚨";
-    } else if (days <= 60) {
-        color = "text-orange-400";
-        icon = "⚠️";
-    } else if (days <= 90) {
+    } else if (days <= 14) {
+      color = "text-orange-400";
+      icon = "⚠️";
+    } else if (days <= 30) {
         color = "text-yellow-400";
         icon = "⏰";
     } else {
@@ -119,7 +117,7 @@ function AlertsIndicator({ insurance }: { insurance: Insurance }) {
   }
 
   const alerts = insurance.alertsSent;
-  const sentCount = [alerts["90days"], alerts["60days"], alerts["30days"], alerts.grace]
+  const sentCount = [alerts["30days"], alerts["14days"]]
     .filter(Boolean).length;
 
   if (sentCount === 0) {
@@ -311,11 +309,19 @@ export function StaffInsurance() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => sendAlert(insurance.id, "90days")}
+                            onClick={() => sendAlert(insurance.id, "30days")}
                             disabled={sendingAlert === insurance.id}
                             className="text-xs text-brand-400 hover:text-brand-300 disabled:opacity-50"
                           >
-                            {sendingAlert === insurance.id ? "Sending..." : "Send Alert"}
+                            {sendingAlert === insurance.id ? "Sending..." : "Send 30-day"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => sendAlert(insurance.id, "14days")}
+                            disabled={sendingAlert === insurance.id}
+                            className="text-xs text-brand-400 hover:text-brand-300 disabled:opacity-50"
+                          >
+                            {sendingAlert === insurance.id ? "Sending..." : "Send 14-day"}
                           </button>
                         </div>
                       </td>

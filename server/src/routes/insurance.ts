@@ -187,9 +187,9 @@ router.post("/:id/send-alert", requireStaff, async (req, res) => {
         const { alertType } = req.body;
 
         // Validate alertType
-        const validAlertTypes = ["90days" , "60days", "30days", "grace"];
+        const validAlertTypes = ["30days", "14days"];
         if (!alertType || !validAlertTypes.includes(alertType)) {
-            res.status(400).json({ error: "Invalid alertType is required and must be one of: 90days, 60days, 30days, grace" });
+            res.status(400).json({ error: "Invalid alertType is required and must be one of: 30days, 14days" });
             return;
         }
 
