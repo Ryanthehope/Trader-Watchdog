@@ -116,7 +116,7 @@ router.post("/validate-discount", async (req, res) => {
   if (discount.discountType === "full") {
     res.json({ valid: true, discountType: "full", savingsPence: lines.membershipPence, finalPricePence: 0 });
   } else {
-    const savings = 3000;
+    const savings = 3_600; // £30+VAT discount: £72 - £36 = £36 gross (£30+VAT)
     res.json({ valid: true, discountType: "partial30", savingsPence: savings, finalPricePence: Math.max(0, lines.membershipPence - savings) });
   }
 });
@@ -241,7 +241,7 @@ router.post("/checkout-membership", async (req, res) => {
     }
 
     const amountPence = discount?.discountType === "partial30"
-      ? Math.max(0, lines.membershipPence - 3000)
+      ? Math.max(0, lines.membershipPence - 3_600)
       : lines.membershipPence;
 
     // Persist the discounted price so annual renewals honour the founder-member rate for life.
