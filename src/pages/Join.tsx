@@ -1518,6 +1518,9 @@ export function Join() {
               >
                 Trading address
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Full address including post code.
+              </p>
               <textarea
                 id="tradingAddress"
                 name="tradingAddress"
@@ -1590,6 +1593,9 @@ export function Join() {
               >
                 Identifiable person address
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Full address including post code.
+              </p>
               <textarea
                 id="identifiablePersonAddress"
                 name="identifiablePersonAddress"
