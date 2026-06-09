@@ -74,6 +74,12 @@ type AppRow = {
   addressVerificationMatchedAddress?: string | null;
   addressVerificationMatchedApplication?: boolean | null;
   approvedByStaffName?: string | null;
+  xeroInvoiceId?: string | null;
+  xeroInvoiceFailed?: boolean;
+  xeroInvoices?: {
+    registration_fee: string | null;
+    membership: string | null;
+  };
   createdAt: string;
   documents: AppDoc[];
   createdMember: CreatedMemberRef | null;
@@ -424,6 +430,9 @@ function ApplicationCard({
   const [manualPaymentBusy, setManualPaymentBusy] = useState<
     "registration_fee" | "membership" | null
   >(null);
+  const [retryXeroBusy, setRetryXeroBusy] = useState<
+    "registration_fee" | "membership" | null
+  >(null);
   const [sumsubBusy, setSumsubBusy] = useState<"launch" | "sync" | null>(null);
   const [provisionFlash, setProvisionFlash] = useState<{
     password?: string;
@@ -448,6 +457,8 @@ function ApplicationCard({
   const linked = row.createdMember ?? null;
   const hasRegistrationFeePayment = Boolean(row.registrationFeePaidAt);
   const hasMembershipPayment = Boolean(row.membershipSubscribed);
+  const registrationXeroInvoiceId = row.xeroInvoices?.registration_fee ?? null;
+  const membershipXeroInvoiceId = row.xeroInvoices?.membership ?? null;
   const awaitingRegistrationPayment =
     row.status !== "DECLINED" && !linked && !hasRegistrationFeePayment;
   const awaitingMembershipAfterApproval =
@@ -654,6 +665,35 @@ function ApplicationCard({
     }
   };
 
+  const retryXeroInvoice = async (type: "registration_fee" | "membership") => {
+    const label = type === "registration_fee" ? "registration fee" : "annual membership";
+    if (
+      !confirm(
+        `Retry the Xero invoice for the ${label} payment? This will use the existing GoCardless payment already linked to the application.`
+      )
+    ) {
+      return;
+    }
+    setRetryXeroBusy(type);
+    try {
+      const d = await apiSend<{
+        retried: { invoiceId: string; paymentId: string; receiptEmailed: boolean; usedFallback: boolean };
+        application?: AppRow;
+      }>(`/api/admin/applications/${row.id}/retry-xero-invoice`, {
+        method: "POST",
+        body: JSON.stringify({ type }),
+      });
+      alert(
+        `Xero invoice created: ${d.retried.invoiceId}\nReference: ${d.retried.paymentId}\nReceipt emailed: ${d.retried.receiptEmailed ? "yes" : "no"}${d.retried.usedFallback ? "\nFallback used: exact GoCardless payment lookup was unavailable." : ""}`
+      );
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not retry Xero invoice");
+    } finally {
+      setRetryXeroBusy(null);
+      reload();
+    }
+  };
+
   const updateSection = (
     id: VettingSectionId,
     patch: Partial<VettingSectionState>
@@ -809,6 +849,29 @@ function ApplicationCard({
                   No membership payment
                 </span>
               )}
+              {registrationXeroInvoiceId ? (
+                <span className="rounded-full bg-sky-500/20 px-2.5 py-1 font-medium text-sky-200">
+                  Xero reg invoice ready
+                </span>
+              ) : hasRegistrationFeePayment ? (
+                <span className="rounded-full bg-white/5 px-2.5 py-1 text-slate-500">
+                  No Xero reg invoice
+                </span>
+              ) : null}
+              {membershipXeroInvoiceId ? (
+                <span className="rounded-full bg-sky-500/20 px-2.5 py-1 font-medium text-sky-200">
+                  Xero membership invoice ready
+                </span>
+              ) : hasMembershipPayment ? (
+                <span className="rounded-full bg-white/5 px-2.5 py-1 text-slate-500">
+                  No Xero membership invoice
+                </span>
+              ) : null}
+              {row.xeroInvoiceFailed ? (
+                <span className="rounded-full bg-red-500/20 px-2.5 py-1 font-medium text-red-200">
+                  Xero retry needed
+                </span>
+              ) : null}
               <span
                 className={`rounded-full px-2.5 py-1 font-medium ${verificationStatusClasses(verificationStatus)}`}
               >
@@ -847,6 +910,12 @@ function ApplicationCard({
                   <p>
                     Annual membership has been recorded on this application.
                   </p>
+                ) : null}
+                {registrationXeroInvoiceId ? (
+                  <p>Registration fee Xero invoice: {registrationXeroInvoiceId}</p>
+                ) : null}
+                {membershipXeroInvoiceId ? (
+                  <p>Membership Xero invoice: {membershipXeroInvoiceId}</p>
                 ) : null}
               </div>
             ) : null}
@@ -1018,6 +1087,30 @@ function ApplicationCard({
                 ) : null}
               </>
             ) : null}
+            {hasRegistrationFeePayment && !registrationXeroInvoiceId ? (
+              <button
+                type="button"
+                disabled={retryXeroBusy !== null}
+                onClick={() => void retryXeroInvoice("registration_fee")}
+                className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
+              >
+                {retryXeroBusy === "registration_fee"
+                  ? "Retrying…"
+                  : "Retry Xero reg invoice"}
+              </button>
+            ) : null}
+            {hasMembershipPayment && !membershipXeroInvoiceId ? (
+              <button
+                type="button"
+                disabled={retryXeroBusy !== null}
+                onClick={() => void retryXeroInvoice("membership")}
+                className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
+              >
+                {retryXeroBusy === "membership"
+                  ? "Retrying…"
+                  : "Retry Xero membership invoice"}
+              </button>
+            ) : null}
             {row.status === "APPROVED" &&
             linked &&
             row.membershipSubscribed &&
@@ -1080,6 +1173,30 @@ function ApplicationCard({
               }
               className="mt-3 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/15"
             >
+                {hasRegistrationFeePayment && !registrationXeroInvoiceId ? (
+                  <button
+                    type="button"
+                    disabled={retryXeroBusy !== null}
+                    onClick={() => void retryXeroInvoice("registration_fee")}
+                    className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
+                  >
+                    {retryXeroBusy === "registration_fee"
+                      ? "Retrying…"
+                      : "Retry Xero reg invoice"}
+                  </button>
+                ) : null}
+                {hasMembershipPayment && !membershipXeroInvoiceId ? (
+                  <button
+                    type="button"
+                    disabled={retryXeroBusy !== null}
+                    onClick={() => void retryXeroInvoice("membership")}
+                    className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
+                  >
+                    {retryXeroBusy === "membership"
+                      ? "Retrying…"
+                      : "Retry Xero membership invoice"}
+                  </button>
+                ) : null}
               Copy password
             </button>
           </div>

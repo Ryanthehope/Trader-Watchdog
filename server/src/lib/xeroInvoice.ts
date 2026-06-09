@@ -74,7 +74,12 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
       amount: amountGross,
     };
 
-    await client.accountingApi.createPayment(tenantId, { payments: [payment] } as any);
+    try {
+      await client.accountingApi.createPayment(tenantId, payment as any);
+    } catch (err) {
+      console.error(`[xero] Invoice ${invoiceId} created but payment marking failed`, err);
+      return invoiceId;
+    }
 
     console.log(`[xero] Invoice ${invoiceId} created and marked paid for ${payload.contactName}`);
     return invoiceId;
@@ -162,4 +167,35 @@ export async function createXeroCreditNote(payload: XeroCreditNotePayload): Prom
         console.error("[xero] Failed to fetch invoice PDF", err);
         return null;
       }
+}
+
+export async function findRecentXeroInvoiceByReference(reference: string): Promise<string | null> {
+  try {
+    const client = await getAuthorisedXeroClient();
+    const settings = await prisma.organizationSettings.findUnique({
+      where: { id: "default" },
+      select: { xeroTenantId: true },
+    });
+    const tenantId = settings?.xeroTenantId;
+    if (!tenantId) return null;
+    const response = await client.accountingApi.getInvoices(
+      tenantId,
+      undefined,
+      undefined,
+      "Date DESC",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      1,
+      true
+    );
+    const match = (response.body.invoices ?? []).find(
+      (invoice) => invoice.reference === reference
+    );
+    return match?.invoiceID ?? null;
+  } catch (err) {
+    console.error("[xero] Failed to search recent invoices by reference", err);
+    return null;
+  }
 }

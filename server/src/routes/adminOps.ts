@@ -35,6 +35,10 @@ import {
 import {
   buildSumsubVerificationUpdate,
 } from "../lib/sumsubVerificationSync.js";
+import {
+  parseApplicationXeroInvoiceRefs,
+  retryApplicationXeroInvoice,
+} from "../lib/applicationXeroInvoices.js";
 
 const router = Router();
 
@@ -96,6 +100,8 @@ const ADMIN_APPLICATION_FULL_SELECT = {
   approvedByStaffName: true,
   pendingPortalPassword: true,
   pendingPortalPasswordExpires: true,
+  xeroInvoiceId: true,
+  xeroInvoiceFailed: true,
   createdAt: true,
   updatedAt: true,
   createdMemberId: true,
@@ -137,6 +143,8 @@ const ADMIN_APPLICATION_MUTATION_SELECT = {
   goCardlessCustomerId: true,
   membershipAutoChargeInitiatedAt: true,
   verificationStatus: true,
+  xeroInvoiceId: true,
+  xeroInvoiceFailed: true,
 } satisfies Prisma.ApplicationSelect;
 
 router.get("/dashboard", async (_req, res) => {
@@ -727,6 +735,8 @@ function serializeAdminApplication(a: {
   approvedByStaffName?: string | null;
   pendingPortalPassword?: string | null;
   pendingPortalPasswordExpires?: Date | null;
+  xeroInvoiceId?: string | null;
+  xeroInvoiceFailed?: boolean;
   vettingState: unknown;
   notes: string | null;
   vettingChecklist: string | null;
@@ -773,11 +783,16 @@ function serializeAdminApplication(a: {
     approvedByStaffName,
     pendingPortalPassword: _pendingPw,
     pendingPortalPasswordExpires: _pendingPwExp,
+    xeroInvoiceId,
+    xeroInvoiceFailed,
     ...rest
   } = a;
   return {
     ...rest,
     approvedByStaffName: approvedByStaffName ?? null,
+    xeroInvoiceId: xeroInvoiceId ?? null,
+    xeroInvoiceFailed: Boolean(xeroInvoiceFailed),
+    xeroInvoices: parseApplicationXeroInvoiceRefs(xeroInvoiceId),
     notes: sanitizeNullableDbString(notes),
     vettingChecklist: sanitizeNullableDbString(vettingChecklist),
     vettingState: mergeVettingStateFromDb(vettingState),
@@ -1492,6 +1507,44 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
       return;
     }
     res.status(500).json({ error: "Could not record manual payment" });
+  }
+});
+
+router.post("/applications/:id/retry-xero-invoice", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const type = String(req.body?.type ?? "").trim();
+    if (type !== "registration_fee" && type !== "membership") {
+      res.status(400).json({ error: "type must be registration_fee or membership" });
+      return;
+    }
+    const retried = await retryApplicationXeroInvoice(id, type);
+    const full = await prisma.application.findUnique({
+      where: { id },
+      select: ADMIN_APPLICATION_FULL_SELECT,
+    });
+    res.json({
+      retried,
+      application: full ? serializeAdminApplication(full) : undefined,
+    });
+  } catch (e: unknown) {
+    console.error(e);
+    const message = e instanceof Error ? e.message : "Could not retry Xero invoices";
+    if (message === "Application not found") {
+      res.status(404).json({ error: message });
+      return;
+    }
+    if (
+      message === "A Xero invoice is already stored for that payment" ||
+      message === "Registration fee is not recorded on this application" ||
+      message === "Membership payment is not recorded on this application" ||
+      message === "No GoCardless customer is linked to this application" ||
+      message === "Could not find the matching GoCardless payment"
+    ) {
+      res.status(400).json({ error: message });
+      return;
+    }
+    res.status(500).json({ error: message });
   }
 });
 

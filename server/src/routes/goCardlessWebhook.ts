@@ -12,6 +12,7 @@ import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPaym
 import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
 import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 import { createPaidXeroInvoice, createXeroCreditNote, fetchXeroInvoicePDF }  from "../lib/xeroInvoice.js";
+import { mergeApplicationXeroInvoiceRef } from "../lib/applicationXeroInvoices.js";
 
 
 type GoCardlessPayment = {
@@ -208,7 +209,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           void (async () => {
             const app = await prisma.application.findUnique({
               where: { id: appId },
-              select: { email: true, company: true },
+              select: { email: true, company: true, xeroInvoiceId: true },
             });
             const xeroId = await createPaidXeroInvoice({
               contactName: app?.company ?? "Unknown Trader",
@@ -220,7 +221,16 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             });
             void prisma.application.update({
               where: { id: appId },
-              data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId },
+              data: xeroId
+                ? {
+                    xeroInvoiceId: mergeApplicationXeroInvoiceRef(
+                      app?.xeroInvoiceId ?? null,
+                      "registration_fee",
+                      xeroId
+                    ),
+                    xeroInvoiceFailed: false,
+                  }
+                : { xeroInvoiceFailed: true },
             });
             if (xeroId && app?.email) {
               const pdf = await fetchXeroInvoicePDF(xeroId);
@@ -309,7 +319,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           void (async () => {
             const app = await prisma.application.findUnique({
               where: { id: appId },
-              select: { email: true, company: true },
+              select: { email: true, company: true, xeroInvoiceId: true },
             });
             const xeroId = await createPaidXeroInvoice({
               contactName: app?.company ?? "Unknown Trader",
@@ -321,7 +331,16 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             });
             void prisma.application.update({
               where: { id: appId },
-              data: { xeroInvoiceId: xeroId ?? undefined, xeroInvoiceFailed: !xeroId },
+              data: xeroId
+                ? {
+                    xeroInvoiceId: mergeApplicationXeroInvoiceRef(
+                      app?.xeroInvoiceId ?? null,
+                      "membership",
+                      xeroId
+                    ),
+                    xeroInvoiceFailed: false,
+                  }
+                : { xeroInvoiceFailed: true },
             });
             if (xeroId && app?.email) {
               const pdf = await fetchXeroInvoicePDF(xeroId);
