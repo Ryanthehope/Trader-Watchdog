@@ -422,9 +422,9 @@ router.post(
       const agreementAccepted = parseBooleanish(req.body?.agreementAccepted);
       const enquiriesAccepted = parseBooleanish(req.body?.enquiriesAccepted);
       const recaptchaToken = req.body?.recaptchaToken as string | undefined;
-      if (!company || !trade || !email || !phone || !postcode) {
+      if (!company || !trade || !email || !phone) {
         res.status(400).json({
-          error: "company, trade, email, phone, and postcode are required",
+          error: "company, trade, email, and phone are required",
         });
         return;
       }
