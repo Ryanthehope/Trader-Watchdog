@@ -9,7 +9,7 @@ import type {
 } from "../types/content";
 
 const DISCLAIMER =
-  "Trader Watchdog independently checks that tradespeople are local, insured, and hold the accreditations they claim. Trader Watchdog does not rate quality of workmanship. Always obtain multiple quotes and conduct your own due diligence.";
+  "Trader Watchdog independently checks that tradespeople are local, insured, and hold the accreditations they claim. Trader Watchdog does not rate quality of workmanship.";
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -315,7 +315,7 @@ export function MemberProfile() {
                   {member.name}
                 </h1>
                 <p className="mt-2 text-lg text-slate-400">
-                  {member.trade} · {member.location}
+                  {member.trade} · {member.publicAddress ?? member.location}
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
                   Checked since {member.verifiedSince}
@@ -324,11 +324,22 @@ export function MemberProfile() {
                 </div>
               </div>
               <div className="flex shrink-0 justify-center sm:justify-end">
-                <img
-                  src="/traderwatchdog_logo.webp"
-                  alt="Trader Watchdog"
-                  className="h-32 w-32 rounded-2xl border border-white/15 bg-slate-900/50 object-contain ring-1 ring-white/10 sm:h-28 sm:w-28"
-                />
+                <div className="flex h-32 w-32 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10 ring-1 ring-emerald-400/20 sm:h-28 sm:w-28">
+                  <svg
+                    className="h-16 w-16 text-emerald-300 sm:h-14 sm:w-14"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.25}
+                    aria-hidden
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12.75l2 2 4-4m6 1.25a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2 border-t border-emerald-600/40 bg-emerald-600 px-6 py-3.5 sm:px-8">
@@ -404,8 +415,12 @@ export function MemberProfile() {
                   <dd className="text-right font-medium text-slate-200">{member.trade}</dd>
                 </div>
                 <div className="flex items-start justify-between gap-3">
-                  <dt className="shrink-0 text-slate-500">Location</dt>
-                  <dd className="text-right font-medium text-slate-200">{member.location}</dd>
+                  <dt className="shrink-0 text-slate-500">
+                    {member.publicAddress ? "Business address" : "Location"}
+                  </dt>
+                  <dd className="text-right font-medium text-slate-200">
+                    {member.publicAddress ?? member.location}
+                  </dd>
                 </div>
                 {member.phone ? (
                   <div className="flex items-start justify-between gap-3">

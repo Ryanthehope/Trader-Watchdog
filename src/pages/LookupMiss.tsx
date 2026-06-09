@@ -9,20 +9,12 @@ export function LookupMiss() {
 
   return (
     <main className="mx-auto max-w-lg px-4 py-24 text-center sm:px-6">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/15 text-red-400 ring-1 ring-red-500/25">
-        <svg
-          className="h-8 w-8"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6 6l12 12M18 6L6 18"
-          />
-        </svg>
+      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-red-500/10 ring-1 ring-red-500/20">
+        <img
+          src="/Red%20flag2.webp"
+          alt="Red flag"
+          className="h-14 w-14 object-contain"
+        />
       </div>
       <p className="mt-6 text-sm font-semibold uppercase tracking-[0.24em] text-red-300">
         No verified listing

@@ -11,6 +11,7 @@ import { goCardlessErrorDetails } from "../lib/goCardlessErrors.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 import { notifyMemberWelcome } from "../lib/adminMail.js";
+import { getLaunchWindow } from "../lib/launchWindow.js";
 
 const router = Router();
 
@@ -110,6 +111,10 @@ router.post("/validate-discount", async (req, res) => {
   const lines = checkoutLineConfig(settings);
   const discount = resolveDiscountCode(code);
   if (!discount) {
+    res.json({ valid: false });
+    return;
+  }
+  if (discount.discountType === "partial30" && !getLaunchWindow().launchDiscountActive) {
     res.json({ valid: false });
     return;
   }
@@ -217,6 +222,10 @@ router.post("/checkout-membership", async (req, res) => {
 
     const discountCodeInput = String(req.body?.discountCode ?? "").trim();
     const discount = discountCodeInput ? resolveDiscountCode(discountCodeInput) : null;
+    if (discount?.discountType === "partial30" && !getLaunchWindow().launchDiscountActive) {
+      res.status(400).json({ error: "That founder discount code has expired." });
+      return;
+    }
 
     if (discount?.discountType === "full") {
       // 100% off — provision directly without GoCardless
@@ -229,6 +238,16 @@ router.post("/checkout-membership", async (req, res) => {
           membershipRenewalPricePence: 0,
         },
       });
+      if (application.createdMemberId) {
+        await prisma.member.update({
+          where: { id: application.createdMemberId },
+          data: {
+            membershipBillingType: "manual",
+            membershipExpiresAt: addOneCalendarYearEndUtc(now),
+            membershipRenewalPricePence: 0,
+          },
+        });
+      }
       const prov = await provisionIfApplicationPaid(prisma, applicationId);
       if (!prov.ok && prov.reason === "email_in_use") {
         console.error("[billing] free membership provision blocked: email already in use");
@@ -243,14 +262,6 @@ router.post("/checkout-membership", async (req, res) => {
     const amountPence = discount?.discountType === "partial30"
       ? Math.max(0, lines.membershipPence - 3_600)
       : lines.membershipPence;
-
-    // Persist the discounted price so annual renewals honour the founder-member rate for life.
-    if (discount?.discountType === "partial30") {
-      await prisma.application.update({
-        where: { id: applicationId },
-        data: { membershipRenewalPricePence: amountPence },
-      });
-    }
 
     const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
       amountPence,

@@ -277,6 +277,26 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           },
         });
         if (updated.count > 0) {
+          const appAfterMembership = await prisma.application.findUnique({
+            where: { id: appId },
+            select: {
+              createdMemberId: true,
+              manualMembershipExpiresAt: true,
+            },
+          });
+          if (
+            appAfterMembership?.createdMemberId &&
+            appAfterMembership.manualMembershipExpiresAt
+          ) {
+            await prisma.member.update({
+              where: { id: appAfterMembership.createdMemberId },
+              data: {
+                membershipBillingType: "manual",
+                membershipExpiresAt: appAfterMembership.manualMembershipExpiresAt,
+                membershipRenewalPricePence: null,
+              },
+            });
+          }
           const prov = await provisionIfApplicationPaid(prisma, appId);
           if (!prov.ok && prov.reason === "email_in_use") {
             console.error(

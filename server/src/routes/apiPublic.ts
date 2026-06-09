@@ -596,6 +596,12 @@ router.get("/members", async (_req, res) => {
           select: { type: true, status: true },
           where: { status: { not: "expired" } },
         },
+        sourceApplication: {
+          select: {
+            tradingAddress: true,
+            identifiablePersonAddress: true,
+          },
+        },
       },
     });
     res.json({
@@ -632,6 +638,12 @@ async function memberBySlugHandler(
         insurancePolicies: {
           select: { type: true, status: true },
           where: { status: { not: "expired" } },
+        },
+        sourceApplication: {
+          select: {
+            tradingAddress: true,
+            identifiablePersonAddress: true,
+          },
         },
       },
     });

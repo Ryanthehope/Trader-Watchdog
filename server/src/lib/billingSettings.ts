@@ -7,7 +7,6 @@ import { prisma } from "../db.js";
 import { getLaunchWindow } from "./launchWindow.js";
 const MIN_CHECKOUT_PENCE = 100; // £1.00 — GoCardless practical minimum for GBP
 const MAX_CHECKOUT_PENCE = 999_999_99;
-const LAUNCH_MEMBERSHIP_PENCE = 4_900; // £49 fixed price during June 1–July 1 launch window
 const DEFAULT_ANNUAL_MEMBERSHIP_PENCE = 7_200; // £60 + VAT = £72 gross
 const DEFAULT_REGISTRATION_FEE_PENCE = 1_800;
 
@@ -95,14 +94,11 @@ export function clampCheckoutPence(n: number): number {
 
 /** Names + amounts for online billing line items. */
 export function checkoutLineConfig(s: BillingRow) {
-  const { launchDiscountActive } = getLaunchWindow();
   const baseMembershipPence = defaultAnnualMembershipPence(
     s.checkoutMembershipPence ?? DEFAULT_ANNUAL_MEMBERSHIP_PENCE
   );
   return {
-    membershipPence: launchDiscountActive
-      ? LAUNCH_MEMBERSHIP_PENCE
-      : baseMembershipPence,
+    membershipPence: baseMembershipPence,
     registrationFeePence: clampCheckoutPence(
       s.checkoutRegistrationFeePence ?? DEFAULT_REGISTRATION_FEE_PENCE
     ),

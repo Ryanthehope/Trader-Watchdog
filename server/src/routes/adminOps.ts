@@ -1335,6 +1335,12 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
       const exp = parseManualMembershipExpiryInput(
         req.body?.membershipExpiresAt
       );
+      const memberRow = before.createdMemberId
+        ? await prisma.member.findUnique({
+            where: { id: before.createdMemberId },
+            select: { id: true, membershipBillingType: true },
+          })
+        : null;
       if (!before.membershipSubscribed) {
         if (!exp) {
           res.status(400).json({
@@ -1350,6 +1356,23 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
             manualMembershipExpiresAt: exp,
           },
         });
+        if (memberRow?.membershipBillingType === "goCardless") {
+          res.status(400).json({
+            error:
+              "This member is on GoCardless billing; dates sync from the subscription.",
+          });
+          return;
+        }
+        if (memberRow) {
+          await prisma.member.update({
+            where: { id: memberRow.id },
+            data: {
+              membershipBillingType: "manual",
+              membershipExpiresAt: exp,
+              membershipRenewalPricePence: null,
+            },
+          });
+        }
       } else {
         if (!exp) {
           res.status(400).json({
@@ -1365,12 +1388,6 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
           });
           return;
         }
-        const memberRow = before.createdMemberId
-          ? await prisma.member.findUnique({
-              where: { id: before.createdMemberId },
-              select: { id: true, membershipBillingType: true },
-            })
-          : null;
         if (memberRow?.membershipBillingType === "goCardless") {
           res.status(400).json({
             error:
@@ -1388,50 +1405,72 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
             data: {
               membershipBillingType: "manual",
               membershipExpiresAt: exp,
+              membershipRenewalPricePence: null,
             },
           });
         }
       }
     }
 
-    const prov = await tryProvisionMemberForApplication(prisma, id);
-    if (prov.kind === "email_in_use") {
+    const prov = await provisionIfApplicationPaid(prisma, id);
+    let memberProvisioned: {
+      temporaryPassword?: string;
+      member: { id: string; slug: string; tvId: string };
+      alreadyProvisioned?: boolean;
+    } | null = null;
+    if (!prov.ok && prov.reason === "email_in_use") {
+      const app = await prisma.application.findUnique({
+        where: { id },
+        select: { email: true },
+      });
       res.status(400).json({
-        error: `The email ${prov.email} is already used for a member portal.`,
+        error: `The email ${app?.email ?? "(unknown)"} is already used for a member portal.`,
       });
       return;
     }
-    if (prov.kind === "membership_expiry_missing") {
+    if (!prov.ok && prov.reason === "membership_expiry_missing") {
       res.status(400).json({
         error:
           "Membership payment is recorded without an expiry date. Enter an expiry date and try again.",
       });
       return;
     }
-    if (prov.kind === "not_approved") {
+    if (!prov.ok && prov.reason === "not_approved") {
       res.status(400).json({ error: "Application is not approved" });
       return;
     }
-    let memberProvisioned: {
-      temporaryPassword?: string;
-      member: { id: string; slug: string; tvId: string };
-      alreadyProvisioned?: boolean;
-    } | null = null;
-    if (prov.kind === "created") {
+    if (prov.ok && prov.newlyCreated) {
       memberProvisioned = {
         temporaryPassword: prov.temporaryPassword,
-        member: prov.member,
+        member: (
+          await prisma.application.findUnique({
+            where: { id },
+            select: {
+              createdMember: {
+                select: { id: true, slug: true, tvId: true },
+              },
+            },
+          })
+        )?.createdMember ?? { id: "", slug: "", tvId: "" },
       };
       notifyMemberWelcome(prisma, {
         email: before.email.trim().toLowerCase(),
         name: (before.identifiablePerson?.trim() || before.company).trim(),
         temporaryPassword: prov.temporaryPassword,
       });
-    } else if (prov.kind === "already_linked") {
-      memberProvisioned = {
-        member: prov.member,
-        alreadyProvisioned: true,
-      };
+    } else if (!prov.ok && prov.reason === "already_provisioned") {
+      const linked = before.createdMemberId
+        ? await prisma.member.findUnique({
+            where: { id: before.createdMemberId },
+            select: { id: true, slug: true, tvId: true },
+          })
+        : null;
+      if (linked) {
+        memberProvisioned = {
+          member: linked,
+          alreadyProvisioned: true,
+        };
+      }
     }
     const full = await prisma.application.findUnique({
       where: { id },

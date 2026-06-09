@@ -31,6 +31,7 @@ export type VerifiedMember = {
   name: string;
   trade: string;
   location: string;
+  publicAddress: string | null;
   phone: string | null;
   checks: string[];
   vettingSections: VettingSectionPublic[];

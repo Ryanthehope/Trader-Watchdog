@@ -786,8 +786,9 @@ export function Join() {
         },
       ]
     : [];
+  const showFounderOffer = launchWindowDiscountActive || launchDiscountActive;
   const introBody =
-    "Complete the form below and upload the supporting evidence needed for review. Identity, address, and liveness checks are handled during verification.";
+    "In as little as 10 minutes, complete the form below and upload the supporting evidence needed for review. Identity, address, liveness, and payment checks are then handled as part of the verification process.";
   const introSupport =
     "We will contact you within 3 working days when our processes are complete or if further information is required.";
   const pricingHeading = "Annual membership";
@@ -796,7 +797,7 @@ export function Join() {
     <>
       <section className="border-b border-slate-200 bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          {!publicSearchEnabled && (
+          {showFounderOffer && (
             <div className="mb-10 rounded-2xl border border-amber-300 bg-amber-50 px-6 py-5 text-center">
               <p className="text-xl font-bold text-amber-800">Pre-launch offer – see below!</p>
             </div>
@@ -826,10 +827,10 @@ export function Join() {
               </ul>
             </div>
             <div className="rounded-3xl border border-brand-200 bg-brand-50 p-8">
-              {!publicSearchEnabled && (
+              {showFounderOffer && (
                 <div className="mb-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-4">
                   <p className="text-sm font-bold leading-relaxed text-amber-900 sm:text-base">
-                    Become a Founder Member and save £30 off the annual subscription for life! Subscriptions for applications approved before 1st July will start on the 1st July at the discounted Founder Member price every year. Apply code <span className="font-mono tracking-wide">A5LESS</span> at checkout!
+                    Become a Founder Member and save £30 off the annual subscription for your first year! Subscriptions for applications approved before 1st July will start on the 1st July at the discounted Founder Member price for the first year. Apply code <span className="font-mono tracking-wide">A5LESS</span> at checkout!
                   </p>
                 </div>
               )}

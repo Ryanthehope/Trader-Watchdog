@@ -464,7 +464,7 @@ router.post("/membership/renew", async (req, res) => {
     }
     const origin = await siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const renewalAmountPence = m.membershipRenewalPricePence ?? lines.membershipPence;
+    const renewalAmountPence = m.membershipRenewalPricePence === 0 ? 0 : lines.membershipPence;
 
     // Free-membership holders (100% discount for life) — extend without GoCardless.
     if (renewalAmountPence === 0) {
