@@ -16,6 +16,7 @@ export function buildXeroClient(): XeroClient {
 
 export async function buildConsentUrlAndStore(): Promise<string> {
   _pendingAuthClient = buildXeroClient();
+  await _pendingAuthClient.initialize();
   return await _pendingAuthClient.buildConsentUrl();
 }
 
@@ -35,6 +36,7 @@ export async function getAuthorisedXeroClient(): Promise<XeroClient> {
   }
 
   const client = buildXeroClient();
+  await client.initialize();
   const tokenSet = JSON.parse(settings.xeroTokenSetJson);
   await client.setTokenSet(tokenSet);
 
