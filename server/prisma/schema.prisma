@@ -84,6 +84,8 @@ model Member {
   membershipUnlimited      Boolean          @default(false)
   /// Xero invoice ID for the most recent membership payment.
   xeroInvoiceId            String?
+  /// Set once the first van sticker pack (x2) payment is confirmed.
+  vanStickerOrderedAt      DateTime?
   createdAt                DateTime         @default(now())
   updatedAt                DateTime         @updatedAt
   documents                MemberDocument[]

@@ -26,6 +26,11 @@ type MemberOverviewData = {
   publicProfileUrl: string;
   profileLive: boolean;
   membership: MembershipSummary;
+  stickers: {
+    originalOrderPaidAt: string | null;
+    canOrderAdditional: boolean;
+    additionalOrderReason: string | null;
+  };
   verification: VerificationSummary;
   qr: {
     eligible: boolean;
@@ -493,12 +498,22 @@ export function MemberOverview() {
                           <button
                             type="button"
                             onClick={() => void handleOrderAdditionalSticker()}
-                            disabled={stickerOrderBusy || additionalStickerBusy || qrBusy !== null}
+                            disabled={
+                              stickerOrderBusy ||
+                              additionalStickerBusy ||
+                              qrBusy !== null ||
+                              !data.stickers.canOrderAdditional
+                            }
                             className="rounded-lg border border-brand-600 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {additionalStickerBusy ? "Starting checkout…" : "Order 1 additional — £6 + VAT"}
                           </button>
                         </div>
+                        {!data.stickers.canOrderAdditional ? (
+                          <p className="mt-2 text-xs text-slate-500">
+                            {data.stickers.additionalOrderReason}
+                          </p>
+                        ) : null}
                       </div>
 
                       {qrError ? <p className="mt-4 text-sm text-red-600">{qrError}</p> : null}

@@ -203,6 +203,13 @@ router.get("/me", async (req, res) => {
       publicProfileUrl: `/m/${m.slug}`,
       mustChangePassword: m.mustChangePassword,
       membership,
+      stickers: {
+        originalOrderPaidAt: m.vanStickerOrderedAt?.toISOString() ?? null,
+        canOrderAdditional: Boolean(m.vanStickerOrderedAt),
+        additionalOrderReason: m.vanStickerOrderedAt
+          ? null
+          : "Additional stickers are available after the first 2-sticker order has been paid.",
+      },
       verification: {
         provider: m.verificationProvider,
         status: m.verificationStatus,
@@ -504,12 +511,19 @@ router.post("/sticker-order", async (req, res) => {
         loginEmail: true,
         name: true,
         goCardlessCustomerId: true,
+        vanStickerOrderedAt: true,
         invoiceAddress: true,
         location: true,
       },
     });
     if (!m?.loginEmail?.trim()) {
       res.status(400).json({ error: "No login email on file" });
+      return;
+    }
+    if (!m.vanStickerOrderedAt) {
+      res.status(400).json({
+        error: "Additional stickers can only be ordered after the first 2-sticker pack has been paid.",
+      });
       return;
     }
     const gocardless = await getGoCardlessApiClient();
