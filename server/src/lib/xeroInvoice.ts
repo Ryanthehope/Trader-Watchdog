@@ -1,4 +1,4 @@
-import { Invoices, Invoice, LineItem, Contact } from "xero-node";
+import { Invoices, Invoice, LineItem, Contact, LineAmountTypes } from "xero-node";
 import { getAuthorisedXeroClient } from "./xeroClient.js";
 import { prisma } from "../db.js";
 
@@ -26,7 +26,7 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
             return null;
     }
 
-     const amountGross = payload.amountPence / 100;
+    const amountGross = payload.amountPence / 100;
 
     let contactId: string | undefined;
     if (payload.contactEmail) {
@@ -51,6 +51,7 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
       type: Invoice.TypeEnum.ACCREC,
       contact,
       lineItems: [lineItem],
+      lineAmountTypes: LineAmountTypes.Inclusive,
       date: payload.paidAt.toISOString().split("T")[0],
       dueDate: payload.paidAt.toISOString().split("T")[0],
       reference: payload.reference,
@@ -131,6 +132,7 @@ export async function createXeroCreditNote(payload: XeroCreditNotePayload): Prom
         date: payload.refundedAt.toISOString().split("T")[0],
         reference: payload.reference,
         status: "AUTHORISED",
+        lineAmountTypes: LineAmountTypes.Inclusive,
         lineItems: [{
           description: `Refund: ${payload.description}`,
           quantity: 1.0,
