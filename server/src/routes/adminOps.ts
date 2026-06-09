@@ -70,6 +70,7 @@ const ADMIN_APPLICATION_FULL_SELECT = {
   legalStructure: true,
   tradingAddress: true,
   trade: true,
+  employeeCount: true,
   identifiablePerson: true,
   identifiablePersonAddress: true,
   email: true,

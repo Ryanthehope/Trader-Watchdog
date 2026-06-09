@@ -7,6 +7,7 @@ export type ApplicationPayload = {
   identifiablePersonAddress: string;
   email: string;
   trade: string;
+  employeeCount: number;
   postcode: string;
   wasteCarrierRequired: string;
   wasteCarrierNumber?: string;
@@ -76,7 +77,7 @@ export async function submitApplication(
               const fd = new FormData();
               Object.entries(payload).forEach(([key, value]) => {
                 if (value === undefined || value === null || value === "") return;
-                fd.append(key, typeof value === "boolean" ? String(value) : value);
+                fd.append(key, typeof value === "string" ? value : String(value));
               });
 
               for (const f of fileList) {
@@ -165,6 +166,7 @@ export async function submitApplication(
         `Identifiable person: ${payload.identifiablePerson}\n` +
         `Identifiable person address: ${payload.identifiablePersonAddress}\n` +
         `Trade / specialism: ${payload.trade}\n` +
+        `Number of employees (including self): ${payload.employeeCount}\n` +
         `Work email: ${payload.email}\n` +
         `Telephone number: ${payload.phone}\n` +
         `Main operating postcode: ${payload.postcode}\n` +

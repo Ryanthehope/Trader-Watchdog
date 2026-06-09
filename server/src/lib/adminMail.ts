@@ -91,8 +91,8 @@ async function getTransport(
 const EMAIL_FOOTER = [
   "",
   "--",
-  "The Support Team",
-  "support@traderwatchdog.co.uk",
+  "The Admin Team",
+  "admin@traderwatchdog.co.uk",
   "www.traderwatchdog.co.uk",
   "",
   "Trader Watchdog Ltd. Company number 17173750",
@@ -348,7 +348,7 @@ export function notifyApplicantSubmissionReceived(
 ): void {
   void (async () => {
     const traderName = row.traderName?.trim() || row.company;
-    const supportEmail = process.env.CONTACT_EMAIL?.trim() || "support@traderwatchdog.co.uk";
+    const supportEmail = "admin@traderwatchdog.co.uk";
     const text = [
       `Hi ${traderName},`,
       "",

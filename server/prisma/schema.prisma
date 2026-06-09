@@ -168,6 +168,8 @@ model Application {
   legalStructure               String?
   tradingAddress               String?
   trade                        String
+  /// Total workers in the business, including the applicant.
+  employeeCount                Int                   @default(1)
   identifiablePerson           String?
   identifiablePersonAddress    String?
   email                        String

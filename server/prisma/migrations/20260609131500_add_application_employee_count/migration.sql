@@ -1,0 +1,2 @@
+ALTER TABLE "Application"
+ADD COLUMN "employeeCount" INTEGER NOT NULL DEFAULT 1;

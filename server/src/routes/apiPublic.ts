@@ -396,6 +396,8 @@ router.post(
       const legalStructure = String(req.body?.legalStructure ?? "").trim();
       const tradingAddress = String(req.body?.tradingAddress ?? "").trim();
       const trade = String(req.body?.trade ?? "").trim();
+      const employeeCountRaw = String(req.body?.employeeCount ?? "").trim();
+      const employeeCount = Number.parseInt(employeeCountRaw, 10);
       const identifiablePerson = String(req.body?.identifiablePerson ?? "").trim();
       const identifiablePersonAddress = String(
         req.body?.identifiablePersonAddress ?? ""
@@ -424,10 +426,17 @@ router.post(
         });
         return;
       }
+      if (!Number.isInteger(employeeCount) || employeeCount < 1) {
+        res.status(400).json({
+          error: "Please enter the number of employees, including yourself.",
+        });
+        return;
+      }
 
       const hasExtendedFields = Boolean(
         legalStructure ||
           tradingAddress ||
+          employeeCountRaw ||
           identifiablePerson ||
           identifiablePersonAddress ||
           wasteCarrierRequired ||
@@ -499,6 +508,7 @@ router.post(
             legalStructure: legalStructure || null,
             tradingAddress: tradingAddress || null,
             trade,
+            employeeCount,
             identifiablePerson: identifiablePerson || null,
             identifiablePersonAddress: identifiablePersonAddress || null,
             email,
@@ -531,6 +541,7 @@ router.post(
         legalStructure,
         tradingAddress,
         trade,
+        employeeCount,
         identifiablePerson,
         identifiablePersonAddress,
         email,

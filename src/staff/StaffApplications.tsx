@@ -36,6 +36,7 @@ type AppRow = {
   legalStructure?: string | null;
   tradingAddress?: string | null;
   trade: string;
+  employeeCount: number;
   identifiablePerson?: string | null;
   identifiablePersonAddress?: string | null;
   email: string;
@@ -252,6 +253,7 @@ export function StaffApplications() {
       const blob = [
         a.company,
         a.trade,
+        String(a.employeeCount ?? ""),
         a.email,
         a.phone,
         a.postcode,
@@ -471,6 +473,7 @@ function ApplicationCard({
     hasRegistrationFeePayment &&
     hasMembershipPayment &&
     !linked;
+  const requiresEmployersLiability = Number(row.employeeCount) > 1;
   const allDone = SECTIONS.every((s) => vetting[s.id]?.done);
   const sectionsDoneCount = SECTIONS.filter((s) => vetting[s.id]?.done).length;
   const verificationStatus = row.verificationStatus ?? "NOT_STARTED";
@@ -898,6 +901,16 @@ function ApplicationCard({
                   Approved by {row.approvedByStaffName}
                 </span>
               ) : null}
+              <span
+                className={`rounded-full px-2.5 py-1 font-medium ${
+                  requiresEmployersLiability
+                    ? "bg-amber-500/20 text-amber-200"
+                    : "bg-white/5 text-slate-500"
+                }`}
+              >
+                Employees incl. self: {row.employeeCount}
+                {requiresEmployersLiability ? " · Employers' Liability required" : ""}
+              </span>
             </div>
             {row.registrationFeePaidAt || row.membershipSubscribed ? (
               <div className="mt-3 space-y-1 text-xs text-slate-500">
@@ -1204,6 +1217,30 @@ function ApplicationCard({
       </div>
 
       <div className="px-5 py-6 sm:px-6">
+        <div className="mb-8 rounded-xl border border-white/12 bg-ink-950/40 p-4 sm:p-5">
+          <h3 className="font-display text-base font-semibold tracking-tight text-white">
+            Application details
+          </h3>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Employees including self
+              </p>
+              <p className="mt-2 text-sm text-white">{row.employeeCount}</p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 sm:col-span-2 xl:col-span-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Employers' Liability check
+              </p>
+              <p className="mt-2 text-sm text-slate-200">
+                {requiresEmployersLiability
+                  ? "Required. The application declares more than one worker including the applicant, so Employers' Liability insurance must be checked before approval."
+                  : "Not required from the employee count alone. The application declares a single worker including the applicant."}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="mb-8">
           <h3 className="font-display text-base font-semibold tracking-tight text-white">
             Uploaded files
@@ -1252,6 +1289,11 @@ function ApplicationCard({
               Each block is a review step. Notes stay in staff only; nothing here appears on
               the public profile.
             </p>
+            {requiresEmployersLiability ? (
+              <p className="mt-2 max-w-xl rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-100/90">
+                Employers' Liability insurance is required for this application because the declared workforce is more than 1 including the applicant. Confirm it in the insurance section before approval.
+              </p>
+            ) : null}
           </div>
           <div
             className="inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-white/12 bg-ink-950/80 px-3.5 py-1.5 text-xs text-slate-400 sm:self-auto"

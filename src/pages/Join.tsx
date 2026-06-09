@@ -39,11 +39,11 @@ const applicationRequirements = [
 
 const traderPoints = [
   "An affordable, trusted public platform showing transparency for genuine local traders.",
-  "Show customers you are insured, compliant, and professional.",
+  " Your own Verified Trader portal shows customers and the public you are insured, compliant and professional.",
   "One fair fee, no area limits, no paid placements, no extras.",
   "Help protect your community from rogue traders.",
   "Automatic reminders for insurance, licences, memberships, and annual renewal.",
-  "A QR code for vehicles, stationery, and advertising that connects to your portal.",
+  "Your own  QR code to download for vehicles, stationery, and advertising - connecting direct to your portal.",
 ];
 
 const customerViews = [
@@ -397,6 +397,8 @@ export function Join() {
     const legalStructure = String(fd.get("legalStructure") ?? "").trim();
     const tradingAddress = String(fd.get("tradingAddress") ?? "").trim();
     const trade = String(fd.get("trade") ?? "").trim();
+    const employeeCountRaw = String(fd.get("employeeCount") ?? "").trim();
+    const employeeCount = Number.parseInt(employeeCountRaw, 10);
     const identifiablePerson = String(fd.get("identifiablePerson") ?? "").trim();
     const identifiablePersonAddress = String(
       fd.get("identifiablePersonAddress") ?? ""
@@ -420,6 +422,11 @@ export function Join() {
     const enquiriesAccepted = fd.get("enquiriesAccepted") === "on";
     const filesRaw = fd.getAll("files").filter((x): x is File => x instanceof File);
     const files = filesRaw.filter((f) => f.size > 0);
+
+    if (!Number.isInteger(employeeCount) || employeeCount < 1) {
+      setFormError("Please enter the number of employees, including yourself.");
+      return;
+    }
 
     if (files.length > 8) {
       setFormError("Please upload no more than 8 supporting documents.");
@@ -461,6 +468,7 @@ export function Join() {
         identifiablePersonAddress,
         email,
         trade,
+        employeeCount,
         postcode,
         wasteCarrierRequired,
         wasteCarrierNumber,
@@ -1431,6 +1439,9 @@ export function Join() {
               >
                 Trading name
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                The trading name and address will be shown in the Verified Trader Portal.
+              </p>
               <input
                 id="company"
                 name="company"
@@ -1523,6 +1534,8 @@ export function Join() {
               <p className="mt-1 text-xs text-slate-500">
                 Sole trader, lead partner, or PSC of the limited company.
               </p>
+              <p className="mt-1 text-xs text-slate-500">                The name and address will not be shown on the Verified Trader portal unless it is the same as the trading name and address.
+              </p>
               <input
                 id="identifiablePerson"
                 name="identifiablePerson"
@@ -1538,9 +1551,6 @@ export function Join() {
               >
                 Identifiable person address
               </label>
-              <p className="mt-1 text-xs text-slate-500">
-                This is not shown on the public profile unless it is also the trading address.
-              </p>
               <textarea
                 id="identifiablePersonAddress"
                 name="identifiablePersonAddress"
@@ -1584,17 +1594,24 @@ export function Join() {
             </div>
             <div>
               <label
-                htmlFor="postcode"
+                htmlFor="employeeCount"
                 className="block text-sm font-medium text-slate-300"
               >
-                Main trading postcode
+                Number of employees
               </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Include yourself in this total. If the total is more than 1, Employers&apos; Liability insurance is legally required and will be checked during verification.
+              </p>
               <input
-                id="postcode"
-                name="postcode"
+                id="employeeCount"
+                name="employeeCount"
+                type="number"
+                min="1"
+                step="1"
                 required
+                defaultValue="1"
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
-                placeholder="BS1 5TR"
+                placeholder="1"
               />
             </div>
             <div>
