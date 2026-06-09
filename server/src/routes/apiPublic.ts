@@ -397,7 +397,9 @@ router.post(
       const tradingAddress = String(req.body?.tradingAddress ?? "").trim();
       const trade = String(req.body?.trade ?? "").trim();
       const employeeCountRaw = String(req.body?.employeeCount ?? "").trim();
-      const employeeCount = Number.parseInt(employeeCountRaw, 10);
+      const employeeCount = employeeCountRaw
+        ? Number.parseInt(employeeCountRaw, 10)
+        : 1;
       const identifiablePerson = String(req.body?.identifiablePerson ?? "").trim();
       const identifiablePersonAddress = String(
         req.body?.identifiablePersonAddress ?? ""
@@ -426,7 +428,7 @@ router.post(
         });
         return;
       }
-      if (!Number.isInteger(employeeCount) || employeeCount < 1) {
+      if (employeeCountRaw && (!Number.isInteger(employeeCount) || employeeCount < 1)) {
         res.status(400).json({
           error: "Please enter the number of employees, including yourself.",
         });
