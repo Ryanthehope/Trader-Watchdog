@@ -520,12 +520,6 @@ router.post("/sticker-order", async (req, res) => {
       res.status(400).json({ error: "No login email on file" });
       return;
     }
-    if (!m.vanStickerOrderedAt) {
-      res.status(400).json({
-        error: "Additional stickers can only be ordered after the first 2-sticker pack has been paid.",
-      });
-      return;
-    }
     const gocardless = await getGoCardlessApiClient();
     if (!gocardless) {
       res.status(400).json({ error: "GoCardless is not configured" });
@@ -562,12 +556,19 @@ router.post("/sticker-order-additional", async (req, res) => {
         loginEmail: true,
         name: true,
         goCardlessCustomerId: true,
+        vanStickerOrderedAt: true,
         invoiceAddress: true,
         location: true,
       },
     });
     if (!m?.loginEmail?.trim()) {
       res.status(400).json({ error: "No login email on file" });
+      return;
+    }
+    if (!m.vanStickerOrderedAt) {
+      res.status(400).json({
+        error: "Additional stickers can only be ordered after the first 2-sticker pack has been paid.",
+      });
       return;
     }
     const gocardless = await getGoCardlessApiClient();
