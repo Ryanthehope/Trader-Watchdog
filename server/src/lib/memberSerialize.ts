@@ -141,10 +141,7 @@ function checksToFallbackSections(checks: string[]): VettingSectionPublic[] {
 export function memberToPublic(
   m: Member & {
     insurancePolicies?: Array<{ type: string; status: string }>;
-    sourceApplication?: {
-      tradingAddress: string | null;
-      identifiablePersonAddress: string | null;
-    } | null;
+    sourceApplication?: unknown;
   }
 ): PublicMember {
   const checks = parseChecksJson(m.checks);
@@ -154,8 +151,15 @@ export function memberToPublic(
   const insurancePolicies: InsuranceSummaryPublic[] = (m.insurancePolicies ?? [])
     .filter((p) => p.status === "active" || p.status === "expiring_soon" || p.status === "in_grace")
     .map((p) => ({ type: p.type, status: p.status as InsuranceSummaryPublic["status"] }));
-  const tradingAddress = m.sourceApplication?.tradingAddress?.trim() || "";
-  const privateAddress = m.sourceApplication?.identifiablePersonAddress?.trim() || "";
+  const sourceApplication =
+    m.sourceApplication && typeof m.sourceApplication === "object"
+      ? (m.sourceApplication as {
+          tradingAddress?: string | null;
+          identifiablePersonAddress?: string | null;
+        })
+      : null;
+  const tradingAddress = sourceApplication?.tradingAddress?.trim() || "";
+  const privateAddress = sourceApplication?.identifiablePersonAddress?.trim() || "";
   const normalizedTradingAddress = tradingAddress.replace(/\s+/g, " ").toLowerCase();
   const normalizedPrivateAddress = privateAddress.replace(/\s+/g, " ").toLowerCase();
   const publicAddress =
