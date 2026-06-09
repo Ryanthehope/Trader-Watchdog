@@ -131,6 +131,33 @@ function AlertsIndicator({ insurance }: { insurance: Insurance }) {
   );
 }
 
+function ReminderText({ insurance }: { insurance: Insurance }) {
+  const days = daysUntil(insurance.expiryDate);
+  const alert30Sent = Boolean(insurance.alertsSent?.["30days"]);
+  const alert14Sent = Boolean(insurance.alertsSent?.["14days"]);
+
+  if (days > 30) {
+    return <span className="text-xs text-slate-500">30-day reminder pending</span>;
+  }
+  if (days > 14) {
+    return alert30Sent ? (
+      <span className="text-xs text-emerald-300">30-day reminder sent</span>
+    ) : (
+      <span className="text-xs text-amber-300">30-day reminder due now</span>
+    );
+  }
+  if (days >= 0) {
+    if (alert14Sent) {
+      return <span className="text-xs text-emerald-300">14-day reminder sent</span>;
+    }
+    if (alert30Sent) {
+      return <span className="text-xs text-amber-300">14-day reminder due now</span>;
+    }
+    return <span className="text-xs text-amber-300">30-day and 14-day reminders due now</span>;
+  }
+  return <span className="text-xs text-slate-500">Reminder window passed</span>;
+}
+
 export function StaffInsurance() {
   const [policies, setPolicies] = useState<Insurance[]>([]);
   const [loading, setLoading] = useState(true);
@@ -303,7 +330,10 @@ export function StaffInsurance() {
                         <StatusBadge status={insurance.status} />
                       </td>
                       <td className="px-4 py-3">
-                        <AlertsIndicator insurance={insurance} />
+                        <div className="space-y-1">
+                          <AlertsIndicator insurance={insurance} />
+                          <ReminderText insurance={insurance} />
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

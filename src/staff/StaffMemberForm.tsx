@@ -9,6 +9,10 @@ type InsurancePolicy = {
   policyNumber: string | null;
   expiryDate: string;
   status: "active" | "expiring_soon" | "in_grace" | "expired";
+  alertsSent?: {
+    "30days"?: string;
+    "14days"?: string;
+  } | null;
 };
 
 type ApplicationDoc = {
@@ -31,6 +35,29 @@ function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function insuranceDaysUntil(dateStr: string) {
+  const target = new Date(dateStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  return Math.floor((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function insuranceReminderText(policy: InsurancePolicy) {
+  const days = insuranceDaysUntil(policy.expiryDate);
+  const alert30Sent = Boolean(policy.alertsSent?.["30days"]);
+  const alert14Sent = Boolean(policy.alertsSent?.["14days"]);
+
+  if (days > 30) return "30-day reminder pending";
+  if (days > 14) return alert30Sent ? "30-day reminder sent" : "30-day reminder due now";
+  if (days >= 0) {
+    if (alert14Sent) return "14-day reminder sent";
+    if (alert30Sent) return "14-day reminder due now";
+    return "30-day and 14-day reminders due now";
+  }
+  return "Reminder window passed";
 }
 
 export function StaffMemberForm() {
@@ -584,7 +611,7 @@ export function StaffMemberForm() {
                 <table className="w-full text-xs">
                   <thead className="border-b border-white/10 bg-ink-950/60">
                     <tr>
-                      {["Type", "Provider", "Policy no.", "Expiry", "Status", ""].map((h) => (
+                      {["Type", "Provider", "Policy no.", "Expiry", "Status", "Reminder", ""].map((h) => (
                         <th key={h} className="px-3 py-2 text-left font-semibold text-slate-400">{h}</th>
                       ))}
                     </tr>
@@ -605,6 +632,9 @@ export function StaffMemberForm() {
                           </td>
                           <td className={`px-3 py-2 font-medium capitalize ${statusColour}`}>
                             {p.status.replace("_", " ")}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-slate-400">
+                            {insuranceReminderText(p)}
                           </td>
                           <td className="px-3 py-2 text-right">
                             <button
