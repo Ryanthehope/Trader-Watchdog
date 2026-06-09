@@ -526,7 +526,6 @@ router.post("/sticker-order", async (req, res) => {
       existingCustomerId: m.goCardlessCustomerId,
       successRedirectUrl: `${origin}/member?sticker=ordered`,
       exitUrl: `${origin}/member`,
-      oneOffPayment: true,
       metadata: {
         checkoutKind: "van_sticker_order",
         memberId,
@@ -571,7 +570,6 @@ router.post("/sticker-order-additional", async (req, res) => {
       existingCustomerId: m.goCardlessCustomerId,
       successRedirectUrl: `${origin}/member?sticker=ordered`,
       exitUrl: `${origin}/member`,
-      oneOffPayment: true,
       metadata: {
         checkoutKind: "van_sticker_order_additional",
         memberId,
