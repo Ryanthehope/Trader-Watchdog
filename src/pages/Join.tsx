@@ -129,6 +129,8 @@ const traderFaqItems: FaqItem[] = [
 
 export function Join() {
   const joinStatusRef = useRef<HTMLDivElement | null>(null);
+  const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
+  const turnstileWidgetIdRef = useRef<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [registrationFeePricePence, setRegistrationFeePricePence] = useState<number | null>(null);
   const [membershipPricePence, setMembershipPricePence] = useState<number | null>(null);
@@ -361,13 +363,50 @@ export function Join() {
   }, []);
 
   useEffect(() => {
-    if (!recaptchaSiteKey) return;
-    if (document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) return;
-    const s = document.createElement("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    s.async = true;
-    s.defer = true;
-    document.body.appendChild(s);
+    if (!recaptchaSiteKey || !turnstileContainerRef.current) return;
+
+    let cancelled = false;
+
+    const renderWidget = () => {
+      if (cancelled || !turnstileContainerRef.current || !window.turnstile?.render) {
+        return;
+      }
+      if (turnstileWidgetIdRef.current) {
+        window.turnstile.reset?.(turnstileWidgetIdRef.current);
+        return;
+      }
+      turnstileContainerRef.current.innerHTML = "";
+      turnstileWidgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+        sitekey: recaptchaSiteKey,
+        theme: "light",
+      });
+    };
+
+    if (window.turnstile?.render) {
+      renderWidget();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const existing = document.querySelector('script[src*="challenges.cloudflare.com/turnstile/v0/api.js"]') as HTMLScriptElement | null;
+    const handleLoad = () => renderWidget();
+
+    if (existing) {
+      existing.addEventListener("load", handleLoad);
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.addEventListener("load", handleLoad);
+      document.body.appendChild(script);
+    }
+
+    return () => {
+      cancelled = true;
+      existing?.removeEventListener("load", handleLoad);
+    };
   }, [recaptchaSiteKey]);
 
   useEffect(() => {
@@ -450,7 +489,7 @@ export function Join() {
     }
 
     const recaptchaToken = recaptchaSiteKey
-      ? getRecaptchaToken()
+      ? getRecaptchaToken(turnstileWidgetIdRef.current)
       : undefined;
     if (recaptchaSiteKey && !recaptchaToken) {
       setFormError("Please tick the box to confirm you're not a robot.");
@@ -514,7 +553,7 @@ export function Join() {
     }
     if (recaptchaSiteKey) {
       try {
-        window.turnstile?.reset?.();
+        window.turnstile?.reset?.(turnstileWidgetIdRef.current ?? undefined);
       } catch {
         /* ignore */
       }
@@ -1759,13 +1798,7 @@ export function Join() {
                 I have read, understand and accept the Trader Watchdog Terms and Conditions.
               </span>
             </label>
-            {recaptchaSiteKey ? (
-              <div
-                className="cf-turnstile"
-                data-sitekey={recaptchaSiteKey}
-                data-theme="light"
-              />
-            ) : null}
+            {recaptchaSiteKey ? <div ref={turnstileContainerRef} /> : null}
             <button
               type="submit"
               disabled={submitting}

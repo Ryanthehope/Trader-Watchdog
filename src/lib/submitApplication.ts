@@ -48,9 +48,9 @@ declare global {
   }
 }
 
-/** Returns the Turnstile token for the first widget on the page. */
-export function getRecaptchaToken(): string | undefined {
-  const t = window.turnstile?.getResponse?.();
+/** Returns the Turnstile token for the given widget, or the first widget if omitted. */
+export function getRecaptchaToken(widgetId?: string | null): string | undefined {
+  const t = window.turnstile?.getResponse?.(widgetId ?? undefined);
   return t?.trim() || undefined;
 }
 
