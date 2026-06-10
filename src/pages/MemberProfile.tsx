@@ -11,6 +11,9 @@ import type {
 const DISCLAIMER =
   "Trader Watchdog independently checks that tradespeople are local, insured, and hold the accreditations they claim. Trader Watchdog does not rate quality of workmanship.";
 
+const GREEN_FLAG_SRC = "/Green%20flag2.webp";
+const RED_FLAG_SRC = "/Red%20flag2.webp";
+
 function Chevron({ open }: { open: boolean }) {
   return (
     <svg
@@ -29,23 +32,32 @@ function Chevron({ open }: { open: boolean }) {
 }
 
 function StatusIcon({ status }: { status: VettingItemPublic["status"] }) {
+  const isVerified = status === "verified";
   if (status === "verified") {
     return (
-      <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white shadow-sm shadow-emerald-900/30"
+      <img
+        src={GREEN_FLAG_SRC}
+        alt=""
+        width="32"
+        height="32"
+        loading="lazy"
+        decoding="async"
+        className="h-8 w-8 shrink-0 object-contain"
         aria-hidden
-      >
-        ✓
-      </span>
+      />
     );
   }
   return (
-    <span
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-slate-300 bg-slate-100 text-sm font-bold text-slate-400"
+    <img
+      src={isVerified ? GREEN_FLAG_SRC : RED_FLAG_SRC}
+      alt=""
+      width="32"
+      height="32"
+      loading="lazy"
+      decoding="async"
+      className="h-8 w-8 shrink-0 object-contain"
       aria-hidden
-    >
-      —
-    </span>
+    />
   );
 }
 
@@ -325,20 +337,15 @@ export function MemberProfile() {
               </div>
               <div className="flex shrink-0 justify-center sm:justify-end">
                 <div className="flex h-32 w-32 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10 ring-1 ring-emerald-400/20 sm:h-28 sm:w-28">
-                  <svg
-                    className="h-16 w-16 text-emerald-300 sm:h-14 sm:w-14"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.25}
+                  <img
+                    src={GREEN_FLAG_SRC}
+                    alt=""
+                    width="96"
+                    height="96"
+                    decoding="async"
+                    className="h-20 w-20 object-contain sm:h-16 sm:w-16"
                     aria-hidden
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 12.75l2 2 4-4m6 1.25a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
+                  />
                 </div>
               </div>
             </div>
