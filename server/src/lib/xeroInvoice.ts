@@ -1,15 +1,103 @@
-import { Invoices, Invoice, LineItem, Contact, LineAmountTypes } from "xero-node";
+import {
+  Address,
+  Contact,
+  Contacts,
+  Invoice,
+  Invoices,
+  LineAmountTypes,
+  LineItem,
+} from "xero-node";
 import { getAuthorisedXeroClient } from "./xeroClient.js";
 import { prisma } from "../db.js";
 
 export type XeroInvoicePayload = {
     contactName: string;        // traders company name
     contactEmail: string;       // traders email
+    contactAddress?: string | null;
+    contactPostalCode?: string | null;
     description: string;         // e.g. "Annual Membership" or "Registration Fee"
     amountPence: number;        // amount in pence, e.g. 1999 for £19.99 inc VAT if applicable
     reference: string;          // e.g. goCardless ID
     paidAt: Date;               //when payment was confirmed
 };
+
+function buildContactAddress(
+  rawAddress: string | null | undefined,
+  postalCode: string | null | undefined
+): Address[] | undefined {
+  const address = String(rawAddress ?? "").replace(/\r/g, "").trim();
+  const postcode = String(postalCode ?? "").trim();
+  if (!address && !postcode) return undefined;
+
+  const parts = address
+    ? address
+        .split(/\n+|,/)
+        .map((part) => part.trim())
+        .filter(Boolean)
+    : [];
+
+  const [addressLine1, addressLine2, addressLine3, ...rest] = parts;
+  const addressLine4 = rest.length > 0 ? rest.join(", ") : undefined;
+
+  return [
+    {
+      addressType: Address.AddressTypeEnum.STREET,
+      ...(addressLine1 ? { addressLine1 } : {}),
+      ...(addressLine2 ? { addressLine2 } : {}),
+      ...(addressLine3 ? { addressLine3 } : {}),
+      ...(addressLine4 ? { addressLine4 } : {}),
+      ...(postcode ? { postalCode: postcode } : {}),
+    },
+  ];
+}
+
+async function resolveInvoiceContact(
+  tenantId: string,
+  payload: XeroInvoicePayload
+): Promise<Contact> {
+  const client = await getAuthorisedXeroClient();
+  const addresses = buildContactAddress(
+    payload.contactAddress,
+    payload.contactPostalCode
+  );
+
+  let existingContact: Contact | undefined;
+  if (payload.contactEmail) {
+    const existing = await client.accountingApi.getContacts(
+      tenantId,
+      undefined,
+      `EmailAddress="${payload.contactEmail}"`
+    );
+    existingContact = existing.body.contacts?.[0];
+  }
+
+  if (existingContact?.contactID) {
+    if (addresses) {
+      const contacts: Contacts = {
+        contacts: [
+          {
+            contactID: existingContact.contactID,
+            name: payload.contactName,
+            emailAddress: payload.contactEmail,
+            addresses,
+          },
+        ],
+      };
+      await client.accountingApi.updateContact(
+        tenantId,
+        existingContact.contactID,
+        contacts
+      );
+    }
+    return { contactID: existingContact.contactID };
+  }
+
+  return {
+    name: payload.contactName,
+    emailAddress: payload.contactEmail,
+    ...(addresses ? { addresses } : {}),
+  };
+}
 
 export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promise<string | null> {
     try {
@@ -29,16 +117,7 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
     const amountGross = payload.amountPence / 100;
     const amountNet = Number((payload.amountPence / 120).toFixed(2));
 
-    let contactId: string | undefined;
-    if (payload.contactEmail) {
-      const existing = await client.accountingApi.getContacts(
-        tenantId, undefined, `EmailAddress="${payload.contactEmail}"`
-      );
-      contactId = existing.body.contacts?.[0]?.contactID;
-    }
-    const contact: Contact = contactId
-      ? { contactID: contactId }
-      : { name: payload.contactName, emailAddress: payload.contactEmail };
+    const contact = await resolveInvoiceContact(tenantId, payload);
 
     const lineItem: LineItem = {
       description: payload.description,

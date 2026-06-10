@@ -127,7 +127,12 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         const memberId = payment.metadata.memberId;
         const member = await prisma.member.findUnique({
           where: { id: memberId },
-          select: { membershipExpiresAt: true, name: true, loginEmail: true },
+          select: {
+            membershipExpiresAt: true,
+            name: true,
+            loginEmail: true,
+            invoiceAddress: true,
+          },
         });
         if (!member) {
           console.warn(
@@ -157,6 +162,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
         void createPaidXeroInvoice({
           contactName: member.name,
           contactEmail: member.loginEmail ?? "",
+          contactAddress: member.invoiceAddress,
           description: `Annual Membership Renewal (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
           amountPence: payment.amount ?? 7200,
           reference: paymentId,
@@ -209,11 +215,19 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           void (async () => {
             const app = await prisma.application.findUnique({
               where: { id: appId },
-              select: { email: true, company: true, xeroInvoiceId: true },
+              select: {
+                email: true,
+                company: true,
+                tradingAddress: true,
+                postcode: true,
+                xeroInvoiceId: true,
+              },
             });
             const xeroId = await createPaidXeroInvoice({
               contactName: app?.company ?? "Unknown Trader",
               contactEmail: app?.email ?? "",
+              contactAddress: app?.tradingAddress,
+              contactPostalCode: app?.postcode,
               description: "Registration Fee",
               amountPence: payment.amount ?? 1800,
               reference: paymentId,
@@ -319,11 +333,19 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           void (async () => {
             const app = await prisma.application.findUnique({
               where: { id: appId },
-              select: { email: true, company: true, xeroInvoiceId: true },
+              select: {
+                email: true,
+                company: true,
+                tradingAddress: true,
+                postcode: true,
+                xeroInvoiceId: true,
+              },
             });
             const xeroId = await createPaidXeroInvoice({
               contactName: app?.company ?? "Unknown Trader",
               contactEmail: app?.email ?? "",
+              contactAddress: app?.tradingAddress,
+              contactPostalCode: app?.postcode,
               description: `Annual Membership (${paymentCreatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${addOneCalendarYearEndUtc(paymentCreatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
               amountPence: payment.amount ?? 7200,
               reference: paymentId,
@@ -372,6 +394,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           void createPaidXeroInvoice({
             contactName: member.name,
             contactEmail: member.loginEmail ?? "",
+            contactAddress: member.invoiceAddress,
             description: "Van Stickers (x2)",
             amountPence: 2100,
             reference: paymentId,
@@ -391,6 +414,7 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
           void createPaidXeroInvoice({
             contactName: member.name,
             contactEmail: member.loginEmail ?? "",
+            contactAddress: member.invoiceAddress,
             description: "Additional Van Sticker",
             amountPence: 720,
             reference: paymentId,

@@ -121,6 +121,8 @@ export async function retryApplicationXeroInvoice(
       id: true,
       company: true,
       email: true,
+      tradingAddress: true,
+      postcode: true,
       registrationFeePaidAt: true,
       membershipSubscribed: true,
       membershipRenewalPricePence: true,
@@ -190,6 +192,8 @@ export async function retryApplicationXeroInvoice(
       invoiceId = await createPaidXeroInvoice({
       contactName: app.company,
       contactEmail: app.email,
+      contactAddress: app.tradingAddress,
+      contactPostalCode: app.postcode,
       description,
       amountPence,
       reference,
