@@ -78,6 +78,11 @@ const VAN_STICKER_CONFIGS = {
 
 type VanStickerId = keyof typeof VAN_STICKER_CONFIGS;
 
+function parseStickerVariant(raw: unknown): VanStickerId | null {
+  const value = String(raw ?? "").trim();
+  return value === "1" || value === "2" ? value : null;
+}
+
 function memberDocDir(memberId: string) {
   return path.join(UPLOAD_ROOT, memberId);
 }
@@ -505,6 +510,11 @@ router.post("/membership/renew", async (req, res) => {
 router.post("/sticker-order", async (req, res) => {
   try {
     const memberId = (req as unknown as { memberId: string }).memberId;
+    const stickerVariant = parseStickerVariant(req.body?.stickerVariant);
+    if (!stickerVariant) {
+      res.status(400).json({ error: "Sticker size selection is required" });
+      return;
+    }
     const m = await prisma.member.findUnique({
       where: { id: memberId },
       select: {
@@ -537,6 +547,7 @@ router.post("/sticker-order", async (req, res) => {
       metadata: {
         checkoutKind: "van_sticker_order",
         memberId,
+        stickerVariant,
       },
     });
     res.json({ url: flow.url });
@@ -550,6 +561,11 @@ router.post("/sticker-order", async (req, res) => {
 router.post("/sticker-order-additional", async (req, res) => {
   try {
     const memberId = (req as unknown as { memberId: string }).memberId;
+    const stickerVariant = parseStickerVariant(req.body?.stickerVariant);
+    if (!stickerVariant) {
+      res.status(400).json({ error: "Sticker size selection is required" });
+      return;
+    }
     const m = await prisma.member.findUnique({
       where: { id: memberId },
       select: {
@@ -588,6 +604,7 @@ router.post("/sticker-order-additional", async (req, res) => {
       metadata: {
         checkoutKind: "van_sticker_order_additional",
         memberId,
+        stickerVariant,
       },
     });
     res.json({ url: flow.url });

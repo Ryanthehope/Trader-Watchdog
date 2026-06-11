@@ -95,6 +95,12 @@ export function MemberOverview() {
   const [stickerOrderBusy, setStickerOrderBusy] = useState(false);
   const [additionalStickerBusy, setAdditionalStickerBusy] = useState(false);
 
+  type StickerVariant = "1" | "2";
+
+  function stickerLabel(variant: StickerVariant) {
+    return variant === "1" ? "250×100mm" : "187×93mm";
+  }
+
   useEffect(() => {
     let cancelled = false;
     apiGetMember<MemberOverviewData>("/api/member/portal/me")
@@ -217,13 +223,13 @@ export function MemberOverview() {
     }
   }
 
-  async function handleOrderPhysicalStickers() {
+  async function handleOrderPhysicalStickers(stickerVariant: StickerVariant) {
     setStickerOrderBusy(true);
     setQrError(null);
     try {
       const { url } = await apiSendMember<{ url: string }>(
         "/api/member/portal/sticker-order",
-        { method: "POST", body: JSON.stringify({}) }
+        { method: "POST", body: JSON.stringify({ stickerVariant }) }
       );
       window.location.href = url;
     } catch (e) {
@@ -233,13 +239,13 @@ export function MemberOverview() {
     }
   }
 
-  async function handleOrderAdditionalSticker() {
+  async function handleOrderAdditionalSticker(stickerVariant: StickerVariant) {
     setAdditionalStickerBusy(true);
     setQrError(null);
     try {
       const { url } = await apiSendMember<{ url: string }>(
         "/api/member/portal/sticker-order-additional",
-        { method: "POST", body: JSON.stringify({}) }
+        { method: "POST", body: JSON.stringify({ stickerVariant }) }
       );
       window.location.href = url;
     } catch (e) {
@@ -483,21 +489,29 @@ export function MemberOverview() {
                       <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
                         <p className="text-sm font-semibold text-slate-900">Order physical van stickers</p>
                         <p className="mt-1 text-sm text-slate-600">
-                          2 stickers of the same design — <strong>£17.50 + VAT</strong>, delivered by Royal Mail Tracked.
-                          Additional stickers <strong>£6 + VAT</strong> each.
+                          Choose a size below. Your first order sends <strong>2 stickers of the same selected size</strong> for <strong>£17.50 + VAT</strong>, delivered by Royal Mail Tracked.
+                          Additional stickers are <strong>£6 + VAT</strong> for the selected size.
                         </p>
-                        <div className="mt-3 flex flex-wrap gap-3">
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
                           <button
                             type="button"
-                            onClick={() => void handleOrderPhysicalStickers()}
+                            onClick={() => void handleOrderPhysicalStickers("1")}
                             disabled={stickerOrderBusy || additionalStickerBusy || qrBusy !== null}
                             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {stickerOrderBusy ? "Starting checkout…" : "Order 2 stickers £17.50 + VAT"}
+                            {stickerOrderBusy ? "Starting checkout…" : `Order 2 × ${stickerLabel("1")}`}
                           </button>
                           <button
                             type="button"
-                            onClick={() => void handleOrderAdditionalSticker()}
+                            onClick={() => void handleOrderPhysicalStickers("2")}
+                            disabled={stickerOrderBusy || additionalStickerBusy || qrBusy !== null}
+                            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {stickerOrderBusy ? "Starting checkout…" : `Order 2 × ${stickerLabel("2")}`}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleOrderAdditionalSticker("1")}
                             disabled={
                               stickerOrderBusy ||
                               additionalStickerBusy ||
@@ -506,7 +520,20 @@ export function MemberOverview() {
                             }
                             className="rounded-lg border border-brand-600 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {additionalStickerBusy ? "Starting checkout…" : "Order 1 additional — £6 + VAT"}
+                            {additionalStickerBusy ? "Starting checkout…" : `Order 1 additional ${stickerLabel("1")}`}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleOrderAdditionalSticker("2")}
+                            disabled={
+                              stickerOrderBusy ||
+                              additionalStickerBusy ||
+                              qrBusy !== null ||
+                              !data.stickers.canOrderAdditional
+                            }
+                            className="rounded-lg border border-brand-600 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {additionalStickerBusy ? "Starting checkout…" : `Order 1 additional ${stickerLabel("2")}`}
                           </button>
                         </div>
                         {!data.stickers.canOrderAdditional ? (

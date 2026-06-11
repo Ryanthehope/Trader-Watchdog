@@ -1,10 +1,20 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
+import QRCode from "qrcode";
 import { Resend } from "resend";
+import sharp from "sharp";
 import type { PrismaClient } from "@prisma/client";
+
+type EmailAttachment = {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+};
 
 async function sendViaResend(
   apiKey: string,
-  opts: { from: string; to: string; subject: string; text: string; html?: string; attachments?: { filename: string; content: Buffer; contentType: string }[] }
+  opts: { from: string; to: string; subject: string; text: string; html?: string; attachments?: EmailAttachment[] }
 ): Promise<void> {
   const resend = new Resend(apiKey);
   const result = await resend.emails.send({
@@ -18,6 +28,73 @@ async function sendViaResend(
   if (result.error) {
     throw new Error(`Resend: ${result.error.message}`);
   }
+}
+
+const ASSETS_DIR = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../assets"
+);
+
+const VAN_STICKER_CONFIGS = {
+  "1": {
+    templateFile: "van-qr-1.jpg",
+    mmWidth: 250,
+    mmHeight: 100,
+    qrLeft: 57,
+    qrTop: 59,
+    qrSize: 855,
+  },
+  "2": {
+    templateFile: "van-qr-2.jpg",
+    mmWidth: 187,
+    mmHeight: 93,
+    qrLeft: 113,
+    qrTop: 126,
+    qrSize: 878,
+  },
+} as const;
+
+async function buildVanStickerAttachments(
+  prisma: PrismaClient,
+  member: { slug: string; tvId: string; stickerVariant?: "1" | "2" }
+): Promise<EmailAttachment[]> {
+  const siteBase = await publicSiteBase(prisma);
+  const profileUrl = `${siteBase}/m/${encodeURIComponent(member.slug)}`;
+  const safeId = member.tvId.replace(/[^A-Za-z0-9_-]/g, "");
+
+  const selectedEntries = Object.entries(VAN_STICKER_CONFIGS).filter(
+    ([stickerId]) => !member.stickerVariant || stickerId === member.stickerVariant
+  );
+
+  return Promise.all(
+    selectedEntries.map(async ([stickerId, cfg]) => {
+      const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
+        type: "png",
+        errorCorrectionLevel: "H",
+        margin: 1,
+        width: cfg.qrSize,
+        color: { dark: "#000000", light: "#FFFFFFFF" },
+      });
+
+      const templatePath = path.join(ASSETS_DIR, cfg.templateFile);
+      const output = await sharp(templatePath)
+        .composite([
+          {
+            input: qrPngBuffer,
+            left: cfg.qrLeft,
+            top: cfg.qrTop,
+          },
+        ])
+        .png({ compressionLevel: 9 })
+        .toBuffer();
+
+      return {
+        filename: `trader-watchdog-${safeId}-van-sticker-${stickerId}-${cfg.mmWidth}x${cfg.mmHeight}mm.png`,
+        content: output,
+        contentType: "image/png",
+      };
+    })
+  );
 }
 
 function buildEmailHtml(textBody: string, footerImageUrl: string): string {
@@ -185,7 +262,7 @@ export async function publicSiteBase(prisma: PrismaClient): Promise<string> {
  */
 export async function sendAdminEmail(
   prisma: PrismaClient,
-  opts: { subject: string; text: string; overrideTo?: string }
+  opts: { subject: string; text: string; overrideTo?: string; attachments?: EmailAttachment[] }
 ): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY?.trim();
   const transport = resendKey ? null : await getTransport(prisma);
@@ -222,15 +299,27 @@ export async function sendAdminEmail(
       : opts.text
   );
   if (resendKey) {
-    await sendViaResend(resendKey, { from, to: to.join(", "), subject, text });
+    await sendViaResend(resendKey, {
+      from,
+      to: to.join(", "),
+      subject,
+      text,
+      attachments: opts.attachments,
+    });
   } else {
-    await transport!.sendMail({ from, to: to.join(", "), subject, text });
+    await transport!.sendMail({
+      from,
+      to: to.join(", "),
+      subject,
+      text,
+      ...(opts.attachments ? { attachments: opts.attachments } : {}),
+    });
   }
 }
 
 export async function sendApplicantEmail(
   prisma: PrismaClient,
-  opts: { to: string; subject: string; text: string; attachments?: { filename: string; content: Buffer; contentType: string }[] }
+  opts: { to: string; subject: string; text: string; attachments?: EmailAttachment[] }
 ): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY?.trim();
   const transport = resendKey ? null : await getTransport(prisma);
@@ -592,6 +681,9 @@ export function notifyVanStickerOrder(
   prisma: PrismaClient,
   member: {
     name: string;
+    slug: string;
+    tvId: string;
+    stickerVariant?: "1" | "2";
     loginEmail?: string | null;
     invoiceAddress?: string | null;
     location?: string | null;
@@ -600,13 +692,20 @@ export function notifyVanStickerOrder(
   void (async () => {
     const address =
       member.invoiceAddress?.trim() || member.location?.trim() || "(not provided)";
+    const attachments = await buildVanStickerAttachments(prisma, member).catch((error) => {
+      console.error("[admin-mail] sticker artwork generation failed", error);
+      return [] as EmailAttachment[];
+    });
     const supplierText = [
       "Dear Signs & Stickers,",
       "",
-      "Please arrange dispatch of 2 van stickers to the following trader:",
+      `Please arrange dispatch of 2 van stickers (${member.stickerVariant === "2" ? "187×93mm" : "250×100mm"}) to the following trader:`,
       "",
       `Trader name: ${member.name}`,
       `Delivery address: ${address}`,
+      ...(attachments.length > 0
+        ? ["", "The print-ready sticker artwork is attached to this email."]
+        : []),
       "",
       "This order has been placed and paid by:",
       "",
@@ -625,6 +724,7 @@ export function notifyVanStickerOrder(
       subject: `Van sticker order — ${member.name}`,
       text: supplierText,
       overrideTo: "david@signsandstickers.co.uk",
+      attachments,
     });
   })().catch((e) => {
     console.error("[admin-mail] sticker order notification failed", e);
@@ -635,6 +735,9 @@ export function notifyVanStickerOrderAdditional(
   prisma: PrismaClient,
   member: {
     name: string;
+    slug: string;
+    tvId: string;
+    stickerVariant?: "1" | "2";
     loginEmail?: string | null;
     invoiceAddress?: string | null;
     location?: string | null;
@@ -643,13 +746,20 @@ export function notifyVanStickerOrderAdditional(
   void (async () => {
     const address =
       member.invoiceAddress?.trim() || member.location?.trim() || "(not provided)";
+    const attachments = await buildVanStickerAttachments(prisma, member).catch((error) => {
+      console.error("[admin-mail] additional sticker artwork generation failed", error);
+      return [] as EmailAttachment[];
+    });
     const supplierText = [
       "Dear Signs & Stickers,",
       "",
-      "Please arrange dispatch of one additional van sticker pack to the following trader:",
+      `Please arrange dispatch of one additional van sticker (${member.stickerVariant === "2" ? "187×93mm" : "250×100mm"}) to the following trader:`,
       "",
       `Trader name: ${member.name}`,
       `Delivery address: ${address}`,
+      ...(attachments.length > 0
+        ? ["", "The print-ready sticker artwork is attached to this email."]
+        : []),
       "",
       "This order has been placed and paid by:",
       "",
@@ -668,6 +778,7 @@ export function notifyVanStickerOrderAdditional(
       subject: `Additional van sticker order — ${member.name}`,
       text: supplierText,
       overrideTo: "david@signsandstickers.co.uk",
+      attachments,
     });
   })().catch((e) => {
     console.error("[admin-mail] additional sticker order notification failed", e);

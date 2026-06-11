@@ -381,16 +381,25 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
 
       if (kind === "van_sticker_order" && payment.metadata?.memberId) {
         const memberId = payment.metadata.memberId;
+        const stickerVariant =
+          payment.metadata?.stickerVariant === "2" ? "2" : "1";
         await prisma.member.updateMany({
           where: { id: memberId, vanStickerOrderedAt: null },
           data: { vanStickerOrderedAt: paymentCreatedAt },
         });
         const member = await prisma.member.findUnique({
           where: { id: memberId },
-          select: { name: true, loginEmail: true, invoiceAddress: true, location: true },
+          select: {
+            name: true,
+            slug: true,
+            tvId: true,
+            loginEmail: true,
+            invoiceAddress: true,
+            location: true,
+          },
         });
         if (member) {
-          notifyVanStickerOrder(prisma, member);
+          notifyVanStickerOrder(prisma, { ...member, stickerVariant });
           void createPaidXeroInvoice({
             contactName: member.name,
             contactEmail: member.loginEmail ?? "",
@@ -405,12 +414,21 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
 
       if (kind === "van_sticker_order_additional" && payment.metadata?.memberId) {
         const memberId = payment.metadata.memberId;
+        const stickerVariant =
+          payment.metadata?.stickerVariant === "2" ? "2" : "1";
         const member = await prisma.member.findUnique({
           where: { id: memberId },
-          select: { name: true, loginEmail: true, invoiceAddress: true, location: true },
+          select: {
+            name: true,
+            slug: true,
+            tvId: true,
+            loginEmail: true,
+            invoiceAddress: true,
+            location: true,
+          },
         });
         if (member) {
-          notifyVanStickerOrderAdditional(prisma, member);
+          notifyVanStickerOrderAdditional(prisma, { ...member, stickerVariant });
           void createPaidXeroInvoice({
             contactName: member.name,
             contactEmail: member.loginEmail ?? "",
