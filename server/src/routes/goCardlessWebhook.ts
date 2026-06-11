@@ -408,6 +408,20 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             amountPence: 2100,
             reference: paymentId,
             paidAt: paymentCreatedAt,
+          }).then(async (xeroId) => {
+            if (xeroId && member.loginEmail) {
+              const pdf = await fetchXeroInvoicePDF(xeroId);
+              if (pdf) {
+                void sendXeroInvoiceToTrader(prisma, {
+                  traderName: member.name,
+                  email: member.loginEmail,
+                  pdfBuffer: pdf,
+                  invoiceDescription: "Van Stickers (x2)",
+                });
+              }
+            }
+          }).catch((error) => {
+            console.error("[gocardless webhook] sticker Xero invoice failed", error);
           });
         }
       }
@@ -437,6 +451,20 @@ export async function goCardlessWebhookHandler(req: Request, res: Response) {
             amountPence: 720,
             reference: paymentId,
             paidAt: paymentCreatedAt,
+          }).then(async (xeroId) => {
+            if (xeroId && member.loginEmail) {
+              const pdf = await fetchXeroInvoicePDF(xeroId);
+              if (pdf) {
+                void sendXeroInvoiceToTrader(prisma, {
+                  traderName: member.name,
+                  email: member.loginEmail,
+                  pdfBuffer: pdf,
+                  invoiceDescription: "Additional Van Sticker",
+                });
+              }
+            }
+          }).catch((error) => {
+            console.error("[gocardless webhook] additional sticker Xero invoice failed", error);
           });
         }
       }
