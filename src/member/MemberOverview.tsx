@@ -46,6 +46,62 @@ type MemberOverviewData = {
   };
 };
 
+const GENERIC_STICKER_QR_URL = "/generic-traderwatchdog-qr.svg";
+
+const STICKER_PREVIEWS = {
+  "1": {
+    templateSrc: "/van-qr-1.jpg",
+    label: "250×100mm",
+    qrLeft: "1.93%",
+    qrTop: "5.03%",
+    qrWidth: "28.87%",
+  },
+  "2": {
+    templateSrc: "/van-qr-2.jpg",
+    label: "187×93mm",
+    qrLeft: "5.11%",
+    qrTop: "11.37%",
+    qrWidth: "39.69%",
+  },
+} as const;
+
+type StickerVariant = keyof typeof STICKER_PREVIEWS;
+
+function StickerPreviewCard({ variant }: { variant: StickerVariant }) {
+  const preview = STICKER_PREVIEWS[variant];
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+      <div className="relative">
+        <img
+          src={preview.templateSrc}
+          alt={`Van sticker preview ${preview.label}`}
+          className="block w-full"
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          src={GENERIC_STICKER_QR_URL}
+          alt="Generic QR code linking to traderwatchdog.co.uk"
+          className="absolute"
+          style={{
+            left: preview.qrLeft,
+            top: preview.qrTop,
+            width: preview.qrWidth,
+            aspectRatio: "1 / 1",
+          }}
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div className="border-t border-slate-200 bg-white px-4 py-3">
+        <p className="text-sm font-semibold text-slate-900">Preview size: {preview.label}</p>
+        <p className="mt-1 text-xs text-slate-500">Example shown with a generic QR linking to traderwatchdog.co.uk.</p>
+      </div>
+    </div>
+  );
+}
+
 async function blobToJpeg(blob: Blob, width: number, height: number): Promise<Blob> {
   const url = URL.createObjectURL(blob);
   try {
@@ -94,8 +150,6 @@ export function MemberOverview() {
   const [copied, setCopied] = useState(false);
   const [stickerOrderBusy, setStickerOrderBusy] = useState(false);
   const [additionalStickerBusy, setAdditionalStickerBusy] = useState(false);
-
-  type StickerVariant = "1" | "2";
 
   function stickerLabel(variant: StickerVariant) {
     return variant === "1" ? "250×100mm" : "187×93mm";
@@ -467,7 +521,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "van1" ? "Preparing..." : "Van sticker 1 — 250×100mm"}
+                                {qrBusy === "van1" ? "Preparing..." : "Download Van sticker 1 — 250×100mm"}
                               </button>
                               <button
                                 type="button"
@@ -475,7 +529,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "van2" ? "Preparing..." : "Van sticker 2 — 187×93mm"}
+                                {qrBusy === "van2" ? "Preparing..." : "Download Van sticker 2 — 187×93mm"}
                               </button>
                             </div>
                           </div>
@@ -492,6 +546,10 @@ export function MemberOverview() {
                           Choose a size below. Your first order sends <strong>2 stickers of the same selected size</strong> for <strong>£17.50 + VAT</strong>, delivered by Royal Mail Tracked.
                           Additional stickers are <strong>£6 + VAT</strong> for the selected size.
                         </p>
+                        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                          <StickerPreviewCard variant="1" />
+                          <StickerPreviewCard variant="2" />
+                        </div>
                         <div className="mt-3 grid gap-3 sm:grid-cols-2">
                           <button
                             type="button"
