@@ -253,7 +253,7 @@ export function Layout() {
             <p>
               Website design{" "}
               <a
-                href="https://headstartwebdevelopment.co.uk"
+                href="https://head-startwebdevelopment.co.uk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white"
