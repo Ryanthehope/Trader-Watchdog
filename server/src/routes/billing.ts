@@ -121,7 +121,7 @@ router.post("/validate-discount", async (req, res) => {
   if (discount.discountType === "full") {
     res.json({ valid: true, discountType: "full", savingsPence: lines.membershipPence, finalPricePence: 0 });
   } else {
-    const savings = 3_600; // £30+VAT discount: £72 - £36 = £36 gross (£30+VAT)
+    const savings = 3_600; // £30+VAT discount: £90 gross - £36 gross = £54 gross (£30+VAT saving)
     res.json({ valid: true, discountType: "partial30", savingsPence: savings, finalPricePence: Math.max(0, lines.membershipPence - savings) });
   }
 });
@@ -139,11 +139,6 @@ router.post("/checkout-registration-fee", async (req, res) => {
       res.status(400).json({ error: "Billing is not enabled" });
       return;
     }
-    const gocardless = await getGoCardlessApiClient();
-    if (!gocardless) {
-      res.status(400).json({ error: "GoCardless is not configured" });
-      return;
-    }
     const check = await assertRegistrationCheckoutAllowed(applicationId, email);
     if ("error" in check) {
       res.status(400).json({ error: check.error });
@@ -152,6 +147,25 @@ router.post("/checkout-registration-fee", async (req, res) => {
     const application = check.application;
     if (application.registrationFeePaidAt) {
       res.status(400).json({ error: "Registration fee is already recorded" });
+      return;
+    }
+
+    // Free-code path — mark registration fee paid directly, skip GoCardless
+    const discountCodeInput = String(req.body?.discountCode ?? "").trim();
+    const discount = discountCodeInput ? resolveDiscountCode(discountCodeInput) : null;
+    if (discount?.discountType === "full") {
+      await prisma.application.update({
+        where: { id: applicationId },
+        data: { registrationFeePaidAt: new Date() },
+      });
+      const origin = siteOrigin(req);
+      res.json({ url: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}` });
+      return;
+    }
+
+    const gocardless = await getGoCardlessApiClient();
+    if (!gocardless) {
+      res.status(400).json({ error: "GoCardless is not configured" });
       return;
     }
     const origin = siteOrigin(req);

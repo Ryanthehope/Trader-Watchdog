@@ -343,7 +343,7 @@ export function Home() {
 
   const heroBody = publicSearchEnabled
     ? "Verifying a trader is one click away. It's free, confidential, and you do not have to register. Search their business name or telephone number and view the result before even speaking to them."
-    : "Trader registration is open now. Public business search will be available soon."
+    : "Trader Registration opens 17th June. Trader Verification available 1st July."
     ;
 
   const heroSecondaryCta = publicSearchEnabled
@@ -352,7 +352,7 @@ export function Home() {
 
   const joinCta = publicSearchEnabled
     ? "Register your business"
-    : "Register your business before 1st July for a Special Offer";
+    : "Trader Registration opens 17th June";
 
   const verifyHeading = publicSearchEnabled
     ? "See if they are legit with one click"
@@ -360,7 +360,7 @@ export function Home() {
 
   const verifyIntro = publicSearchEnabled
     ? "Search their business name or telephone number and you will immediately see whether there is a verified Trader Watchdog listing for that business."
-    : "Trader registration is open now, and public business search will be available soon."
+    : "Trader Registration opens 17th June. Trader Verification available 1st July."
     ;
 
   const heroTopLine =

@@ -7,7 +7,7 @@ import { prisma } from "../db.js";
 import { getLaunchWindow } from "./launchWindow.js";
 const MIN_CHECKOUT_PENCE = 100; // £1.00 — GoCardless practical minimum for GBP
 const MAX_CHECKOUT_PENCE = 999_999_99;
-const DEFAULT_ANNUAL_MEMBERSHIP_PENCE = 7_200; // £60 + VAT = £72 gross
+const DEFAULT_ANNUAL_MEMBERSHIP_PENCE = 9_000; // £75 + VAT = £90 gross
 const DEFAULT_REGISTRATION_FEE_PENCE = 1_800;
 
 function ensureVatMention(label: string) {
@@ -16,7 +16,9 @@ function ensureVatMention(label: string) {
 
 function defaultAnnualMembershipPence(value: number) {
   const normalized = clampCheckoutPence(value);
-  return normalized === 1_500 ? DEFAULT_ANNUAL_MEMBERSHIP_PENCE : normalized;
+  // Migrate old default DB values to the new default price
+  if (normalized === 1_500 || normalized === 7_200) return DEFAULT_ANNUAL_MEMBERSHIP_PENCE;
+  return normalized;
 }
 
 export async function getOrgBilling() {

@@ -51,11 +51,15 @@ const customerViews = [
     title: "Verified listing",
     body: "A search of your business name or telephone number connects to your business portal and shows a Green Flag. Your trading name, address, and telephone number display as verified. Your insurances and applicable licences display as verified. Your current qualifications and memberships display as visually confirmed, and your business description is shown.",
     tone: "border-emerald-200 bg-emerald-50 text-slate-800",
+    image: "/Green%20flag2.webp",
+    imageAlt: "Green flag",
   },
   {
     title: "Not listed",
     body: "A search of your business name or telephone number shows a Red Flag. Householders are advised that the trader does not have a verified listing and they should be cautious, not entering an agreement without visual proof of insurance and legally required licences and registrations.",
     tone: "border-rose-200 bg-rose-50 text-slate-800",
+    image: "/Red%20flag2.webp",
+    imageAlt: "Red flag",
   },
 ];
 
@@ -167,7 +171,7 @@ export function Join() {
 
   const paidNotice = searchParams.get("paid");
   const cancelled = searchParams.get("cancelled");
-  const { beforeLaunch, launchDiscountActive: launchWindowDiscountActive, publicSearchEnabled } =
+  const { beforeLaunch, applicationsOpen, launchDiscountActive: launchWindowDiscountActive, publicSearchEnabled } =
     getLaunchWindow();
 
   const applyStoredJoinSession = useCallback(
@@ -604,7 +608,7 @@ export function Join() {
         body: JSON.stringify({
           applicationId: targetApplicationId,
           email: targetEmail,
-          ...(kind === "member" && discountApplied ? { discountCode: discountCode.trim() } : {}),
+          ...(discountApplied ? { discountCode: discountCode.trim() } : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -722,7 +726,7 @@ export function Join() {
   const registrationFeePriceLabel =
     formatVatExclusiveLabel(registrationFeePricePence) ?? "£15 + VAT";
   const membershipPriceLabel =
-    formatVatExclusiveLabel(baseMembershipPricePence ?? membershipPricePence) ?? "£60 + VAT";
+    formatVatExclusiveLabel(baseMembershipPricePence ?? membershipPricePence) ?? "£75 + VAT";
   const progressSteps = applicantSummary
     ? [
         {
@@ -891,7 +895,7 @@ export function Join() {
                 </div>
                 <div className="rounded-2xl border border-white bg-white p-4">
                   <p className="font-semibold text-slate-900">Annual subscription</p>
-                  <p className="mt-1">£60 + VAT</p>
+                  <p className="mt-1">£75 + VAT</p>
                 </div>
               </div>
             </div>
@@ -924,8 +928,21 @@ export function Join() {
             <div className="mt-6 grid gap-6 md:grid-cols-2">
               {customerViews.map((view) => (
                 <div key={view.title} className={`rounded-3xl border p-6 ${view.tone}`}>
-                  <h3 className="font-display text-xl font-semibold text-slate-900">{view.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed sm:text-base">{view.body}</p>
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={view.image}
+                      alt={view.imageAlt}
+                      width="56"
+                      height="56"
+                      loading="lazy"
+                      decoding="async"
+                      className="h-14 w-14 shrink-0 object-contain"
+                    />
+                    <div>
+                      <h3 className="font-display text-xl font-semibold text-slate-900">{view.title}</h3>
+                      <p className="mt-3 text-sm leading-relaxed sm:text-base">{view.body}</p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1102,6 +1119,13 @@ export function Join() {
         {!sessionChecked ? (
           <div className="rounded-2xl border border-white/10 bg-ink-900/50 p-8 text-center text-sm text-slate-500">
             Loading…
+          </div>
+        ) : !applicationsOpen && !sent ? (
+          <div className="rounded-2xl border border-brand-500/30 bg-brand-500/10 p-8 text-center">
+            <p className="font-display text-2xl font-bold text-white">Applications Open 17th June</p>
+            <p className="mt-3 text-sm text-slate-400">
+              Trader Watchdog applications open on Tuesday 17th June 2026. Come back then to submit your application.
+            </p>
           </div>
         ) : sent ? (
           <div
@@ -1347,7 +1371,7 @@ export function Join() {
                       current email address until it is completed or declined.
                     </p>
                     <div className="mt-4">
-                      {applicantSummary?.canCheckoutMembership ? (
+                      {(applicantSummary?.canCheckoutRegistrationFee || applicantSummary?.canCheckoutMembership) ? (
                         <div className="mb-3">
                           <div className="flex gap-2">
                             <input
@@ -1374,8 +1398,8 @@ export function Join() {
                           {discountApplied ? (
                             <p className="mt-1 text-xs text-emerald-400">
                               ✓ {discountApplied.discountType === "full"
-                                ? "100% discount applied — annual membership is free"
-                                : `Discount applied — pay just ${formatVatExclusiveLabel(discountApplied.finalPricePence) ?? "£30 + VAT"}`}
+                                ? "100% discount applied — registration fee and annual membership are free"
+                                : `Discount applied — pay just ${formatVatExclusiveLabel(discountApplied.finalPricePence) ?? "£45 + VAT"}`}
                             </p>
                           ) : discountError ? (
                             <p className="mt-1 text-xs text-amber-400">{discountError}</p>
@@ -1392,7 +1416,9 @@ export function Join() {
                         >
                           {checkoutLoading === "registration"
                             ? "Redirecting…"
-                            : `Registration fee ${registrationFeePriceLabel}`}
+                            : discountApplied?.discountType === "full"
+                              ? "Registration fee — Free"
+                              : `Registration fee ${registrationFeePriceLabel}`}
                         </button>
                       ) : null}
                       {applicantSummary?.canCheckoutMembership ? (

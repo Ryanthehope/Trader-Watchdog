@@ -99,7 +99,7 @@ export function StaffSettingsPage() {
         setClearGoCardlessWebhookSecret(false);
         setCheckoutMembershipName(s.checkoutMembershipName ?? "");
         setCheckoutRegistrationFeeName(s.checkoutRegistrationFeeName ?? "");
-        setCheckoutMembershipPence(String(s.checkoutMembershipPence ?? 7200));
+        setCheckoutMembershipPence(String(s.checkoutMembershipPence ?? 9000));
         setCheckoutRegistrationFeePence(
           String(s.checkoutRegistrationFeePence ?? 1800)
         );
@@ -158,7 +158,7 @@ export function StaffSettingsPage() {
         : NaN;
       body.checkoutMembershipPence = Number.isFinite(membershipPenceNum)
         ? membershipPenceNum
-        : 7200;
+        : 9000;
 
       const registrationFeePenceNum = checkoutRegistrationFeePence.trim()
         ? parseInt(checkoutRegistrationFeePence.trim(), 10)
@@ -468,11 +468,11 @@ export function StaffSettingsPage() {
                 value={checkoutMembershipPence}
                 onChange={(e) => setCheckoutMembershipPence(e.target.value)}
                 inputMode="numeric"
-                placeholder="7200"
+                placeholder="9000"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
               <p className="mt-1 text-xs text-slate-500">
-                Example: £60 + VAT charges as 7200 pence.
+                Example: £75 + VAT charges as 9000 pence.
               </p>
             </div>
             <div>
