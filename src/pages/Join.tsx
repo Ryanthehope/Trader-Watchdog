@@ -1124,7 +1124,7 @@ export function Join() {
           <div className="rounded-2xl border border-brand-500/30 bg-brand-500/10 p-8 text-center">
             <p className="font-display text-2xl font-bold text-white">Applications Open 17th June</p>
             <p className="mt-3 text-sm text-slate-400">
-              Trader Watchdog applications open on Tuesday 17th June 2026. Come back then to submit your application.
+              Trader Watchdog applications open on Wednesday 17th June 2026. Come back then to submit your application.
             </p>
           </div>
         ) : sent ? (
