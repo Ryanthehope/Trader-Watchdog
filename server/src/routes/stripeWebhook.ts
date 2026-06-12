@@ -14,11 +14,44 @@ import {
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
 import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
-import {
-  createPaidXeroInvoice,
-  fetchXeroInvoicePDF,
-} from "../lib/xeroInvoice.js";
+import { createPaidXeroInvoice } from "../lib/xeroInvoice.js";
 import { mergeApplicationXeroInvoiceRef } from "../lib/applicationXeroInvoices.js";
+import { createStripeInvoicePdf } from "../lib/stripeInvoice.js";
+
+/**
+ * Creates a Stripe invoice PDF for a completed payment and emails it to the trader.
+ * Xero invoices are still created for accounting, but this is what the trader receives
+ * (no "make payment" button since Stripe marks the invoice as already paid).
+ */
+async function sendStripeReceipt(
+  stripe: Stripe,
+  stripeCustomerId: string,
+  params: {
+    description: string;
+    amountPence: number;
+    reference: string;
+    paidAt: Date;
+    traderName: string;
+    email: string;
+    invoiceDescription: string;
+  }
+): Promise<void> {
+  const pdf = await createStripeInvoicePdf(stripe, {
+    stripeCustomerId,
+    description: params.description,
+    amountPence: params.amountPence,
+    reference: params.reference,
+    paidAt: params.paidAt,
+  });
+  if (pdf) {
+    void sendXeroInvoiceToTrader(prisma, {
+      traderName: params.traderName,
+      email: params.email,
+      pdfBuffer: pdf,
+      invoiceDescription: params.invoiceDescription,
+    });
+  }
+}
 
 export async function stripeWebhookHandler(req: Request, res: Response) {
   const signatureHeader = req.headers["stripe-signature"];
@@ -168,6 +201,7 @@ async function handleCheckoutSessionCompleted(
             xeroInvoiceId: true,
           },
         });
+        // Xero invoice — accounting record only, not emailed to trader
         const xeroId = await createPaidXeroInvoice({
           contactName: app?.company ?? "Unknown Trader",
           contactEmail: app?.email ?? "",
@@ -191,16 +225,17 @@ async function handleCheckoutSessionCompleted(
               }
             : { xeroInvoiceFailed: true },
         });
-        if (xeroId && app?.email) {
-          const pdf = await fetchXeroInvoicePDF(xeroId);
-          if (pdf) {
-            void sendXeroInvoiceToTrader(prisma, {
-              traderName: app.company ?? "Trader",
-              email: app.email,
-              pdfBuffer: pdf,
-              invoiceDescription: "Registration Fee",
-            });
-          }
+        // Stripe invoice PDF — emailed to trader (no "make payment" button)
+        if (stripeCustomerId && app?.email) {
+          void sendStripeReceipt(stripe, stripeCustomerId, {
+            description: "Registration Fee",
+            amountPence,
+            reference: session.id,
+            paidAt,
+            traderName: app.company ?? "Trader",
+            email: app.email,
+            invoiceDescription: "Registration Fee",
+          });
         }
       })();
 
@@ -253,7 +288,7 @@ async function handleCheckoutSessionCompleted(
   if (kind === "membership") {
     const appId = metadata.applicationId;
     if (!appId) return;
-    await handleMembershipConfirmed(appId, amountPence, paidAt, session.id);
+    await handleMembershipConfirmed(appId, amountPence, paidAt, session.id, stripe, stripeCustomerId);
     return;
   }
 
@@ -314,7 +349,7 @@ async function handleCheckoutSessionCompleted(
       amountPence,
       reference: session.id,
       paidAt,
-    }).then(async (xeroId) => {
+    }).then((xeroId) => {
       void prisma.member.update({
         where: { id: memberId },
         data: {
@@ -322,18 +357,19 @@ async function handleCheckoutSessionCompleted(
           xeroInvoiceFailed: !xeroId,
         },
       });
-      if (xeroId && member.loginEmail) {
-        const pdf = await fetchXeroInvoicePDF(xeroId);
-        if (pdf) {
-          void sendXeroInvoiceToTrader(prisma, {
-            traderName: member.name,
-            email: member.loginEmail,
-            pdfBuffer: pdf,
-            invoiceDescription: "Annual Membership Renewal",
-          });
-        }
-      }
     });
+    // Stripe invoice PDF — emailed to trader
+    if (stripeCustomerId && member.loginEmail) {
+      void sendStripeReceipt(stripe, stripeCustomerId, {
+        description: `Annual Membership Renewal (${paidAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
+        amountPence,
+        reference: session.id,
+        paidAt,
+        traderName: member.name,
+        email: member.loginEmail,
+        invoiceDescription: "Annual Membership Renewal",
+      });
+    }
     return;
   }
 
@@ -361,6 +397,7 @@ async function handleCheckoutSessionCompleted(
     });
     if (member) {
       notifyVanStickerOrder(prisma, { ...member, stickerVariant });
+      // Xero invoice — accounting record only
       void createPaidXeroInvoice({
         contactName: member.name,
         contactEmail: member.loginEmail ?? "",
@@ -369,26 +406,21 @@ async function handleCheckoutSessionCompleted(
         amountPence,
         reference: session.id,
         paidAt,
-      })
-        .then(async (xeroId) => {
-          if (xeroId && member.loginEmail) {
-            const pdf = await fetchXeroInvoicePDF(xeroId);
-            if (pdf) {
-              void sendXeroInvoiceToTrader(prisma, {
-                traderName: member.name,
-                email: member.loginEmail,
-                pdfBuffer: pdf,
-                invoiceDescription: "Van Stickers (x2)",
-              });
-            }
-          }
-        })
-        .catch((err) => {
-          console.error(
-            "[stripe webhook] sticker Xero invoice failed",
-            err
-          );
+      }).catch((err) => {
+        console.error("[stripe webhook] sticker Xero invoice failed", err);
+      });
+      // Stripe invoice PDF — emailed to trader
+      if (stripeCustomerId && member.loginEmail) {
+        void sendStripeReceipt(stripe, stripeCustomerId, {
+          description: "Van Stickers (x2)",
+          amountPence,
+          reference: session.id,
+          paidAt,
+          traderName: member.name,
+          email: member.loginEmail,
+          invoiceDescription: "Van Stickers (x2)",
         });
+      }
     }
     return;
   }
@@ -413,6 +445,7 @@ async function handleCheckoutSessionCompleted(
     });
     if (member) {
       notifyVanStickerOrderAdditional(prisma, { ...member, stickerVariant });
+      // Xero invoice — accounting record only
       void createPaidXeroInvoice({
         contactName: member.name,
         contactEmail: member.loginEmail ?? "",
@@ -421,26 +454,24 @@ async function handleCheckoutSessionCompleted(
         amountPence,
         reference: session.id,
         paidAt,
-      })
-        .then(async (xeroId) => {
-          if (xeroId && member.loginEmail) {
-            const pdf = await fetchXeroInvoicePDF(xeroId);
-            if (pdf) {
-              void sendXeroInvoiceToTrader(prisma, {
-                traderName: member.name,
-                email: member.loginEmail,
-                pdfBuffer: pdf,
-                invoiceDescription: "Additional Van Sticker",
-              });
-            }
-          }
-        })
-        .catch((err) => {
-          console.error(
-            "[stripe webhook] additional sticker Xero invoice failed",
-            err
-          );
+      }).catch((err) => {
+        console.error(
+          "[stripe webhook] additional sticker Xero invoice failed",
+          err
+        );
+      });
+      // Stripe invoice PDF — emailed to trader
+      if (stripeCustomerId && member.loginEmail) {
+        void sendStripeReceipt(stripe, stripeCustomerId, {
+          description: "Additional Van Sticker",
+          amountPence,
+          reference: session.id,
+          paidAt,
+          traderName: member.name,
+          email: member.loginEmail,
+          invoiceDescription: "Additional Van Sticker",
         });
+      }
     }
     return;
   }
@@ -461,7 +492,10 @@ async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
 
   const amountPence = pi.amount;
   const paidAt = new Date(pi.created * 1000);
-  await handleMembershipConfirmed(appId, amountPence, paidAt, pi.id);
+  const piStripeCustomerId = typeof pi.customer === "string" ? pi.customer : null;
+
+  const stripe = await getStripeClient();
+  await handleMembershipConfirmed(appId, amountPence, paidAt, pi.id, stripe ?? undefined, piStripeCustomerId);
 }
 
 // ---------------------------------------------------------------------------
@@ -472,7 +506,9 @@ async function handleMembershipConfirmed(
   appId: string,
   amountPence: number,
   paidAt: Date,
-  reference: string
+  reference: string,
+  stripe?: Stripe,
+  stripeCustomerId?: string | null
 ) {
   const updated = await prisma.application.updateMany({
     where: { id: appId, membershipSubscribed: false },
@@ -561,16 +597,25 @@ async function handleMembershipConfirmed(
           }
         : { xeroInvoiceFailed: true },
     });
-    if (xeroId && app?.email) {
-      const pdf = await fetchXeroInvoicePDF(xeroId);
-      if (pdf) {
-        void sendXeroInvoiceToTrader(prisma, {
-          traderName: app.company ?? "Trader",
-          email: app.email,
-          pdfBuffer: pdf,
-          invoiceDescription: "Annual Membership",
-        });
-      }
+    // Stripe invoice PDF — emailed to trader
+    if (stripe && stripeCustomerId && app?.email) {
+      void sendStripeReceipt(stripe, stripeCustomerId, {
+        description: `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })})`,
+        amountPence,
+        reference,
+        paidAt,
+        traderName: app.company ?? "Trader",
+        email: app.email,
+        invoiceDescription: "Annual Membership",
+      });
     }
   })();
 }

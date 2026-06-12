@@ -30,7 +30,7 @@ export function MemberBilling() {
   const { member, refreshMember } = useMemberAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
-  const [goCardlessCustomerId, setGoCardlessCustomerId] = useState<string | null>(null);
+  const [invoicesLoaded, setInvoicesLoaded] = useState(false);
   const [branding, setBranding] = useState<Branding | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,12 +43,11 @@ export function MemberBilling() {
     setError(null);
     apiGetMember<{
       invoices: InvoiceRow[];
-      goCardlessCustomerId: string | null;
       branding: Branding;
     }>("/api/member/portal/invoices")
       .then((d) => {
         setInvoices(d.invoices);
-        setGoCardlessCustomerId(d.goCardlessCustomerId);
+        setInvoicesLoaded(true);
         setBranding(d.branding);
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"))
@@ -196,15 +195,7 @@ export function MemberBilling() {
         </p>
       ) : null}
 
-      {!goCardlessCustomerId ? (
-        <p className="mt-6 text-sm text-slate-600">
-          No online billing record is linked yet. After your registration fee,
-          annual membership payment, or a future annual renewal is processed
-          online, invoices will appear here.
-        </p>
-      ) : null}
-
-      {goCardlessCustomerId && invoices.length === 0 ? (
+      {invoicesLoaded && invoices.length === 0 ? (
         <p className="mt-6 text-sm text-slate-600">
           No payments recorded yet. Your registration fee, annual membership
           payment, and future renewals will appear here once processed.

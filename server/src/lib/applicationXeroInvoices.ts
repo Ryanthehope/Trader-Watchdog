@@ -1,7 +1,6 @@
 import { prisma } from "../db.js";
 import {
   checkoutLineConfig,
-  getGoCardlessApiClient,
   getOrgBilling,
 } from "./billingSettings.js";
 import { addOneCalendarYearEndUtc } from "./membershipPeriod.js";
@@ -19,13 +18,18 @@ type ApplicationXeroInvoiceRefs = {
   membership: string | null;
 };
 
-type GoCardlessListedPayment = {
-  id?: string;
-  amount?: number;
-  created_at?: string | null;
-  status?: string | null;
-  metadata?: Record<string, string | undefined> | null;
-};
+/**
+ * Previously looked up the GoCardless payment for the application.
+ * GoCardless has been removed; always returns null so the retry
+ * falls back to the date/amount stored on the Application record.
+ */
+async function latestApplicationPayment(
+  _applicationId: string,
+  _customerId: string,
+  _kind: ApplicationXeroInvoiceKind
+): Promise<null> {
+  return null;
+}
 
 const APPLICATION_XERO_ORDER: ApplicationXeroInvoiceKind[] = [
   "registration_fee",
@@ -77,35 +81,6 @@ export function mergeApplicationXeroInvoiceRef(
     .join(",");
 }
 
-async function latestApplicationPayment(
-  applicationId: string,
-  customerId: string,
-  kind: ApplicationXeroInvoiceKind
-): Promise<GoCardlessListedPayment | null> {
-  const gocardless = await getGoCardlessApiClient();
-  if (!gocardless) return null;
-  const list = await gocardless.payments.list({
-    customer: customerId,
-    limit: "50",
-  });
-  const payments = (list.payments ?? []) as GoCardlessListedPayment[];
-  return payments
-    .filter(
-      (payment) =>
-        payment.status !== "failed" &&
-        payment.status !== "cancelled" &&
-        payment.metadata?.applicationId === applicationId &&
-        payment.metadata?.checkoutKind === kind
-    )
-    .sort((left, right) => {
-      const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0;
-      const rightTime = right.created_at
-        ? new Date(right.created_at).getTime()
-        : 0;
-      return rightTime - leftTime;
-    })[0] ?? null;
-}
-
 export async function retryApplicationXeroInvoice(
   applicationId: string,
   kind: ApplicationXeroInvoiceKind
@@ -127,7 +102,6 @@ export async function retryApplicationXeroInvoice(
       membershipSubscribed: true,
       membershipRenewalPricePence: true,
       manualMembershipExpiresAt: true,
-      goCardlessCustomerId: true,
       xeroInvoiceId: true,
       xeroInvoiceFailed: true,
     },
@@ -145,32 +119,20 @@ export async function retryApplicationXeroInvoice(
   if (kind === "membership" && !app.membershipSubscribed) {
     throw new Error("Membership payment is not recorded on this application");
   }
-  if (!app.goCardlessCustomerId?.trim()) {
-    throw new Error("No GoCardless customer is linked to this application");
-  }
 
   try {
-    const payment = await latestApplicationPayment(
-      applicationId,
-      app.goCardlessCustomerId,
-      kind
-    );
     const billing = await getOrgBilling();
     const lines = checkoutLineConfig(billing);
-    const paidAt = payment?.created_at
-      ? new Date(payment.created_at)
-      : kind === "registration_fee"
+    const paidAt =
+      kind === "registration_fee"
         ? (app.registrationFeePaidAt ?? new Date())
         : new Date();
-    const usedFallback = !payment?.id;
     const amountPence =
-      typeof payment?.amount === "number"
-        ? payment.amount
-        : kind === "registration_fee"
-          ? lines.registrationFeePence
-          : app.membershipRenewalPricePence === 0
-            ? 0
-            : lines.membershipPence;
+      kind === "registration_fee"
+        ? lines.registrationFeePence
+        : app.membershipRenewalPricePence === 0
+          ? 0
+          : lines.membershipPence;
     const description =
       kind === "registration_fee"
         ? "Registration Fee"
@@ -184,9 +146,7 @@ export async function retryApplicationXeroInvoice(
             year: "numeric",
           })})`;
 
-    const reference =
-      payment?.id ??
-      `xero-retry:${kind}:${app.id}:${paidAt.toISOString().slice(0, 10)}`;
+    const reference = `xero-retry:${kind}:${app.id}:${paidAt.toISOString().slice(0, 10)}`;
     let invoiceId = await findRecentXeroInvoiceByReference(reference);
     if (!invoiceId) {
       invoiceId = await createPaidXeroInvoice({
@@ -233,7 +193,7 @@ export async function retryApplicationXeroInvoice(
       invoiceId,
       paymentId: reference,
       receiptEmailed,
-      usedFallback,
+      usedFallback: true,
     };
   } catch (error) {
     await prisma.application.update({

@@ -12,10 +12,9 @@ import {
 import { applicationDocumentResolvedPath } from "../lib/applicationDocuments.js";
 import { tryProvisionMemberForApplication } from "../lib/provisionMemberFromApplication.js";
 import { sanitizeNullableDbString } from "../lib/sanitizeDbText.js";
-import { getGoCardlessClient, getOrgBilling, checkoutLineConfig } from "../lib/billingSettings.js";
+import { getOrgBilling, checkoutLineConfig } from "../lib/billingSettings.js";
 import { getStripeClient } from "../lib/stripeClient.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
-import { fetchGoCardlessFinancialSnapshot } from "../lib/goCardlessFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { fetchGa4OverviewReport } from "../lib/ga4DataApi.js";
 import { buildXeroClient, buildConsentUrlAndStore } from "../lib/xeroClient.js";
@@ -241,27 +240,10 @@ router.get("/dashboard", async (_req, res) => {
       .sort((x, y) => (x.at < y.at ? 1 : -1))
       .slice(0, 15);
 
-    let revenueMtdCents = settings.revenueMtdCents;
-    let outstandingCents = settings.outstandingCents;
-    let financialSource: "goCardless" | "fallback" = "fallback";
-    let financialError: string | null = null;
-    try {
-      const goCardless = await getGoCardlessClient();
-      if (goCardless) {
-        const snap = await fetchGoCardlessFinancialSnapshot(goCardless);
-        if (snap.ok) {
-          revenueMtdCents = snap.revenueMtdCents;
-          outstandingCents = snap.outstandingCents;
-          financialSource = "goCardless";
-        } else {
-          financialError = snap.error;
-        }
-      }
-    } catch (error) {
-      financialError =
-        error instanceof Error ? error.message : "Billing snapshot unavailable";
-      console.error("[dashboard] billing snapshot failed", error);
-    }
+    const revenueMtdCents = settings.revenueMtdCents;
+    const outstandingCents = settings.outstandingCents;
+    const financialSource = "fallback";
+    const financialError: string | null = null;
 
     res.json({
       membersTotal,

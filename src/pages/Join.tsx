@@ -626,7 +626,7 @@ export function Join() {
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         setFormError(
-          "Checkout is taking too long to respond. Please try again. If it keeps happening, GoCardless may not be responding from the backend."
+          "Checkout is taking too long to respond. Please try again."
         );
       } else {
         setFormError("Network error starting checkout.");
@@ -1363,7 +1363,7 @@ export function Join() {
                         : "Your checks are complete — activate annual membership"}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      Secure GoCardless checkout. Use the same email as on your
+                      Secure checkout. Use the same email as on your
                       application ({savedEmail}).
                     </p>
                     <p className="mt-3 text-xs text-slate-600">
