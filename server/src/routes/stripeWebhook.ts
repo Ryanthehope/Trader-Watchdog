@@ -393,10 +393,15 @@ async function handleCheckoutSessionCompleted(
         loginEmail: true,
         invoiceAddress: true,
         location: true,
+        sourceApplication: { select: { tradingAddress: true, postcode: true } },
       },
     });
     if (member) {
-      notifyVanStickerOrder(prisma, { ...member, stickerVariant });
+      const applicationAddress = [
+        member.sourceApplication?.tradingAddress,
+        member.sourceApplication?.postcode,
+      ].filter(Boolean).join("\n") || null;
+      notifyVanStickerOrder(prisma, { ...member, stickerVariant, applicationAddress });
       // Xero invoice — accounting record only
       void createPaidXeroInvoice({
         contactName: member.name,
@@ -441,10 +446,15 @@ async function handleCheckoutSessionCompleted(
         loginEmail: true,
         invoiceAddress: true,
         location: true,
+        sourceApplication: { select: { tradingAddress: true, postcode: true } },
       },
     });
     if (member) {
-      notifyVanStickerOrderAdditional(prisma, { ...member, stickerVariant });
+      const applicationAddress = [
+        member.sourceApplication?.tradingAddress,
+        member.sourceApplication?.postcode,
+      ].filter(Boolean).join("\n") || null;
+      notifyVanStickerOrderAdditional(prisma, { ...member, stickerVariant, applicationAddress });
       // Xero invoice — accounting record only
       void createPaidXeroInvoice({
         contactName: member.name,

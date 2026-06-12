@@ -687,11 +687,12 @@ export function notifyVanStickerOrder(
     loginEmail?: string | null;
     invoiceAddress?: string | null;
     location?: string | null;
+    applicationAddress?: string | null;
   }
 ): void {
   void (async () => {
     const address =
-      member.invoiceAddress?.trim() || member.location?.trim() || "(not provided)";
+      member.invoiceAddress?.trim() || member.applicationAddress?.trim() || member.location?.trim() || "(not provided)";
     const attachments = await buildVanStickerAttachments(prisma, member).catch((error) => {
       console.error("[admin-mail] sticker artwork generation failed", error);
       return [] as EmailAttachment[];
@@ -741,11 +742,12 @@ export function notifyVanStickerOrderAdditional(
     loginEmail?: string | null;
     invoiceAddress?: string | null;
     location?: string | null;
+    applicationAddress?: string | null;
   }
 ): void {
   void (async () => {
     const address =
-      member.invoiceAddress?.trim() || member.location?.trim() || "(not provided)";
+      member.invoiceAddress?.trim() || member.applicationAddress?.trim() || member.location?.trim() || "(not provided)";
     const attachments = await buildVanStickerAttachments(prisma, member).catch((error) => {
       console.error("[admin-mail] additional sticker artwork generation failed", error);
       return [] as EmailAttachment[];
