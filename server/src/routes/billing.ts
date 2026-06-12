@@ -4,10 +4,10 @@ import {
   billingReady,
   checkoutLineConfig,
   getOrgBilling,
-  getGoCardlessApiClient,
 } from "../lib/billingSettings.js";
-import { createGoCardlessHostedPaymentFlow } from "../lib/goCardlessHostedPaymentFlow.js";
-import { goCardlessErrorDetails } from "../lib/goCardlessErrors.js";
+import { getStripeClient } from "../lib/stripeClient.js";
+import { createStripeCheckoutSession } from "../lib/stripeCheckoutSession.js";
+import { stripeErrorDetails } from "../lib/stripeErrors.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 import { notifyMemberWelcome } from "../lib/adminMail.js";
@@ -163,22 +163,20 @@ router.post("/checkout-registration-fee", async (req, res) => {
       return;
     }
 
-    const gocardless = await getGoCardlessApiClient();
-    if (!gocardless) {
-      res.status(400).json({ error: "GoCardless is not configured" });
+    const stripe = await getStripeClient();
+    if (!stripe) {
+      res.status(400).json({ error: "Stripe is not configured" });
       return;
     }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+    const flow = await createStripeCheckoutSession(stripe, {
       amountPence: lines.registrationFeePence,
       description: lines.registrationFeeName,
       email,
-      companyName: application.company,
-      addressLine1: application.tradingAddress,
-      postalCode: application.postcode,
+      savePaymentMethod: true,
       successRedirectUrl: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}`,
-      exitUrl: `${origin}/join?cancelled=1`,
+      cancelRedirectUrl: `${origin}/join?cancelled=1`,
       metadata: {
         applicationId,
         checkoutKind: "registration_fee",
@@ -186,7 +184,7 @@ router.post("/checkout-registration-fee", async (req, res) => {
     });
     res.json({ url: flow.url });
   } catch (e) {
-    const detail = goCardlessErrorDetails(e);
+    const detail = stripeErrorDetails(e);
     console.error("[billing] registration checkout failed", {
       error: e,
       statusCode: detail.statusCode,
@@ -209,9 +207,9 @@ router.post("/checkout-membership", async (req, res) => {
       res.status(400).json({ error: "Billing is not enabled" });
       return;
     }
-    const gocardless = await getGoCardlessApiClient();
-    if (!gocardless) {
-      res.status(400).json({ error: "GoCardless is not configured" });
+    const stripe = await getStripeClient();
+    if (!stripe) {
+      res.status(400).json({ error: "Stripe is not configured" });
       return;
     }
     const check = await assertMembershipCheckoutAllowed(applicationId, email);
@@ -277,16 +275,13 @@ router.post("/checkout-membership", async (req, res) => {
       ? Math.max(0, lines.membershipPence - 3_600)
       : lines.membershipPence;
 
-    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+    const flow = await createStripeCheckoutSession(stripe, {
       amountPence,
       description: lines.membershipName,
       email,
-      companyName: application.company,
-      addressLine1: application.tradingAddress,
-      postalCode: application.postcode,
-      existingCustomerId: application.goCardlessCustomerId,
+      existingStripeCustomerId: application.stripeCustomerId,
       successRedirectUrl: `${origin}/join?paid=membership&app=${encodeURIComponent(applicationId)}`,
-      exitUrl: `${origin}/join?cancelled=1`,
+      cancelRedirectUrl: `${origin}/join?cancelled=1`,
       metadata: {
         applicationId,
         checkoutKind: "membership",
@@ -294,7 +289,7 @@ router.post("/checkout-membership", async (req, res) => {
     });
     res.json({ url: flow.url });
   } catch (e) {
-    const detail = goCardlessErrorDetails(e);
+    const detail = stripeErrorDetails(e);
     console.error("[billing] membership checkout failed", {
       error: e,
       statusCode: detail.statusCode,

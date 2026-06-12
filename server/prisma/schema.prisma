@@ -78,6 +78,8 @@ model Member {
   goCardlessSubscriptionId     String?
   /// Mirrors GoCardless subscription.status (active, canceled, past_due, …).
   goCardlessSubscriptionStatus String?
+  /// Stripe customer ID for this member (populated after any Stripe payment).
+  stripeCustomerId             String?
   /// Discounted renewal price (pence) if a partial discount was applied at initial checkout. Null = full price.
   membershipRenewalPricePence  Int?
   /// Staff-only: portal membership never expires (overrides billing/expiry).
@@ -216,6 +218,10 @@ model Application {
   goCardlessCustomerId             String?
   /// GoCardless mandate ID captured from the billing request (used to auto-charge membership on approval).
   goCardlessMandateId              String?
+  /// Stripe customer ID captured when registration checkout completes (used to auto-charge membership on approval).
+  stripeCustomerId                 String?
+  /// Stripe payment method ID saved at registration checkout for future off-session charges.
+  stripePaymentMethodId            String?
   /// Discounted renewal price (pence) set when a partial discount code was used at membership checkout.
   membershipRenewalPricePence      Int?
   /// Set when an off-session GoCardless payment was successfully created from the stored mandate on approval.
@@ -273,6 +279,10 @@ model OrganizationSettings {
   goCardlessPublishableKey              String?
   goCardlessSecretKey                   String?
   goCardlessWebhookSecret               String?
+  /// Stripe (admin-configurable; also via STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET env)
+  stripePublishableKey                  String?
+  stripeSecretKey                       String?
+  stripeWebhookSecret                   String?
   /// Shown on GoCardless Checkout (inline price_data — no Dashboard Price IDs required)
   checkoutMembershipName            String?
   checkoutRegistrationFeeName       String?

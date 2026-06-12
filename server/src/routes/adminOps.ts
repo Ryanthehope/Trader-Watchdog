@@ -12,7 +12,8 @@ import {
 import { applicationDocumentResolvedPath } from "../lib/applicationDocuments.js";
 import { tryProvisionMemberForApplication } from "../lib/provisionMemberFromApplication.js";
 import { sanitizeNullableDbString } from "../lib/sanitizeDbText.js";
-import { getGoCardlessClient, getGoCardlessApiClient, getOrgBilling, checkoutLineConfig } from "../lib/billingSettings.js";
+import { getGoCardlessClient, getOrgBilling, checkoutLineConfig } from "../lib/billingSettings.js";
+import { getStripeClient } from "../lib/stripeClient.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 import { fetchGoCardlessFinancialSnapshot } from "../lib/goCardlessFinancialSnapshot.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
@@ -142,6 +143,8 @@ const ADMIN_APPLICATION_MUTATION_SELECT = {
   manualMembershipExpiresAt: true,
   goCardlessMandateId: true,
   goCardlessCustomerId: true,
+  stripeCustomerId: true,
+  stripePaymentMethodId: true,
   membershipAutoChargeInitiatedAt: true,
   verificationStatus: true,
   xeroInvoiceId: true,
@@ -283,11 +286,15 @@ function publicOrgSettings(s: Awaited<ReturnType<typeof ensureOrgSettings>>) {
     ...s,
     goCardlessSecretKey: null as string | null,
     goCardlessWebhookSecret: null as string | null,
+    stripeSecretKey: null as string | null,
+    stripeWebhookSecret: null as string | null,
     recaptchaSecretKey: null as string | null,
     smtpPass: null as string | null,
     googleAnalyticsServiceAccountJson: null as string | null,
     hasGoCardlessSecret: Boolean(s.goCardlessSecretKey?.trim()),
     hasGoCardlessWebhookSecret: Boolean(s.goCardlessWebhookSecret?.trim()),
+    hasStripeSecret: Boolean(s.stripeSecretKey?.trim()),
+    hasStripeWebhookSecret: Boolean(s.stripeWebhookSecret?.trim()),
     hasRecaptchaSecret: Boolean(s.recaptchaSecretKey?.trim()),
     hasSmtpPassword: Boolean(s.smtpPass?.trim()),
     hasGoogleAnalyticsServiceAccount: Boolean(
@@ -521,6 +528,31 @@ async function patchOrganizationSettings(
     if (goCardlessWebhookSecret !== undefined) {
       secretPatch.goCardlessWebhookSecret = goCardlessWebhookSecret;
     }
+
+    const stripeSecretKeyRaw = body.stripeSecretKey;
+    const stripeSecretKey =
+      typeof stripeSecretKeyRaw === "string"
+        ? stripeSecretKeyRaw.trim() || null
+        : undefined;
+    if (stripeSecretKey !== undefined) {
+      secretPatch.stripeSecretKey = stripeSecretKey;
+    }
+
+    const stripePublishableKeyRaw = body.stripePublishableKey;
+    const stripePublishableKey =
+      typeof stripePublishableKeyRaw === "string"
+        ? stripePublishableKeyRaw.trim() || null
+        : undefined;
+
+    const stripeWebhookSecretRaw = body.stripeWebhookSecret;
+    const stripeWebhookSecret =
+      typeof stripeWebhookSecretRaw === "string"
+        ? stripeWebhookSecretRaw.trim() || null
+        : undefined;
+    if (stripeWebhookSecret !== undefined) {
+      secretPatch.stripeWebhookSecret = stripeWebhookSecret;
+    }
+
     if (recaptchaSecretKey !== undefined) {
       secretPatch.recaptchaSecretKey = recaptchaSecretKey;
     }
@@ -548,6 +580,7 @@ async function patchOrganizationSettings(
         ...(goCardlessPublishableKey !== undefined
           ? { goCardlessPublishableKey }
           : {}),
+        ...(stripePublishableKey !== undefined ? { stripePublishableKey } : {}),
         ...(checkoutMembershipName !== undefined
           ? { checkoutMembershipName }
           : {}),
@@ -593,6 +626,7 @@ async function patchOrganizationSettings(
         ...(goCardlessPublishableKey !== undefined
           ? { goCardlessPublishableKey }
           : {}),
+        ...(stripePublishableKey !== undefined ? { stripePublishableKey } : {}),
         ...(checkoutMembershipName !== undefined
           ? { checkoutMembershipName }
           : {}),
@@ -973,29 +1007,33 @@ router.patch("/applications/:id", async (req, res) => {
         notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
       }
 
-      // Auto-charge membership from existing GoCardless mandate if not yet subscribed
+      // Auto-charge membership via Stripe off-session PaymentIntent if not yet subscribed
       let autoChargeSucceeded = false;
       if (
-        before.goCardlessMandateId &&
+        before.stripeCustomerId &&
+        before.stripePaymentMethodId &&
         before.registrationFeePaidAt &&
         !before.membershipSubscribed &&
-        !before.membershipAutoChargeInitiatedAt // don't re-attempt if already in flight
+        !before.membershipAutoChargeInitiatedAt
       ) {
         try {
-          const gc = await getGoCardlessApiClient();
+          const stripe = await getStripeClient();
           const billing = await getOrgBilling();
           const { membershipPence, membershipName } = checkoutLineConfig(billing);
-          if (gc) {
-            await gc.payments.create({
-              amount: String(membershipPence),
-              currency: "GBP",
+          if (stripe) {
+            await stripe.paymentIntents.create({
+              amount: membershipPence,
+              currency: "gbp",
+              customer: before.stripeCustomerId,
+              payment_method: before.stripePaymentMethodId,
+              off_session: true,
+              confirm: true,
               description: membershipName,
-              links: { mandate: before.goCardlessMandateId },
               metadata: {
                 checkoutKind: "membership",
                 applicationId: req.params.id,
+                source: "auto_charge",
               },
-              psu_interaction_type: "off_session",
             });
             autoChargeSucceeded = true;
             await prisma.application.update({
@@ -1004,7 +1042,7 @@ router.patch("/applications/:id", async (req, res) => {
             });
           }
         } catch (err) {
-          console.error("[approval] auto-charge membership failed", err);
+          console.error("[approval] Stripe auto-charge membership failed", err);
           // Don't block the approval if this fails
         }
       }

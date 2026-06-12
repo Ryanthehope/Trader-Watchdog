@@ -12,10 +12,10 @@ import {
   billingReady,
   checkoutLineConfig,
   getOrgBilling,
-  getGoCardlessApiClient,
 } from "../lib/billingSettings.js";
-import { createGoCardlessHostedPaymentFlow } from "../lib/goCardlessHostedPaymentFlow.js";
-import { goCardlessErrorDetails } from "../lib/goCardlessErrors.js";
+import { getStripeClient } from "../lib/stripeClient.js";
+import { createStripeCheckoutSession } from "../lib/stripeCheckoutSession.js";
+import { stripeErrorDetails } from "../lib/stripeErrors.js";
 import { documentIssuerFromMember } from "../lib/documentIssuer.js";
 import {
   isMemberPublicListingVisible,
@@ -448,7 +448,7 @@ router.post("/membership/renew", async (req, res) => {
       select: {
         loginEmail: true,
         name: true,
-        goCardlessCustomerId: true,
+        stripeCustomerId: true,
         membershipExpiresAt: true,
         membershipRenewalPricePence: true,
       },
@@ -462,16 +462,16 @@ router.post("/membership/renew", async (req, res) => {
       res.status(400).json({ error: "Online billing is not enabled" });
       return;
     }
-    const gocardless = await getGoCardlessApiClient();
-    if (!gocardless) {
-      res.status(400).json({ error: "GoCardless is not configured" });
+    const stripe = await getStripeClient();
+    if (!stripe) {
+      res.status(400).json({ error: "Stripe is not configured" });
       return;
     }
     const origin = await siteOrigin(req);
     const lines = checkoutLineConfig(settings);
     const renewalAmountPence = m.membershipRenewalPricePence === 0 ? 0 : lines.membershipPence;
 
-    // Free-membership holders (100% discount for life) — extend without GoCardless.
+    // Free-membership holders (100% discount for life) — extend without Stripe.
     if (renewalAmountPence === 0) {
       const now = new Date();
       const baseDate = m.membershipExpiresAt && m.membershipExpiresAt > now ? m.membershipExpiresAt : now;
@@ -486,14 +486,13 @@ router.post("/membership/renew", async (req, res) => {
       return;
     }
 
-    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+    const flow = await createStripeCheckoutSession(stripe, {
       amountPence: renewalAmountPence,
       description: `${lines.membershipName} renewal`,
       email: m.loginEmail.trim().toLowerCase(),
-      companyName: m.name,
-      existingCustomerId: m.goCardlessCustomerId,
+      existingStripeCustomerId: m.stripeCustomerId,
       successRedirectUrl: `${origin}/member/billing?renewal=success`,
-      exitUrl: `${origin}/member/billing?renewal=cancelled`,
+      cancelRedirectUrl: `${origin}/member/billing?renewal=cancelled`,
       metadata: {
         checkoutKind: "member_portal_renewal",
         memberId,
@@ -502,7 +501,7 @@ router.post("/membership/renew", async (req, res) => {
     res.json({ url: flow.url });
   } catch (e) {
     console.error("[billing] membership renewal failed", { error: e });
-    const { statusCode, message } = goCardlessErrorDetails(e);
+    const { statusCode, message } = stripeErrorDetails(e);
     res.status(statusCode).json({ error: message });
   }
 });
@@ -520,7 +519,7 @@ router.post("/sticker-order", async (req, res) => {
       select: {
         loginEmail: true,
         name: true,
-        goCardlessCustomerId: true,
+        stripeCustomerId: true,
         vanStickerOrderedAt: true,
         invoiceAddress: true,
         location: true,
@@ -530,20 +529,19 @@ router.post("/sticker-order", async (req, res) => {
       res.status(400).json({ error: "No login email on file" });
       return;
     }
-    const gocardless = await getGoCardlessApiClient();
-    if (!gocardless) {
-      res.status(400).json({ error: "GoCardless is not configured" });
+    const stripe = await getStripeClient();
+    if (!stripe) {
+      res.status(400).json({ error: "Stripe is not configured" });
       return;
     }
     const origin = await siteOrigin(req);
-    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+    const flow = await createStripeCheckoutSession(stripe, {
       amountPence: 2100,
       description: "Van stickers (×2)",
       email: m.loginEmail.trim().toLowerCase(),
-      companyName: m.name,
-      existingCustomerId: m.goCardlessCustomerId,
+      existingStripeCustomerId: m.stripeCustomerId,
       successRedirectUrl: `${origin}/member?sticker=ordered`,
-      exitUrl: `${origin}/member`,
+      cancelRedirectUrl: `${origin}/member`,
       metadata: {
         checkoutKind: "van_sticker_order",
         memberId,
@@ -553,7 +551,7 @@ router.post("/sticker-order", async (req, res) => {
     res.json({ url: flow.url });
   } catch (e) {
     console.error("[member-portal] sticker order failed", { error: e });
-    const { statusCode, message } = goCardlessErrorDetails(e);
+    const { statusCode, message } = stripeErrorDetails(e);
     res.status(statusCode).json({ error: message });
   }
 });
@@ -571,7 +569,7 @@ router.post("/sticker-order-additional", async (req, res) => {
       select: {
         loginEmail: true,
         name: true,
-        goCardlessCustomerId: true,
+        stripeCustomerId: true,
         vanStickerOrderedAt: true,
         invoiceAddress: true,
         location: true,
@@ -587,20 +585,19 @@ router.post("/sticker-order-additional", async (req, res) => {
       });
       return;
     }
-    const gocardless = await getGoCardlessApiClient();
-    if (!gocardless) {
-      res.status(400).json({ error: "GoCardless is not configured" });
+    const stripe = await getStripeClient();
+    if (!stripe) {
+      res.status(400).json({ error: "Stripe is not configured" });
       return;
     }
     const origin = await siteOrigin(req);
-    const flow = await createGoCardlessHostedPaymentFlow(gocardless, {
+    const flow = await createStripeCheckoutSession(stripe, {
       amountPence: 720,
       description: "Additional van sticker",
       email: m.loginEmail.trim().toLowerCase(),
-      companyName: m.name,
-      existingCustomerId: m.goCardlessCustomerId,
+      existingStripeCustomerId: m.stripeCustomerId,
       successRedirectUrl: `${origin}/member?sticker=ordered`,
-      exitUrl: `${origin}/member`,
+      cancelRedirectUrl: `${origin}/member`,
       metadata: {
         checkoutKind: "van_sticker_order_additional",
         memberId,
@@ -610,7 +607,7 @@ router.post("/sticker-order-additional", async (req, res) => {
     res.json({ url: flow.url });
   } catch (e) {
     console.error("[member-portal] additional sticker order failed", { error: e });
-    const { statusCode, message } = goCardlessErrorDetails(e);
+    const { statusCode, message } = stripeErrorDetails(e);
     res.status(statusCode).json({ error: message });
   }
 });
@@ -889,63 +886,13 @@ async function invoiceBrandingPayload() {
   };
 }
 
-/** GoCardless payment history for one-off joining and annual renewal payments. */
+/** Payment history — returns empty until Stripe invoice sync is implemented. */
 router.get("/invoices", async (req, res) => {
   try {
-    const memberId = (req as unknown as { memberId: string }).memberId;
     const branding = await invoiceBrandingPayload();
-    const m = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: { goCardlessCustomerId: true },
-    });
-    if (!m?.goCardlessCustomerId?.trim()) {
-      res.json({
-        invoices: [] as Array<Record<string, unknown>>,
-        goCardlessCustomerId: null as string | null,
-        branding,
-      });
-      return;
-    }
-    const gocardless = await getGoCardlessApiClient();
-    if (!gocardless) {
-      res.status(503).json({ error: "Billing is not configured" });
-      return;
-    }
-    let invoices: Array<Record<string, unknown>> = [];
-    try {
-      const list = await gocardless.payments.list({
-        customer: m.goCardlessCustomerId,
-        limit: "36",
-      });
-      const payments = list.payments ?? [];
-      invoices = payments
-        .filter((p: Record<string, unknown>) => p.status !== "failed" && p.status !== "cancelled")
-        .map((p: Record<string, unknown>) => ({
-          id: p.id,
-          number: null,
-          status: String(p.status ?? "").replace(/_/g, " "),
-          amountDue: 0,
-          amountPaid: typeof p.amount === "number" ? p.amount : 0,
-          total: typeof p.amount === "number" ? p.amount : 0,
-          currency: String(p.currency ?? "GBP"),
-          // GoCardless created_at is an ISO string; convert to Unix seconds for the frontend
-          created: p.created_at
-            ? Math.floor(new Date(String(p.created_at)).getTime() / 1000)
-            : 0,
-          description: p.description ?? null,
-          hostedInvoiceUrl: null,
-          invoicePdf: null,
-        }));
-    } catch (e) {
-      console.warn(
-        "[member portal] GoCardless payments list unavailable",
-        e
-      );
-    }
     res.json({
-      goCardlessCustomerId: m.goCardlessCustomerId,
+      invoices: [] as Array<Record<string, unknown>>,
       branding,
-      invoices,
     });
   } catch (e) {
     console.error(e);

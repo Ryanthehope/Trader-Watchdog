@@ -15,13 +15,13 @@ type Settings = {
   mailFrom: string | null;
   hasSmtpPassword: boolean;
   billingEnabled: boolean;
-  goCardlessPublishableKey: string | null;
+  stripePublishableKey: string | null;
   checkoutMembershipName: string | null;
   checkoutRegistrationFeeName: string | null;
   checkoutMembershipPence: number;
   checkoutRegistrationFeePence: number;
-  hasGoCardlessSecret: boolean;
-  hasGoCardlessWebhookSecret: boolean;
+  hasStripeSecret: boolean;
+  hasStripeWebhookSecret: boolean;
   googleAnalyticsMeasurementId: string | null;
   googleAnalyticsPropertyId: string | null;
   hasGoogleAnalyticsServiceAccount: boolean;
@@ -50,12 +50,9 @@ export function StaffSettingsPage() {
   const [testEmailPending, setTestEmailPending] = useState(false);
   const [testEmailResult, setTestEmailResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [billingEnabled, setBillingEnabled] = useState(false);
-  const [goCardlessPublishableKey, setGoCardlessPublishableKey] = useState("");
-  const [goCardlessSecretKey, setGoCardlessSecretKey] = useState("");
-  const [clearGoCardlessSecret, setClearGoCardlessSecret] = useState(false);
-  const [goCardlessWebhookSecret, setGoCardlessWebhookSecret] = useState("");
-  const [clearGoCardlessWebhookSecret, setClearGoCardlessWebhookSecret] =
-    useState(false);
+  const [stripePublishableKey, setStripePublishableKey] = useState("");
+  const [stripeSecretKey, setStripeSecretKey] = useState("");
+  const [stripeWebhookSecret, setStripeWebhookSecret] = useState("");
   const [checkoutMembershipName, setCheckoutMembershipName] = useState("");
   const [checkoutRegistrationFeeName, setCheckoutRegistrationFeeName] =
     useState("");
@@ -92,11 +89,9 @@ export function StaffSettingsPage() {
         setClearSmtpPassword(false);
         setMailFrom(s.mailFrom ?? "");
         setBillingEnabled(Boolean(s.billingEnabled));
-        setGoCardlessPublishableKey(s.goCardlessPublishableKey ?? "");
-        setGoCardlessSecretKey("");
-        setClearGoCardlessSecret(false);
-        setGoCardlessWebhookSecret("");
-        setClearGoCardlessWebhookSecret(false);
+        setStripePublishableKey(s.stripePublishableKey ?? "");
+        setStripeSecretKey("");
+        setStripeWebhookSecret("");
         setCheckoutMembershipName(s.checkoutMembershipName ?? "");
         setCheckoutRegistrationFeeName(s.checkoutRegistrationFeeName ?? "");
         setCheckoutMembershipPence(String(s.checkoutMembershipPence ?? 9000));
@@ -147,8 +142,9 @@ export function StaffSettingsPage() {
         body.clearSmtpPassword = true;
       }
       body.billingEnabled = billingEnabled;
-      body.goCardlessPublishableKey =
-        goCardlessPublishableKey.trim() || null;
+      body.stripePublishableKey = stripePublishableKey.trim() || null;
+      if (stripeSecretKey.trim()) body.stripeSecretKey = stripeSecretKey.trim();
+      if (stripeWebhookSecret.trim()) body.stripeWebhookSecret = stripeWebhookSecret.trim();
       body.checkoutMembershipName = checkoutMembershipName.trim() || null;
       body.checkoutRegistrationFeeName =
         checkoutRegistrationFeeName.trim() || null;
@@ -181,18 +177,6 @@ export function StaffSettingsPage() {
         body.recaptchaSecretKey = turnstileSecretKey.trim();
       }
 
-      if (clearGoCardlessSecret) {
-        body.goCardlessSecretKey = null;
-      } else if (goCardlessSecretKey.trim()) {
-        body.goCardlessSecretKey = goCardlessSecretKey.trim();
-      }
-
-      if (clearGoCardlessWebhookSecret) {
-        body.goCardlessWebhookSecret = null;
-      } else if (goCardlessWebhookSecret.trim()) {
-        body.goCardlessWebhookSecret = goCardlessWebhookSecret.trim();
-      }
-
       const d = await apiSend<{ settings: Settings }>(
         "/api/admin/organization-settings/save",
         {
@@ -203,10 +187,8 @@ export function StaffSettingsPage() {
       setSettings(d.settings);
       setSmtpPass("");
       setClearSmtpPassword(false);
-      setGoCardlessSecretKey("");
-      setClearGoCardlessSecret(false);
-      setGoCardlessWebhookSecret("");
-      setClearGoCardlessWebhookSecret(false);
+      setStripeSecretKey("");
+      setStripeWebhookSecret("");
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
@@ -340,13 +322,12 @@ export function StaffSettingsPage() {
 
         <section className="space-y-4 border-t border-white/10 pt-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-            Billing &amp; GoCardless
+            Billing &amp; Stripe
           </h2>
           <p className="text-xs leading-relaxed text-slate-500">
-            Checkout is available when billing is enabled and a GoCardless
-            secret key exists either here or in the server environment. The
-            publishable key can stay available for future client-side billing
-            surfaces, but the current checkout flow is server-side.
+            Checkout is available when billing is enabled and a Stripe secret key
+            exists here or in the <code className="rounded bg-white/10 px-1">STRIPE_SECRET_KEY</code> env var.
+            The publishable key is displayed to applicants on the checkout page.
           </p>
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -362,30 +343,28 @@ export function StaffSettingsPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-300">
-                GoCardless publishable key
+                Stripe publishable key
               </label>
               <input
-                value={goCardlessPublishableKey}
-                onChange={(e) => setGoCardlessPublishableKey(e.target.value)}
+                value={stripePublishableKey}
+                onChange={(e) => setStripePublishableKey(e.target.value)}
                 autoComplete="off"
+                placeholder="pk_live_..."
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
-              <p className="mt-1 text-xs text-slate-500">
-                Reserved for future client-side billing surfaces.
-              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                GoCardless secret key
+                Stripe secret key
               </label>
               <input
                 type="password"
-                value={goCardlessSecretKey}
-                onChange={(e) => setGoCardlessSecretKey(e.target.value)}
+                value={stripeSecretKey}
+                onChange={(e) => setStripeSecretKey(e.target.value)}
                 placeholder={
-                  settings?.hasGoCardlessSecret
+                  settings?.hasStripeSecret
                     ? "•••••••• (leave blank to keep)"
-                    : "Required if not set in env"
+                    : "sk_live_... (required)"
                 }
                 autoComplete="new-password"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
@@ -393,49 +372,21 @@ export function StaffSettingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                GoCardless webhook secret
+                Stripe webhook signing secret
               </label>
               <input
                 type="password"
-                value={goCardlessWebhookSecret}
-                onChange={(e) => setGoCardlessWebhookSecret(e.target.value)}
+                value={stripeWebhookSecret}
+                onChange={(e) => setStripeWebhookSecret(e.target.value)}
                 placeholder={
-                  settings?.hasGoCardlessWebhookSecret
+                  settings?.hasStripeWebhookSecret
                     ? "•••••••• (leave blank to keep)"
-                    : "Required for webhook validation"
+                    : "whsec_... (from Stripe webhook destination)"
                 }
                 autoComplete="new-password"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
             </div>
-            {settings?.hasGoCardlessSecret ? (
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={clearGoCardlessSecret}
-                  onChange={(e) => setClearGoCardlessSecret(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-600 bg-ink-950 text-brand-500"
-                />
-                <span className="text-sm text-slate-400">
-                  Clear stored GoCardless secret key
-                </span>
-              </label>
-            ) : null}
-            {settings?.hasGoCardlessWebhookSecret ? (
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={clearGoCardlessWebhookSecret}
-                  onChange={(e) =>
-                    setClearGoCardlessWebhookSecret(e.target.checked)
-                  }
-                  className="h-4 w-4 rounded border-slate-600 bg-ink-950 text-brand-500"
-                />
-                <span className="text-sm text-slate-400">
-                  Clear stored GoCardless webhook secret
-                </span>
-              </label>
-            ) : null}
             <div>
               <label className="block text-sm font-medium text-slate-300">
                 Membership label
@@ -453,9 +404,7 @@ export function StaffSettingsPage() {
               </label>
               <input
                 value={checkoutRegistrationFeeName}
-                onChange={(e) =>
-                  setCheckoutRegistrationFeeName(e.target.value)
-                }
+                onChange={(e) => setCheckoutRegistrationFeeName(e.target.value)}
                 placeholder="Trader Watchdog registration and admin checks + VAT"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
@@ -481,9 +430,7 @@ export function StaffSettingsPage() {
               </label>
               <input
                 value={checkoutRegistrationFeePence}
-                onChange={(e) =>
-                  setCheckoutRegistrationFeePence(e.target.value)
-                }
+                onChange={(e) => setCheckoutRegistrationFeePence(e.target.value)}
                 inputMode="numeric"
                 placeholder="1800"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"

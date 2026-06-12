@@ -25,6 +25,7 @@ import cronRouter from "./routes/cron.js";
 import sitemapRouter from "./routes/sitemap.js";
 import { ensureSeedStaffFromEnv } from "./lib/ensureSeedStaff.js";
 import { goCardlessWebhookHandler } from "./routes/goCardlessWebhook.js";
+import { stripeWebhookHandler } from "./routes/stripeWebhook.js";
 import { sumsubWebhookHandler } from "./routes/sumsubWebhook.js";
 import { prisma } from "./db.js";
 import { checkInsuranceExpiries } from "./lib/insuranceAlerts.js";
@@ -74,6 +75,13 @@ app.post(
   express.raw({ type: "application/json" }),
   (req, res) => {
     void goCardlessWebhookHandler(req, res);
+  }
+);
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    void stripeWebhookHandler(req, res);
   }
 );
 app.post(
