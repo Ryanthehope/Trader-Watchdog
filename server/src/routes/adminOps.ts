@@ -145,6 +145,7 @@ const ADMIN_APPLICATION_MUTATION_SELECT = {
   stripeCustomerId: true,
   stripePaymentMethodId: true,
   membershipAutoChargeInitiatedAt: true,
+  verificationProvider: true,
   verificationStatus: true,
   xeroInvoiceId: true,
   xeroInvoiceFailed: true,
@@ -866,6 +867,7 @@ router.get("/applications", async (_req, res) => {
     });
     res.json({
       applications: rows.map((a) => serializeAdminApplication(a)),
+      sumsubEnabled: isSumsubConfigured(),
     });
   } catch (e) {
     console.error(e);
@@ -945,7 +947,12 @@ router.patch("/applications/:id", async (req, res) => {
       data.approvedByStaffName = null;
     }
 
-    if (transitioningToApproved && isSumsubConfigured() && before.verificationStatus !== "APPROVED") {
+    if (
+      transitioningToApproved &&
+      before.verificationProvider === "sumsub" &&
+      isSumsubConfigured() &&
+      before.verificationStatus !== "APPROVED"
+    ) {
       res.status(400).json({
         error:
           "Identity verification (Sumsub) must be completed and approved before the application can be approved.",

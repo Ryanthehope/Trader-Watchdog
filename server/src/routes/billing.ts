@@ -11,7 +11,6 @@ import { stripeErrorDetails } from "../lib/stripeErrors.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
 import { notifyMemberWelcome } from "../lib/adminMail.js";
-import { getLaunchWindow } from "../lib/launchWindow.js";
 
 const router = Router();
 
@@ -88,12 +87,10 @@ function siteOrigin(req: { get: (h: string) => string | undefined }) {
   );
 }
 
-function resolveDiscountCode(code: string): { discountType: "full" | "partial30" } | null {
+function resolveDiscountCode(code: string): { discountType: "full" } | null {
   const upper = code.trim().toUpperCase();
   const freeCode = (process.env.PROMO_CODE_FREE_MEMBERSHIP?.trim() || "NGB0").toUpperCase();
-  const off30Code = (process.env.PROMO_CODE_30_OFF?.trim() || "").toUpperCase();
   if (upper === freeCode) return { discountType: "full" };
-  if (off30Code && upper === off30Code) return { discountType: "partial30" };
   return null;
 }
 
@@ -114,15 +111,8 @@ router.post("/validate-discount", async (req, res) => {
     res.json({ valid: false });
     return;
   }
-  if (discount.discountType === "partial30" && !getLaunchWindow().launchDiscountActive) {
-    res.json({ valid: false });
-    return;
-  }
   if (discount.discountType === "full") {
     res.json({ valid: true, discountType: "full", savingsPence: lines.membershipPence, finalPricePence: 0 });
-  } else {
-    const savings = 3_600; // £30+VAT discount: £90 gross - £36 gross = £54 gross (£30+VAT saving)
-    res.json({ valid: true, discountType: "partial30", savingsPence: savings, finalPricePence: Math.max(0, lines.membershipPence - savings) });
   }
 });
 
@@ -234,11 +224,6 @@ router.post("/checkout-membership", async (req, res) => {
 
     const discountCodeInput = String(req.body?.discountCode ?? "").trim();
     const discount = discountCodeInput ? resolveDiscountCode(discountCodeInput) : null;
-    if (discount?.discountType === "partial30" && !getLaunchWindow().launchDiscountActive) {
-      res.status(400).json({ error: "That founder discount code has expired." });
-      return;
-    }
-
     if (discount?.discountType === "full") {
       // 100% off — provision directly without GoCardless
       const now = new Date();
@@ -271,12 +256,8 @@ router.post("/checkout-membership", async (req, res) => {
       return;
     }
 
-    const amountPence = discount?.discountType === "partial30"
-      ? Math.max(0, lines.membershipPence - 3_600)
-      : lines.membershipPence;
-
     const flow = await createStripeCheckoutSession(stripe, {
-      amountPence,
+      amountPence: lines.membershipPence,
       description: lines.membershipName,
       email,
       existingStripeCustomerId: application.stripeCustomerId,

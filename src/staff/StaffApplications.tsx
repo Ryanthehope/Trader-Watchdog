@@ -245,6 +245,7 @@ export function StaffApplications() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sumsubEnabled, setSumsubEnabled] = useState(false);
 
   const filteredRows = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -267,16 +268,17 @@ export function StaffApplications() {
 
   const load = () => {
     setLoading(true);
-    apiGetAuth<{ applications: AppRow[] }>("/api/admin/applications")
-      .then((d) =>
+    apiGetAuth<{ applications: AppRow[]; sumsubEnabled: boolean }>("/api/admin/applications")
+      .then((d) => {
+        setSumsubEnabled(Boolean(d.sumsubEnabled));
         setRows(
           d.applications.map((a) => ({
             ...a,
             documents: a.documents ?? [],
             createdMember: a.createdMember ?? null,
           }))
-        )
-      )
+        );
+      })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
       .finally(() => setLoading(false));
   };
@@ -353,6 +355,11 @@ export function StaffApplications() {
         <strong className="text-slate-300">expiry date</strong> (portal access ends after
         that). Copy the one-time portal password from the banner when it appears.
       </p>
+      {!sumsubEnabled ? (
+        <p className="mt-3 max-w-3xl rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100/90">
+          Sumsub is currently disabled. Applications can still be approved and processed without the automated identity check.
+        </p>
+      ) : null}
 
       {error ? <p className="mt-6 text-red-300">{error}</p> : null}
       {loading ? (
@@ -396,6 +403,7 @@ export function StaffApplications() {
                   onSave={patch}
                   onDelete={removeApp}
                   reload={load}
+                  sumsubEnabled={sumsubEnabled}
                 />
               ))}
             </div>
@@ -411,6 +419,7 @@ function ApplicationCard({
   onSave,
   onDelete,
   reload,
+  sumsubEnabled,
 }: {
   row: AppRow;
   onSave: (
@@ -421,6 +430,7 @@ function ApplicationCard({
   ) => Promise<MemberProvisioned>;
   onDelete: (id: string) => void;
   reload: () => void;
+  sumsubEnabled: boolean;
 }) {
   const [status, setStatus] = useState(row.status);
   const [notes, setNotes] = useState(cleanText(row.notes));
@@ -478,9 +488,14 @@ function ApplicationCard({
   const sectionsDoneCount = SECTIONS.filter((s) => vetting[s.id]?.done).length;
   const verificationStatus = row.verificationStatus ?? "NOT_STARTED";
   const addressVerificationStatus = row.addressVerificationStatus ?? "NOT_STARTED";
-  const canUseSumsub = row.status !== "DECLINED" && hasRegistrationFeePayment;
-  // Sumsub must be APPROVED before the application can be approved (only enforced when Sumsub has been used)
-  const sumsubPending = verificationStatus !== "APPROVED" && verificationStatus !== "NOT_STARTED";
+  const sumsubUsedForRow = row.verificationProvider === "sumsub";
+  const canUseSumsub =
+    sumsubEnabled && row.status !== "DECLINED" && hasRegistrationFeePayment;
+  const sumsubPending =
+    sumsubEnabled &&
+    sumsubUsedForRow &&
+    verificationStatus !== "APPROVED" &&
+    verificationStatus !== "NOT_STARTED";
 
   const save = async (nextStatus?: string) => {
     setSaving(true);
@@ -730,7 +745,7 @@ function ApplicationCard({
           <p className="mt-1 text-xs text-slate-600">
             Applied {new Date(row.createdAt).toLocaleString("en-GB")}
           </p>
-          {(awaitingRegistrationPayment || awaitingMembershipAfterApproval || paidAwaitingProfile || row.verificationProvider === "sumsub") && !expanded ? (
+          {(awaitingRegistrationPayment || awaitingMembershipAfterApproval || paidAwaitingProfile || sumsubUsedForRow) && !expanded ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {awaitingRegistrationPayment ? (
                 <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-200">
@@ -747,14 +762,14 @@ function ApplicationCard({
                   Fully paid — no profile
                 </span>
               ) : null}
-              {row.verificationProvider === "sumsub" ? (
+              {sumsubUsedForRow ? (
                 <span
                   className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${verificationStatusClasses(verificationStatus)}`}
                 >
                   {verificationStatusLabel(verificationStatus)}
                 </span>
               ) : null}
-              {row.verificationProvider === "sumsub" ? (
+              {sumsubUsedForRow ? (
                 <span
                   className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${addressVerificationClasses(
                     addressVerificationStatus,
@@ -932,7 +947,7 @@ function ApplicationCard({
                 ) : null}
               </div>
             ) : null}
-            {row.verificationProvider === "sumsub" ? (
+            {sumsubUsedForRow ? (
               <div className="mt-3 space-y-1 text-xs text-slate-500">
                 {row.verificationSubmittedAt ? (
                   <p>
@@ -1067,7 +1082,7 @@ function ApplicationCard({
                   </button>
                 ) : null}
               </>
-            ) : row.status !== "DECLINED" ? (
+            ) : sumsubEnabled && row.status !== "DECLINED" ? (
               <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-slate-400">
                 Sumsub unlocks after the registration fee is paid
               </span>

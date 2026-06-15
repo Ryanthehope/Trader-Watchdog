@@ -130,6 +130,18 @@ function cleanEnv(value: string | undefined): string {
   return value?.trim() ?? "";
 }
 
+function envFlagEnabled(value: string | undefined, fallback = true): boolean {
+  const normalized = cleanEnv(value).toLowerCase();
+  if (!normalized) return fallback;
+  if (["0", "false", "off", "no", "disabled"].includes(normalized)) {
+    return false;
+  }
+  if (["1", "true", "on", "yes", "enabled"].includes(normalized)) {
+    return true;
+  }
+  return fallback;
+}
+
 /**
  * Normalise a UK phone number to E.164 format expected by Sumsub.
  * "07911 123456" → "+447911123456", "+447911123456" → "+447911123456"
@@ -147,7 +159,8 @@ export function normalizePhoneE164(phone: string | null | undefined): string | n
 }
 
 export function isSumsubConfigured(): boolean {
-  return Boolean(cleanEnv(process.env.SUMSUB_APP_TOKEN)) &&
+  return envFlagEnabled(process.env.SUMSUB_ENABLED) &&
+    Boolean(cleanEnv(process.env.SUMSUB_APP_TOKEN)) &&
     Boolean(cleanEnv(process.env.SUMSUB_SECRET_KEY)) &&
     Boolean(cleanEnv(process.env.SUMSUB_LEVEL_NAME));
 }

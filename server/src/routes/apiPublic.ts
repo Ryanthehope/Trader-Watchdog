@@ -133,7 +133,6 @@ router.get("/public-config", async (_req, res) => {
     const s = await getOrgBilling();
     const goCardlessOk = Boolean(await getGoCardlessSecretKey());
     const lines = checkoutLineConfig(s);
-    const { launchDiscountActive } = getLaunchWindow();
     const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
 
     res.json({
@@ -148,7 +147,6 @@ router.get("/public-config", async (_req, res) => {
       registrationFeePricePence: lines.registrationFeePence,
       membershipPricePence: lines.membershipPence,
       baseMembershipPricePence: baseMembershipPence,
-      launchDiscountActive,
     });
   } catch (e) {
     console.error(e);
@@ -297,7 +295,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
 router.post("/applications/verification-link", async (req, res) => {
   try {
     if (!isSumsubConfigured()) {
-      res.status(400).json({ error: "Identity verification is not available yet" });
+      res.status(400).json({ error: "Identity verification is currently unavailable" });
       return;
     }
     const applicationId = String(req.body?.applicationId ?? "").trim();

@@ -46,42 +46,6 @@ const traderPoints = [
   "Your own  QR code to download for vehicles, stationery, and advertising - connecting direct to your portal.",
 ];
 
-const customerViews = [
-  {
-    title: "Verified listing",
-    body: "A search of your business name or telephone number connects to your business portal and shows a Green Flag. Your trading name, address, and telephone number display as verified. Your insurances and applicable licences display as verified. Your current qualifications and memberships display as visually confirmed, and your business description is shown.",
-    tone: "border-emerald-200 bg-emerald-50 text-slate-800",
-    image: "/Green%20flag2.webp",
-    imageAlt: "Green flag",
-  },
-  {
-    title: "Not listed",
-    body: "A search of your business name or telephone number shows a Red Flag. Householders are advised that the trader does not have a verified listing and they should be cautious, not entering an agreement without visual proof of insurance and legally required licences and registrations.",
-    tone: "border-rose-200 bg-rose-50 text-slate-800",
-    image: "/Red%20flag2.webp",
-    imageAlt: "Red flag",
-  },
-];
-
-const howItWorks = [
-  {
-    title: "Add your business details",
-    body: "Use the trading name, postcode, email, and phone number you already advertise.",
-  },
-  {
-    title: "Upload your documents",
-    body: "Insurance is required. Other documents such as qualifications, memberships, and scheme registrations are optional but helpful.",
-  },
-  {
-    title: "Complete your checks",
-    body: "We guide you through identity, address, and liveness checks. We also review insurance and any required licences or registrations.",
-  },
-  {
-    title: "Pay only when approved",
-    body: "No payment for your subscription until your credentials are validated and your application is accepted.",
-  },
-];
-
 type FaqItem = { q: string; a: string };
 
 const traderFaqItems: FaqItem[] = [
@@ -129,6 +93,10 @@ const traderFaqItems: FaqItem[] = [
     q: "Can I use the badge if I'm not verified?",
     a: "No. Misuse of the QR code breaches our Misrepresentation Policy and may result in suspension or removal.",
   },
+  {
+    q: "Why should I register when I already belong to a trader register?",
+    a: " Trader Watchdog provides customers with the easy option, just a one click solution. In your portal you have a window to describe your business and place links to your website or social media as well as other websites or associations where your business is registered."
+  },
 ];
 
 export function Join() {
@@ -139,7 +107,6 @@ export function Join() {
   const [registrationFeePricePence, setRegistrationFeePricePence] = useState<number | null>(null);
   const [membershipPricePence, setMembershipPricePence] = useState<number | null>(null);
   const [baseMembershipPricePence, setBaseMembershipPricePence] = useState<number | null>(null);
-  const [launchDiscountActive, setLaunchDiscountActive] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -154,15 +121,6 @@ export function Join() {
   >(null);
   const [verificationLinkLoading, setVerificationLinkLoading] = useState(false);
   const [verificationLinkError, setVerificationLinkError] = useState<string | null>(null);
-  const [discountCode, setDiscountCode] = useState("");
-  const [discountApplied, setDiscountApplied] = useState<{
-    valid: true;
-    discountType: "full" | "partial30";
-    savingsPence: number;
-    finalPricePence: number;
-  } | null>(null);
-  const [discountValidating, setDiscountValidating] = useState(false);
-  const [discountError, setDiscountError] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [applicantSummary, setApplicantSummary] =
     useState<ApplicantSummary | null>(null);
@@ -171,7 +129,7 @@ export function Join() {
 
   const paidNotice = searchParams.get("paid");
   const cancelled = searchParams.get("cancelled");
-  const { beforeLaunch, applicationsOpen, launchDiscountActive: launchWindowDiscountActive, publicSearchEnabled } =
+  const { beforeLaunch, applicationsOpen, publicSearchEnabled } =
     getLaunchWindow();
 
   const applyStoredJoinSession = useCallback(
@@ -348,7 +306,6 @@ export function Join() {
           registrationFeePricePence?: number;
           membershipPricePence?: number;
           baseMembershipPricePence?: number;
-          launchDiscountActive?: boolean;
         }) => {
         if (d.recaptchaSiteKey) setRecaptchaSiteKey(d.recaptchaSiteKey);
           if (typeof d.registrationFeePricePence === "number") {
@@ -360,7 +317,6 @@ export function Join() {
           if (typeof d.baseMembershipPricePence === "number") {
             setBaseMembershipPricePence(d.baseMembershipPricePence);
           }
-          setLaunchDiscountActive(Boolean(d.launchDiscountActive));
         }
       )
       .catch(() => {});
@@ -608,7 +564,6 @@ export function Join() {
         body: JSON.stringify({
           applicationId: targetApplicationId,
           email: targetEmail,
-          ...(discountApplied ? { discountCode: discountCode.trim() } : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -661,36 +616,6 @@ export function Join() {
       setVerificationLinkError("Network error. Please try again.");
     } finally {
       setVerificationLinkLoading(false);
-    }
-  };
-
-  const applyDiscountCode = async () => {
-    const code = discountCode.trim();
-    if (!code || !applicationId || !savedEmail) return;
-    setDiscountValidating(true);
-    setDiscountError(null);
-    try {
-      const res = await fetch(`${apiBase()}/api/billing/validate-discount`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        valid?: boolean;
-        discountType?: string;
-        savingsPence?: number;
-        finalPricePence?: number;
-      };
-      if (!res.ok || !data.valid) {
-        setDiscountError("Invalid discount code. Please check and try again.");
-        setDiscountApplied(null);
-      } else {
-        setDiscountApplied(data as { valid: true; discountType: "full" | "partial30"; savingsPence: number; finalPricePence: number });
-      }
-    } catch {
-      setDiscountError("Could not validate code. Please try again.");
-    } finally {
-      setDiscountValidating(false);
     }
   };
 
@@ -837,7 +762,6 @@ export function Join() {
         },
       ]
     : [];
-  const showFounderOffer = launchWindowDiscountActive || launchDiscountActive;
   const introBody =
     "In as little as 10 minutes, complete the form below and upload the supporting evidence needed for review. Identity, address, liveness, and payment checks are then handled as part of the verification process.";
   const introSupport =
@@ -848,11 +772,6 @@ export function Join() {
     <>
       <section className="border-b border-slate-200 bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          {showFounderOffer && (
-            <div className="mb-10 rounded-2xl border border-amber-300 bg-amber-50 px-6 py-5 text-center">
-              <p className="text-xl font-bold text-amber-800">Pre-launch offer – see below!</p>
-            </div>
-          )}
 
           <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
             Proudly display you are a professional, legitimate business
@@ -877,92 +796,27 @@ export function Join() {
                 ))}
               </ul>
             </div>
-            <div className="rounded-3xl border border-brand-200 bg-brand-50 p-8">
-              {showFounderOffer && (
-                <div className="mb-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-4">
-                  <p className="text-sm font-bold leading-relaxed text-amber-900 sm:text-base">
-                    Become a Founder Member and save £30 off the annual subscription for your first year! Subscriptions for applications approved before 1st July will start on the 1st July at the discounted Founder Member price for the first year. Apply code <span className="font-mono tracking-wide">A5LESS</span> at checkout!
-                  </p>
-                </div>
-              )}
-              <p className="text-sm font-semibold uppercase tracking-wider text-brand-700">
-                What it costs
+            <div className="mt-12">
+              <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
+                Decals available for vehicles, advertising and stationery.
+                Your QR code connects the public and customers direct to your verified profile.
               </p>
-              <div className="mt-5 space-y-4 text-sm text-slate-700 sm:text-base">
-                <div className="rounded-2xl border border-white bg-white p-4">
-                  <p className="font-semibold text-slate-900">One-off registration fee</p>
-                  <p className="mt-1">£15 + VAT</p>
-                </div>
-                <div className="rounded-2xl border border-white bg-white p-4">
-                  <p className="font-semibold text-slate-900">Annual subscription</p>
-                  <p className="mt-1">£75 + VAT</p>
-                </div>
+              <div className="flex flex-wrap justify-center gap-6">
+                <img
+                  src="/sticker-120-website.jpg"
+                  alt="Trader Watchdog verified trader sticker 120mm"
+                  className="h-64 w-64 object-contain"
+                  loading="lazy"
+                />
               </div>
-            </div>
-          </div>
-          <div className="mt-12">
-            <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-brand-600"> Decals available for vehicles, advertising and stationery. 
-              Your QR code connects the public and customers direct to your verified profile.
-            </p> 
-            <div className="flex flex-wrap justify-center gap-6">
-              <img
-                src="/sticker-120-website.jpg"
-                alt="Trader Watchdog verified trader sticker 120mm"
-                className="h-64 w-64 object-contain"
-                loading="lazy"
-              />
-            </div>
-            <div className="mt-6 flex justify-center">
-              <img
-                src="/sticker-250-website.jpg"
-                alt="Trader Watchdog verified trader sticker 250mm"
-                className="max-w-full"
-                loading="lazy"
-              />
-            </div>
-          </div>
-          <div className="mt-12">
-            <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
-              What customers see
-            </p>
-            <div className="mt-6 grid gap-6 md:grid-cols-2">
-              {customerViews.map((view) => (
-                <div key={view.title} className={`rounded-3xl border p-6 ${view.tone}`}>
-                  <div className="flex items-start gap-4">
-                    <img
-                      src={view.image}
-                      alt={view.imageAlt}
-                      width="56"
-                      height="56"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-14 w-14 shrink-0 object-contain"
-                    />
-                    <div>
-                      <h3 className="font-display text-xl font-semibold text-slate-900">{view.title}</h3>
-                      <p className="mt-3 text-sm leading-relaxed sm:text-base">{view.body}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="mx-auto mt-6 max-w-3xl text-center text-sm leading-relaxed text-slate-700 sm:text-base">
-              Customers are asked to mention Trader Watchdog in all communications.
-              Trader Watchdog is designed to show proof first, not sell leads.
-            </p>
-          </div>
-          <div className="mt-12 rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.16)]">
-            <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
-              How it works
-            </p>
-            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {howItWorks.map((step, index) => (
-                <div key={step.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-left">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">Step {index + 1}</p>
-                  <h3 className="mt-3 font-display text-lg font-semibold text-slate-900">{step.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-700">{step.body}</p>
-                </div>
-              ))}
+              <div className="mt-6 flex justify-center">
+                <img
+                  src="/sticker-250-website.jpg"
+                  alt="Trader Watchdog verified trader sticker 250mm"
+                  className="max-w-full"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1371,41 +1225,6 @@ export function Join() {
                       current email address until it is completed or declined.
                     </p>
                     <div className="mt-4">
-                      {(applicantSummary?.canCheckoutRegistrationFee || applicantSummary?.canCheckoutMembership) ? (
-                        <div className="mb-3">
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={discountCode}
-                              onChange={(e) => {
-                                setDiscountCode(e.target.value.toUpperCase());
-                                setDiscountApplied(null);
-                                setDiscountError(null);
-                              }}
-                              placeholder="Discount code (optional)"
-                              className="flex-1 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                              disabled={discountValidating || checkoutLoading !== null}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => void applyDiscountCode()}
-                              disabled={!discountCode.trim() || discountValidating || checkoutLoading !== null}
-                              className="rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-50"
-                            >
-                              {discountValidating ? "…" : "Apply"}
-                            </button>
-                          </div>
-                          {discountApplied ? (
-                            <p className="mt-1 text-xs text-emerald-400">
-                              ✓ {discountApplied.discountType === "full"
-                                ? "100% discount applied — registration fee and annual membership are free"
-                                : `Discount applied — pay just ${formatVatExclusiveLabel(discountApplied.finalPricePence) ?? "£45 + VAT"}`}
-                            </p>
-                          ) : discountError ? (
-                            <p className="mt-1 text-xs text-amber-400">{discountError}</p>
-                          ) : null}
-                        </div>
-                      ) : null}
                       <div className="flex flex-col gap-3 sm:flex-row">
                       {applicantSummary?.canCheckoutRegistrationFee ? (
                         <button
@@ -1416,9 +1235,7 @@ export function Join() {
                         >
                           {checkoutLoading === "registration"
                             ? "Redirecting…"
-                            : discountApplied?.discountType === "full"
-                              ? "Registration fee — Free"
-                              : `Registration fee ${registrationFeePriceLabel}`}
+                            : `Registration fee ${registrationFeePriceLabel}`}
                         </button>
                       ) : null}
                       {applicantSummary?.canCheckoutMembership ? (
@@ -1430,11 +1247,7 @@ export function Join() {
                         >
                           {checkoutLoading === "member"
                             ? "Redirecting…"
-                            : discountApplied?.discountType === "full"
-                              ? "Annual membership — Free"
-                              : discountApplied?.discountType === "partial30"
-                                ? `Annual membership ${formatVatExclusiveLabel(discountApplied.finalPricePence) ?? "— Discounted"}`
-                                : `Annual membership ${membershipPriceLabel}`}
+                            : `Annual membership ${membershipPriceLabel}`}
                         </button>
                       ) : null}
                     </div>
