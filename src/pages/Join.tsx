@@ -46,6 +46,89 @@ const traderPoints = [
   "Your own  QR code to download for vehicles, stationery, and advertising - connecting direct to your portal.",
 ];
 
+const publicViews = [
+  {
+    title: "Verified",
+    body: "A search for a verified trader shows a green flag with their public profile, verified business details, insurance, licences and supporting credentials.",
+    image: "/Green flag2.webp",
+    imageAlt: "Green flag",
+    tone: "border-emerald-200 bg-emerald-50 text-slate-800",
+  },
+  {
+    title: "Not verified",
+    body: "A search for a business that is not verified shows a red flag advising caution.",
+    image: "/Red flag2.webp",
+    imageAlt: "Red flag",
+    tone: "border-rose-200 bg-rose-50 text-slate-800",
+  },
+];
+
+const workflowSteps = [
+  {
+    step: "01",
+    title: "Trader applies online",
+    body: "The trader completes a short form and uploads proof of identity, address, insurance and any required licences.",
+    image: "/Icon 1 Trader applies online.webp",
+    imageAlt: "Step 1 icon",
+  },
+  {
+    step: "02",
+    title: "Card details added securely",
+    body: "Stripe stores the card details safely. No payment is taken at this stage.",
+    image: "/Icon 2 secure credit card.webp",
+    imageAlt: "Step 2 icon",
+  },
+  {
+    step: "03",
+    title: "We complete verification checks",
+    body: "We confirm identity, address, insurance and any legally required licences.",
+    image: "/traderwatchdog_logo.webp",
+    imageAlt: "Step 3 icon",
+  },
+  {
+    step: "04",
+    title: "Subscription payment only after approval",
+    body: "£15 registration fee (non-refundable) + £75 annual subscription plus VAT.",
+    image: "/Icon 4 payment after approval.webp",
+    imageAlt: "Step 4 icon",
+  },
+  {
+    step: "05",
+    title: "Your public profile goes live",
+    body: "Householders can now see your Green Flag, scan your QR code and trust you instantly.",
+    image: "/Icon 5 going live.webp",
+    imageAlt: "Step 5 icon",
+  },
+  {
+    step: "06",
+    title: "Annual renewal",
+    body: "Your subscription renews once a year through Stripe. You'll receive reminders before renewal.",
+    image: "/Icon 6 renewal.webp",
+    imageAlt: "Step 6 icon",
+  },
+  {
+    step: "07",
+    title: "Keep your details up to date",
+    body: "Update insurance, licences or card details anytime through your dashboard.",
+    image: "/Icon 7 keep updated.webp",
+    imageAlt: "Step 7 icon",
+  },
+  {
+    step: "08",
+    title: "What you get",
+    body: "A Green Flag, a public profile, digital badges to download and QR code — all for £15 + £75 per year plus VAT.",
+    image: "/Badge TW1.webp",
+    imageAlt: "Step 8 icon",
+  },
+];
+
+const footerNotes = [
+  "Verification confirms identity, insurance and licensing only.",
+  "Trader Watchdog does not rate or review traders.",
+  "Householders remain responsible for choosing a trader.",
+  "All prices exclude VAT.",
+];
+
 type FaqItem = { q: string; a: string };
 
 const traderFaqItems: FaqItem[] = [
@@ -129,8 +212,7 @@ export function Join() {
 
   const paidNotice = searchParams.get("paid");
   const cancelled = searchParams.get("cancelled");
-  const { beforeLaunch, applicationsOpen, publicSearchEnabled } =
-    getLaunchWindow();
+  const { applicationsOpen } = getLaunchWindow();
 
   const applyStoredJoinSession = useCallback(
     (p: { applicationId: string; email: string }) => {
@@ -770,58 +852,139 @@ export function Join() {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white py-20 sm:py-28">
+      <section className="border-b border-slate-200 bg-[radial-gradient(circle_at_top,#e7f7ee_0%,#f4f7f5_42%,#ffffff_100%)] py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mx-auto max-w-4xl text-center">
+            <img
+              src="/traderwatchdog_logo.webp"
+              alt="Trader Watchdog logo"
+              className="mx-auto h-24 w-auto object-contain sm:h-28"
+              loading="lazy"
+            />
+            <p className="mt-8 text-sm font-semibold uppercase tracking-[0.24em] text-brand-700">
+              How Trader Watchdog Works
+            </p>
+            <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              A simple green flag / red flag process designed to verify honest traders for householder protection.
+            </h1>
+          </div>
 
-          <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
-            Proudly display you are a professional, legitimate business
-          </p>
-          <h2 className="mt-3 text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
-            VERIFIED. LEGIT. TRUSTED
-          </h2>
-          <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-relaxed text-slate-700">
-            Trader Watchdog is not a platform to attract the public to traders.
-            It is a platform to protect the public from traders, providing
-            something that marketplaces, job registers, advertising, and social
-            media cannot: <strong>TRUST.</strong>
-          </p>
-          <div className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8">
-              <ul className="space-y-4 text-sm leading-relaxed text-slate-700 sm:text-base">
+          <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start">
+            <div className="rounded-[2rem] border border-emerald-100 bg-white/85 p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+                Trader Watchdog provides verified traders with
+              </p>
+              <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-700 sm:text-base">
                 {traderPoints.map((point) => (
                   <li key={point} className="flex gap-3">
                     <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-600" />
-                    <span>{point}</span>
+                    <span>{point.trim()}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="mt-12">
-              <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
-                Decals available for vehicles, advertising and stationery.
-                Your QR code connects the public and customers direct to your verified profile.
+
+            <div className="space-y-6">
+              <p className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+                What the public sees
               </p>
-              <div className="flex flex-wrap justify-center gap-6">
-                <img
-                  src="/sticker-120-website.jpg"
-                  alt="Trader Watchdog verified trader sticker 120mm"
-                  className="h-64 w-64 object-contain"
-                  loading="lazy"
-                />
-              </div>
-              <div className="mt-6 flex justify-center">
-                <img
-                  src="/sticker-250-website.jpg"
-                  alt="Trader Watchdog verified trader sticker 250mm"
-                  className="max-w-full"
-                  loading="lazy"
-                />
+              <div className="grid gap-6">
+                {publicViews.map((view) => (
+                  <div key={view.title} className={`rounded-[1.75rem] border p-6 shadow-[0_22px_50px_-38px_rgba(15,23,42,0.25)] ${view.tone}`}>
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={view.image}
+                        alt={view.imageAlt}
+                        className="h-16 w-16 shrink-0 object-contain"
+                        loading="lazy"
+                      />
+                      <div>
+                        <h2 className="font-display text-2xl font-semibold text-slate-900">
+                          {view.title}
+                        </h2>
+                        <p className="mt-3 text-sm leading-relaxed sm:text-base">
+                          {view.body}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
-      <main className="border-b border-white/5 pb-24">
+
+      <section className="border-b border-slate-200 bg-white py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+              How It Works
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              From application to green flag in eight simple steps
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-4 xl:gap-10">
+            {workflowSteps.map((step) => (
+              <div
+                key={step.step}
+                className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-7 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.2)]"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <img
+                    src={step.image}
+                    alt={step.imageAlt}
+                    className="h-16 w-16 object-contain"
+                    loading="lazy"
+                  />
+                  <span className="font-display text-3xl font-bold text-brand-700">
+                    {step.step}
+                  </span>
+                </div>
+                <h3 className="mt-6 font-display text-xl font-semibold text-slate-900">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                  {step.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-emerald-700/30 bg-gradient-to-r from-brand-700 to-emerald-700 py-16 sm:py-20">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
+            Ready to get verified?
+          </h2>
+          <p className="mt-3 text-sm font-medium text-emerald-50/90 sm:text-base">
+            Takes less than 5 minutes.
+          </p>
+          <a
+            href="#application-form"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-base font-semibold text-brand-700 transition hover:bg-emerald-50"
+          >
+            Start Your Application
+          </a>
+        </div>
+      </section>
+
+      <section className="border-b border-slate-200 bg-slate-50 py-8">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="grid gap-3 text-xs leading-relaxed text-slate-500 sm:grid-cols-2 xl:grid-cols-4">
+            {footerNotes.map((note) => (
+              <p key={note} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                {note}
+              </p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <main id="application-form" className="border-b border-white/5 pb-24">
       <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-12 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
