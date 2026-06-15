@@ -11,6 +11,7 @@ const apiBase = () =>
 
 const JOIN_STORAGE_KEY = "Trader Watchdog_join_apply";
 const CHECKOUT_REQUEST_TIMEOUT_MS = 20_000;
+const JOIN_HOUSE_LOGO_COLOR = "#122a80";
 
 type ApplicantSummary = {
   exists: boolean;
@@ -82,7 +83,7 @@ const workflowSteps = [
     step: "03",
     title: "We complete verification checks",
     body: "We confirm identity, address, insurance and any legally required licences.",
-    image: "/traderwatchdog_logo.webp",
+    image: "/Icon 3 verification checks.png",
     imageAlt: "Step 3 icon",
   },
   {
@@ -852,16 +853,19 @@ export function Join() {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-[radial-gradient(circle_at_top,#e7f7ee_0%,#f4f7f5_42%,#ffffff_100%)] py-20 sm:py-24">
+      <section className="border-b border-slate-200 bg-[radial-gradient(circle_at_top,#e8eefb_0%,#f5f7fb_42%,#ffffff_100%)] py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             <img
-              src="/traderwatchdog_logo.webp"
-              alt="Trader Watchdog logo"
+              src="/House logo.png"
+              alt="Trader Watchdog house logo"
               className="mx-auto h-24 w-auto object-contain sm:h-28"
               loading="lazy"
             />
-            <p className="mt-8 text-sm font-semibold uppercase tracking-[0.24em] text-brand-700">
+            <p
+              className="mt-8 text-sm font-semibold uppercase tracking-[0.24em]"
+              style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+            >
               How Trader Watchdog Works
             </p>
             <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
@@ -870,14 +874,20 @@ export function Join() {
           </div>
 
           <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start">
-            <div className="rounded-[2rem] border border-emerald-100 bg-white/85 p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+            <div className="rounded-[2rem] border border-[#d7def3] bg-white/85 p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
+              <p
+                className="text-sm font-semibold uppercase tracking-[0.2em]"
+                style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+              >
                 Trader Watchdog provides verified traders with
               </p>
               <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-700 sm:text-base">
                 {traderPoints.map((point) => (
                   <li key={point} className="flex gap-3">
-                    <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-600" />
+                    <span
+                      className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: JOIN_HOUSE_LOGO_COLOR }}
+                    />
                     <span>{point.trim()}</span>
                   </li>
                 ))}
@@ -885,7 +895,10 @@ export function Join() {
             </div>
 
             <div className="space-y-6">
-              <p className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+              <p
+                className="text-center text-sm font-semibold uppercase tracking-[0.2em]"
+                style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+              >
                 What the public sees
               </p>
               <div className="grid gap-6">
@@ -918,7 +931,10 @@ export function Join() {
       <section className="border-b border-slate-200 bg-white py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
+            <p
+              className="text-sm font-semibold uppercase tracking-[0.2em]"
+              style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+            >
               How It Works
             </p>
             <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
@@ -939,7 +955,10 @@ export function Join() {
                     className="h-16 w-16 object-contain"
                     loading="lazy"
                   />
-                  <span className="font-display text-3xl font-bold text-brand-700">
+                  <span
+                    className="font-display text-3xl font-bold"
+                    style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+                  >
                     {step.step}
                   </span>
                 </div>
@@ -955,7 +974,13 @@ export function Join() {
         </div>
       </section>
 
-      <section className="border-b border-emerald-700/30 bg-gradient-to-r from-brand-700 to-emerald-700 py-16 sm:py-20">
+      <section
+        className="border-b py-16 sm:py-20"
+        style={{
+          borderColor: "rgba(18, 42, 128, 0.3)",
+          background: "linear-gradient(90deg, #122a80 0%, #2148bf 100%)",
+        }}
+      >
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
           <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
             Ready to get verified?
@@ -965,7 +990,8 @@ export function Join() {
           </p>
           <a
             href="#application-form"
-            className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-base font-semibold text-brand-700 transition hover:bg-emerald-50"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-base font-semibold transition hover:bg-slate-100"
+            style={{ color: JOIN_HOUSE_LOGO_COLOR }}
           >
             Start Your Application
           </a>
@@ -1297,7 +1323,7 @@ export function Join() {
                     </p>
                     <p className="mt-2 text-emerald-100/85">
                       Sign in with your work email:{" "}
-                      <span className="text-white">{savedEmail}</span>
+                     <span className="text-white">{savedEmail}</span>
                     </p>
                     {applicantSummary.oneTimePassword ? (
                       <p className="mt-3 text-sm text-emerald-100/85">
