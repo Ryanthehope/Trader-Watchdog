@@ -498,11 +498,11 @@ export function Home() {
 
       <Pillars />
       <section className="small-print-on-light border-b border-slate-200 bg-white py-12">
-        <div className="mx-auto max-w-xs px-4 text-center sm:px-6">
+        <div className="mx-auto max-w-md px-4 text-center sm:px-6">
           <img
             src="/Badge%20TW3.webp"
             alt="Trader Watchdog verified trader sticker"
-            className="mx-auto max-w-full"
+            className="mx-auto w-full max-w-[28rem]"
             loading="lazy"
           />
           <p className="mt-4 text-2xl font-semibold text-slate-700">Look for the sign of a Verified Trader</p>

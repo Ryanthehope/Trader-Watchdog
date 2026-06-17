@@ -1068,11 +1068,11 @@ export function Join() {
             <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
               To complete your application, you will require
             </p>
-            <ul className="mt-5 space-y-3 text-sm leading-relaxed text-slate-300">
+            <ul className="mt-5 space-y-3 text-sm leading-relaxed text-slate-900">
               {applicationRequirements.map((item) => (
                 <li key={item} className="flex gap-3">
                   <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-400" />
-                  <span>{item}</span>
+                  <span className="text-slate-900">{item}</span>
                 </li>
               ))}
             </ul>
@@ -1498,7 +1498,10 @@ export function Join() {
             </div>
           </div>
         ) : (
-          <form className="space-y-5" onSubmit={onSubmit}>
+          <form
+            className="space-y-5 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] sm:p-8"
+            onSubmit={onSubmit}
+          >
             {formError ? (
               <div
                 className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
