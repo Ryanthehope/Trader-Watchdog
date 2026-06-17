@@ -60,21 +60,50 @@ const VAN_STICKER_CONFIGS = {
     templateFile: "van-qr-1.jpg",
     mmWidth: 250,
     mmHeight: 100,
-    // QR placeholder box detected at x=42–927, y=44–927 (885×883px, near-square)
-    qrLeft: 57,   // px from left — inset 15px from box edge
-    qrTop: 59,    // px from top — inset 15px from box edge
-    qrSize: 855,  // QR code square (px), fits inside 885px-wide box with margin
+    panelLeft: 2060,
+    panelTop: 177,
+    panelSize: 820,
+    qrInset: 18,
   },
   "2": {
     templateFile: "van-qr-2.jpg",
     mmWidth: 187,
     mmHeight: 93,
-    // QR placeholder box measured at x=111–993, y=124–1004 (882×880px, near-square)
-    qrLeft: 113,  // px from left — 2px inset from inner box edge
-    qrTop: 126,   // px from top — 2px inset from inner box edge
-    qrSize: 878,  // QR code square (px), fills the 882px inner box width
+    panelLeft: 726,
+    panelTop: 174,
+    panelSize: 760,
+    qrInset: 16,
   },
 } as const;
+
+async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerId], profileUrl: string) {
+  const qrSize = cfg.panelSize - cfg.qrInset * 2;
+  const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
+    type: "png",
+    errorCorrectionLevel: "H",
+    margin: 1,
+    width: qrSize,
+    color: { dark: "#000000", light: "#FFFFFFFF" },
+  });
+
+  return sharp({
+    create: {
+      width: cfg.panelSize,
+      height: cfg.panelSize,
+      channels: 4,
+      background: "#FFFFFF",
+    },
+  })
+    .composite([
+      {
+        input: qrPngBuffer,
+        left: cfg.qrInset,
+        top: cfg.qrInset,
+      },
+    ])
+    .png()
+    .toBuffer();
+}
 
 type VanStickerId = keyof typeof VAN_STICKER_CONFIGS;
 
@@ -345,24 +374,16 @@ router.get("/qr-code/van-sticker/:id", async (req, res) => {
 
     const profileUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
 
-    // Generate QR code at the required size.
-    const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
-      type: "png",
-      errorCorrectionLevel: "H", // High error correction for van use
-      margin: 1,
-      width: cfg.qrSize,
-      color: { dark: "#000000", light: "#FFFFFFFF" },
-    });
+    const qrPanelBuffer = await buildStickerQrPanel(cfg, profileUrl);
 
-    // Load the template and composite the QR code into the white placeholder box.
-    // Output as PNG (lossless) so QR code edges stay artifact-free for the printer.
+    // Place a white QR surround panel on top of the finished sticker artwork.
     const templatePath = path.join(ASSETS_DIR, cfg.templateFile);
     const output = await sharp(templatePath)
       .composite([
         {
-          input: qrPngBuffer,
-          left: cfg.qrLeft,
-          top: cfg.qrTop,
+          input: qrPanelBuffer,
+          left: cfg.panelLeft,
+          top: cfg.panelTop,
         },
       ])
       .png({ compressionLevel: 9 })

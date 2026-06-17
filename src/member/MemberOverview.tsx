@@ -52,16 +52,16 @@ const STICKER_PREVIEWS = {
   "1": {
     templateSrc: "/van-qr-1.jpg",
     label: "250×100mm",
-    qrLeft: "1.93%",
-    qrTop: "5.03%",
-    qrWidth: "28.87%",
+    qrLeft: "69.55%",
+    qrTop: "15.08%",
+    qrWidth: "27.68%",
   },
   "2": {
     templateSrc: "/van-qr-2.jpg",
     label: "187×93mm",
-    qrLeft: "5.11%",
-    qrTop: "11.37%",
-    qrWidth: "39.69%",
+    qrLeft: "32.82%",
+    qrTop: "15.70%",
+    qrWidth: "34.36%",
   },
 } as const;
 
@@ -80,19 +80,23 @@ function StickerPreviewCard({ variant }: { variant: StickerVariant }) {
           loading="lazy"
           decoding="async"
         />
-        <img
-          src={GENERIC_STICKER_QR_URL}
-          alt="Generic QR code linking to traderwatchdog.co.uk"
-          className="absolute"
+        <div
+          className="absolute bg-white p-2 shadow-[0_10px_24px_-16px_rgba(15,23,42,0.5)]"
           style={{
             left: preview.qrLeft,
             top: preview.qrTop,
             width: preview.qrWidth,
             aspectRatio: "1 / 1",
           }}
-          loading="lazy"
-          decoding="async"
-        />
+        >
+          <img
+            src={GENERIC_STICKER_QR_URL}
+            alt="Generic QR code linking to traderwatchdog.co.uk"
+            className="block h-full w-full"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
       </div>
       <div className="border-t border-slate-200 bg-white px-4 py-3">
         <p className="text-sm font-semibold text-slate-900">Preview size: {preview.label}</p>

@@ -40,19 +40,53 @@ const VAN_STICKER_CONFIGS = {
     templateFile: "van-qr-1.jpg",
     mmWidth: 250,
     mmHeight: 100,
-    qrLeft: 57,
-    qrTop: 59,
-    qrSize: 855,
+    panelLeft: 2060,
+    panelTop: 177,
+    panelSize: 820,
+    qrInset: 18,
   },
   "2": {
     templateFile: "van-qr-2.jpg",
     mmWidth: 187,
     mmHeight: 93,
-    qrLeft: 113,
-    qrTop: 126,
-    qrSize: 878,
+    panelLeft: 726,
+    panelTop: 174,
+    panelSize: 760,
+    qrInset: 16,
   },
 } as const;
+
+async function buildStickerQrPanel(
+  cfg: (typeof VAN_STICKER_CONFIGS)[keyof typeof VAN_STICKER_CONFIGS],
+  profileUrl: string
+) {
+  const qrSize = cfg.panelSize - cfg.qrInset * 2;
+  const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
+    type: "png",
+    errorCorrectionLevel: "H",
+    margin: 1,
+    width: qrSize,
+    color: { dark: "#000000", light: "#FFFFFFFF" },
+  });
+
+  return sharp({
+    create: {
+      width: cfg.panelSize,
+      height: cfg.panelSize,
+      channels: 4,
+      background: "#FFFFFF",
+    },
+  })
+    .composite([
+      {
+        input: qrPngBuffer,
+        left: cfg.qrInset,
+        top: cfg.qrInset,
+      },
+    ])
+    .png()
+    .toBuffer();
+}
 
 async function buildVanStickerAttachments(
   prisma: PrismaClient,
@@ -68,21 +102,15 @@ async function buildVanStickerAttachments(
 
   return Promise.all(
     selectedEntries.map(async ([stickerId, cfg]) => {
-      const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
-        type: "png",
-        errorCorrectionLevel: "H",
-        margin: 1,
-        width: cfg.qrSize,
-        color: { dark: "#000000", light: "#FFFFFFFF" },
-      });
+      const qrPanelBuffer = await buildStickerQrPanel(cfg, profileUrl);
 
       const templatePath = path.join(ASSETS_DIR, cfg.templateFile);
       const output = await sharp(templatePath)
         .composite([
           {
-            input: qrPngBuffer,
-            left: cfg.qrLeft,
-            top: cfg.qrTop,
+            input: qrPanelBuffer,
+            left: cfg.panelLeft,
+            top: cfg.panelTop,
           },
         ])
         .png({ compressionLevel: 9 })

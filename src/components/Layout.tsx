@@ -126,12 +126,6 @@ export function Layout() {
               <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
                 What we check
               </Link>
-              <Link to="/#verify" className={`${desktopActionClass} bg-white/10`}>
-                Verify a trader
-              </Link>
-              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
-                Join Trader Watchdog
-              </Link>
             </nav>
           </div>
         </div>
@@ -145,20 +139,6 @@ export function Layout() {
                 onClick={() => setMenuOpen(false)}
               >
                 What we check
-              </Link>
-              <Link
-                to="/#verify"
-                className="mt-2 rounded-lg bg-white/10 px-3 py-2.5 text-center font-semibold text-white hover:bg-white/[0.14]"
-                onClick={() => setMenuOpen(false)}
-              >
-                Verify a trade
-              </Link>
-              <Link
-                to="/join"
-                className="mt-2 rounded-lg bg-brand-600 px-3 py-2.5 text-center font-semibold text-white hover:bg-brand-500"
-                onClick={() => setMenuOpen(false)}
-              >
-                Join Trader Watchdog
               </Link>
               <Link
                 to="/member/login"
