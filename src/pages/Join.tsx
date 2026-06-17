@@ -1254,6 +1254,27 @@ export function Join() {
               </p>
             )}
 
+            {sentVia === "api" && formError ? (
+              <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4 text-left">
+                <p className="text-sm font-semibold text-amber-100">
+                  Checkout could not start automatically
+                </p>
+                <p className="mt-2 text-sm text-amber-100/90">{formError}</p>
+                {applicationId ? (
+                  <button
+                    type="button"
+                    disabled={checkoutLoading !== null}
+                    onClick={() => void startCheckout("registration")}
+                    className="mt-4 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-ink-900 hover:bg-amber-400 disabled:opacity-50"
+                  >
+                    {checkoutLoading === "registration"
+                      ? "Redirecting…"
+                      : `Try registration fee ${registrationFeePriceLabel} again`}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+
             {sentVia === "api" && applicationId ? (
               <div className="mt-8 space-y-4 text-left">
                 {applicantSummary ? (

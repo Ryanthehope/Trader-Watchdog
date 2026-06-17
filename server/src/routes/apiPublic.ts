@@ -37,6 +37,47 @@ import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 
 const router = Router();
 
+function sumsubPublicError(error: unknown): { status: number; message: string } {
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (message.includes("Sumsub configuration is incomplete")) {
+    return {
+      status: 500,
+      message: "Identity verification is not configured correctly right now.",
+    };
+  }
+
+  if (message.startsWith("Sumsub request failed:")) {
+    if (message.includes(" 401 ") || message.includes(" 403 ")) {
+      return {
+        status: 502,
+        message: "Identity verification is configured incorrectly. Check the Sumsub app token and secret key.",
+      };
+    }
+    if (message.includes(" 404 ")) {
+      return {
+        status: 502,
+        message: "Identity verification could not start because the Sumsub level name is invalid or missing.",
+      };
+    }
+    if (message.includes(" 429 ")) {
+      return {
+        status: 503,
+        message: "Identity verification is temporarily busy. Please try again in a moment.",
+      };
+    }
+    return {
+      status: 502,
+      message: "Identity verification provider is currently unavailable. Please try again in a moment.",
+    };
+  }
+
+  return {
+    status: 500,
+    message: "Could not create verification link",
+  };
+}
+
 router.get("/site-meta", async (_req, res) => {
   try {
     const brandName = await getBrandName(prisma);
@@ -334,7 +375,8 @@ router.post("/applications/verification-link", async (req, res) => {
     res.json({ url: link.url });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: "Could not create verification link" });
+    const failure = sumsubPublicError(e);
+    res.status(failure.status).json({ error: failure.message });
   }
 });
 
