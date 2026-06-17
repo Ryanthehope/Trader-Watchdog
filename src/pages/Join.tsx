@@ -797,7 +797,7 @@ export function Join() {
               : applicantStatus === "DECLINED"
                 ? "This application was not approved."
                 : applicantSummary.hasRegistrationFeePayment
-                  ? "We are now completing identity, address, insurance, and supporting checks."
+                  ? "Your verification is in progress. We will be in touch if we need anything further. If not, you will receive an email once your application is approved."
                   : "Formal verification starts after the registration fee is paid.",
         },
         {
@@ -1419,8 +1419,7 @@ export function Join() {
                       Payment on file
                     </p>
                     <p className="mt-2 text-amber-100/80">
-                      Your card payment is recorded. Your listing is created
-                      after Trader Watchdog completes verification, approves your application, and receives annual membership; this page will update when the next step is ready.
+                      Your payment is recorded and your verification is in progress. We will be in touch if we need anything further. If not, you will receive an email once your application is approved, and this page will update when the next step is ready.
                     </p>
                   </div>
                 ) : null}

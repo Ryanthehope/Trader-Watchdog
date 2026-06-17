@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { PasswordInput } from "../components/PasswordInput";
 import { apiGetAuth, apiSend } from "../lib/api";
 
 type Settings = {
@@ -357,8 +358,7 @@ export function StaffSettingsPage() {
               <label className="block text-sm font-medium text-slate-300">
                 Stripe secret key
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 value={stripeSecretKey}
                 onChange={(e) => setStripeSecretKey(e.target.value)}
                 placeholder={
@@ -374,8 +374,7 @@ export function StaffSettingsPage() {
               <label className="block text-sm font-medium text-slate-300">
                 Stripe webhook signing secret
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 value={stripeWebhookSecret}
                 onChange={(e) => setStripeWebhookSecret(e.target.value)}
                 placeholder={
@@ -502,8 +501,7 @@ export function StaffSettingsPage() {
               <label className="block text-sm font-medium text-slate-300">
                 New password
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 value={smtpPass}
                 onChange={(e) => setSmtpPass(e.target.value)}
                 placeholder={
@@ -676,8 +674,7 @@ export function StaffSettingsPage() {
                 {settings?.hasRecaptchaSecret ? "Already saved — paste a new one to replace" : "Paste your Cloudflare Turnstile secret key"}
               </span>
             </label>
-            <input
-              type="password"
+            <PasswordInput
               value={turnstileSecretKey}
               onChange={(e) => setTurnstileSecretKey(e.target.value)}
               placeholder={settings?.hasRecaptchaSecret ? "Secret key already saved" : "0x4AAAAAAA..."}

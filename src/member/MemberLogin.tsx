@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { PasswordInput } from "../components/PasswordInput";
 import { useMemberAuth } from "./MemberAuthContext";
 
 function errorMessage(error: unknown): string {
@@ -151,9 +152,8 @@ export function MemberLogin() {
                 >
                   Password
                 </label>
-                <input
+                <PasswordInput
                   id="member-login-password"
-                  type="password"
                   autoComplete="current-password"
                   required
                   value={password}

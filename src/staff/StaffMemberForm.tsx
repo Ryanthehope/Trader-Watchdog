@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { PasswordInput } from "../components/PasswordInput";
 import { apiGetAuth, apiGetAuthBlob, apiSend } from "../lib/api";
 
 type InsurancePolicy = {
@@ -581,8 +582,7 @@ export function StaffMemberForm() {
                   <label className="block text-sm font-medium text-slate-300">
                     Portal password
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     value={portalPassword}
                     onChange={(e) => setPortalPassword(e.target.value)}
                     placeholder={

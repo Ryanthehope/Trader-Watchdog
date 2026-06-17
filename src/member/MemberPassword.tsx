@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { PasswordInput } from "../components/PasswordInput";
 import { apiSendMember } from "../lib/api";
 import { useMemberAuth } from "./MemberAuthContext";
 
@@ -66,8 +67,7 @@ export function MemberPassword() {
           <label className="block text-sm font-medium text-slate-700">
             Current password
           </label>
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             required
             value={current}
@@ -79,8 +79,7 @@ export function MemberPassword() {
           <label className="block text-sm font-medium text-slate-700">
             New password
           </label>
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             required
             value={next}
@@ -92,8 +91,7 @@ export function MemberPassword() {
           <label className="block text-sm font-medium text-slate-700">
             Confirm new password
           </label>
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             required
             value={again}

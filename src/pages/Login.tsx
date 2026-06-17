@@ -5,6 +5,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
+import { PasswordInput } from "../components/PasswordInput";
 import { useMemberAuth } from "../member/MemberAuthContext";
 import { useStaffAuth } from "../staff/StaffAuthContext";
 
@@ -227,9 +228,8 @@ export function Login() {
                   >
                     Password
                   </label>
-                  <input
+                  <PasswordInput
                     id="login-password"
-                    type="password"
                     autoComplete="current-password"
                     required
                     value={password}

@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiPostPublic } from "../lib/api";
+import { PasswordInput } from "../components/PasswordInput";
 
 export function MemberResetPassword() {
   const [searchParams] = useSearchParams();
@@ -109,9 +110,8 @@ export function MemberResetPassword() {
                   >
                     New password
                   </label>
-                  <input
+                  <PasswordInput
                     id="reset-password"
-                    type="password"
                     autoComplete="new-password"
                     required
                     minLength={8}
@@ -128,9 +128,8 @@ export function MemberResetPassword() {
                   >
                     Confirm new password
                   </label>
-                  <input
+                  <PasswordInput
                     id="reset-confirm"
-                    type="password"
                     autoComplete="new-password"
                     required
                     value={confirm}

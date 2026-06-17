@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { PasswordInput } from "../components/PasswordInput";
 import { apiGetAuth, apiSend } from "../lib/api";
 
 type StaffRow = {
@@ -159,8 +160,7 @@ export function StaffAccounts() {
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-medium text-slate-400">Password (min 8 characters)</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 minLength={8}
                 value={createPassword}
@@ -229,8 +229,7 @@ export function StaffAccounts() {
                       <label className="mb-1 block text-xs font-medium text-slate-400">
                         New password <span className="text-slate-500">(leave blank to keep current)</span>
                       </label>
-                      <input
-                        type="password"
+                      <PasswordInput
                         minLength={8}
                         value={editPassword}
                         onChange={(e) => setEditPassword(e.target.value)}
