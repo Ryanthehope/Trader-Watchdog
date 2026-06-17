@@ -346,14 +346,6 @@ export function Home() {
     : "Trader Registration opens 17th June. Trader Verification available 1st July."
     ;
 
-  const heroSecondaryCta = publicSearchEnabled
-    ? "Verify a trader now"
-    : "Public search coming soon";
-
-  const joinCta = publicSearchEnabled
-    ? "Register your business"
-    : "Trader Registration opens 17th June";
-
   const verifyHeading = publicSearchEnabled
     ? "See if they are legit with one click"
     : "Public trader search is coming soon";
@@ -421,21 +413,6 @@ export function Home() {
             <VerifyForm id="hero-verify" layout="hero" />
           </div>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link
-              to="/#verify"
-              className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-500"
-            >
-              {heroSecondaryCta}
-            </Link>
-
-            <Link
-              to="/join"
-              className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-brand-500"
-            >
-              {joinCta}
-            </Link>
-          </div>
         </div>
       </section>
 

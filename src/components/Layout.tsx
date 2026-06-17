@@ -77,6 +77,12 @@ export function Layout() {
             </Link>
 
             <div className="hidden items-center gap-3 xl:flex xl:shrink-0">
+              <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
+                Verify a trade
+              </Link>
+              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
+                Join Trader Watchdog
+              </Link>
               <Link to="/member/login" className={`${desktopLoginClass} bg-white/10`}>
                 Trader log in
               </Link>
@@ -123,6 +129,12 @@ export function Layout() {
 
           <div className="hidden border-t border-white/5 xl:block">
             <nav className="flex items-center justify-center gap-2 py-3">
+              <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
+                Verify a trade
+              </Link>
+              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
+                Join Trader Watchdog
+              </Link>
               <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
                 What we check
               </Link>
@@ -133,6 +145,20 @@ export function Layout() {
         {menuOpen ? (
           <div className="border-t border-white/5 bg-ink-950 px-4 py-4 xl:hidden">
             <nav className="flex flex-col gap-1 text-sm font-medium text-slate-300">
+              <Link
+                to="/#verify"
+                className={mobileLinkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                Verify a trade
+              </Link>
+              <Link
+                to="/join"
+                className={mobileLinkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                Join Trader Watchdog
+              </Link>
               <Link
                 to="/#why"
                 className={mobileLinkClass}

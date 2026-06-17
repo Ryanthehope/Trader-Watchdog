@@ -488,9 +488,29 @@ router.post(
           res.status(500).json({ error: "Turnstile is misconfigured" });
           return;
         }
-        const ok = await verifyRecaptchaV2(secret, recaptchaToken);
-        if (!ok) {
-          res.status(400).json({ error: "Bot verification failed. Please try again." });
+        const verification = await verifyRecaptchaV2(secret, recaptchaToken);
+        if (!verification.ok) {
+          console.warn("[turnstile] verification failed", {
+            errorCodes: verification.errorCodes,
+            hostname: verification.hostname,
+          });
+          if (verification.errorCodes.includes("invalid-input-secret")) {
+            res.status(500).json({
+              error: "Turnstile secret key does not match the site key configured for this form.",
+            });
+            return;
+          }
+          if (
+            verification.errorCodes.includes("timeout-or-duplicate") ||
+            verification.errorCodes.includes("missing-input-response") ||
+            verification.errorCodes.includes("invalid-input-response")
+          ) {
+            res.status(400).json({
+              error: "Bot verification expired or was not accepted. Please tick the box again and resubmit.",
+            });
+            return;
+          }
+          res.status(400).json({ error: "Bot verification failed. Please tick the box again and resubmit." });
           return;
         }
       }

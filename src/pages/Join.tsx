@@ -572,6 +572,13 @@ export function Join() {
     setSubmitting(false);
 
     if (!result.ok) {
+      if (recaptchaSiteKey) {
+        try {
+          window.turnstile?.reset?.(turnstileWidgetIdRef.current ?? undefined);
+        } catch {
+          /* ignore */
+        }
+      }
       setFormError(result.message);
       return;
     }
