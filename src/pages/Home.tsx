@@ -42,7 +42,7 @@ function Stats() {
     },
   ];
   return (
-    <section className="border-b border-brand-800/60 bg-brand-800 py-16">
+    <section className="small-print-on-dark border-b border-brand-800/60 bg-brand-800 py-16">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 md:grid-cols-2 xl:grid-cols-4 sm:px-6">
         {items.map((item) => (
           <div
@@ -149,7 +149,7 @@ function FeatureHighlights() {
   return (
     <section
       id="highlights"
-      className="scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20"
+      className="small-print-on-light scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-10 md:grid-cols-3">
@@ -210,7 +210,7 @@ function Pillars() {
     }
   ];
   return (
-    <section id="why" className="scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-20 sm:py-28">
+    <section id="why" className="small-print-on-light scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
           What We Verify For You
@@ -256,7 +256,7 @@ function Pillars() {
 
 function Faq() {
   return (
-    <section id="faq" className="border-y border-brand-800/60 bg-brand-800 py-20 sm:py-24">
+    <section id="faq" className="small-print-on-dark border-y border-brand-800/60 bg-brand-800 py-20 sm:py-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <h2 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Common questions
@@ -376,7 +376,7 @@ export function Home() {
 
   return (
     <>
-      <section id="verify" className="relative overflow-hidden scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+      <section id="verify" className="small-print-on-light relative overflow-hidden scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-6xl text-center">
           <p className="text-2xl font-bold uppercase tracking-tight text-slate-900 sm:text-2xl">
             {heroTopLine}
@@ -442,7 +442,7 @@ export function Home() {
       <Stats />
       <FeatureHighlights />
 
-      <section className="border-b border-brand-800/60 bg-brand-800 py-16 sm:py-20">
+      <section className="small-print-on-dark border-b border-brand-800/60 bg-brand-800 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="font-display text-4xl font-bold text-white sm:text-5xl">
@@ -464,7 +464,7 @@ export function Home() {
 
               <p className="text-base leading-relaxed text-slate-300 sm:text-lg">
                 <span className="font-bold text-white">
-                  A green flag
+                  A Green Flag
                 </span>{" "}
                 shows a professional, legitimate trader. Their identity,
                 insurance, legal licenses and registrations have been
@@ -485,7 +485,7 @@ export function Home() {
 
               <p className="text-base leading-relaxed text-slate-300 sm:text-lg">
                 <span className="font-bold text-white">
-                  A red flag
+                  A Red Flag
                 </span>{" "}
                 shows no verified listing. Be cautious. Do not enter an
                 agreement without visual proof of insurance and legal
@@ -497,10 +497,10 @@ export function Home() {
       </section>
 
       <Pillars />
-      <section className="border-b border-slate-200 bg-white py-12">
+      <section className="small-print-on-light border-b border-slate-200 bg-white py-12">
         <div className="mx-auto max-w-xs px-4 text-center sm:px-6">
           <img
-            src="/sticker-25-website.jpg"
+            src="/badge TW3.webp"
             alt="Trader Watchdog verified trader sticker"
             className="mx-auto max-w-full"
             loading="lazy"

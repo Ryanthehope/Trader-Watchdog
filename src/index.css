@@ -10,6 +10,16 @@ body {
   @apply bg-ink-950 text-ink-100 antialiased;
 }
 
+.small-print-on-dark :is(p, label, li, dd)[class*="text-xs"]:not([class*="text-brand"]):not([class*="text-amber"]):not([class*="text-emerald"]):not([class*="text-red"]),
+.small-print-on-dark :is(p, label, li, dd)[class*="text-sm"]:not([class*="text-brand"]):not([class*="text-amber"]):not([class*="text-emerald"]):not([class*="text-red"]) {
+  color: rgb(255 255 255 / 0.9);
+}
+
+.small-print-on-light :is(p, label, li, dd)[class*="text-xs"]:not([class*="text-brand"]):not([class*="text-amber"]):not([class*="text-emerald"]):not([class*="text-red"]),
+.small-print-on-light :is(p, label, li, dd)[class*="text-sm"]:not([class*="text-brand"]):not([class*="text-amber"]):not([class*="text-emerald"]):not([class*="text-red"]) {
+  color: rgb(15 23 42 / 0.9);
+}
+
 ::selection {
   @apply bg-brand-500/35 text-white;
 }

@@ -49,18 +49,20 @@ const traderPoints = [
 
 const publicViews = [
   {
-    title: "Verified",
+    title: "Green Flag",
     body: "A search for a verified trader shows a green flag with their public profile, verified business details, insurance, licences and supporting credentials.",
     image: "/Green flag2.webp",
     imageAlt: "Green flag",
     tone: "border-emerald-200 bg-emerald-50 text-slate-800",
+    accentClass: "text-emerald-600",
   },
   {
-    title: "Not verified",
+    title: "Red Flag",
     body: "A search for a business that is not verified shows a red flag advising caution.",
     image: "/Red flag2.webp",
     imageAlt: "Red flag",
     tone: "border-rose-200 bg-rose-50 text-slate-800",
+    accentClass: "text-rose-600",
   },
 ];
 
@@ -853,7 +855,7 @@ export function Join() {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-[radial-gradient(circle_at_top,#e8eefb_0%,#f5f7fb_42%,#ffffff_100%)] py-20 sm:py-24">
+      <section className="small-print-on-light border-b border-slate-200 bg-[radial-gradient(circle_at_top,#e8eefb_0%,#f5f7fb_42%,#ffffff_100%)] py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             <img
@@ -863,7 +865,7 @@ export function Join() {
               loading="lazy"
             />
             <p
-              className="mt-8 text-sm font-semibold uppercase tracking-[0.24em]"
+              className="mt-8 text-lg font-semibold uppercase tracking-[0.24em]"
               style={{ color: JOIN_HOUSE_LOGO_COLOR }}
             >
               How Trader Watchdog Works
@@ -913,7 +915,13 @@ export function Join() {
                       />
                       <div>
                         <h2 className="font-display text-2xl font-semibold text-slate-900">
-                          {view.title}
+                          {view.title.split(" ").map((word, index) => (
+                            <span key={word}>
+                              <span className={view.accentClass}>{word.charAt(0)}</span>
+                              {word.slice(1)}
+                              {index < view.title.split(" ").length - 1 ? " " : ""}
+                            </span>
+                          ))}
                         </h2>
                         <p className="mt-3 text-sm leading-relaxed sm:text-base">
                           {view.body}
@@ -928,7 +936,7 @@ export function Join() {
         </div>
       </section>
 
-      <section className="border-b border-slate-200 bg-white py-20 sm:py-24">
+      <section className="small-print-on-light border-b border-slate-200 bg-white py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mx-auto max-w-3xl text-center">
             <p
@@ -937,7 +945,10 @@ export function Join() {
             >
               How It Works
             </p>
-            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            <h2
+              className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl"
+              style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+            >
               From application to green flag in eight simple steps
             </h2>
           </div>
@@ -952,7 +963,7 @@ export function Join() {
                   <img
                     src={step.image}
                     alt={step.imageAlt}
-                    className="h-16 w-16 object-contain"
+                    className="h-20 w-20 object-contain sm:h-24 sm:w-24"
                     loading="lazy"
                   />
                   <span
@@ -975,7 +986,7 @@ export function Join() {
       </section>
 
       <section
-        className="border-b py-16 sm:py-20"
+        className="small-print-on-dark border-b py-16 sm:py-20"
         style={{
           borderColor: "rgba(18, 42, 128, 0.3)",
           background: "linear-gradient(90deg, #122a80 0%, #2148bf 100%)",
@@ -998,7 +1009,7 @@ export function Join() {
         </div>
       </section>
 
-      <section className="border-b border-slate-200 bg-slate-50 py-8">
+      <section className="small-print-on-light border-b border-slate-200 bg-slate-50 py-8">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="grid gap-3 text-xs leading-relaxed text-slate-500 sm:grid-cols-2 xl:grid-cols-4">
             {footerNotes.map((note) => (
@@ -1010,7 +1021,7 @@ export function Join() {
         </div>
       </section>
 
-      <main id="application-form" className="border-b border-white/5 pb-24">
+      <main id="application-form" className="small-print-on-dark border-b border-white/5 pb-24">
       <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-12 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
@@ -1848,7 +1859,7 @@ export function Join() {
       </div>
     </main>
 
-    <section className="border-b border-brand-800/60 bg-brand-800 py-20 sm:py-24">
+    <section className="small-print-on-dark border-b border-brand-800/60 bg-brand-800 py-20 sm:py-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <h2 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Common questions for traders

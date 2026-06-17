@@ -127,7 +127,7 @@ export function Layout() {
                 What we check
               </Link>
               <Link to="/#verify" className={`${desktopActionClass} bg-white/10`}>
-                Verify a trade
+                Verify a trader
               </Link>
               <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
                 Join Trader Watchdog
@@ -176,7 +176,7 @@ export function Layout() {
         <Outlet />
       </main>
 
-      <footer className="mt-auto border-t border-white/10 bg-gradient-to-b from-transparent to-black/20">
+      <footer className="small-print-on-dark mt-auto border-t border-white/10 bg-gradient-to-b from-transparent to-black/20">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-sm">
