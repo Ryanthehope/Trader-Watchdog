@@ -1033,9 +1033,6 @@ export function Join() {
           <p className="mt-4 text-slate-400">
             {introBody}
           </p>
-          <p className="mt-4 text-sm text-slate-500">
-            {introSupport}
-          </p>
           {membershipPriceLabel ? (
             <div className="mt-6 grid gap-3 rounded-2xl border border-brand-400/20 bg-brand-500/10 p-4 text-left sm:grid-cols-2">
               <div className="rounded-xl border border-white/10 bg-ink-950/30 p-4">
@@ -1046,7 +1043,7 @@ export function Join() {
                   {registrationFeePriceLabel}
                 </p>
                 <p className="mt-2 text-xs text-slate-400">
-                  Charged from this page once your application record is created.
+                  Charged when application completed.
                 </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-ink-950/30 p-4">
@@ -1057,7 +1054,7 @@ export function Join() {
                   {membershipPriceLabel}
                 </p>
                 <p className="mt-2 text-xs text-slate-400">
-                  Charged when approved by bank collection then annually by direct debit unless cancelled.
+                  Charged when application approved.
                 </p>
               </div>
             </div>
@@ -1852,8 +1849,9 @@ export function Join() {
               {submitting ? "Submitting…" : "Submit"}
             </button>
             <p className="text-center text-xs text-slate-500">
-              We will contact you within 3 working days when our processes are complete or if further information is required.
+              {introSupport}
             </p>
+
           </form>
         )}
       </div>
