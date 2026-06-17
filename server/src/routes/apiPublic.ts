@@ -15,8 +15,8 @@ import {
 import {
   billingReady,
   getOrgBilling,
-  getGoCardlessSecretKey,
 } from "../lib/billingSettings.js";
+import { getStripeSecretKey } from "../lib/stripeClient.js";
 // import { buildMemberBadgeSvgFromRow, buildTraderWatchdogBadgeSvg } from "../lib/memberBadgeSvg.js";
 import { isMemberPublicListingVisible } from "../lib/memberMembership.js";
 import { orgBrandingFilePath } from "../lib/orgBrandingPaths.js";
@@ -131,7 +131,7 @@ router.get("/public-config", async (_req, res) => {
     null;
   try {
     const s = await getOrgBilling();
-    const goCardlessOk = Boolean(await getGoCardlessSecretKey());
+    const stripeOk = Boolean(await getStripeSecretKey());
     const lines = checkoutLineConfig(s);
     const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
 
@@ -140,7 +140,7 @@ router.get("/public-config", async (_req, res) => {
         s.recaptchaEnabled && s.recaptchaSiteKey?.trim()
           ? s.recaptchaSiteKey.trim()
           : null,
-      billingAvailable: billingReady(s) && goCardlessOk,
+      billingAvailable: billingReady(s) && stripeOk,
       contactEmail,
       hasBrandingLogo: Boolean(s.brandingLogoStoredName?.trim()),
       invoiceLegalName: s.invoiceLegalName?.trim() || null,
@@ -212,8 +212,8 @@ router.post("/applications/applicant-summary", async (req, res) => {
   let billingAvailable = false;
   try {
     const s = await getOrgBilling();
-    const goCardlessOk = Boolean(await getGoCardlessSecretKey());
-    billingAvailable = billingReady(s) && goCardlessOk;
+    const stripeOk = Boolean(await getStripeSecretKey());
+    billingAvailable = billingReady(s) && stripeOk;
   } catch {
     billingAvailable = false;
   }
@@ -576,8 +576,8 @@ router.post(
         trade: row.trade,
         email: row.email,
       });
-      const goCardlessOk = Boolean(await getGoCardlessSecretKey());
-      const billingAvailable = billingReady(org) && goCardlessOk;
+      const stripeOk = Boolean(await getStripeSecretKey());
+      const billingAvailable = billingReady(org) && stripeOk;
       res.status(201).json({
         application: {
           id: row.id,
