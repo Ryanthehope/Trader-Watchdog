@@ -77,12 +77,6 @@ export function Layout() {
             </Link>
 
             <div className="hidden items-center gap-3 xl:flex xl:shrink-0">
-              <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
-                Verify a trade
-              </Link>
-              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
-                Join Trader Watchdog
-              </Link>
               <Link to="/member/login" className={`${desktopLoginClass} bg-white/10`}>
                 Trader log in
               </Link>
@@ -132,11 +126,11 @@ export function Layout() {
               <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
                 Verify a trade
               </Link>
-              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
-                Join Trader Watchdog
-              </Link>
               <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
                 What we check
+              </Link>
+              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
+                Join Trader Watchdog
               </Link>
             </nav>
           </div>
@@ -153,18 +147,18 @@ export function Layout() {
                 Verify a trade
               </Link>
               <Link
-                to="/join"
-                className={mobileLinkClass}
-                onClick={() => setMenuOpen(false)}
-              >
-                Join Trader Watchdog
-              </Link>
-              <Link
                 to="/#why"
                 className={mobileLinkClass}
                 onClick={() => setMenuOpen(false)}
               >
                 What we check
+              </Link>
+              <Link
+                to="/join"
+                className={mobileLinkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                Join Trader Watchdog
               </Link>
               <Link
                 to="/member/login"
