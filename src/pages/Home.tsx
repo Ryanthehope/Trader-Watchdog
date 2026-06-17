@@ -500,7 +500,7 @@ export function Home() {
       <section className="small-print-on-light border-b border-slate-200 bg-white py-12">
         <div className="mx-auto max-w-xs px-4 text-center sm:px-6">
           <img
-            src="/badge TW3.webp"
+            src="/Badge%20TW3.webp"
             alt="Trader Watchdog verified trader sticker"
             className="mx-auto max-w-full"
             loading="lazy"

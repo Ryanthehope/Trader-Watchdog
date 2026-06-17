@@ -20,6 +20,74 @@ body {
   color: rgb(15 23 42 / 0.9);
 }
 
+.join-application-form {
+  background: #fff;
+  color: rgb(15 23 42);
+}
+
+.join-application-form > div:first-child,
+.join-application-form section {
+  background: #fff !important;
+  border-color: rgb(226 232 240) !important;
+}
+
+.join-application-form [class*="bg-ink-"],
+.join-application-form [class*="bg-brand-500/10"],
+.join-application-form [class*="bg-brand-500/8"],
+.join-application-form [class*="bg-brand-950/40"],
+.join-application-form [class*="bg-amber-500/10"],
+.join-application-form [class*="bg-amber-500/5"],
+.join-application-form [class*="bg-emerald-500/10"],
+.join-application-form [class*="bg-white/[0.03]"] {
+  background: #fff !important;
+}
+
+.join-application-form [class*="border-white/10"],
+.join-application-form [class*="border-white/5"],
+.join-application-form [class*="border-brand-500/30"],
+.join-application-form [class*="border-brand-500/25"],
+.join-application-form [class*="border-brand-400/20"],
+.join-application-form [class*="border-brand-800/40"],
+.join-application-form [class*="border-amber-500/30"],
+.join-application-form [class*="border-amber-500/25"],
+.join-application-form [class*="border-amber-500/20"],
+.join-application-form [class*="border-emerald-500/30"],
+.join-application-form [class*="border-emerald-500/25"] {
+  border-color: rgb(226 232 240) !important;
+}
+
+.join-application-form :is(div, p, label, li, span, dt, dd, h1, h2, h3, a)[class*="text-white"],
+.join-application-form :is(div, p, label, li, span, dt, dd, h1, h2, h3, a)[class*="text-slate-200"],
+.join-application-form :is(div, p, label, li, span, dt, dd, h1, h2, h3, a)[class*="text-slate-300"],
+.join-application-form :is(div, p, label, li, span, dt, dd, h1, h2, h3, a)[class*="text-slate-400"],
+.join-application-form :is(div, p, label, li, span, dt, dd, h1, h2, h3, a)[class*="text-slate-500"],
+.join-application-form :is(div, p, label, li, span, dt, dd, h1, h2, h3, a)[class*="text-amber-100"],
+.join-application-form :is(div, p, label, li, span, dt, dd, h1, h2, h3, a)[class*="text-emerald-100"] {
+  color: rgb(15 23 42 / 0.92) !important;
+}
+
+.join-application-form input:not([type="checkbox"]):not([type="file"]),
+.join-application-form select,
+.join-application-form textarea {
+  background: #fff !important;
+  border-color: rgb(203 213 225) !important;
+  color: rgb(15 23 42) !important;
+}
+
+.join-application-form input::placeholder,
+.join-application-form textarea::placeholder {
+  color: rgb(100 116 139) !important;
+}
+
+.join-application-form input[type="file"] {
+  color: rgb(51 65 85) !important;
+}
+
+.join-application-form input[type="file"]::file-selector-button {
+  background: rgb(226 232 240) !important;
+  color: rgb(15 23 42) !important;
+}
+
 ::selection {
   @apply bg-brand-500/35 text-white;
 }

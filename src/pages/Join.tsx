@@ -1021,7 +1021,7 @@ export function Join() {
         </div>
       </section>
 
-      <main id="application-form" className="small-print-on-dark border-b border-white/5 pb-24">
+      <main id="application-form" className="join-application-form small-print-on-light border-b border-white/5 pb-24">
       <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-12 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
