@@ -3,10 +3,11 @@ import fs from "fs";
 import path from "path";
 import type { Express } from "express";
 import { prisma } from "../db.js";
+import { defaultUploadPath } from "./uploadPaths.js";
 
 const UPLOAD_ROOT =
   process.env.APPLICATION_UPLOAD_DIR?.trim() ||
-  path.join(process.cwd(), "uploads", "application-documents");
+  defaultUploadPath("application-documents");
 
 export const ALLOWED_APPLICATION_DOC_MIME = new Set([
   "application/pdf",

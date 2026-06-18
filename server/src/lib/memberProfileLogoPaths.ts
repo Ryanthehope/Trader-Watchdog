@@ -1,9 +1,10 @@
 import fs from "fs";
 import path from "path";
+import { defaultUploadPath } from "./uploadPaths.js";
 
 const rootBase =
   process.env.MEMBER_PROFILE_LOGO_DIR?.trim() ||
-  path.join(process.cwd(), "uploads", "member-profile-logos");
+  defaultUploadPath("member-profile-logos");
 
 export function memberProfileLogoDir(memberId: string): string {
   const dir = path.join(rootBase, memberId);

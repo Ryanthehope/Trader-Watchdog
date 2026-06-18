@@ -1,9 +1,10 @@
 import fs from "fs";
 import path from "path";
+import { defaultUploadPath } from "./uploadPaths.js";
 
 const root =
   process.env.ORG_BRANDING_DIR?.trim() ||
-  path.join(process.cwd(), "uploads", "org-branding");
+  defaultUploadPath("org-branding");
 
 export function orgBrandingDir(): string {
   fs.mkdirSync(root, { recursive: true });

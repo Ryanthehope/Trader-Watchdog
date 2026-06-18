@@ -6,6 +6,7 @@ import { deleteApplicationById } from "../lib/applicationDelete.js";
 import { hashPortalPassword } from "../lib/portalCredentials.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
+import { defaultUploadPath } from "../lib/uploadPaths.js";
 import { requireStaff } from "../middleware/requireStaff.js";
 import adminOps from "./adminOps.js";
 import { registerStaff2faRoutes } from "./staff2fa.js";
@@ -174,7 +175,7 @@ router.get("/members/:memberId/documents/:documentId/file", async (req, res) => 
     }
     const uploadRoot =
       process.env.MEMBER_UPLOAD_DIR?.trim() ||
-      path.join(process.cwd(), "uploads", "member-documents");
+      defaultUploadPath("member-documents");
     const base = path.resolve(uploadRoot, doc.memberId);
     const resolved = path.resolve(base, path.basename(doc.storedName));
     if ((!resolved.startsWith(base + path.sep) && resolved !== base) || !fs.existsSync(resolved)) {

@@ -23,12 +23,13 @@ import {
 } from "../lib/memberMembership.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import { memberToPublic } from "../lib/memberSerialize.js";
+import { defaultUploadPath } from "../lib/uploadPaths.js";
 import { requireMember } from "../middleware/requireMember.js";
 import { requireMemberMembershipActive } from "../middleware/requireMemberMembershipActive.js";
 
 const UPLOAD_ROOT =
   process.env.MEMBER_UPLOAD_DIR?.trim() ||
-  path.join(process.cwd(), "uploads", "member-documents");
+  defaultUploadPath("member-documents");
 
 const ALLOWED_DOC_MIME = new Set([
   "application/pdf",
