@@ -7,6 +7,8 @@ export type StripeCheckoutParams = {
   email: string;
   /** Existing Stripe customer ID to attach this payment to (optional). */
   existingStripeCustomerId?: string | null;
+  /** When true, Stripe creates a Customer for one-off guest checkouts. */
+  createCustomer?: boolean;
   successRedirectUrl: string;
   cancelRedirectUrl: string;
   /**
@@ -51,6 +53,9 @@ export async function createStripeCheckoutSession(
   if (params.existingStripeCustomerId) {
     sessionParams.customer = params.existingStripeCustomerId;
   } else {
+    if (params.createCustomer) {
+      sessionParams.customer_creation = "always";
+    }
     sessionParams.customer_email = params.email;
   }
 

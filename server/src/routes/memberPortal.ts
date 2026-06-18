@@ -513,6 +513,7 @@ router.post("/membership/renew", async (req, res) => {
       description: `${lines.membershipName} renewal`,
       email: m.loginEmail.trim().toLowerCase(),
       existingStripeCustomerId: m.stripeCustomerId,
+      createCustomer: !m.stripeCustomerId,
       successRedirectUrl: `${origin}/member/billing?renewal=success`,
       cancelRedirectUrl: `${origin}/member/billing?renewal=cancelled`,
       metadata: {
@@ -562,6 +563,7 @@ router.post("/sticker-order", async (req, res) => {
       description: "Van stickers (×2)",
       email: m.loginEmail.trim().toLowerCase(),
       existingStripeCustomerId: m.stripeCustomerId,
+      createCustomer: !m.stripeCustomerId,
       successRedirectUrl: `${origin}/member?sticker=ordered`,
       cancelRedirectUrl: `${origin}/member`,
       metadata: {
@@ -618,6 +620,7 @@ router.post("/sticker-order-additional", async (req, res) => {
       description: "Additional van sticker",
       email: m.loginEmail.trim().toLowerCase(),
       existingStripeCustomerId: m.stripeCustomerId,
+      createCustomer: !m.stripeCustomerId,
       successRedirectUrl: `${origin}/member?sticker=ordered`,
       cancelRedirectUrl: `${origin}/member`,
       metadata: {

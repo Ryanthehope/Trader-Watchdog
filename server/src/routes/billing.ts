@@ -197,6 +197,8 @@ router.post("/checkout-registration-fee", async (req, res) => {
       amountPence: discount?.finalPricePence ?? lines.registrationFeePence,
       description: lines.registrationFeeName,
       email,
+      existingStripeCustomerId: application.stripeCustomerId,
+      createCustomer: !application.stripeCustomerId,
       savePaymentMethod: true,
       successRedirectUrl: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}`,
       cancelRedirectUrl: `${origin}/join?cancelled=1`,
@@ -266,6 +268,7 @@ router.post("/checkout-membership", async (req, res) => {
       description: lines.membershipName,
       email,
       existingStripeCustomerId: application.stripeCustomerId,
+      createCustomer: !application.stripeCustomerId,
       successRedirectUrl: `${origin}/join?paid=membership&app=${encodeURIComponent(applicationId)}`,
       cancelRedirectUrl: `${origin}/join?cancelled=1`,
       metadata: {
