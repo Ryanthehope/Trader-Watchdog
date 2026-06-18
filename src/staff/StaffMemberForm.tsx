@@ -669,7 +669,7 @@ export function StaffMemberForm() {
                   onClick={() => void addPolicy()}
                   className="rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm font-medium text-sky-100 hover:bg-sky-500/16 disabled:opacity-50"
                 >
-                  {insAdding ? "Adding…" : "Add policy"}
+                  {insAdding ? "Adding…" : "Add document"}
                 </button>
               </div>
             </div>
