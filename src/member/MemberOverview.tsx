@@ -52,16 +52,16 @@ const STICKER_PREVIEWS = {
   "1": {
     templateSrc: "/Sticker 1.png",
     label: "250×50mm",
-    qrLeft: "71%",
+    qrLeft: "39.25%",
     qrTop: "22%",
     qrWidth: "21.5%",
   },
   "2": {
     templateSrc: "/Sticker 2.png",
     label: "187×93mm",
-    qrLeft: "38%",
+    qrLeft: "62.5%",
     qrTop: "30%",
-    qrWidth: "24%",
+    qrWidth: "20%",
   },
 } as const;
 

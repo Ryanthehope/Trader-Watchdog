@@ -61,7 +61,7 @@ const VAN_STICKER_CONFIGS = {
     templateFile: "Sticker 1.png",
     mmWidth: 250,
     mmHeight: 50,
-    panelLeft: 1420,
+    panelLeft: 785,
     panelTop: 176,
     panelSize: 430,
     qrInset: 12,
@@ -70,10 +70,10 @@ const VAN_STICKER_CONFIGS = {
     templateFile: "Sticker 2.png",
     mmWidth: 187,
     mmHeight: 93,
-    panelLeft: 760,
+    panelLeft: 1250,
     panelTop: 210,
-    panelSize: 480,
-    qrInset: 14,
+    panelSize: 400,
+    qrInset: 12,
   },
 } as const;
 
