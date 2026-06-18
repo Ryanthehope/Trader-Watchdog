@@ -158,32 +158,6 @@ function isApplicationMultipart(req: { headers: { "content-type"?: string } }) {
   return (req.headers["content-type"] || "").includes("multipart/form-data");
 }
 
-type ApplicationUploadFields = {
-  files?: Express.Multer.File[];
-  wasteCarrierEvidenceFiles?: Express.Multer.File[];
-  gasSafeEvidenceFiles?: Express.Multer.File[];
-  icoEvidenceFiles?: Express.Multer.File[];
-};
-
-function applicationUploadFiles(req: Request): Express.Multer.File[] {
-  if (!isApplicationMultipart(req)) return [];
-  const uploaded = (req.files ?? {}) as ApplicationUploadFields | Express.Multer.File[];
-  if (Array.isArray(uploaded)) return uploaded;
-  return [
-    ...(uploaded.files ?? []),
-    ...(uploaded.wasteCarrierEvidenceFiles ?? []),
-    ...(uploaded.gasSafeEvidenceFiles ?? []),
-    ...(uploaded.icoEvidenceFiles ?? []),
-  ];
-}
-
-function applicationUploadCount(req: Request, field: keyof ApplicationUploadFields): number {
-  if (!isApplicationMultipart(req)) return 0;
-  const uploaded = (req.files ?? {}) as ApplicationUploadFields | Express.Multer.File[];
-  if (Array.isArray(uploaded)) return field === "files" ? uploaded.length : 0;
-  return uploaded[field]?.length ?? 0;
-}
-
 function parseBooleanish(value: unknown): boolean {
   if (typeof value === "boolean") return value;
   if (typeof value !== "string") return false;
@@ -441,12 +415,7 @@ router.post(
       next();
       return;
     }
-    appApplyUpload.fields([
-      { name: "files", maxCount: MAX_APPLICATION_FILES },
-      { name: "wasteCarrierEvidenceFiles", maxCount: 1 },
-      { name: "gasSafeEvidenceFiles", maxCount: 1 },
-      { name: "icoEvidenceFiles", maxCount: 1 },
-    ])(req, res, (err) => {
+    appApplyUpload.array("files", MAX_APPLICATION_FILES)(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         if (err.code === "LIMIT_FILE_SIZE") {
           res
@@ -562,36 +531,6 @@ router.post(
         return;
       }
 
-      if (
-        wasteCarrierRequired === "Yes" &&
-        applicationUploadCount(req, "wasteCarrierEvidenceFiles") === 0
-      ) {
-        res.status(400).json({
-          error: "Please upload your Waste Carrier Licence document.",
-        });
-        return;
-      }
-
-      if (
-        gasSafeRequired === "Yes" &&
-        applicationUploadCount(req, "gasSafeEvidenceFiles") === 0
-      ) {
-        res.status(400).json({
-          error: "Please upload your Gas Safe registration document.",
-        });
-        return;
-      }
-
-      if (
-        icoRequired === "Yes" &&
-        applicationUploadCount(req, "icoEvidenceFiles") === 0
-      ) {
-        res.status(400).json({
-          error: "Please upload your ICO registration document.",
-        });
-        return;
-      }
-
       const org = await getOrgBilling();
       if (org.recaptchaEnabled) {
         const secret =
@@ -629,14 +568,9 @@ router.post(
         }
       }
 
-      const files = applicationUploadFiles(req);
-
-      if (files.length > MAX_APPLICATION_FILES) {
-        res.status(400).json({
-          error: `Please upload no more than ${MAX_APPLICATION_FILES} supporting documents.`,
-        });
-        return;
-      }
+      const files = isApplicationMultipart(req)
+        ? ((req.files as Express.Multer.File[]) ?? [])
+        : [];
 
       const reusableRegistrationFeePaidAt =
         await findReusableRegistrationFeePaidAt(email);

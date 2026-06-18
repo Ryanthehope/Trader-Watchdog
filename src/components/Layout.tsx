@@ -234,6 +234,23 @@ export function Layout() {
               >
                 Trader log in
               </Link>
+              <a
+                href="https://www.facebook.com/TraderWatchdog"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 transition-colors hover:text-white"
+                aria-label="Trader Watchdog on Facebook"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="currentColor"
+                >
+                  <path d="M13.5 21v-7h2.3l.4-3h-2.7V9.1c0-.9.3-1.6 1.7-1.6H16V4.8c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 4V11H7.5v3h2.4v7h3.6Z" />
+                </svg>
+                Facebook
+              </a>
             </nav>
           </div>
           <div className="mt-10 border-t border-white/5 pt-8 space-y-1 text-center text-sm text-white/60">

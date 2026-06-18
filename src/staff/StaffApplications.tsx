@@ -1142,6 +1142,42 @@ function ApplicationCard({
                   : "Not required from the employee count alone. The application declares a single worker including the applicant."}
               </p>
             </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Waste Carrier Licence
+              </p>
+              <p className="mt-2 text-sm text-white">
+                {row.wasteCarrierRequired === "Yes"
+                  ? row.wasteCarrierNumber?.trim() || "Required - number not supplied"
+                  : row.wasteCarrierRequired === "No"
+                    ? "Not required"
+                    : "Not stated"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Gas Safe registration
+              </p>
+              <p className="mt-2 text-sm text-white">
+                {row.gasSafeRequired === "Yes"
+                  ? row.gasSafeNumber?.trim() || "Required - number not supplied"
+                  : row.gasSafeRequired === "No"
+                    ? "Not required"
+                    : "Not stated"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                ICO registration
+              </p>
+              <p className="mt-2 text-sm text-white">
+                {row.icoRequired === "Yes"
+                  ? row.icoNumber?.trim() || "Required - number not supplied"
+                  : row.icoRequired === "No"
+                    ? "Not required"
+                    : "Not stated"}
+              </p>
+            </div>
           </div>
         </div>
 
