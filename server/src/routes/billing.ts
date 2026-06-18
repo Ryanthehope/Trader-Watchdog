@@ -9,6 +9,7 @@ import { getStripeClient } from "../lib/stripeClient.js";
 import { createStripeCheckoutSession } from "../lib/stripeCheckoutSession.js";
 import { stripeErrorDetails } from "../lib/stripeErrors.js";
 import { ensureReusableRegistrationFeeForApplication } from "../lib/reusableRegistrationFee.js";
+import { isSumsubConfigured } from "../lib/sumsub.js";
 
 const router = Router();
 const DISCOUNTED_PAYABLE_PENCE = 120;
@@ -46,7 +47,17 @@ async function assertRegistrationCheckoutAllowed(
       return { error: "Application not found" as const };
     }
   }
-  const windowStart = row.createdAt;
+  if (
+    isSumsubConfigured() &&
+    !row.registrationFeePaidAt &&
+    row.verificationStatus !== "APPROVED"
+  ) {
+    return {
+      error:
+        "Registration fee unlocks after your identity verification is completed.",
+    } as const;
+  }
+  const windowStart = row.verificationApprovedAt ?? row.createdAt;
   if (Date.now() - windowStart.getTime() > PAYMENT_WINDOW_MS) {
     return { error: "Payment window expired — contact Trader Watchdog" } as const;
   }

@@ -250,6 +250,7 @@ router.post("/applications/verify", async (req, res) => {
 
 /** Applicant-facing status for /join (id + email must match). */
 router.post("/applications/applicant-summary", async (req, res) => {
+  const sumsubEnabled = isSumsubConfigured();
   let billingAvailable = false;
   try {
     const s = await getOrgBilling();
@@ -292,6 +293,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
     const hasMembershipPayment =
       Boolean(row.membershipSubscribed);  
     const profileLive = Boolean(row.createdMemberId);
+    const verificationStatus = String(row.verificationStatus ?? "NOT_STARTED");
     // True when an off-session GC payment was created on approval but the
     // Bacs confirmation webhook hasn't fired yet (~3-5 working days).
     const membershipAutoChargePending =
@@ -301,6 +303,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
     const canCheckoutRegistrationFee =
       billingAvailable &&
       row.status !== "DECLINED" &&
+      (!sumsubEnabled || verificationStatus === "APPROVED") &&
       !hasRegistrationFeePayment &&
       !profileLive;
     const canCheckoutMembership =
@@ -321,6 +324,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
     res.json({
       exists: true,
       status: String(row.status),
+      verificationStatus,
       billingAvailable,
       canCheckoutRegistrationFee,
       canCheckoutMembership,
@@ -338,7 +342,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
 
 /**
  * Applicant-facing: get (or create) a Sumsub verification link.
- * Authenticated by applicationId + email match, and reg fee must be paid.
+ * Authenticated by applicationId + email match.
  */
 router.post("/applications/verification-link", async (req, res) => {
   try {
@@ -354,34 +358,18 @@ router.post("/applications/verification-link", async (req, res) => {
     }
     let row = await prisma.application.findUnique({
       where: { id: applicationId },
-      select: { email: true, registrationFeePaidAt: true, status: true },
+      select: { email: true, status: true, verificationStatus: true },
     });
     if (!row || row.email.toLowerCase() !== email) {
       res.status(404).json({ error: "Application not found" });
       return;
     }
-    if (!row.registrationFeePaidAt) {
-      const refreshed = await ensureReusableRegistrationFeeForApplication(
-        applicationId
-      );
-      row = refreshed
-        ? {
-            email: refreshed.email,
-            registrationFeePaidAt: refreshed.registrationFeePaidAt,
-            status: refreshed.status,
-          }
-        : null;
-      if (!row || row.email.toLowerCase() !== email) {
-        res.status(404).json({ error: "Application not found" });
-        return;
-      }
-    }
-    if (!row.registrationFeePaidAt) {
-      res.status(400).json({ error: "Verification starts after the registration fee is paid" });
-      return;
-    }
     if (row.status === "DECLINED") {
       res.status(400).json({ error: "This application is closed" });
+      return;
+    }
+    if (row.verificationStatus === "APPROVED") {
+      res.status(400).json({ error: "Identity verification is already complete" });
       return;
     }
     const ensured = await ensureSumsubApplicantForApplication(prisma, applicationId);
@@ -665,6 +653,29 @@ router.post(
         trade: row.trade,
         email: row.email,
       });
+      if (isSumsubConfigured()) {
+        void (async () => {
+          try {
+            const ensured = await ensureSumsubApplicantForApplication(prisma, row.id);
+            if (ensured.kind !== "not_found") {
+              const link = await generateSumsubWebSdkLink({
+                userId: ensured.externalUserId,
+                email: ensured.email,
+                phone: ensured.phone,
+                lang: "en",
+              });
+              notifyApplicantVerificationLink(prisma, {
+                traderName: row.identifiablePerson,
+                company: row.company,
+                email: row.email,
+                verificationUrl: link.url,
+              });
+            }
+          } catch (err) {
+            console.error("[public apply] auto-sumsub link failed", err);
+          }
+        })();
+      }
       const stripeOk = Boolean(await getStripeSecretKey());
       const billingAvailable = billingReady(org) && stripeOk;
       res.status(201).json({

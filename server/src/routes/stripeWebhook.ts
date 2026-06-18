@@ -254,45 +254,6 @@ async function handleCheckoutSessionCompleted(
         }
       })();
 
-      if (isSumsubConfigured()) {
-        void (async () => {
-          try {
-            const ensured = await ensureSumsubApplicantForApplication(
-              prisma,
-              appId
-            );
-            if (ensured.kind !== "not_found") {
-              const link = await generateSumsubWebSdkLink({
-                userId: ensured.externalUserId,
-                email: ensured.email,
-                phone: ensured.phone,
-                lang: "en",
-              });
-              const app = await prisma.application.findUnique({
-                where: { id: appId },
-                select: {
-                  identifiablePerson: true,
-                  company: true,
-                  email: true,
-                },
-              });
-              if (app) {
-                notifyApplicantVerificationLink(prisma, {
-                  traderName: app.identifiablePerson,
-                  company: app.company,
-                  email: app.email,
-                  verificationUrl: link.url,
-                });
-              }
-            }
-          } catch (err) {
-            console.error(
-              "[stripe webhook] auto-sumsub link failed",
-              err
-            );
-          }
-        })();
-      }
     }
     return;
   }

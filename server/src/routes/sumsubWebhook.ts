@@ -139,6 +139,7 @@ export async function sumsubWebhookHandler(req: Request, res: Response) {
         status: verificationData.verificationStatus,
         failureReason: verificationData.verificationFailureReason ?? null,
         profileSlug: application.createdMember?.slug ?? null,
+        applicationId: application.id,
       });
     }
 

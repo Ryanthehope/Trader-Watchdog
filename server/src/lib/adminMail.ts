@@ -471,7 +471,9 @@ export function notifyApplicantSubmissionReceived(
       "",
       "Welcome to Trader Watchdog - great to have you with us. You've taken a big step toward showing customers you're genuine, insured, and accountable.",
       "",
-      "We'll now start reviewing your documents. If we need anything else, we'll let you know.",
+      "The next step is identity verification. If Sumsub is enabled for your application, you will receive a separate secure verification link by email and you can also return to your application status page at any time to continue.",
+      "",
+      "Once your identity verification is complete, the registration fee payment step will unlock.",
       "",
       `If you ever need help, just email us at ${supportEmail}.`,
       "",
@@ -498,16 +500,20 @@ export function notifyApplicantVerificationOutcome(
     status: "APPROVED" | "REJECTED";
     failureReason?: string | null;
     profileSlug?: string | null;
+    applicationId?: string | null;
   }
 ): void {
   void (async () => {
     const base = await publicSiteBase(prisma);
     const memberLoginUrl = `${base}/member/login`;
+    const joinUrl = row.applicationId
+      ? `${base}/join?app=${row.applicationId}&email=${encodeURIComponent(row.email)}`
+      : null;
     const traderName = row.traderName?.trim() || row.company;
 
     const subject =
       row.status === "APPROVED"
-        ? "Identity Verification Complete - We'll Be In Touch"
+        ? "Identity Verification Complete - Registration Fee Ready"
         : "We Couldn't Complete Your Verification";
 
     const text =
@@ -517,7 +523,11 @@ export function notifyApplicantVerificationOutcome(
             "",
             "Your identity verification is complete — thank you for completing that step.",
             "",
-            "Our team will now finish reviewing your application. We'll be in touch shortly to let you know the outcome and what happens next.",
+            joinUrl
+              ? `Your application status page is now ready for the registration fee payment step:\n${joinUrl}`
+              : "Your application status page is now ready for the registration fee payment step.",
+            "",
+            "Once your registration fee is paid, our team will continue the final review of your application and contact you when the next step is ready.",
             "",
             "If you need anything in the meantime, just reply to this email.",
             "The Trader Watchdog Team",
@@ -605,7 +615,7 @@ export function notifyApplicantVerificationLink(
     const text = [
       `Hi ${traderName},`,
       "",
-      `Thank you for paying your registration fee. Your ${brand} identity verification is now ready.`,
+      `Your ${brand} identity verification is now ready.`,
       "",
       "Please complete your verification using the secure link below. You will need to:",
       "  • Take a photo of a government-issued ID (passport or driving licence)",
@@ -616,7 +626,7 @@ export function notifyApplicantVerificationLink(
       "",
       "The link is valid for 24 hours. If it has expired, you can request a new one from your application status page.",
       "",
-      "Once verification is complete, our team will review your application and you will hear from us shortly.",
+      "Once verification is complete, the registration fee payment step will unlock on your application status page.",
       "",
       "If you need help, just reply to this email.",
       `The ${brand} Team`,

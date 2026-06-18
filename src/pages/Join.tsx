@@ -16,6 +16,7 @@ const JOIN_HOUSE_LOGO_COLOR = "#122a80";
 type ApplicantSummary = {
   exists: boolean;
   status?: string;
+  verificationStatus?: string;
   billingAvailable: boolean;
   canCheckoutRegistrationFee: boolean;
   canCheckoutMembership: boolean;
@@ -81,8 +82,8 @@ const workflowSteps = [
   },
   {
     step: "02",
-    title: "Card details added securely",
-    body: "Stripe stores the card details safely. No payment is taken at this stage.",
+    title: "Identity verification",
+    body: "Complete your secure Sumsub identity and address verification first.",
     image: "/Icon 2 secure credit card.webp",
     imageAlt: "Step 2 icon",
   },
@@ -95,8 +96,8 @@ const workflowSteps = [
   },
   {
     step: "04",
-    title: "Subscription payment only after approval",
-    body: "£15 registration fee (non-refundable) + £75 annual subscription plus VAT.",
+    title: "Registration fee after verification",
+    body: "Once Sumsub verification is complete, the £15 registration fee plus VAT is unlocked.",
     image: "/Icon 4 payment after approval.webp",
     imageAlt: "Step 4 icon",
   },
@@ -349,6 +350,7 @@ export function Join() {
       const summary: ApplicantSummary = {
         exists: data.exists,
         status: data.status,
+        verificationStatus: data.verificationStatus,
         billingAvailable: Boolean(data.billingAvailable),
         canCheckoutRegistrationFee: Boolean(data.canCheckoutRegistrationFee),
         canCheckoutMembership: Boolean(data.canCheckoutMembership),
@@ -786,6 +788,10 @@ export function Join() {
    * (Strict `status === "APPROVED"` missed some cases; positive allow-list is safer.)
    */
   const applicantStatus = String(applicantSummary?.status ?? "").toUpperCase();
+  const verificationStatus = String(applicantSummary?.verificationStatus ?? "NOT_STARTED").toUpperCase();
+  const verificationComplete = verificationStatus === "APPROVED";
+  const verificationRejected = verificationStatus === "REJECTED";
+  const verificationInProgress = verificationStatus === "IN_PROGRESS";
   const hasAnyPayment = Boolean(
     applicantSummary?.hasRegistrationFeePayment || applicantSummary?.hasMembershipPayment);
   const hasBothPayments = Boolean(
@@ -876,6 +882,8 @@ export function Join() {
               ? "Paid"
               : applicantSummary.canCheckoutRegistrationFee
                 ? "Ready to pay"
+                : verificationRejected
+                  ? "Blocked"
                 : applicantStatus === "DECLINED"
                   ? "Closed"
                   : "Waiting",
@@ -884,6 +892,8 @@ export function Join() {
               ? "emerald"
               : applicantSummary.canCheckoutRegistrationFee
                 ? "brand"
+                : verificationRejected
+                  ? "amber"
                 : applicantStatus === "DECLINED"
                   ? "amber"
                   : "slate",
@@ -891,37 +901,42 @@ export function Join() {
             applicantSummary.hasRegistrationFeePayment
               ? "Your registration fee payment has been recorded."
               : applicantSummary.canCheckoutRegistrationFee
-                ? `Pay ${registrationFeePriceLabel} from this page to start formal checks.`
+                ? `Your identity verification is complete. Pay ${registrationFeePriceLabel} from this page to move into final review.`
+                : verificationRejected
+                  ? "This step stays locked until updated verification evidence is accepted."
                 : applicantStatus === "DECLINED"
                   ? "This application is closed."
-                  : "This step becomes available once Trader Watchdog confirms online billing is available for this application.",
+                  : "This step becomes available once your identity verification is completed.",
         },
         {
           title: "Verification & review",
-          status:
-            applicantStatus === "APPROVED"
+          status: verificationComplete
+            ? applicantStatus === "APPROVED"
               ? "Approved"
-              : applicantStatus === "DECLINED"
-                ? "Not approved"
-                : applicantSummary.hasRegistrationFeePayment
-                  ? "In progress"
-                  : "Waiting for payment",
+              : "Verified"
+            : verificationRejected
+              ? "Not approved"
+              : verificationInProgress
+                ? "In progress"
+                : "Ready",
           tone:
-            applicantStatus === "APPROVED"
+            verificationComplete
               ? "emerald"
-              : applicantStatus === "DECLINED"
+              : verificationRejected
                 ? "amber"
-                : applicantSummary.hasRegistrationFeePayment
+                : verificationInProgress
                   ? "brand"
                   : "slate",
           detail:
-            applicantStatus === "APPROVED"
+            verificationComplete && applicantStatus === "APPROVED"
               ? "Trader Watchdog has completed its checks and approved this application."
-              : applicantStatus === "DECLINED"
+              : verificationComplete
+                ? "Your Sumsub identity verification is complete. After the registration fee is paid, Trader Watchdog will carry out the final application review."
+              : verificationRejected
                 ? "This application was not approved."
-                : applicantSummary.hasRegistrationFeePayment
-                  ? "Your verification is in progress. We will be in touch if we need anything further. If not, you will receive an email once your application is approved."
-                  : "Formal verification starts after the registration fee is paid.",
+                : verificationInProgress
+                  ? "Your identity verification is in progress. We will be in touch if we need anything further."
+                  : "Start your identity verification from this page or the email we sent you.",
         },
         {
           title: "Annual membership",
@@ -961,7 +976,9 @@ export function Join() {
               ? "Creating profile"
               : applicantSummary.hasRegistrationFeePayment
                 ? "Waiting for approval"
-                : "Waiting for payment",
+                : verificationComplete
+                  ? "Waiting for registration fee"
+                  : "Waiting for verification",
           tone: applicantSummary.profileLive
             ? "emerald"
             : hasBothPayments
@@ -973,7 +990,7 @@ export function Join() {
               ? "Both payments are in. We are creating the profile and login now."
               : applicantSummary.hasRegistrationFeePayment
                 ? "Your public profile and login are created after approval and annual membership payment."
-                : "Your public profile and login are created after the verification and payment steps complete.",
+                : "Your public profile and login are created after verification, payment, approval and annual membership are complete.",
         },
       ]
     : [];
@@ -1438,16 +1455,15 @@ export function Join() {
                     </div>
                   </div>
                 ) : null}
-                {/* Identity verification button — shown when reg fee is paid, not yet approved, and not declined */}
+                {/* Identity verification button — shown before verification is complete */}
                 {applicantSummary?.exists &&
-                applicantSummary.hasRegistrationFeePayment &&
-                applicantStatus !== "APPROVED" &&
+                verificationStatus !== "APPROVED" &&
                 applicantStatus !== "DECLINED" &&
                 !applicantSummary.profileLive ? (
                   <div className="rounded-2xl border border-brand-500/25 bg-brand-500/8 p-6">
                     <p className="text-sm font-semibold text-white">Complete your identity verification</p>
                     <p className="mt-1 text-sm text-slate-400">
-                      You will need a government-issued photo ID (passport or driving licence) and a short selfie. This is a secure, guided process handled by our verification partner.
+                      You will need a government-issued photo ID (passport or driving licence) and a short selfie. This is a secure, guided process handled by our verification partner. Once complete, the registration fee payment step will unlock here.
                     </p>
                     {verificationLinkError && (
                       <p className="mt-2 text-xs text-amber-300">{verificationLinkError}</p>
@@ -1543,7 +1559,7 @@ export function Join() {
                       Payment on file
                     </p>
                     <p className="mt-2 text-amber-100/80">
-                      Your payment is recorded and your verification is in progress. We will be in touch if we need anything further. If not, you will receive an email once your application is approved, and this page will update when the next step is ready.
+                      Your registration fee is recorded and your application is in final review. We will be in touch if we need anything further. If not, you will receive an email once your application is approved, and this page will update when the next step is ready.
                     </p>
                   </div>
                 ) : null}
@@ -1561,7 +1577,7 @@ export function Join() {
                   <div className="rounded-2xl border border-white/10 bg-ink-950/60 p-6">
                     <p className="text-sm font-semibold text-white">
                       {applicantSummary?.canCheckoutRegistrationFee
-                        ? "Complete the upfront registration fee"
+                        ? "Verification complete — pay the registration fee"
                         : "Your checks are complete — activate annual membership"}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
