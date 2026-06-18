@@ -1101,13 +1101,6 @@ router.post("/applications/:id/sumsub-link", async (req, res) => {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    if (!ensured.registrationFeePaidAt) {
-      res.status(400).json({
-        error:
-          "Record the registration fee first. Verification now starts after the upfront application payment.",
-      });
-      return;
-    }
 
     const link = await generateSumsubWebSdkLink({
       userId: ensured.externalUserId,

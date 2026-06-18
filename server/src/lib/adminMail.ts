@@ -574,7 +574,7 @@ export function notifyApplicantApprovedForPayment(
       ? "Your registration fee is already paid. We have submitted your annual membership payment via the Direct Debit you set up — no further action is needed. Your public profile and member login will be created automatically once the payment clears (usually 3–5 working days)."
       : row.registrationFeePaid
         ? "Your registration fee is confirmed. The final step is to pay the annual membership. Use the secure link below to complete this — once payment is confirmed, your public profile and member login will be created."
-        : "To complete your application, use the link below to pay the registration fee. The annual membership step will then unlock automatically.";
+        : "Your application has been approved, but the billing record does not yet match the normal verification-first flow. Use the secure link below to review the next payment step, or reply to this email if you need help.";
     const continueSection =
       row.mandateOnFile
         ? ""
@@ -626,7 +626,7 @@ export function notifyApplicantVerificationLink(
       "",
       "The link is valid for 24 hours. If it has expired, you can request a new one from your application status page.",
       "",
-      "Once verification is complete, the registration fee payment step will unlock on your application status page.",
+      "Once verification is complete, your application status page will update with the next step.",
       "",
       "If you need help, just reply to this email.",
       `The ${brand} Team`,
