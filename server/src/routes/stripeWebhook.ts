@@ -43,14 +43,29 @@ async function sendStripeReceipt(
     reference: params.reference,
     paidAt: params.paidAt,
   });
-  if (pdf) {
-    void sendXeroInvoiceToTrader(prisma, {
-      traderName: params.traderName,
+  if (!pdf) {
+    console.warn("[stripe webhook] Stripe invoice PDF was not created", {
+      stripeCustomerId,
       email: params.email,
-      pdfBuffer: pdf,
       invoiceDescription: params.invoiceDescription,
+      reference: params.reference,
     });
+    return;
   }
+
+  await sendXeroInvoiceToTrader(prisma, {
+    traderName: params.traderName,
+    email: params.email,
+    pdfBuffer: pdf,
+    invoiceDescription: params.invoiceDescription,
+  });
+}
+
+function preferredReceiptEmail(member: {
+  invoiceEmail?: string | null;
+  loginEmail?: string | null;
+}) {
+  return member.invoiceEmail?.trim() || member.loginEmail?.trim() || null;
 }
 
 export async function stripeWebhookHandler(req: Request, res: Response) {
@@ -304,6 +319,7 @@ async function handleCheckoutSessionCompleted(
       select: {
         membershipExpiresAt: true,
         name: true,
+        invoiceEmail: true,
         loginEmail: true,
         invoiceAddress: true,
       },
@@ -333,9 +349,10 @@ async function handleCheckoutSessionCompleted(
         renewedUntil,
       });
     }
+    const receiptEmail = preferredReceiptEmail(member);
     void createPaidXeroInvoice({
       contactName: member.name,
-      contactEmail: member.loginEmail ?? "",
+      contactEmail: receiptEmail ?? member.loginEmail ?? "",
       contactAddress: member.invoiceAddress,
       description: `Annual Membership Renewal (${paidAt.toLocaleDateString("en-GB", {
         day: "numeric",
@@ -359,15 +376,17 @@ async function handleCheckoutSessionCompleted(
       });
     });
     // Stripe invoice PDF — emailed to trader
-    if (stripeCustomerId && member.loginEmail) {
+    if (stripeCustomerId && receiptEmail) {
       void sendStripeReceipt(stripe, stripeCustomerId, {
         description: `Annual Membership Renewal (${paidAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
         amountPence,
         reference: session.id,
         paidAt,
         traderName: member.name,
-        email: member.loginEmail,
+        email: receiptEmail,
         invoiceDescription: "Annual Membership Renewal",
+      }).catch((err) => {
+        console.error("[stripe webhook] renewal Stripe receipt send failed", err);
       });
     }
     return;
@@ -390,6 +409,7 @@ async function handleCheckoutSessionCompleted(
         name: true,
         slug: true,
         tvId: true,
+        invoiceEmail: true,
         loginEmail: true,
         invoiceAddress: true,
         location: true,
@@ -397,6 +417,7 @@ async function handleCheckoutSessionCompleted(
       },
     });
     if (member) {
+      const receiptEmail = preferredReceiptEmail(member);
       const applicationAddress = [
         member.sourceApplication?.tradingAddress,
         member.sourceApplication?.postcode,
@@ -405,7 +426,7 @@ async function handleCheckoutSessionCompleted(
       // Xero invoice — accounting record only
       void createPaidXeroInvoice({
         contactName: member.name,
-        contactEmail: member.loginEmail ?? "",
+        contactEmail: receiptEmail ?? member.loginEmail ?? "",
         contactAddress: member.invoiceAddress,
         description: "Van Stickers (x2)",
         amountPence,
@@ -415,15 +436,17 @@ async function handleCheckoutSessionCompleted(
         console.error("[stripe webhook] sticker Xero invoice failed", err);
       });
       // Stripe invoice PDF — emailed to trader
-      if (stripeCustomerId && member.loginEmail) {
+      if (stripeCustomerId && receiptEmail) {
         void sendStripeReceipt(stripe, stripeCustomerId, {
           description: "Van Stickers (x2)",
           amountPence,
           reference: session.id,
           paidAt,
           traderName: member.name,
-          email: member.loginEmail,
+          email: receiptEmail,
           invoiceDescription: "Van Stickers (x2)",
+        }).catch((err) => {
+          console.error("[stripe webhook] sticker Stripe receipt send failed", err);
         });
       }
     }
@@ -443,6 +466,7 @@ async function handleCheckoutSessionCompleted(
         name: true,
         slug: true,
         tvId: true,
+        invoiceEmail: true,
         loginEmail: true,
         invoiceAddress: true,
         location: true,
@@ -450,6 +474,7 @@ async function handleCheckoutSessionCompleted(
       },
     });
     if (member) {
+      const receiptEmail = preferredReceiptEmail(member);
       const applicationAddress = [
         member.sourceApplication?.tradingAddress,
         member.sourceApplication?.postcode,
@@ -458,7 +483,7 @@ async function handleCheckoutSessionCompleted(
       // Xero invoice — accounting record only
       void createPaidXeroInvoice({
         contactName: member.name,
-        contactEmail: member.loginEmail ?? "",
+        contactEmail: receiptEmail ?? member.loginEmail ?? "",
         contactAddress: member.invoiceAddress,
         description: "Additional Van Sticker",
         amountPence,
@@ -471,15 +496,17 @@ async function handleCheckoutSessionCompleted(
         );
       });
       // Stripe invoice PDF — emailed to trader
-      if (stripeCustomerId && member.loginEmail) {
+      if (stripeCustomerId && receiptEmail) {
         void sendStripeReceipt(stripe, stripeCustomerId, {
           description: "Additional Van Sticker",
           amountPence,
           reference: session.id,
           paidAt,
           traderName: member.name,
-          email: member.loginEmail,
+          email: receiptEmail,
           invoiceDescription: "Additional Van Sticker",
+        }).catch((err) => {
+          console.error("[stripe webhook] additional sticker Stripe receipt send failed", err);
         });
       }
     }
