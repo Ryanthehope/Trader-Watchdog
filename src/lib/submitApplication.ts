@@ -32,6 +32,13 @@ export type SubmitResult =
     }
   | { ok: false; message: string };
 
+export type ApplicationUploadFields = {
+  files?: File[];
+  wasteCarrierEvidenceFiles?: File[];
+  gasSafeEvidenceFiles?: File[];
+  icoEvidenceFiles?: File[];
+};
+
 const apiBase = () =>
   (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
 
@@ -65,12 +72,20 @@ export function getRecaptchaResponse(
 
 export async function submitApplication(
   payload: ApplicationPayload,
-  files?: File[]
+  uploads?: ApplicationUploadFields
 ): Promise<SubmitResult> {
-  const fileList = files?.filter(Boolean) ?? [];
+  const fileList = uploads?.files?.filter(Boolean) ?? [];
+  const wasteCarrierEvidenceFiles = uploads?.wasteCarrierEvidenceFiles?.filter(Boolean) ?? [];
+  const gasSafeEvidenceFiles = uploads?.gasSafeEvidenceFiles?.filter(Boolean) ?? [];
+  const icoEvidenceFiles = uploads?.icoEvidenceFiles?.filter(Boolean) ?? [];
+  const hasAnyFiles =
+    fileList.length > 0 ||
+    wasteCarrierEvidenceFiles.length > 0 ||
+    gasSafeEvidenceFiles.length > 0 ||
+    icoEvidenceFiles.length > 0;
   try {
     const res =
-      fileList.length > 0
+      hasAnyFiles
         ? await fetch(`${apiBase()}/api/applications`, {
             method: "POST",
             body: (() => {
@@ -82,6 +97,18 @@ export async function submitApplication(
 
               for (const f of fileList) {
                 fd.append("files", f);
+              }
+
+              for (const f of wasteCarrierEvidenceFiles) {
+                fd.append("wasteCarrierEvidenceFiles", f);
+              }
+
+              for (const f of gasSafeEvidenceFiles) {
+                fd.append("gasSafeEvidenceFiles", f);
+              }
+
+              for (const f of icoEvidenceFiles) {
+                fd.append("icoEvidenceFiles", f);
               }
 
               return fd;
@@ -115,7 +142,7 @@ export async function submitApplication(
   const webhook = import.meta.env.VITE_APPLICATION_WEBHOOK_URL?.trim();
   const inbox = import.meta.env.VITE_APPLICATION_INBOX_EMAIL?.trim();
 
-  if (fileList.length > 0) {
+  if (hasAnyFiles) {
     return {
       ok: false,
       message:

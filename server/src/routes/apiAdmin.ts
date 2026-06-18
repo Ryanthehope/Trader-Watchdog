@@ -6,7 +6,7 @@ import { deleteApplicationById } from "../lib/applicationDelete.js";
 import { hashPortalPassword } from "../lib/portalCredentials.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
-import { defaultUploadPath } from "../lib/uploadPaths.js";
+import { defaultUploadPath, uploadPathCandidates } from "../lib/uploadPaths.js";
 import { requireStaff } from "../middleware/requireStaff.js";
 import adminOps from "./adminOps.js";
 import { registerStaff2faRoutes } from "./staff2fa.js";
@@ -176,9 +176,21 @@ router.get("/members/:memberId/documents/:documentId/file", async (req, res) => 
     const uploadRoot =
       process.env.MEMBER_UPLOAD_DIR?.trim() ||
       defaultUploadPath("member-documents");
-    const base = path.resolve(uploadRoot, doc.memberId);
-    const resolved = path.resolve(base, path.basename(doc.storedName));
-    if ((!resolved.startsWith(base + path.sep) && resolved !== base) || !fs.existsSync(resolved)) {
+    const candidateRoots = process.env.MEMBER_UPLOAD_DIR?.trim()
+      ? [uploadRoot]
+      : uploadPathCandidates("member-documents");
+    const safeName = path.basename(doc.storedName);
+    let resolved: string | null = null;
+    for (const candidateRoot of candidateRoots) {
+      const base = path.resolve(candidateRoot, doc.memberId);
+      const candidate = path.resolve(base, safeName);
+      if ((!candidate.startsWith(base + path.sep) && candidate !== base) || !fs.existsSync(candidate)) {
+        continue;
+      }
+      resolved = candidate;
+      break;
+    }
+    if (!resolved) {
       res.status(404).json({ error: "Not found" });
       return;
     }

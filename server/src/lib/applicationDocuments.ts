@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import type { Express } from "express";
 import { prisma } from "../db.js";
-import { defaultUploadPath } from "./uploadPaths.js";
+import { defaultUploadPath, uploadPathCandidates } from "./uploadPaths.js";
 
 const UPLOAD_ROOT =
   process.env.APPLICATION_UPLOAD_DIR?.trim() ||
@@ -29,12 +29,16 @@ export function applicationDocumentResolvedPath(
   applicationId: string,
   storedName: string
 ): string | null {
-  const base = path.resolve(applicationDocDir(applicationId));
-  const resolved = path.resolve(base, path.basename(storedName));
-  if (!resolved.startsWith(base + path.sep) && resolved !== base) {
-    return null;
+  const safeName = path.basename(storedName);
+  for (const candidateBase of uploadPathCandidates("application-documents", applicationId)) {
+    const base = path.resolve(candidateBase);
+    const resolved = path.resolve(base, safeName);
+    if ((!resolved.startsWith(base + path.sep) && resolved !== base) || !fs.existsSync(resolved)) {
+      continue;
+    }
+    return resolved;
   }
-  return resolved;
+  return null;
 }
 
 export function ensureApplicationDocDir(applicationId: string) {

@@ -1,6 +1,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
+  type ApplicationUploadFields,
   getRecaptchaToken,
   submitApplication,
 } from "../lib/submitApplication";
@@ -138,6 +139,12 @@ const footerNotes = [
   "All prices exclude VAT.",
 ];
 
+function selectedFiles(fd: FormData, field: string): File[] {
+  return fd
+    .getAll(field)
+    .filter((value): value is File => value instanceof File && value.size > 0);
+}
+
 type FaqItem = { q: string; a: string };
 
 const traderFaqItems: FaqItem[] = [
@@ -216,6 +223,9 @@ export function Join() {
   const [verificationLinkLoading, setVerificationLinkLoading] = useState(false);
   const [verificationLinkError, setVerificationLinkError] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [wasteCarrierRequiredValue, setWasteCarrierRequiredValue] = useState("");
+  const [gasSafeRequiredValue, setGasSafeRequiredValue] = useState("");
+  const [icoRequiredValue, setIcoRequiredValue] = useState("");
   const [applicantSummary, setApplicantSummary] =
     useState<ApplicantSummary | null>(null);
   /** First applicant-summary fetch finished for this applicationId (avoids clearing before we know they can pay). */
@@ -517,20 +527,43 @@ export function Join() {
     const documentsConfirmed = fd.get("documentsConfirmed") === "on";
     const agreementAccepted = fd.get("agreementAccepted") === "on";
     const enquiriesAccepted = fd.get("enquiriesAccepted") === "on";
-    const filesRaw = fd.getAll("files").filter((x): x is File => x instanceof File);
-    const files = filesRaw.filter((f) => f.size > 0);
+    const files = selectedFiles(fd, "files");
+    const wasteCarrierEvidenceFiles = selectedFiles(fd, "wasteCarrierEvidenceFiles");
+    const gasSafeEvidenceFiles = selectedFiles(fd, "gasSafeEvidenceFiles");
+    const icoEvidenceFiles = selectedFiles(fd, "icoEvidenceFiles");
+    const allFiles = [
+      ...files,
+      ...wasteCarrierEvidenceFiles,
+      ...gasSafeEvidenceFiles,
+      ...icoEvidenceFiles,
+    ];
 
     if (!Number.isInteger(employeeCount) || employeeCount < 1) {
       setFormError("Please enter the number of employees, including yourself.");
       return;
     }
 
-    if (files.length > 8) {
+    if (wasteCarrierRequired === "Yes" && wasteCarrierEvidenceFiles.length === 0) {
+      setFormError("Please upload your Waste Carrier Licence document.");
+      return;
+    }
+
+    if (gasSafeRequired === "Yes" && gasSafeEvidenceFiles.length === 0) {
+      setFormError("Please upload your Gas Safe registration document.");
+      return;
+    }
+
+    if (icoRequired === "Yes" && icoEvidenceFiles.length === 0) {
+      setFormError("Please upload your ICO registration document.");
+      return;
+    }
+
+    if (allFiles.length > 8) {
       setFormError("Please upload no more than 8 supporting documents.");
       return;
     }
 
-    const oversizedFile = files.find((f) => f.size > 10 * 1024 * 1024);
+    const oversizedFile = allFiles.find((f) => f.size > 10 * 1024 * 1024);
 
     if (oversizedFile) {
       setFormError(
@@ -580,7 +613,12 @@ export function Join() {
         submittedAt: new Date().toISOString(),
         recaptchaToken,
       },
-      files
+      {
+        files,
+        wasteCarrierEvidenceFiles,
+        gasSafeEvidenceFiles,
+        icoEvidenceFiles,
+      } satisfies ApplicationUploadFields
     );
     setSubmitting(false);
 
@@ -1880,7 +1918,8 @@ export function Join() {
                 id="wasteCarrierRequired"
                 name="wasteCarrierRequired"
                 required
-                defaultValue=""
+                value={wasteCarrierRequiredValue}
+                onChange={(e) => setWasteCarrierRequiredValue(e.target.value)}
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
               >
                 <option value="" disabled>
@@ -1890,6 +1929,27 @@ export function Join() {
                 <option value="No">No</option>
               </select>
             </div>
+            {wasteCarrierRequiredValue === "Yes" ? (
+              <div>
+                <label
+                  htmlFor="wasteCarrierEvidenceFiles"
+                  className="block text-sm font-medium text-slate-300"
+                >
+                  Upload your Waste Carrier Licence document
+                </label>
+                <p className="mt-1 text-xs text-slate-500">
+                  This document is required because you selected Yes for Waste Carrier Licence.
+                </p>
+                <input
+                  id="wasteCarrierEvidenceFiles"
+                  name="wasteCarrierEvidenceFiles"
+                  type="file"
+                  required
+                  accept=".pdf,application/pdf,image/jpeg,image/png,image/webp,image/gif"
+                  className="mt-2 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15"
+                />
+              </div>
+            ) : null}
             <div>
               <label
                 htmlFor="wasteCarrierNumber"
@@ -1914,7 +1974,8 @@ export function Join() {
                 id="gasSafeRequired"
                 name="gasSafeRequired"
                 required
-                defaultValue=""
+                value={gasSafeRequiredValue}
+                onChange={(e) => setGasSafeRequiredValue(e.target.value)}
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
               >
                 <option value="" disabled>
@@ -1924,6 +1985,27 @@ export function Join() {
                 <option value="No">No</option>
               </select>
             </div>
+            {gasSafeRequiredValue === "Yes" ? (
+              <div>
+                <label
+                  htmlFor="gasSafeEvidenceFiles"
+                  className="block text-sm font-medium text-slate-300"
+                >
+                  Upload your Gas Safe registration document
+                </label>
+                <p className="mt-1 text-xs text-slate-500">
+                  This document is required because you selected Yes for Gas Safe.
+                </p>
+                <input
+                  id="gasSafeEvidenceFiles"
+                  name="gasSafeEvidenceFiles"
+                  type="file"
+                  required
+                  accept=".pdf,application/pdf,image/jpeg,image/png,image/webp,image/gif"
+                  className="mt-2 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15"
+                />
+              </div>
+            ) : null}
             <div>
               <label
                 htmlFor="gasSafeNumber"
@@ -1951,7 +2033,8 @@ export function Join() {
                 id="icoRequired"
                 name="icoRequired"
                 required
-                defaultValue=""
+                value={icoRequiredValue}
+                onChange={(e) => setIcoRequiredValue(e.target.value)}
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
               >
                 <option value="" disabled>
@@ -1961,6 +2044,27 @@ export function Join() {
                 <option value="No">No</option>
               </select>
             </div>
+            {icoRequiredValue === "Yes" ? (
+              <div>
+                <label
+                  htmlFor="icoEvidenceFiles"
+                  className="block text-sm font-medium text-slate-300"
+                >
+                  Upload your ICO registration document
+                </label>
+                <p className="mt-1 text-xs text-slate-500">
+                  This document is required because you selected Yes for ICO registration.
+                </p>
+                <input
+                  id="icoEvidenceFiles"
+                  name="icoEvidenceFiles"
+                  type="file"
+                  required
+                  accept=".pdf,application/pdf,image/jpeg,image/png,image/webp,image/gif"
+                  className="mt-2 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15"
+                />
+              </div>
+            ) : null}
             <div>
               <label
                 htmlFor="icoNumber"
@@ -1982,7 +2086,7 @@ export function Join() {
                 Insurance documents upload
               </label>
               <p className="mt-1 text-xs text-slate-500">
-                Upload PDFs or images, up to 8 files, 10 MB each. Your insurance documents should show cover, insurer, and start or renewal date. Certificates and memberships are optional and can be uploaded here as supporting evidence.
+                Upload PDFs or images, up to 8 files in total, 10 MB each. Your insurance documents should show cover, insurer, and start or renewal date. If you answered Yes to Waste Carrier, Gas Safe, or ICO, upload that supporting document in its required upload box above.
               </p>
               <input
                 id="files"
