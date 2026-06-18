@@ -50,18 +50,18 @@ const GENERIC_STICKER_QR_URL = "/generic-traderwatchdog-qr.svg";
 
 const STICKER_PREVIEWS = {
   "1": {
-    templateSrc: "/van-qr-1.jpg",
-    label: "250×100mm",
-    qrLeft: "69.55%",
-    qrTop: "15.08%",
-    qrWidth: "27.68%",
+    templateSrc: "/Sticker 1.png",
+    label: "250×50mm",
+    qrLeft: "71%",
+    qrTop: "22%",
+    qrWidth: "21.5%",
   },
   "2": {
-    templateSrc: "/van-qr-2.jpg",
+    templateSrc: "/Sticker 2.png",
     label: "187×93mm",
-    qrLeft: "32.82%",
-    qrTop: "15.70%",
-    qrWidth: "34.36%",
+    qrLeft: "38%",
+    qrTop: "30%",
+    qrWidth: "24%",
   },
 } as const;
 
@@ -99,7 +99,7 @@ function StickerPreviewCard({ variant }: { variant: StickerVariant }) {
         </div>
       </div>
       <div className="border-t border-slate-200 bg-white px-4 py-3">
-        <p className="text-sm font-semibold text-slate-900">Preview size: {preview.label}</p>
+        <p className="text-sm font-semibold text-slate-900">Actual size: {preview.label}</p>
         <p className="mt-1 text-xs text-slate-500">Example shown with a generic QR linking to traderwatchdog.co.uk.</p>
       </div>
     </div>
@@ -156,7 +156,7 @@ export function MemberOverview() {
   const [additionalStickerBusy, setAdditionalStickerBusy] = useState(false);
 
   function stickerLabel(variant: StickerVariant) {
-    return variant === "1" ? "250×100mm" : "187×93mm";
+    return variant === "1" ? "250×50mm" : "187×93mm";
   }
 
   useEffect(() => {
@@ -318,7 +318,7 @@ export function MemberOverview() {
       setQrError(null);
       setQrBusy(id);
       const url = id === "van1" ? qr.van1DownloadUrl : qr.van2DownloadUrl;
-      const label = id === "van1" ? "250x100mm" : "187x93mm";
+      const label = id === "van1" ? "250x50mm" : "187x93mm";
       const blob = await apiGetMemberBlob(url);
       const tvId = p.tvId.trim().replace(/[^A-Za-z0-9_-]/g, "");
       saveBlob(blob, `trader-watchdog-${tvId}-van-sticker-${label}.png`);
@@ -525,7 +525,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "van1" ? "Preparing..." : "Download Van sticker 1 — 250×100mm"}
+                                {qrBusy === "van1" ? "Preparing..." : "Download Van sticker 1 — 250×50mm"}
                               </button>
                               <button
                                 type="button"
@@ -545,10 +545,10 @@ export function MemberOverview() {
                       )}
 
                       <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-                        <p className="text-sm font-semibold text-slate-900">Order physical van stickers</p>
+                        <p className="text-sm font-semibold text-slate-900">Order van stickers showing your bespoke QR code!</p>
                         <p className="mt-1 text-sm text-slate-600">
                           Choose a size below. Your first order sends <strong>2 stickers of the same selected size</strong> for <strong>£17.50 + VAT</strong>, delivered by Royal Mail Tracked.
-                          Additional stickers are <strong>£6 + VAT</strong> for the selected size.
+                          Additional stickers are <strong>£6 + VAT</strong> for the same design.
                         </p>
                         <div className="mt-4 grid gap-4 lg:grid-cols-2">
                           <StickerPreviewCard variant="1" />

@@ -50,31 +50,38 @@ const ASSETS_DIR = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../assets"
 );
+const PUBLIC_DIR = path.join(process.cwd(), "public");
 
 // Van sticker composite configurations.
 // QR box coordinates are measured in pixels within the template images.
-// Template sizes: van1 = 2962×1174px (250×100mm @ ~300dpi), van2 = 2212×1108px (187×93mm @ ~300dpi).
+// Template sizes: sticker 1 = 2000×800px (labelled 250×50mm), sticker 2 = 2000×800px (labelled 187×93mm).
 // Adjust qrLeft/qrTop/qrSize if positioning needs fine-tuning after a test print.
 const VAN_STICKER_CONFIGS = {
   "1": {
-    templateFile: "van-qr-1.jpg",
+    templateFile: "Sticker 1.png",
     mmWidth: 250,
-    mmHeight: 100,
-    panelLeft: 2060,
-    panelTop: 177,
-    panelSize: 820,
-    qrInset: 18,
+    mmHeight: 50,
+    panelLeft: 1420,
+    panelTop: 176,
+    panelSize: 430,
+    qrInset: 12,
   },
   "2": {
-    templateFile: "van-qr-2.jpg",
+    templateFile: "Sticker 2.png",
     mmWidth: 187,
     mmHeight: 93,
-    panelLeft: 726,
-    panelTop: 174,
-    panelSize: 760,
-    qrInset: 16,
+    panelLeft: 760,
+    panelTop: 210,
+    panelSize: 480,
+    qrInset: 14,
   },
 } as const;
+
+function resolveStickerTemplatePath(templateFile: string) {
+  const publicPath = path.join(PUBLIC_DIR, templateFile);
+  if (fs.existsSync(publicPath)) return publicPath;
+  return path.join(ASSETS_DIR, templateFile);
+}
 
 async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerId], profileUrl: string) {
   const qrSize = cfg.panelSize - cfg.qrInset * 2;
@@ -377,7 +384,7 @@ router.get("/qr-code/van-sticker/:id", async (req, res) => {
     const qrPanelBuffer = await buildStickerQrPanel(cfg, profileUrl);
 
     // Place a white QR surround panel on top of the finished sticker artwork.
-    const templatePath = path.join(ASSETS_DIR, cfg.templateFile);
+    const templatePath = resolveStickerTemplatePath(cfg.templateFile);
     const output = await sharp(templatePath)
       .composite([
         {

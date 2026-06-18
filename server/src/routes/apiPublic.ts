@@ -32,6 +32,7 @@ import {
 import { checkoutLineConfig } from "../lib/billingSettings.js";
 import { clampCheckoutPence } from "../lib/billingSettings.js";
 import { getLaunchWindow } from "../lib/launchWindow.js";
+import { findReusableRegistrationFeePaidAt, ensureReusableRegistrationFeeForApplication } from "../lib/reusableRegistrationFee.js";
 import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
 import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 
@@ -265,7 +266,7 @@ router.post("/applications/applicant-summary", async (req, res) => {
       res.status(400).json({ error: "applicationId and email are required" });
       return;
     }
-    const row = await prisma.application.findUnique({
+    let row = await prisma.application.findUnique({
       where: { id: applicationId },
     });
     if (!row || row.email.toLowerCase() !== email) {
@@ -280,6 +281,13 @@ router.post("/applications/applicant-summary", async (req, res) => {
         oneTimePassword: null,
       });
       return;
+    }
+    if (!row.registrationFeePaidAt) {
+      row = await ensureReusableRegistrationFeeForApplication(applicationId);
+      if (!row || row.email.toLowerCase() !== email) {
+        res.status(404).json({ error: "Application not found" });
+        return;
+      }
     }
     const hasRegistrationFeePayment = Boolean(row.registrationFeePaidAt);
     const hasMembershipPayment =
@@ -345,13 +353,29 @@ router.post("/applications/verification-link", async (req, res) => {
       res.status(400).json({ error: "applicationId and email are required" });
       return;
     }
-    const row = await prisma.application.findUnique({
+    let row = await prisma.application.findUnique({
       where: { id: applicationId },
       select: { email: true, registrationFeePaidAt: true, status: true },
     });
     if (!row || row.email.toLowerCase() !== email) {
       res.status(404).json({ error: "Application not found" });
       return;
+    }
+    if (!row.registrationFeePaidAt) {
+      const refreshed = await ensureReusableRegistrationFeeForApplication(
+        applicationId
+      );
+      row = refreshed
+        ? {
+            email: refreshed.email,
+            registrationFeePaidAt: refreshed.registrationFeePaidAt,
+            status: refreshed.status,
+          }
+        : null;
+      if (!row || row.email.toLowerCase() !== email) {
+        res.status(404).json({ error: "Application not found" });
+        return;
+      }
     }
     if (!row.registrationFeePaidAt) {
       res.status(400).json({ error: "Verification starts after the registration fee is paid" });
@@ -561,6 +585,9 @@ router.post(
         ? ((req.files as Express.Multer.File[]) ?? [])
         : [];
 
+      const reusableRegistrationFeePaidAt =
+        await findReusableRegistrationFeePaidAt(email);
+
       let row: Awaited<ReturnType<typeof prisma.application.create>> | null =
         null;
       try {
@@ -586,6 +613,7 @@ router.post(
             documentsConfirmed,
             agreementAccepted,
             enquiriesAccepted,
+            registrationFeePaidAt: reusableRegistrationFeePaidAt,
           },
         });
         await persistApplicationDocuments(row.id, files);

@@ -27,6 +27,11 @@ type ApplicantSummary = {
   oneTimePassword: string | null;
 };
 
+type DiscountQuote = {
+  registrationFinalPricePence: number;
+  membershipFinalPricePence: number;
+};
+
 const applicationRequirements = [
   "Proof of identity, address, and liveness for the verification checks handled through Sumsub.",
   "Your insurance documents showing cover, insurer, and start or renewal date.",
@@ -205,6 +210,12 @@ export function Join() {
   const [checkoutLoading, setCheckoutLoading] = useState<
     "registration" | "member" | null
   >(null);
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState<string | null>(null);
+  const [discountQuote, setDiscountQuote] = useState<DiscountQuote | null>(null);
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const [discountSuccess, setDiscountSuccess] = useState<string | null>(null);
   const [verificationLinkLoading, setVerificationLinkLoading] = useState(false);
   const [verificationLinkError, setVerificationLinkError] = useState<string | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
@@ -216,6 +227,10 @@ export function Join() {
   const paidNotice = searchParams.get("paid");
   const cancelled = searchParams.get("cancelled");
   const { applicationsOpen } = getLaunchWindow();
+  const normalizedDiscountCode = discountCode.trim().toUpperCase();
+  const discountApplied = Boolean(
+    appliedDiscountCode && appliedDiscountCode === normalizedDiscountCode && discountQuote
+  );
 
   const applyStoredJoinSession = useCallback(
     (p: { applicationId: string; email: string }) => {
@@ -633,6 +648,60 @@ export function Join() {
     setApplicantSummaryReady(false);
   };
 
+  const applyDiscountCode = async () => {
+    if (!normalizedDiscountCode) {
+      setDiscountError("Enter a code first.");
+      setDiscountSuccess(null);
+      setAppliedDiscountCode(null);
+      setDiscountQuote(null);
+      return;
+    }
+    setDiscountLoading(true);
+    setDiscountError(null);
+    setDiscountSuccess(null);
+    try {
+      const res = await fetch(`${apiBase()}/api/billing/validate-discount`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: normalizedDiscountCode }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        valid?: boolean;
+        registrationFinalPricePence?: number;
+        membershipFinalPricePence?: number;
+      };
+      if (
+        !res.ok ||
+        !data.valid ||
+        typeof data.registrationFinalPricePence !== "number" ||
+        typeof data.membershipFinalPricePence !== "number"
+      ) {
+        setAppliedDiscountCode(null);
+        setDiscountQuote(null);
+        setDiscountError("Code not recognised.");
+        return;
+      }
+      setAppliedDiscountCode(normalizedDiscountCode);
+      setDiscountQuote({
+        registrationFinalPricePence: data.registrationFinalPricePence,
+        membershipFinalPricePence: data.membershipFinalPricePence,
+      });
+      const regLabel =
+        formatVatExclusiveLabel(data.registrationFinalPricePence) ??
+        formatSterling(data.registrationFinalPricePence);
+      const memberLabel =
+        formatVatExclusiveLabel(data.membershipFinalPricePence) ??
+        formatSterling(data.membershipFinalPricePence);
+      setDiscountSuccess(
+        `Code applied. Registration fee is now ${regLabel} and annual membership is now ${memberLabel}.`
+      );
+    } catch {
+      setDiscountError("Could not validate the code right now.");
+    } finally {
+      setDiscountLoading(false);
+    }
+  };
+
   const startCheckout = async (
     kind: "registration" | "member",
     options?: { applicationId?: string | null; email?: string | null }
@@ -640,6 +709,10 @@ export function Join() {
     const targetApplicationId = options?.applicationId ?? applicationId;
     const targetEmail = options?.email ?? savedEmail;
     if (!targetApplicationId || !targetEmail) return;
+    if (normalizedDiscountCode && !discountApplied) {
+      setFormError("Apply the discount code before starting checkout.");
+      return;
+    }
     setCheckoutLoading(kind);
     setFormError(null);
     const controller = new AbortController();
@@ -656,6 +729,7 @@ export function Join() {
         body: JSON.stringify({
           applicationId: targetApplicationId,
           email: targetEmail,
+          discountCode: discountApplied ? appliedDiscountCode : undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -744,6 +818,59 @@ export function Join() {
     formatVatExclusiveLabel(registrationFeePricePence) ?? "£15 + VAT";
   const membershipPriceLabel =
     formatVatExclusiveLabel(baseMembershipPricePence ?? membershipPricePence) ?? "£75 + VAT";
+  const checkoutRegistrationFeePriceLabel =
+    discountApplied && discountQuote
+      ? formatVatExclusiveLabel(discountQuote.registrationFinalPricePence) ??
+        formatSterling(discountQuote.registrationFinalPricePence)
+      : registrationFeePriceLabel;
+  const checkoutMembershipPriceLabel =
+    discountApplied && discountQuote
+      ? formatVatExclusiveLabel(discountQuote.membershipFinalPricePence) ??
+        formatSterling(discountQuote.membershipFinalPricePence)
+      : membershipPriceLabel;
+  const renderDiscountCodeBox = () => (
+    <div className="rounded-2xl border border-brand-400/20 bg-brand-500/10 p-4 text-left">
+      <p className="text-xs font-semibold uppercase tracking-wide text-brand-200">
+        Payment code
+      </p>
+      <p className="mt-2 text-sm text-slate-300">
+        If you&apos;ve been given a payment code, enter it here before paying. This keeps checkout active and reduces each payment to a nominal collected amount.
+      </p>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <input
+          type="text"
+          value={discountCode}
+          onChange={(e) => {
+            const next = e.target.value.toUpperCase();
+            setDiscountCode(next);
+            if (appliedDiscountCode && next.trim().toUpperCase() !== appliedDiscountCode) {
+              setAppliedDiscountCode(null);
+              setDiscountQuote(null);
+              setDiscountSuccess(null);
+            }
+            setDiscountError(null);
+          }}
+          placeholder="Enter payment code"
+          autoComplete="off"
+          className="flex-1 rounded-xl border border-white/10 bg-ink-950/50 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+        />
+        <button
+          type="button"
+          onClick={() => void applyDiscountCode()}
+          disabled={discountLoading}
+          className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-ink-900 hover:bg-slate-100 disabled:opacity-50"
+        >
+          {discountLoading ? "Checking…" : "Apply code"}
+        </button>
+      </div>
+      {discountError ? (
+        <p className="mt-3 text-xs text-amber-200">{discountError}</p>
+      ) : null}
+      {discountSuccess ? (
+        <p className="mt-3 text-xs text-emerald-200">{discountSuccess}</p>
+      ) : null}
+    </div>
+  );
   const progressSteps = applicantSummary
     ? [
         {
@@ -1066,6 +1193,7 @@ export function Join() {
               </div>
             </div>
           ) : null}
+          <div className="mt-6">{renderDiscountCodeBox()}</div>
         </div>
       </div>
 
@@ -1202,7 +1330,7 @@ export function Join() {
               ) : (
                 <>
                   <p className="mt-2 text-sm text-slate-400">
-                    Your application is saved. Complete the <span className="text-slate-300">{registrationFeePriceLabel}</span> registration fee from this page so Trader Watchdog can begin formal checks. Once the application is approved, this page unlocks the <span className="text-slate-300">{membershipPriceLabel}</span> annual membership and your public listing and member login are created after that final payment.
+                    Your application is saved. Complete the <span className="text-slate-300">{checkoutRegistrationFeePriceLabel}</span> registration fee from this page so Trader Watchdog can begin formal checks. Once the application is approved, this page unlocks the <span className="text-slate-300">{checkoutMembershipPriceLabel}</span> annual membership and your public listing and member login are created after that final payment.
                   </p>
                   <p className="mt-3 text-xs text-slate-500">
                     Tip: bookmark this tab or keep your confirmation email so you
@@ -1269,7 +1397,7 @@ export function Join() {
                   >
                     {checkoutLoading === "registration"
                       ? "Redirecting…"
-                      : `Try registration fee ${registrationFeePriceLabel} again`}
+                        : `Try registration fee ${checkoutRegistrationFeePriceLabel} again`}
                   </button>
                 ) : null}
               </div>
@@ -1444,6 +1572,7 @@ export function Join() {
                       Secure checkout. Use the same email as on your
                       application ({savedEmail}).
                     </p>
+                    <div className="mt-4">{renderDiscountCodeBox()}</div>
                     <p className="mt-3 text-xs text-slate-600">
                       Use this page to pay. This application stays linked to the
                       current email address until it is completed or declined.
@@ -1459,7 +1588,7 @@ export function Join() {
                         >
                           {checkoutLoading === "registration"
                             ? "Redirecting…"
-                            : `Registration fee ${registrationFeePriceLabel}`}
+                            : `Registration fee ${checkoutRegistrationFeePriceLabel}`}
                         </button>
                       ) : null}
                       {applicantSummary?.canCheckoutMembership ? (
@@ -1471,7 +1600,7 @@ export function Join() {
                         >
                           {checkoutLoading === "member"
                             ? "Redirecting…"
-                            : `Annual membership ${membershipPriceLabel}`}
+                            : `Annual membership ${checkoutMembershipPriceLabel}`}
                         </button>
                       ) : null}
                     </div>

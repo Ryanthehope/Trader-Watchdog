@@ -8,11 +8,10 @@ import {
 import { getStripeClient } from "../lib/stripeClient.js";
 import { createStripeCheckoutSession } from "../lib/stripeCheckoutSession.js";
 import { stripeErrorDetails } from "../lib/stripeErrors.js";
-import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
-import { provisionIfApplicationPaid } from "../lib/provisionAfterApplicationPayment.js";
-import { notifyMemberWelcome } from "../lib/adminMail.js";
+import { ensureReusableRegistrationFeeForApplication } from "../lib/reusableRegistrationFee.js";
 
 const router = Router();
+const DISCOUNTED_PAYABLE_PENCE = 120;
 
 /** Hosted payment links are only valid for a limited period after the relevant trigger. */
 const PAYMENT_WINDOW_MS = 1000 * 60 * 60 * 24 * 30;
@@ -21,7 +20,7 @@ async function assertRegistrationCheckoutAllowed(
   applicationId: string,
   email: string
 ) {
-  const row = await prisma.application.findUnique({
+  let row = await prisma.application.findUnique({
     where: { id: applicationId },
   });
   if (!row) {
@@ -40,6 +39,12 @@ async function assertRegistrationCheckoutAllowed(
     return {
       error: "This application already has a live member profile.",
     } as const;
+  }
+  if (!row.registrationFeePaidAt) {
+    row = await ensureReusableRegistrationFeeForApplication(applicationId);
+    if (!row) {
+      return { error: "Application not found" as const };
+    }
   }
   const windowStart = row.createdAt;
   if (Date.now() - windowStart.getTime() > PAYMENT_WINDOW_MS) {
@@ -87,10 +92,26 @@ function siteOrigin(req: { get: (h: string) => string | undefined }) {
   );
 }
 
-function resolveDiscountCode(code: string): { discountType: "full" } | null {
+function resolveDiscountCode(
+  code: string,
+  fullAmountPence: number
+): {
+  code: string;
+  discountType: "reduced";
+  finalPricePence: number;
+  savingsPence: number;
+} | null {
   const upper = code.trim().toUpperCase();
-  const freeCode = (process.env.PROMO_CODE_FREE_MEMBERSHIP?.trim() || "NGB0").toUpperCase();
-  if (upper === freeCode) return { discountType: "full" };
+  const freeCode = (process.env.PROMO_CODE_FREE_MEMBERSHIP?.trim() || "NGB1").toUpperCase();
+  if (upper === freeCode) {
+    const finalPricePence = Math.min(fullAmountPence, DISCOUNTED_PAYABLE_PENCE);
+    return {
+      code: upper,
+      discountType: "reduced",
+      finalPricePence,
+      savingsPence: Math.max(fullAmountPence - finalPricePence, 0),
+    };
+  }
   return null;
 }
 
@@ -106,14 +127,24 @@ router.post("/validate-discount", async (req, res) => {
     return;
   }
   const lines = checkoutLineConfig(settings);
-  const discount = resolveDiscountCode(code);
-  if (!discount) {
+  const registrationDiscount = resolveDiscountCode(
+    code,
+    lines.registrationFeePence
+  );
+  const membershipDiscount = resolveDiscountCode(code, lines.membershipPence);
+  if (!registrationDiscount || !membershipDiscount) {
     res.json({ valid: false });
     return;
   }
-  if (discount.discountType === "full") {
-    res.json({ valid: true, discountType: "full", savingsPence: lines.membershipPence, finalPricePence: 0 });
-  }
+  res.json({
+    valid: true,
+    discountType: "reduced",
+    code: registrationDiscount.code,
+    registrationFinalPricePence: registrationDiscount.finalPricePence,
+    registrationSavingsPence: registrationDiscount.savingsPence,
+    membershipFinalPricePence: membershipDiscount.finalPricePence,
+    membershipSavingsPence: membershipDiscount.savingsPence,
+  });
 });
 
 router.post("/checkout-registration-fee", async (req, res) => {
@@ -140,19 +171,6 @@ router.post("/checkout-registration-fee", async (req, res) => {
       return;
     }
 
-    // Free-code path — mark registration fee paid directly, skip GoCardless
-    const discountCodeInput = String(req.body?.discountCode ?? "").trim();
-    const discount = discountCodeInput ? resolveDiscountCode(discountCodeInput) : null;
-    if (discount?.discountType === "full") {
-      await prisma.application.update({
-        where: { id: applicationId },
-        data: { registrationFeePaidAt: new Date() },
-      });
-      const origin = siteOrigin(req);
-      res.json({ url: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}` });
-      return;
-    }
-
     const stripe = await getStripeClient();
     if (!stripe) {
       res.status(400).json({ error: "Stripe is not configured" });
@@ -160,8 +178,12 @@ router.post("/checkout-registration-fee", async (req, res) => {
     }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
+    const discountCodeInput = String(req.body?.discountCode ?? "").trim();
+    const discount = discountCodeInput
+      ? resolveDiscountCode(discountCodeInput, lines.registrationFeePence)
+      : null;
     const flow = await createStripeCheckoutSession(stripe, {
-      amountPence: lines.registrationFeePence,
+      amountPence: discount?.finalPricePence ?? lines.registrationFeePence,
       description: lines.registrationFeeName,
       email,
       savePaymentMethod: true,
@@ -170,6 +192,7 @@ router.post("/checkout-registration-fee", async (req, res) => {
       metadata: {
         applicationId,
         checkoutKind: "registration_fee",
+        ...(discount ? { discountCode: discount.code } : {}),
       },
     });
     res.json({ url: flow.url });
@@ -223,41 +246,12 @@ router.post("/checkout-membership", async (req, res) => {
     const lines = checkoutLineConfig(settings);
 
     const discountCodeInput = String(req.body?.discountCode ?? "").trim();
-    const discount = discountCodeInput ? resolveDiscountCode(discountCodeInput) : null;
-    if (discount?.discountType === "full") {
-      // 100% off — provision directly without GoCardless
-      const now = new Date();
-      await prisma.application.update({
-        where: { id: applicationId },
-        data: {
-          membershipSubscribed: true,
-          manualMembershipExpiresAt: addOneCalendarYearEndUtc(now),
-          membershipRenewalPricePence: 0,
-        },
-      });
-      if (application.createdMemberId) {
-        await prisma.member.update({
-          where: { id: application.createdMemberId },
-          data: {
-            membershipBillingType: "manual",
-            membershipExpiresAt: addOneCalendarYearEndUtc(now),
-            membershipRenewalPricePence: 0,
-          },
-        });
-      }
-      const prov = await provisionIfApplicationPaid(prisma, applicationId);
-      if (!prov.ok && prov.reason === "email_in_use") {
-        console.error("[billing] free membership provision blocked: email already in use");
-      }
-      if (prov.ok && prov.newlyCreated) {
-        notifyMemberWelcome(prisma, { email: prov.email, name: prov.name, temporaryPassword: prov.temporaryPassword });
-      }
-      res.json({ url: `/join?paid=membership&app=${encodeURIComponent(applicationId)}` });
-      return;
-    }
+    const discount = discountCodeInput
+      ? resolveDiscountCode(discountCodeInput, lines.membershipPence)
+      : null;
 
     const flow = await createStripeCheckoutSession(stripe, {
-      amountPence: lines.membershipPence,
+      amountPence: discount?.finalPricePence ?? lines.membershipPence,
       description: lines.membershipName,
       email,
       existingStripeCustomerId: application.stripeCustomerId,
@@ -266,6 +260,7 @@ router.post("/checkout-membership", async (req, res) => {
       metadata: {
         applicationId,
         checkoutKind: "membership",
+        ...(discount ? { discountCode: discount.code } : {}),
       },
     });
     res.json({ url: flow.url });
