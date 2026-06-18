@@ -348,7 +348,7 @@ export function StaffApplications() {
         <strong className="text-emerald-300/90"> Approve application</strong> marks them
         ready to pay; their public listing and portal are created{" "}
         <strong className="text-slate-300">after</strong> they complete checkout (or use{" "}
-        <strong className="text-slate-300">Create member profile</strong> if the GoCardless
+        <strong className="text-slate-300">Create member profile</strong> if the Stripe
         webhook failed). For bank transfer / invoice / cash, use{" "}
         <strong className="text-slate-300">Record … (manual)</strong> on an approved
         application — manual membership requires an{" "}
@@ -540,11 +540,11 @@ function ApplicationCard({
     }
     const label =
       type === "registration_fee"
-        ? "registration fee (£15 + VAT) for admin checks was received outside GoCardless"
-        : `membership payment was recorded outside GoCardless (until ${membershipExpiresAt})`;
+        ? "registration fee (£15 + VAT) for admin checks was received outside Stripe"
+        : `membership payment was recorded outside Stripe (until ${membershipExpiresAt})`;
     if (
       !confirm(
-        `Record that ${label}? This marks payment on the application and creates the member profile when eligible (same as a successful GoCardless payment).`
+        `Record that ${label}? This marks payment on the application and creates the member profile when eligible (same as a successful Stripe payment).`
       )
     ) {
       return;
@@ -824,8 +824,8 @@ function ApplicationCard({
                   Membership paid
                   {row.manualMembershipExpiresAt
                     ? ` · active until ${new Date(row.manualMembershipExpiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
-                    : linked?.membershipBillingType === "goCardless"
-                      ? " · legacy GoCardless link"
+                    : linked?.membershipBillingType === "stripe"
+                      ? " · legacy Stripe link"
                       : ""}
                 </span>
               ) : (
@@ -1056,7 +1056,7 @@ function ApplicationCard({
             linked &&
             row.membershipSubscribed &&
             row.manualMembershipExpiresAt &&
-            linked.membershipBillingType !== "goCardless" ? (
+            linked.membershipBillingType !== "stripe" ? (
               <button
                 type="button"
                 disabled={manualPaymentBusy !== null || provisionBusy}

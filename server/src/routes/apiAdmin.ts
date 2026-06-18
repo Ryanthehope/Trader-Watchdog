@@ -7,7 +7,6 @@ import { hashPortalPassword } from "../lib/portalCredentials.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { requireStaff } from "../middleware/requireStaff.js";
-import { getGoCardlessApiClient } from "../lib/billingSettings.js";
 import adminOps from "./adminOps.js";
 import { registerStaff2faRoutes } from "./staff2fa.js";
 import fs from "fs";
@@ -135,7 +134,6 @@ router.get("/members/:id", async (req, res) => {
         membershipUnlimited: m.membershipUnlimited,
         membershipBillingType: m.membershipBillingType,
         membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
-        goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
         memberDocuments: m.documents.map((doc) => ({
           id: doc.id,
           originalName: doc.originalName,
@@ -318,7 +316,6 @@ router.put("/members/:id", async (req, res) => {
       membershipUnlimited,
       membershipAccessMode,
       membershipExpiresAt,
-      clearGoCardlessSubscription,
     } = req.body ?? {};
 
     const membershipPatch: Prisma.MemberUpdateInput = {};
@@ -335,11 +332,6 @@ router.put("/members/:id", async (req, res) => {
     if (accessMode === "legacy") {
       membershipPatch.membershipBillingType = null;
       membershipPatch.membershipExpiresAt = null;
-      if (clearGoCardlessSubscription === true) {
-        membershipPatch.goCardlessSubscriptionId = null;
-        membershipPatch.goCardlessSubscriptionStatus = null;
-        membershipPatch.goCardlessCustomerId = null;
-      }
     } else if (accessMode === "manual") {
       const exp = parseManualMembershipExpiryInput(membershipExpiresAt);
       if (!exp) {
@@ -351,10 +343,6 @@ router.put("/members/:id", async (req, res) => {
       }
       membershipPatch.membershipBillingType = "manual";
       membershipPatch.membershipExpiresAt = exp;
-      if (clearGoCardlessSubscription === true) {
-        membershipPatch.goCardlessSubscriptionId = null;
-        membershipPatch.goCardlessSubscriptionStatus = null;
-      }
     }
 
     if (portalOff) {
@@ -407,7 +395,6 @@ router.put("/members/:id", async (req, res) => {
         membershipUnlimited: m.membershipUnlimited,
         membershipBillingType: m.membershipBillingType,
         membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
-        goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
       },
     });
   } catch (e: unknown) {
@@ -422,31 +409,6 @@ router.put("/members/:id", async (req, res) => {
 
 router.delete("/members/:id", async (req, res) => {
   try {
-    // Fetch GoCardless subscription before deleting the DB record
-    const member = await prisma.member.findUnique({
-      where: { id: req.params.id },
-      select: { goCardlessSubscriptionId: true, goCardlessSubscriptionStatus: true },
-    });
-
-    if (
-      member?.goCardlessSubscriptionId &&
-      member.goCardlessSubscriptionStatus !== "cancelled" &&
-      member.goCardlessSubscriptionStatus !== "finished"
-    ) {
-      try {
-        const gocardless = await getGoCardlessApiClient();
-        if (gocardless) {
-          await gocardless.subscriptions.cancel(
-            member.goCardlessSubscriptionId,
-            {}
-          );
-        }
-      } catch (gcErr) {
-        // Log but don't block deletion — subscription may already be inactive
-        console.error("[delete member] GoCardless subscription cancel failed", gcErr);
-      }
-    }
-
     await prisma.member.delete({ where: { id: req.params.id } });
     res.status(204).send();
   } catch (e: unknown) {

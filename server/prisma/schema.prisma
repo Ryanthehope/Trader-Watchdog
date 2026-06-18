@@ -56,9 +56,9 @@ model Member {
   passwordResetToken       String?
   /// When the passwordResetToken expires (1 hour from issue).
   passwordResetExpiry      DateTime?
-  /// When set with membershipBillingType, access ends after this instant (GoCardless period end or manual term).
+  /// When set with membershipBillingType, access ends after this instant.
   membershipExpiresAt      DateTime?
-  /// "goCardless" | "manual" — null with null expiry = legacy grandfathered access.
+  /// "manual" — null with null expiry = legacy grandfathered access.
   membershipBillingType    String?
   verificationProvider            String?
   verificationStatus              VerificationStatus @default(NOT_STARTED)
@@ -74,10 +74,6 @@ model Member {
   addressVerificationFailureReason    String?
   addressVerificationMatchedAddress   String?
   addressVerificationMatchedApplication Boolean?
-  goCardlessCustomerId         String?
-  goCardlessSubscriptionId     String?
-  /// Mirrors GoCardless subscription.status (active, canceled, past_due, …).
-  goCardlessSubscriptionStatus String?
   /// Stripe customer ID for this member (populated after any Stripe payment).
   stripeCustomerId             String?
   /// Discounted renewal price (pence) if a partial discount was applied at initial checkout. Null = full price.
@@ -215,17 +211,14 @@ model Application {
   addressVerificationMatchedApplication Boolean?
   /// First name of the staff member who set the application status to APPROVED.
   approvedByStaffName             String?
-  goCardlessCustomerId             String?
-  /// GoCardless mandate ID captured from the billing request (used to auto-charge membership on approval).
-  goCardlessMandateId              String?
   /// Stripe customer ID captured when registration checkout completes (used to auto-charge membership on approval).
   stripeCustomerId                 String?
   /// Stripe payment method ID saved at registration checkout for future off-session charges.
   stripePaymentMethodId            String?
   /// Discounted renewal price (pence) set when a partial discount code was used at membership checkout.
   membershipRenewalPricePence      Int?
-  /// Set when an off-session GoCardless payment was successfully created from the stored mandate on approval.
-  /// Prevents a second manual checkout while the Bacs payment is in flight (confirmed ~3-5 working days).
+  /// Set when an off-session Stripe membership payment has been started from a saved payment method.
+  /// Prevents a second manual checkout while a renewal charge is in flight.
   membershipAutoChargeInitiatedAt  DateTime?
   /// Plain one-time password for /join until first login or expiry (14d at provision).
   pendingPortalPassword        String?
@@ -274,16 +267,12 @@ model OrganizationSettings {
   smtpPass                          String?
   /// Sender for system emails, e.g. "Acme Verify <noreply@acme.com>"
   mailFrom                          String?
-  /// GoCardless (admin-configurable; secret also via GO_CARDLESS_SECRET_KEY env)
   billingEnabled                    Boolean @default(false)
-  goCardlessPublishableKey              String?
-  goCardlessSecretKey                   String?
-  goCardlessWebhookSecret               String?
   /// Stripe (admin-configurable; also via STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET env)
   stripePublishableKey                  String?
   stripeSecretKey                       String?
   stripeWebhookSecret                   String?
-  /// Shown on GoCardless Checkout (inline price_data — no Dashboard Price IDs required)
+  /// Shown on Stripe Checkout line items.
   checkoutMembershipName            String?
   checkoutRegistrationFeeName       String?
   checkoutMembershipPence           Int     @default(9000)
@@ -296,13 +285,11 @@ model OrganizationSettings {
   staffRequire2fa                   Boolean @default(false)
   /// PNG/JPG logo file name under org branding upload dir (served at /api/public/branding/logo).
   brandingLogoStoredName            String?
-  /// Shown on member billing + synced context; GoCardless PDFs use Dashboard branding after sync.
+  /// Shown on member billing and invoice context.
   invoiceLegalName                  String?
   invoiceVatNumber                  String?
   invoiceAddress                    String?
   invoiceFooterNote                 String?
-  /// Last GoCardless File id used for account branding (optional).
-  goCardlessBrandingLogoFileId          String?
   /// GA4 Measurement ID (G-XXXXXXXXXX) — loads gtag on the public site (not /staff).
   googleAnalyticsMeasurementId      String?
   /// GA4 numeric Property ID (Admin → Property settings) for Data API reports in Staff → Analytics.

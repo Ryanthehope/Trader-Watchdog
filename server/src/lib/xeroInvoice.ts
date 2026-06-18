@@ -17,7 +17,7 @@ export type XeroInvoicePayload = {
     contactPostalCode?: string | null;
     description: string;         // e.g. "Annual Membership" or "Registration Fee"
     amountPence: number;        // amount in pence, e.g. 1999 for £19.99 inc VAT if applicable
-    reference: string;          // e.g. goCardless ID
+  reference: string;          // e.g. Stripe payment or invoice reference
     paidAt: Date;               //when payment was confirmed
 };
 
@@ -176,7 +176,7 @@ export type XeroCreditNotePayload = {
     contactEmail: string;       // traders email
     description: string;         // e.g. "Refund for Annual Membership"
     amountPence: number;        // amount in pence, e.g. 1999 for £19.99 inc VAT if applicable
-    reference: string;          // e.g. goCardless ID
+  reference: string;          // e.g. Stripe payment or invoice reference
     refundedAt: Date;           // when refund was issued
   };
 

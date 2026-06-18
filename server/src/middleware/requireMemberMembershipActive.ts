@@ -16,7 +16,6 @@ export const requireMemberMembershipActive: RequestHandler = async (
         membershipUnlimited: true,
         membershipBillingType: true,
         membershipExpiresAt: true,
-        goCardlessSubscriptionStatus: true,
       },
     });
     if (!m) {

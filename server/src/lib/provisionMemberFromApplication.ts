@@ -152,7 +152,6 @@ export async function tryProvisionMemberForApplication(
         passwordHash: await hashPortalPassword(temporaryPassword),
         mustChangePassword: true,
         membershipUnlimited: false,
-        goCardlessCustomerId: app.goCardlessCustomerId ?? undefined,
         membershipRenewalPricePence:
           app.membershipRenewalPricePence === 0 ? 0 : undefined,
         verificationProvider: app.verificationProvider ?? undefined,

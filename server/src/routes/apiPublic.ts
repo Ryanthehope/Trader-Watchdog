@@ -101,7 +101,6 @@ const MEMBER_PUBLIC_VISIBILITY_SELECT = {
   membershipUnlimited: true,
   membershipBillingType: true,
   membershipExpiresAt: true,
-  goCardlessSubscriptionStatus: true,
 } as const;
 
 /** Public diagnostic: open in a browser when the site shows "Could not load members". */

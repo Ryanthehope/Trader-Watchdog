@@ -55,9 +55,9 @@ tradeverify/
 │   │   ├── auth/                # NextAuth endpoints
 │   │   ├── traders/             # Trader CRUD operations
 │   │   ├── insurance/           # Insurance CRUD
-│   │   ├── subscriptions/       # Subscription management
+│   │   ├── subscriptions/       # Billing management
 │   │   ├── webhooks/
-│   │   │   └── goCardless/          # GoCardless webhooks (EXISTING)
+│   │   │   └── stripe/          # Stripe webhooks (EXISTING)
 │   │   └── cron/
 │   │       └── check-expiry/    # Expiry cron (EXISTING)
 │   │
@@ -99,7 +99,7 @@ tradeverify/
 │
 ├── lib/                         # Utility functions & configs
 │   ├── prisma.ts               # Database client (EXISTING)
-│   ├── goCardless.ts               # GoCardless client (EXISTING)
+│   ├── stripe.ts               # Stripe client (conceptual)
 │   ├── utils.ts                # Utility functions (EXISTING)
 │   ├── auth.ts                 # NextAuth config
 │   ├── email.ts                # Email helpers (Resend)
@@ -185,7 +185,7 @@ export async function updateTraderProfile(traderId: string, data: TraderData) {
 
 ### Phase 1 - Core Infrastructure
 1. ✅ Database schema (DONE)
-2. ✅ GoCardless integration (DONE)
+2. ✅ Stripe integration (DONE)
 3. ✅ Expiry monitoring (DONE)
 4. 🔨 NextAuth configuration
 5. 🔨 Base UI component library

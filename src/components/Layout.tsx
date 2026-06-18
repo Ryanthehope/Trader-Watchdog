@@ -124,7 +124,7 @@ export function Layout() {
           <div className="hidden border-t border-white/5 xl:block">
             <nav className="flex items-center justify-center gap-2 py-3">
               <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
-                Verify a trade
+                Verify a trader
               </Link>
               <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
                 What we check

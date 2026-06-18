@@ -140,8 +140,6 @@ const ADMIN_APPLICATION_MUTATION_SELECT = {
   registrationFeePaidAt: true,
   membershipSubscribed: true,
   manualMembershipExpiresAt: true,
-  goCardlessMandateId: true,
-  goCardlessCustomerId: true,
   stripeCustomerId: true,
   stripePaymentMethodId: true,
   membershipAutoChargeInitiatedAt: true,
@@ -267,15 +265,11 @@ router.get("/dashboard", async (_req, res) => {
 function publicOrgSettings(s: Awaited<ReturnType<typeof ensureOrgSettings>>) {
   return {
     ...s,
-    goCardlessSecretKey: null as string | null,
-    goCardlessWebhookSecret: null as string | null,
     stripeSecretKey: null as string | null,
     stripeWebhookSecret: null as string | null,
     recaptchaSecretKey: null as string | null,
     smtpPass: null as string | null,
     googleAnalyticsServiceAccountJson: null as string | null,
-    hasGoCardlessSecret: Boolean(s.goCardlessSecretKey?.trim()),
-    hasGoCardlessWebhookSecret: Boolean(s.goCardlessWebhookSecret?.trim()),
     hasStripeSecret: Boolean(s.stripeSecretKey?.trim()),
     hasStripeWebhookSecret: Boolean(s.stripeWebhookSecret?.trim()),
     hasRecaptchaSecret: Boolean(s.recaptchaSecretKey?.trim()),
@@ -363,10 +357,6 @@ async function patchOrganizationSettings(
       typeof body.billingEnabled === "boolean"
         ? body.billingEnabled
         : undefined;
-    const goCardlessPublishableKey =
-      typeof body.goCardlessPublishableKey === "string"
-        ? body.goCardlessPublishableKey.trim() || null
-        : undefined;
     const checkoutMembershipName =
       typeof body.checkoutMembershipName === "string"
         ? body.checkoutMembershipName.trim() || null
@@ -384,14 +374,6 @@ async function patchOrganizationSettings(
       typeof body.checkoutRegistrationFeePence === "number" &&
       Number.isFinite(body.checkoutRegistrationFeePence)
         ? Math.floor(body.checkoutRegistrationFeePence)
-        : undefined;
-    const goCardlessSecretKey =
-      typeof body.goCardlessSecretKey === "string"
-        ? body.goCardlessSecretKey.trim() || null
-        : undefined;
-    const goCardlessWebhookSecret =
-      typeof body.goCardlessWebhookSecret === "string"
-        ? body.goCardlessWebhookSecret.trim() || null
         : undefined;
     const recaptchaEnabled =
       typeof body.recaptchaEnabled === "boolean"
@@ -505,12 +487,6 @@ async function patchOrganizationSettings(
     }
 
     const secretPatch: Record<string, string | null | undefined> = {};
-    if (goCardlessSecretKey !== undefined) {
-      secretPatch.goCardlessSecretKey = goCardlessSecretKey;
-    }
-    if (goCardlessWebhookSecret !== undefined) {
-      secretPatch.goCardlessWebhookSecret = goCardlessWebhookSecret;
-    }
 
     const stripeSecretKeyRaw = body.stripeSecretKey;
     const stripeSecretKey =
@@ -560,9 +536,6 @@ async function patchOrganizationSettings(
         ...(smtpUser !== undefined ? { smtpUser } : {}),
         ...(mailFrom !== undefined ? { mailFrom } : {}),
         ...(billingEnabled !== undefined ? { billingEnabled } : {}),
-        ...(goCardlessPublishableKey !== undefined
-          ? { goCardlessPublishableKey }
-          : {}),
         ...(stripePublishableKey !== undefined ? { stripePublishableKey } : {}),
         ...(checkoutMembershipName !== undefined
           ? { checkoutMembershipName }
@@ -606,9 +579,6 @@ async function patchOrganizationSettings(
         ...(smtpUser !== undefined ? { smtpUser } : {}),
         ...(mailFrom !== undefined ? { mailFrom } : {}),
         ...(billingEnabled !== undefined ? { billingEnabled } : {}),
-        ...(goCardlessPublishableKey !== undefined
-          ? { goCardlessPublishableKey }
-          : {}),
         ...(stripePublishableKey !== undefined ? { stripePublishableKey } : {}),
         ...(checkoutMembershipName !== undefined
           ? { checkoutMembershipName }
@@ -1254,7 +1224,7 @@ router.post("/applications/:id/sumsub-sync", async (req, res) => {
     res.status(500).json({ error: "Could not sync Sumsub status" });
   }
 });
-/** Retry member creation after GoCardless (or if webhook failed). Requires APPROVED + recorded payment. */
+/** Retry member creation after payment has been recorded. Requires APPROVED + recorded payment. */
 router.post("/applications/:id/provision-member", async (req, res) => {
   try {
     const id = req.params.id;
@@ -1273,7 +1243,7 @@ router.post("/applications/:id/provision-member", async (req, res) => {
     if (!before.registrationFeePaidAt && !before.membershipSubscribed) {
       res.status(400).json({
         error:
-          "No payment is recorded yet. The listing is created when the applicant completes checkout, or retry here after GoCardless confirms payment.",
+          "No payment is recorded yet. The listing is created when the applicant completes checkout, or retry here after payment is confirmed.",
       });
       return;
     }
@@ -1340,7 +1310,7 @@ router.post("/applications/:id/provision-member", async (req, res) => {
 });
 
 /**
- * Record payment received outside GoCardless (bank transfer, cash, phone, etc.).
+ * Record payment received outside Stripe checkout (bank transfer, cash, phone, etc.).
  * Same outcome as a successful Checkout webhook: flags + provision when eligible.
  */
 router.post("/applications/:id/record-manual-payment", async (req, res) => {
@@ -1399,13 +1369,6 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
             manualMembershipExpiresAt: exp,
           },
         });
-        if (memberRow?.membershipBillingType === "goCardless") {
-          res.status(400).json({
-            error:
-              "This member is on GoCardless billing; dates sync from the subscription.",
-          });
-          return;
-        }
         if (memberRow) {
           await prisma.member.update({
             where: { id: memberRow.id },
@@ -1427,14 +1390,7 @@ router.post("/applications/:id/record-manual-payment", async (req, res) => {
         if (before.manualMembershipExpiresAt == null) {
           res.status(400).json({
             error:
-              "This membership was recorded via GoCardless. Manage renewal in GoCardless or have the member subscribe from the portal.",
-          });
-          return;
-        }
-        if (memberRow?.membershipBillingType === "goCardless") {
-          res.status(400).json({
-            error:
-              "This member is on GoCardless billing; dates sync from the subscription.",
+              "This membership does not yet have a manual expiry date. Enter a new expiry date to continue.",
           });
           return;
         }
@@ -1565,9 +1521,7 @@ router.post("/applications/:id/retry-xero-invoice", async (req, res) => {
     if (
       message === "A Xero invoice is already stored for that payment" ||
       message === "Registration fee is not recorded on this application" ||
-      message === "Membership payment is not recorded on this application" ||
-      message === "No GoCardless customer is linked to this application" ||
-      message === "Could not find the matching GoCardless payment"
+      message === "Membership payment is not recorded on this application"
     ) {
       res.status(400).json({ error: message });
       return;

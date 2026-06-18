@@ -2,15 +2,10 @@ type MemberMembershipFields = {
   membershipUnlimited: boolean;
   membershipBillingType: string | null;
   membershipExpiresAt: Date | null;
-  goCardlessSubscriptionStatus: string | null;
 };
 
 function nowUtc(): Date {
   return new Date();
-}
-
-function isGoCardlessMembershipActive(status: string | null): boolean {
-  return status === "active" || status === "trialing";
 }
 
 export function isMemberMembershipAccessActive(
@@ -19,12 +14,7 @@ export function isMemberMembershipAccessActive(
 ): boolean {
   if (member.membershipUnlimited) return true;
   if (!member.membershipBillingType) return true;
-  if (!member.membershipExpiresAt) {
-    return (
-      member.membershipBillingType === "goCardless" &&
-      isGoCardlessMembershipActive(member.goCardlessSubscriptionStatus)
-    );
-  }
+  if (!member.membershipExpiresAt) return false;
   return member.membershipExpiresAt > now;
 }
 
@@ -54,7 +44,6 @@ export function membershipSummaryForMember(
     membershipUnlimited: member.membershipUnlimited,
     billingType: member.membershipBillingType,
     expiresAt: member.membershipExpiresAt?.toISOString() ?? null,
-    goCardlessSubscriptionStatus: member.goCardlessSubscriptionStatus,
     inGracePeriod:
       !accessActive && publicVisible && Boolean(member.membershipExpiresAt),
   };

@@ -19,9 +19,8 @@ type ApplicationXeroInvoiceRefs = {
 };
 
 /**
- * Previously looked up the GoCardless payment for the application.
- * GoCardless has been removed; always returns null so the retry
- * falls back to the date/amount stored on the Application record.
+ * Payment retries use the date and amount already stored on the Application
+ * record; there is no external gateway lookup in this path anymore.
  */
 async function latestApplicationPayment(
   _applicationId: string,

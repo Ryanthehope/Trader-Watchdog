@@ -179,7 +179,6 @@ function isMemberQrEligible(m: {
   membershipUnlimited: boolean;
   membershipBillingType: string | null;
   membershipExpiresAt: Date | null;
-  goCardlessSubscriptionStatus: string | null;
 }) {
   // Block only if explicitly rejected — admin approval is the real verification gate.
   if (m.verificationStatus === "REJECTED") return false;
@@ -187,7 +186,6 @@ function isMemberQrEligible(m: {
     membershipUnlimited: m.membershipUnlimited,
     membershipBillingType: m.membershipBillingType,
     membershipExpiresAt: m.membershipExpiresAt,
-    goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
   });
 }
 
@@ -225,13 +223,11 @@ router.get("/me", async (req, res) => {
       membershipUnlimited: m.membershipUnlimited,
       membershipBillingType: m.membershipBillingType,
       membershipExpiresAt: m.membershipExpiresAt,
-      goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
     });
     const profileLive = isMemberPublicListingVisible({
       membershipUnlimited: m.membershipUnlimited,
       membershipBillingType: m.membershipBillingType,
       membershipExpiresAt: m.membershipExpiresAt,
-      goCardlessSubscriptionStatus: m.goCardlessSubscriptionStatus,
     });
     const qrEligible = isMemberQrEligible(m);
     const publicProfileAbsoluteUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
@@ -305,7 +301,6 @@ router.get("/qr-code/svg", async (req, res) => {
         membershipUnlimited: true,
         membershipBillingType: true,
         membershipExpiresAt: true,
-        goCardlessSubscriptionStatus: true,
       },
     });
     if (!m) {
@@ -364,7 +359,6 @@ router.get("/qr-code/van-sticker/:id", async (req, res) => {
         membershipUnlimited: true,
         membershipBillingType: true,
         membershipExpiresAt: true,
-        goCardlessSubscriptionStatus: true,
       },
     });
     if (!m) {
@@ -427,7 +421,6 @@ router.get("/qr-code/:variant", async (req, res) => {
         membershipUnlimited: true,
         membershipBillingType: true,
         membershipExpiresAt: true,
-        goCardlessSubscriptionStatus: true,
       },
     });
     if (!m) {

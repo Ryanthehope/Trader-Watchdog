@@ -31,20 +31,19 @@ import { StaffInsurance } from "./staff/StaffInsurance";
 import { StaffAccounts } from "./staff/StaffAccounts";
 import { StaffRequireAuth } from "./staff/StaffRequireAuth";
 import { StaffSettingsPage } from "./staff/StaffSettingsPage";
-import {  MemberAuthProvider,
-  MemberBilling,
-  MemberBusiness,
-  MemberDocuments,
-  MemberForgotPassword,
-  MemberInsurance,
-  MemberLayout,
-  MemberLogin,
-  MemberOverview,
-  MemberPassword,
-  MemberResetPassword,
-  MemberVerification,
-  MemberRequireAuth,
-} from "./member";
+import { MemberAuthProvider } from "./member/MemberAuthContext";
+import { MemberBilling } from "./member/MemberBilling";
+import { MemberBusiness } from "./member/MemberBusiness";
+import { MemberDocuments } from "./member/MemberDocuments";
+import { MemberForgotPassword } from "./member/MemberForgotPassword";
+import { MemberInsurance } from "./member/MemberInsurance";
+import { MemberLayout } from "./member/MemberLayout";
+import { MemberLogin } from "./member/MemberLogin";
+import { MemberOverview } from "./member/MemberOverview";
+import { MemberPassword } from "./member/MemberPassword";
+import { MemberRequireAuth } from "./member/MemberRequireAuth";
+import { MemberResetPassword } from "./member/MemberResetPassword";
+import { MemberVerification } from "./member/MemberVerification";
 
 export default function App() {
   return (

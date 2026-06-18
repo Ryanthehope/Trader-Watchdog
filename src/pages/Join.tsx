@@ -58,7 +58,7 @@ const publicViews = [
     body: "A search for a verified trader shows a green flag with their public profile, verified business details, insurance, licences and supporting credentials.",
     image: "/Green flag2.webp",
     imageAlt: "Green flag",
-    tone: "border-emerald-200 bg-emerald-50 text-slate-800",
+    tone: "border-emerald-200 bg-emerald-50",
     accentClass: "text-emerald-600",
   },
   {
@@ -66,7 +66,7 @@ const publicViews = [
     body: "A search for a business that is not verified shows a red flag advising caution.",
     image: "/Red flag2.webp",
     imageAlt: "Red flag",
-    tone: "border-rose-200 bg-rose-50 text-slate-800",
+    tone: "border-rose-200 bg-rose-50",
     accentClass: "text-rose-600",
   },
 ];
@@ -171,10 +171,6 @@ const traderFaqItems: FaqItem[] = [
   {
     q: "How do I cancel my subscription?",
     a: "You can cancel at any time through your account or by contacting us. Your verification remains active until the end of your paid period. Registration fees and subscription payments are non-refundable.",
-  },
-  {
-    q: "What happens if my Direct Debit fails?",
-    a: "We may retry the payment or request updated details. Your verification may be paused until payment is successfully collected.",
   },
   {
     q: "What happens if my insurance expires?",
@@ -1057,7 +1053,7 @@ export function Join() {
                             </span>
                           ))}
                         </h2>
-                        <p className="mt-3 text-sm leading-relaxed sm:text-base">
+                        <p className="mt-3 text-sm leading-relaxed text-slate-900 sm:text-base">
                           {view.body}
                         </p>
                       </div>

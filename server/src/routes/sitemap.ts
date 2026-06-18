@@ -39,7 +39,6 @@ router.get("/sitemap.xml", async (_req, res) => {
           membershipUnlimited: true,
           membershipBillingType: true,
           membershipExpiresAt: true,
-          goCardlessSubscriptionStatus: true,
         },
       }),
       prisma.guide.findMany({

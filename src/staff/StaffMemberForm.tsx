@@ -80,13 +80,10 @@ export function StaffMemberForm() {
 
   const [portalMembershipUnlimited, setPortalMembershipUnlimited] =
     useState(false);
-  const [portalAccessMode, setPortalAccessMode] = useState<
-    "keep" | "legacy" | "manual"
-  >("legacy");
+  const [portalAccessMode, setPortalAccessMode] = useState<"legacy" | "manual">(
+    "legacy"
+  );
   const [portalExpiresAt, setPortalExpiresAt] = useState("");
-  const [clearGoCardlessSubscription, setClearGoCardlessSubscription] = useState(false);
-  const [loadedGoCardlessSubscriptionStatus, setLoadedGoCardlessSubscriptionStatus] =
-    useState<string | null>(null);
 
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -127,7 +124,6 @@ export function StaffMemberForm() {
             membershipUnlimited?: boolean;
             membershipBillingType?: string | null;
             membershipExpiresAt?: string | null;
-            goCardlessSubscriptionStatus?: string | null;
             memberDocuments?: MemberDoc[];
             sourceApplicationId?: string | null;
             sourceApplicationDocuments?: ApplicationDoc[];
@@ -147,19 +143,10 @@ export function StaffMemberForm() {
         setPortalEnabled(Boolean(m.portalEnabled));
         setPortalMembershipUnlimited(Boolean(m.membershipUnlimited));
         const bt = (m.membershipBillingType ?? "").trim().toLowerCase();
-        const mode =
-          bt === "gocardless"
-            ? "keep"
-            : bt === "manual"
-              ? "manual"
-              : "legacy";
+        const mode = bt === "manual" ? "manual" : "legacy";
         setPortalAccessMode(mode);
         setPortalExpiresAt(
           m.membershipExpiresAt ? m.membershipExpiresAt.slice(0, 10) : ""
-        );
-        setClearGoCardlessSubscription(false);
-        setLoadedGoCardlessSubscriptionStatus(
-          m.goCardlessSubscriptionStatus?.trim() || null
         );
         setMemberDocuments(m.memberDocuments ?? []);
         setSourceApplicationId(m.sourceApplicationId ?? null);
@@ -316,7 +303,6 @@ export function StaffMemberForm() {
               portalAccessMode === "manual"
                 ? portalExpiresAt.trim() || null
                 : null,
-            clearGoCardlessSubscription: clearGoCardlessSubscription,
           };
 
     setSaving(true);
@@ -496,9 +482,6 @@ export function StaffMemberForm() {
                   }
                   className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                 >
-                  <option value="keep">
-                    Legacy GoCardless-linked record (no local change)
-                  </option>
                   <option value="legacy">
                     Unspecified / legacy (no expiry record)
                   </option>
@@ -517,28 +500,6 @@ export function StaffMemberForm() {
                     className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                   />
                 </div>
-              ) : null}
-              {portalAccessMode === "legacy" || portalAccessMode === "manual" ? (
-                <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={clearGoCardlessSubscription}
-                    onChange={(e) =>
-                      setClearGoCardlessSubscription(e.target.checked)
-                    }
-                    className="rounded border-white/20 bg-ink-900"
-                  />
-                  Clear old GoCardless billing link on save (use when moving off
-                  GoCardless or resetting billing)
-                </label>
-              ) : null}
-              {portalAccessMode === "keep" && loadedGoCardlessSubscriptionStatus ? (
-                <p className="mt-3 text-xs text-slate-500">
-                  Legacy GoCardless status:{" "}
-                  <span className="font-mono text-slate-400">
-                    {loadedGoCardlessSubscriptionStatus}
-                  </span>
-                </p>
               ) : null}
             </div>
           ) : null}
@@ -657,10 +618,10 @@ export function StaffMemberForm() {
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <p className="text-xs font-semibold text-slate-300">Add policy</p>
+                <p className="text-xs font-semibold text-slate-300">Add new document</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-400">Type *</label>
+                <label className="block text-xs font-medium text-slate-400">Type of document *</label>
                 <input
                   type="text"
                   value={insType}
