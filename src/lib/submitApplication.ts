@@ -1,3 +1,5 @@
+import { apiBaseUrl } from "./api";
+
 export type ApplicationPayload = {
   company: string;
   legalStructure: string;
@@ -32,8 +34,7 @@ export type SubmitResult =
     }
   | { ok: false; message: string };
 
-const apiBase = () =>
-  (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
+const apiBase = () => apiBaseUrl();
 
 declare global {
   interface Window {

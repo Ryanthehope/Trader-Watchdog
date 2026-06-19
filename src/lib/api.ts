@@ -1,4 +1,17 @@
-const base = () => (import.meta.env.VITE_API_URL as string | undefined) || "";
+function isLiveSiteHostname(hostname: string): boolean {
+  const normalized = hostname.trim().toLowerCase();
+  return normalized === "traderwatchdog.co.uk" || normalized === "www.traderwatchdog.co.uk";
+}
+
+export function apiBaseUrl(): string {
+  const envBase = (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
+  if (typeof window !== "undefined" && isLiveSiteHostname(window.location.hostname)) {
+    return "";
+  }
+  return envBase;
+}
+
+const base = () => apiBaseUrl();
 
 /**
  * Absolute URL for public API assets (e.g. badge SVG `<img src>`).

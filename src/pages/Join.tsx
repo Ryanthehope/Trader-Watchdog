@@ -4,10 +4,10 @@ import {
   getRecaptchaToken,
   submitApplication,
 } from "../lib/submitApplication";
+import { apiBaseUrl } from "../lib/api";
 import { getLaunchWindow } from "../lib/launchWindow";
 
-const apiBase = () =>
-  (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
+const apiBase = () => apiBaseUrl();
 
 const JOIN_STORAGE_KEY = "Trader Watchdog_join_apply";
 const CHECKOUT_REQUEST_TIMEOUT_MS = 20_000;

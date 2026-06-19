@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSiteData } from "../context/SiteDataContext";
+import { apiBaseUrl } from "../lib/api";
 
-const apiBase = () =>
-  (import.meta.env.VITE_API_URL as string | undefined)?.trim() ?? "";
+const apiBase = () => apiBaseUrl();
 
 /** From root `.env` at build time only — Vite never reads `server/.env`. */
 const builtInContactEmail =
