@@ -442,6 +442,7 @@ function ApplicationCard({
   const [manualPaymentBusy, setManualPaymentBusy] = useState<
     "registration_fee" | "membership" | null
   >(null);
+  const [receiptBusy, setReceiptBusy] = useState(false);
   const [sumsubBusy, setSumsubBusy] = useState<"launch" | "sync" | null>(null);
   const [provisionFlash, setProvisionFlash] = useState<{
     password?: string;
@@ -643,6 +644,27 @@ function ApplicationCard({
     } finally {
       setProvisionBusy(false);
       reload();
+    }
+  };
+
+  const resendReceipt = async () => {
+    setReceiptBusy(true);
+    try {
+      const d = await apiSend<{
+        ok: true;
+        emailedTo: string;
+        invoiceDescription: string;
+        paymentReference: string;
+      }>(`/api/admin/applications/${row.id}/resend-receipt`, {
+        method: "POST",
+      });
+      alert(
+        `Receipt resent to ${d.emailedTo} for ${d.invoiceDescription}. Reference: ${d.paymentReference}`
+      );
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not resend receipt");
+    } finally {
+      setReceiptBusy(false);
     }
   };
 
@@ -1066,6 +1088,16 @@ function ApplicationCard({
                 {manualPaymentBusy === "membership"
                   ? "Saving…"
                   : "Update manual expiry"}
+              </button>
+            ) : null}
+            {hasRegistrationFeePayment || hasMembershipPayment ? (
+              <button
+                type="button"
+                disabled={receiptBusy}
+                onClick={() => void resendReceipt()}
+                className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
+              >
+                {receiptBusy ? "Sending…" : "Re-send VAT receipt"}
               </button>
             ) : null}
             <button

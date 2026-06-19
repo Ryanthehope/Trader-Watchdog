@@ -216,6 +216,20 @@ async function handleCheckoutSessionCompleted(
             xeroInvoiceId: true,
           },
         });
+        // Send the trader receipt independently so accounting delays do not block it.
+        if (stripeCustomerId && app?.email) {
+          void sendStripeReceipt(stripe, stripeCustomerId, {
+            description: "Registration Fee",
+            amountPence,
+            reference: session.id,
+            paidAt,
+            traderName: app.company ?? "Trader",
+            email: app.email,
+            invoiceDescription: "Registration Fee",
+          }).catch((err) => {
+            console.error("[stripe webhook] registration Stripe receipt send failed", err);
+          });
+        }
         // Xero invoice — accounting record only, not emailed to trader
         const xeroId = await createPaidXeroInvoice({
           contactName: app?.company ?? "Unknown Trader",
@@ -240,18 +254,6 @@ async function handleCheckoutSessionCompleted(
               }
             : { xeroInvoiceFailed: true },
         });
-        // Stripe invoice PDF — emailed to trader (no "make payment" button)
-        if (stripeCustomerId && app?.email) {
-          void sendStripeReceipt(stripe, stripeCustomerId, {
-            description: "Registration Fee",
-            amountPence,
-            reference: session.id,
-            paidAt,
-            traderName: app.company ?? "Trader",
-            email: app.email,
-            invoiceDescription: "Registration Fee",
-          });
-        }
       })();
 
     }
@@ -576,6 +578,40 @@ async function handleMembershipConfirmed(
         xeroInvoiceId: true,
       },
     });
+    // Send the trader receipt independently so accounting delays do not block it.
+    if (stripe && stripeCustomerId && app?.email) {
+      void sendStripeReceipt(stripe, stripeCustomerId, {
+        description: appBeforeMembership.registrationFeePaidAt
+          ? `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })})`
+          : `Registration Fee and Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })})`,
+        amountPence,
+        reference,
+        paidAt,
+        traderName: app.company ?? "Trader",
+        email: app.email,
+        invoiceDescription: appBeforeMembership.registrationFeePaidAt
+          ? "Annual Membership"
+          : "Registration Fee and Annual Membership",
+      }).catch((err) => {
+        console.error("[stripe webhook] membership Stripe receipt send failed", err);
+      });
+    }
     const xeroId = await createPaidXeroInvoice({
       contactName: app?.company ?? "Unknown Trader",
       contactEmail: app?.email ?? "",
@@ -617,37 +653,5 @@ async function handleMembershipConfirmed(
           }
         : { xeroInvoiceFailed: true },
     });
-    // Stripe invoice PDF — emailed to trader
-    if (stripe && stripeCustomerId && app?.email) {
-      void sendStripeReceipt(stripe, stripeCustomerId, {
-        description: appBeforeMembership.registrationFeePaidAt
-          ? `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })})`
-          : `Registration Fee and Annual Membership (${paidAt.toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })})`,
-        amountPence,
-        reference,
-        paidAt,
-        traderName: app.company ?? "Trader",
-        email: app.email,
-        invoiceDescription: appBeforeMembership.registrationFeePaidAt
-          ? "Annual Membership"
-          : "Registration Fee and Annual Membership",
-      });
-    }
   })();
 }

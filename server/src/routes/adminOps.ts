@@ -25,6 +25,7 @@ import {
   notifyApplicantVerificationOutcome,
   notifyApplicantVerificationLink,
   notifyMemberWelcome,
+  sendXeroInvoiceToTrader,
   sendAdminEmail,
 } from "../lib/adminMail.js";
 import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
@@ -39,6 +40,7 @@ import {
   parseApplicationXeroInvoiceRefs,
   retryApplicationXeroInvoice,
 } from "../lib/applicationXeroInvoices.js";
+import { createStripeInvoicePdf } from "../lib/stripeInvoice.js";
 
 const router = Router();
 
@@ -51,6 +53,50 @@ async function ensureOrgSettings() {
 }
 
 const inboxUnreadCount = 0;
+
+function sameUtcDay(date: Date, other: Date) {
+  return date.toISOString().slice(0, 10) === other.toISOString().slice(0, 10);
+}
+
+function describeApplicationReceipt(args: {
+  checkoutKind: string | null | undefined;
+  amountPence: number;
+  paidAt: Date;
+  registrationFeePaidAt: Date | null | undefined;
+}) {
+  const paidAtLabel = args.paidAt.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const registrationPaidSameDay =
+    args.registrationFeePaidAt != null && sameUtcDay(args.registrationFeePaidAt, args.paidAt);
+
+  if (args.checkoutKind === "registration_fee") {
+    return {
+      description: "Registration Fee",
+      invoiceDescription: "Registration Fee",
+    };
+  }
+
+  if (args.checkoutKind === "membership") {
+    if (registrationPaidSameDay) {
+      return {
+        description: `Registration Fee and Annual Membership (${paidAtLabel})`,
+        invoiceDescription: "Registration Fee and Annual Membership",
+      };
+    }
+    return {
+      description: `Annual Membership (${paidAtLabel})`,
+      invoiceDescription: "Annual Membership",
+    };
+  }
+
+  return {
+    description: `Trader Watchdog payment (${paidAtLabel})`,
+    invoiceDescription: "Trader Watchdog Payment",
+  };
+}
 
 function settledValue<T>(
   result: PromiseSettledResult<T>,
@@ -1309,6 +1355,105 @@ router.post("/applications/:id/provision-member", async (req, res) => {
       return;
     }
     res.status(500).json({ error: "Could not create member profile" });
+  }
+});
+
+router.post("/applications/:id/resend-receipt", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        company: true,
+        email: true,
+        stripeCustomerId: true,
+        registrationFeePaidAt: true,
+        membershipSubscribed: true,
+      },
+    });
+    if (!application) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    if (!application.stripeCustomerId) {
+      res.status(400).json({
+        error:
+          "No Stripe customer is recorded for this application, so a receipt cannot be regenerated automatically.",
+      });
+      return;
+    }
+    if (!application.registrationFeePaidAt && !application.membershipSubscribed) {
+      res.status(400).json({
+        error: "No Stripe payment is recorded on this application yet.",
+      });
+      return;
+    }
+
+    const stripe = await getStripeClient();
+    if (!stripe) {
+      res.status(400).json({ error: "Stripe is not configured" });
+      return;
+    }
+
+    const query = `metadata['applicationId']:'${id}' AND status:'succeeded'`;
+    const results = await stripe.paymentIntents.search({
+      query,
+      limit: 10,
+    });
+    const paymentIntent = results.data.find((pi) => {
+      const kind = pi.metadata?.checkoutKind;
+      return kind === "registration_fee" || kind === "membership";
+    });
+    if (!paymentIntent) {
+      res.status(404).json({
+        error:
+          "No successful Stripe payment was found for this application. Manual payments need a separate receipt process.",
+      });
+      return;
+    }
+
+    const paidAt = new Date(paymentIntent.created * 1000);
+    const { description, invoiceDescription } = describeApplicationReceipt({
+      checkoutKind: paymentIntent.metadata?.checkoutKind,
+      amountPence: paymentIntent.amount_received || paymentIntent.amount,
+      paidAt,
+      registrationFeePaidAt: application.registrationFeePaidAt,
+    });
+    const pdf = await createStripeInvoicePdf(stripe, {
+      stripeCustomerId: application.stripeCustomerId,
+      description,
+      amountPence: paymentIntent.amount_received || paymentIntent.amount,
+      reference: paymentIntent.id,
+      paidAt,
+    });
+    if (!pdf) {
+      res.status(500).json({
+        error: "The receipt PDF could not be generated for this payment.",
+      });
+      return;
+    }
+
+    await sendXeroInvoiceToTrader(prisma, {
+      traderName: application.company || "Trader",
+      email: application.email,
+      pdfBuffer: pdf,
+      invoiceDescription,
+    });
+
+    res.json({
+      ok: true,
+      emailedTo: application.email,
+      invoiceDescription,
+      paymentReference: paymentIntent.id,
+    });
+  } catch (e: unknown) {
+    console.error("[admin] receipt resend failed", e);
+    const detail = e instanceof Error ? e.message : String(e);
+    res.status(500).json({
+      error: "Could not resend receipt",
+      detail,
+    });
   }
 });
 
