@@ -343,7 +343,7 @@ async function handleCheckoutSessionCompleted(
       contactName: member.name,
       contactEmail: receiptEmail ?? member.loginEmail ?? "",
       contactAddress: member.invoiceAddress,
-      description: `Annual Membership Renewal (${paidAt.toLocaleDateString("en-GB", {
+      description: `Annual Portal Fee Renewal (${paidAt.toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
         year: "numeric",
@@ -367,13 +367,13 @@ async function handleCheckoutSessionCompleted(
     // Stripe invoice PDF — emailed to trader
     if (stripeCustomerId && receiptEmail) {
       void sendStripeReceipt(stripe, stripeCustomerId, {
-        description: `Annual Membership Renewal (${paidAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
+        description: `Annual Portal Fee Renewal (${paidAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
         amountPence,
         reference: session.id,
         paidAt,
         traderName: member.name,
         email: receiptEmail,
-        invoiceDescription: "Annual Membership Renewal",
+        invoiceDescription: "Annual Portal Fee Renewal",
       }).catch((err) => {
         console.error("[stripe webhook] renewal Stripe receipt send failed", err);
       });
@@ -608,7 +608,7 @@ async function handleMembershipConfirmed(
     if (stripe && stripeCustomerId && app?.email) {
       void sendStripeReceipt(stripe, stripeCustomerId, {
         description: appBeforeMembership.registrationFeePaidAt
-          ? `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+          ? `Annual Portal Fee (${paidAt.toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
               year: "numeric",
@@ -617,7 +617,7 @@ async function handleMembershipConfirmed(
               month: "short",
               year: "numeric",
             })})`
-          : `Registration Fee and Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+          : `Registration Fee and Annual Portal Fee (${paidAt.toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
               year: "numeric",
@@ -632,8 +632,8 @@ async function handleMembershipConfirmed(
         traderName: app.company ?? "Trader",
         email: app.email,
         invoiceDescription: appBeforeMembership.registrationFeePaidAt
-          ? "Annual Membership"
-          : "Registration Fee and Annual Membership",
+          ? "Annual Portal Fee"
+          : "Registration Fee and Annual Portal Fee",
       }).catch((err) => {
         console.error("[stripe webhook] membership Stripe receipt send failed", err);
       });
@@ -644,7 +644,7 @@ async function handleMembershipConfirmed(
       contactAddress: app?.tradingAddress,
       contactPostalCode: app?.postcode,
       description: appBeforeMembership.registrationFeePaidAt
-        ? `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+        ? `Annual Portal Fee (${paidAt.toLocaleDateString("en-GB", {
             day: "numeric",
             month: "short",
             year: "numeric",
@@ -653,7 +653,7 @@ async function handleMembershipConfirmed(
             month: "short",
             year: "numeric",
           })})`
-        : `Registration Fee and Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+        : `Registration Fee and Annual Portal Fee (${paidAt.toLocaleDateString("en-GB", {
             day: "numeric",
             month: "short",
             year: "numeric",

@@ -80,7 +80,7 @@ async function assertMembershipCheckoutAllowed(
   if (row.status !== "APPROVED") {
     return {
       error:
-        "Annual membership unlocks after Trader Watchdog completes verification and approves your application.",
+        "Annual portal fee unlocks after Trader Watchdog completes verification and approves your application.",
     } as const;
   }
   if (row.createdMemberId) {
@@ -184,7 +184,7 @@ router.post("/checkout-registration-fee", async (req, res) => {
 
     res.status(400).json({
       error:
-        "Registration fee is no longer charged separately. Once your application is approved, the registration fee and first annual membership are collected together.",
+        "Registration fee is no longer charged separately. Once your application is approved, the registration fee and first annual portal fee are collected together.",
     });
     return;
   } catch (e) {
@@ -243,7 +243,7 @@ router.post("/checkout-membership", async (req, res) => {
       (membershipDiscount?.finalPricePence ?? lines.membershipPence);
     const paymentDescription = application.registrationFeePaidAt
       ? lines.membershipName
-      : "Trader Watchdog registration fee and first annual membership + VAT";
+      : "Trader Watchdog registration fee and first annual portal fee + VAT";
 
     const flow = await createStripeCheckoutSession(stripe, {
       amountPence: combinedAmountPence,

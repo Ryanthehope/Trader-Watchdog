@@ -15,7 +15,7 @@ export type XeroInvoicePayload = {
     contactEmail: string;       // traders email
     contactAddress?: string | null;
     contactPostalCode?: string | null;
-    description: string;         // e.g. "Annual Membership" or "Registration Fee"
+    description: string;         // e.g. "Annual Portal Fee" or "Registration Fee"
     amountPence: number;        // amount in pence, e.g. 1999 for £19.99 inc VAT if applicable
   reference: string;          // e.g. Stripe payment or invoice reference
     paidAt: Date;               //when payment was confirmed
@@ -174,7 +174,7 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
 export type XeroCreditNotePayload = {
     contactName: string;        // traders company name
     contactEmail: string;       // traders email
-    description: string;         // e.g. "Refund for Annual Membership"
+    description: string;         // e.g. "Refund for Annual Portal Fee"
     amountPence: number;        // amount in pence, e.g. 1999 for £19.99 inc VAT if applicable
   reference: string;          // e.g. Stripe payment or invoice reference
     refundedAt: Date;           // when refund was issued

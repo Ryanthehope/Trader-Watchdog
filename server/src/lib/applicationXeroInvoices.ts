@@ -135,7 +135,7 @@ export async function retryApplicationXeroInvoice(
     const description =
       kind === "registration_fee"
         ? "Registration Fee"
-        : `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+        : `Annual Portal Fee (${paidAt.toLocaleDateString("en-GB", {
             day: "numeric",
             month: "short",
             year: "numeric",
@@ -183,7 +183,7 @@ export async function retryApplicationXeroInvoice(
         email: app.email,
         pdfBuffer: pdf,
         invoiceDescription:
-          kind === "registration_fee" ? "Registration Fee" : "Annual Membership",
+          kind === "registration_fee" ? "Registration Fee" : "Annual Portal Fee",
       });
       receiptEmailed = true;
     }

@@ -82,13 +82,13 @@ function describeApplicationReceipt(args: {
   if (args.checkoutKind === "membership") {
     if (registrationPaidSameDay) {
       return {
-        description: `Registration Fee and Annual Membership (${paidAtLabel})`,
-        invoiceDescription: "Registration Fee and Annual Membership",
+        description: `Registration Fee and Annual Portal Fee (${paidAtLabel})`,
+        invoiceDescription: "Registration Fee and Annual Portal Fee",
       };
     }
     return {
-      description: `Annual Membership (${paidAtLabel})`,
-      invoiceDescription: "Annual Membership",
+      description: `Annual Portal Fee (${paidAtLabel})`,
+      invoiceDescription: "Annual Portal Fee",
     };
   }
 

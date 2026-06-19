@@ -197,7 +197,7 @@ export function MemberBilling() {
 
       {invoicesLoaded && invoices.length === 0 ? (
         <p className="mt-6 text-sm text-slate-600">
-          No payments recorded yet. Your registration fee, annual membership
+          No payments recorded yet. Your registration fee, annual portal fee
           payment, and future renewals will appear here once processed.
         </p>
       ) : null}

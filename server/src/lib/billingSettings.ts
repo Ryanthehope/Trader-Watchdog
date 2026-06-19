@@ -58,7 +58,7 @@ export function checkoutLineConfig(s: BillingRow) {
       s.checkoutRegistrationFeePence ?? DEFAULT_REGISTRATION_FEE_PENCE
     ),
     membershipName: ensureVatMention(
-      s.checkoutMembershipName?.trim() || "Trader Watchdog annual membership"
+      s.checkoutMembershipName?.trim() || "Trader Watchdog annual portal fee"
     ),
     registrationFeeName: ensureVatMention(
       s.checkoutRegistrationFeeName?.trim() ||

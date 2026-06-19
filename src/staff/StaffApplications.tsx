@@ -754,7 +754,7 @@ function ApplicationCard({
               ) : null}
               {awaitingMembershipAfterApproval ? (
                 <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-200">
-                  Awaiting annual membership
+                  Awaiting annual portal fee
                 </span>
               ) : null}
               {paidAwaitingProfile ? (
@@ -836,7 +836,7 @@ function ApplicationCard({
               ) : null}
               {awaitingMembershipAfterApproval ? (
                 <span className="rounded-full bg-amber-500/20 px-2.5 py-1 font-medium text-amber-200">
-                  Awaiting annual membership
+                  Awaiting annual portal fee
                 </span>
               ) : null}
               {paidAwaitingProfile ? (
@@ -913,7 +913,7 @@ function ApplicationCard({
                 ) : null}
                 {row.membershipSubscribed ? (
                   <p>
-                    Annual membership has been recorded on this application.
+                    Annual portal fee has been recorded on this application.
                   </p>
                 ) : null}
               </div>
@@ -1081,7 +1081,7 @@ function ApplicationCard({
                   >
                     {manualPaymentBusy === "membership"
                       ? "Saving…"
-                      : "Record annual membership (manual)"}
+                      : "Record annual portal fee (manual)"}
                   </button>
                 ) : null}
               </>

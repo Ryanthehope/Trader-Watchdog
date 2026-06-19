@@ -51,6 +51,7 @@ const traderPoints = [
   "Help protect your community from rogue traders.",
   "Automatic reminders for insurance, licences, memberships, and annual renewal.",
   "Your own  QR code to download for vehicles, stationery, and advertising - connecting direct to your portal.",
+  "All for an annual portal fee of £75 + VAT per year",
 ];
 
 const publicViews = [
@@ -104,7 +105,7 @@ const workflowSteps = [
   {
     step: "05",
     title: "Activation payment after approval",
-    body: "If your application is approved, the registration fee and first annual membership are collected together.",
+    body: "If your application is approved, the registration fee and first annual portal fee are collected together.",
     image: "/Icon 5 going live.webp",
     imageAlt: "Step 5 icon",
   },
@@ -135,7 +136,6 @@ const footerNotes = [
   "Verification confirms identity, insurance and licensing only.",
   "Trader Watchdog does not rate or review traders.",
   "Householders remain responsible for choosing a trader.",
-  "All prices exclude VAT.",
 ];
 
 function selectedFiles(fd: FormData, field: string): File[] {
@@ -694,7 +694,7 @@ export function Join() {
         formatVatExclusiveLabel(data.membershipFinalPricePence) ??
         formatSterling(data.membershipFinalPricePence);
       setDiscountSuccess(
-        `Code applied. Approved applications pay ${regLabel} registration fee and ${memberLabel} annual membership together.`
+        `Code applied. Approved applications pay ${regLabel} registration fee and ${memberLabel} annual portal fee together.`
       );
     } catch {
       setDiscountError("Could not validate the code right now.");
@@ -835,7 +835,10 @@ export function Join() {
       : membershipPriceLabel;
   const renderDiscountCodeBox = () => (
     <div className="rounded-2xl border border-brand-400/20 bg-brand-500/10 p-4 text-left">
-      <p className="text-xs font-semibold uppercase tracking-wide text-brand-200">
+      <p
+        className="text-xs font-semibold uppercase tracking-wide"
+        style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+      >
         Payment code
       </p>
       <p className="mt-2 text-sm text-slate-300">
@@ -906,7 +909,7 @@ export function Join() {
             hasBothPayments
               ? "Your approved application payment has been recorded."
               : applicantSummary.canCheckoutMembership
-                ? `Your application is approved. Pay ${registrationFeePriceLabel} registration fee and ${membershipPriceLabel} annual membership together from this page.`
+                ? `Your application is approved. Pay ${registrationFeePriceLabel} registration fee and ${membershipPriceLabel} annual portal fee together from this page.`
                 : verificationRejected
                   ? "This step stays locked until updated verification evidence is accepted."
                 : applicantStatus === "APPROVED"
@@ -946,7 +949,7 @@ export function Join() {
                   : "Start your identity verification from this page or the email we sent you.",
         },
         {
-          title: "Annual membership",
+          title: "Annual portal fee",
           status: applicantSummary.hasMembershipPayment
             ? "Paid"
             : applicantSummary.membershipAutoChargePending
@@ -964,13 +967,13 @@ export function Join() {
                 ? "brand"
                 : "slate",
           detail: applicantSummary.hasMembershipPayment
-            ? "Your annual membership payment has been recorded."
+            ? "Your annual portal fee payment has been recorded."
             : applicantSummary.membershipAutoChargePending
-              ? "Your annual membership payment is being processed via Direct Debit. No action needed — this updates once confirmed (usually 3–5 working days)."
+              ? "Your annual portal fee payment is being processed via Direct Debit. No action needed — this updates once confirmed (usually 3–5 working days)."
               : applicantSummary.canCheckoutMembership
-                ? `This annual membership is included in the combined activation payment you can make from this page.`
+                ? `This annual portal fee is included in the combined activation payment you can make from this page.`
                 : applicantStatus === "APPROVED"
-                  ? "Annual membership is collected together with the registration fee once the application is approved."
+                  ? "Annual portal fee is collected together with the registration fee once the application is approved."
                   : "This step unlocks only after Trader Watchdog approves the application.",
         },
         {
@@ -1003,7 +1006,7 @@ export function Join() {
     "In as little as 10 minutes, complete the form below and upload the supporting evidence needed for review. Identity, address, liveness, and payment checks are then handled as part of the verification process.";
   const introSupport =
     "We will contact you within 3 working days when our processes are complete or if further information is required.";
-  const pricingHeading = "Annual membership";
+  const pricingHeading = "Annual portal fee";
 
   return (
     <>
@@ -1069,7 +1072,7 @@ export function Join() {
                         <h2 className="font-display text-2xl font-semibold text-slate-900">
                           {view.title.split(" ").map((word, index) => (
                             <span key={word}>
-                              <span className={view.accentClass}>{word.charAt(0)}</span>
+                              <span className="text-slate-900">{word.charAt(0)}</span>
                               {word.slice(1)}
                               {index < view.title.split(" ").length - 1 ? " " : ""}
                             </span>
@@ -1149,7 +1152,7 @@ export function Join() {
             Ready to get verified?
           </h2>
           <p className="mt-3 text-sm font-medium text-emerald-50/90 sm:text-base">
-            Takes less than 5 minutes.
+            Takes less than 10 minutes.
           </p>
           <a
             href="#application-form"
@@ -1176,7 +1179,10 @@ export function Join() {
       <main id="application-form" className="join-application-form small-print-on-light border-b border-white/5 pb-24">
       <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-12 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
-          <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+          <p
+            className="text-md font-semibold uppercase tracking-wider"
+            style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+          >
             For tradespeople
           </p>
           <h1 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">
@@ -1188,18 +1194,24 @@ export function Join() {
           {membershipPriceLabel ? (
             <div className="mt-6 grid gap-3 rounded-2xl border border-brand-400/20 bg-brand-500/10 p-4 text-left sm:grid-cols-2">
               <div className="rounded-xl border border-white/10 bg-ink-950/30 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-200">
+                <p
+                  className="text-md font-semibold uppercase tracking-wide"
+                  style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+                >
                   Registration fee
                 </p>
                 <p className="mt-2 text-sm font-semibold text-white">
                   {registrationFeePriceLabel}
                 </p>
                 <p className="mt-2 text-xs text-slate-400">
-                  Charged when application completed.
+                  Charged when application approved.
                 </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-ink-950/30 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-200">
+                <p
+                  className="text-md font-semibold uppercase tracking-wide"
+                  style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+                >
                   {pricingHeading}
                 </p>
                 <p className="mt-2 text-sm font-semibold text-white">
@@ -1218,7 +1230,10 @@ export function Join() {
       <section className="border-b border-white/5 bg-ink-950/30 py-10 sm:py-14">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
           <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6 sm:p-8">
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+            <p
+              className="text-sm font-semibold uppercase tracking-wider"
+              style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+            >
               To complete your application, you will require
             </p>
             <ul className="mt-5 space-y-3 text-sm leading-relaxed text-slate-900">
@@ -1233,7 +1248,10 @@ export function Join() {
 
           <div className="space-y-4">
             <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6">
-              <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+              <p
+                className="text-sm font-semibold uppercase tracking-wider"
+                style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+              >
                 Before you continue
               </p>
               <p className="mt-4 text-sm leading-relaxed text-slate-300">
@@ -1253,7 +1271,10 @@ export function Join() {
               </a>
             </div>
             <div className="rounded-2xl border border-brand-400/20 bg-brand-500/10 p-6">
-              <p className="text-sm font-semibold uppercase tracking-wider text-brand-200">
+              <p
+                className="text-sm font-semibold uppercase tracking-wider"
+                style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+              >
                 ICO registration
               </p>
               <p className="mt-4 text-sm leading-relaxed text-slate-200">
@@ -1293,7 +1314,7 @@ export function Join() {
           <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
             <span>
               Registration fee received. We&apos;re creating your Trader Watchdog
-              application record for formal checks. Trader Watchdog will now continue verification and this page will update when annual membership is ready.
+              application record for formal checks. Trader Watchdog will now continue verification and this page will update when annual portal fee is ready.
             </span>
             <button
               type="button"
@@ -1348,7 +1369,7 @@ export function Join() {
               ) : (
                 <>
                   <p className="mt-2 text-sm text-slate-400">
-                    Your application is saved. Complete identity verification from this page or the email we sent. Trader Watchdog then reviews the application and, if approved, this page unlocks one combined payment for the <span className="text-slate-300">{checkoutRegistrationFeePriceLabel}</span> registration fee and the <span className="text-slate-300">{checkoutMembershipPriceLabel}</span> first annual membership.
+                    Your application is saved. Complete identity verification from this page or the email we sent. Trader Watchdog then reviews the application and, if approved, this page unlocks one combined payment for the <span className="text-slate-300">{checkoutRegistrationFeePriceLabel}</span> registration fee and the <span className="text-slate-300">{checkoutMembershipPriceLabel}</span> first annual portal fee.
                   </p>
                   <p className="mt-3 text-xs text-slate-500">
                     Tip: bookmark this tab or keep your confirmation email so you
@@ -1570,11 +1591,14 @@ export function Join() {
                 ) : null}
                 {applicantSummary?.membershipAutoChargePending ? (
                   <div className="rounded-2xl border border-brand-800/40 bg-brand-950/40 p-6">
-                    <p className="text-sm font-semibold text-brand-300">
-                      Annual membership payment in progress
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+                    >
+                      Annual portal fee payment in progress
                     </p>
                     <p className="mt-2 text-xs text-slate-400">
-                      We have submitted your annual membership payment via your Direct Debit. No action is needed — your public profile and member login will be created automatically once the payment clears (usually 3–5 working days).
+                      We have submitted your annual portal fee payment via your Direct Debit. No action is needed — your public profile and member login will be created automatically once the payment clears (usually 3–5 working days).
                     </p>
                   </div>
                 ) : null}

@@ -409,7 +409,7 @@ export function StaffSettingsPage() {
               <input
                 value={checkoutMembershipName}
                 onChange={(e) => setCheckoutMembershipName(e.target.value)}
-                placeholder="Trader Watchdog annual membership + VAT"
+                placeholder="Trader Watchdog annual portal fee + VAT"
                 className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
               />
             </div>
