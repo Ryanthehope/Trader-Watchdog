@@ -30,7 +30,11 @@ export function applicationDocumentResolvedPath(
   storedName: string
 ): string | null {
   const safeName = path.basename(storedName);
-  for (const candidateBase of uploadPathCandidates("application-documents", applicationId)) {
+  const configuredRoot = process.env.APPLICATION_UPLOAD_DIR?.trim();
+  const candidateBases = configuredRoot
+    ? [path.join(configuredRoot, applicationId)]
+    : uploadPathCandidates("application-documents", applicationId);
+  for (const candidateBase of candidateBases) {
     const base = path.resolve(candidateBase);
     const resolved = path.resolve(base, safeName);
     if ((!resolved.startsWith(base + path.sep) && resolved !== base) || !fs.existsSync(resolved)) {
