@@ -23,6 +23,86 @@ async function loadInvoiceBranding() {
   });
 }
 
+function pdfEscape(text: string) {
+  return text.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
+
+function buildSimplePdf(lines: Array<{ text: string; size?: number }>): Buffer {
+  const content = lines
+    .map((line, index) => {
+      const y = 800 - index * (line.size && line.size > 14 ? 26 : 18);
+      const fontSize = line.size ?? 12;
+      return `BT\n/F1 ${fontSize} Tf\n50 ${y} Td\n(${pdfEscape(line.text)}) Tj\nET`;
+    })
+    .join("\n");
+
+  const objects = [
+    "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
+    "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
+    "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n",
+    "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n",
+    `5 0 obj\n<< /Length ${Buffer.byteLength(content, "utf8")} >>\nstream\n${content}\nendstream\nendobj\n`,
+  ];
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  for (const object of objects) {
+    offsets.push(Buffer.byteLength(pdf, "utf8"));
+    pdf += object;
+  }
+  const xrefOffset = Buffer.byteLength(pdf, "utf8");
+  pdf += `xref\n0 ${objects.length + 1}\n`;
+  pdf += "0000000000 65535 f \n";
+  for (let index = 1; index <= objects.length; index += 1) {
+    pdf += `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return Buffer.from(pdf, "utf8");
+}
+
+async function createFallbackInvoicePdf(
+  payload: StripeInvoicePayload
+): Promise<Buffer> {
+  const vatPence = Math.round(payload.amountPence / 6);
+  const netPence = payload.amountPence - vatPence;
+  const paidAtDisplay = payload.paidAt.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const invoiceBranding = await loadInvoiceBranding();
+  const footerLines = [
+    invoiceBranding?.invoiceLegalName?.trim() || "Trader Watchdog Ltd",
+    ...(invoiceBranding?.invoiceAddress?.trim()
+      ? invoiceBranding.invoiceAddress
+          .split(/\r?\n|,/) 
+          .map((part) => part.trim())
+          .filter(Boolean)
+      : []),
+    invoiceBranding?.invoiceVatNumber?.trim()
+      ? `VAT registration number: ${invoiceBranding.invoiceVatNumber.trim()}`
+      : null,
+    invoiceBranding?.invoiceFooterNote?.trim() || null,
+  ].filter(Boolean) as string[];
+
+  const lines: Array<{ text: string; size?: number }> = [
+    { text: "VAT Receipt", size: 20 },
+    { text: footerLines[0] || "Trader Watchdog Ltd", size: 14 },
+    { text: "" },
+    { text: `Date of supply: ${paidAtDisplay}` },
+    { text: `Payment reference: ${payload.reference}` },
+    { text: `Description of service: ${payload.description}` },
+    { text: "VAT applied: 20%" },
+    { text: `Total incl. VAT: £${(payload.amountPence / 100).toFixed(2)}` },
+    { text: `Net (ex. VAT): £${(netPence / 100).toFixed(2)}` },
+    { text: `VAT at 20%: £${(vatPence / 100).toFixed(2)}` },
+    { text: "" },
+    ...footerLines.slice(1).map((text) => ({ text })),
+  ];
+
+  return buildSimplePdf(lines);
+}
+
 /**
  * Creates a finalised, paid Stripe invoice for a payment that was already collected
  * via a Checkout Session or off-session PaymentIntent.
@@ -32,27 +112,25 @@ export async function createStripeInvoicePdf(
   stripe: Stripe,
   payload: StripeInvoicePayload
 ): Promise<Buffer | null> {
+  const vatPence = Math.round(payload.amountPence / 6);
+  const netPence = payload.amountPence - vatPence;
+  const paidAtDisplay = payload.paidAt.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const invoiceBranding = await loadInvoiceBranding();
+  const invoiceFooter = [
+    invoiceBranding?.invoiceLegalName?.trim() || null,
+    invoiceBranding?.invoiceAddress?.trim() || null,
+    invoiceBranding?.invoiceVatNumber?.trim()
+      ? `VAT registration number: ${invoiceBranding.invoiceVatNumber.trim()}`
+      : null,
+    invoiceBranding?.invoiceFooterNote?.trim() || null,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
   try {
-    // VAT breakdown: gross = net × 1.2  →  VAT = gross / 6
-    const vatPence = Math.round(payload.amountPence / 6);
-    const netPence = payload.amountPence - vatPence;
-    const paidAtDisplay = payload.paidAt.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-    const invoiceBranding = await loadInvoiceBranding();
-    const invoiceFooter = [
-      invoiceBranding?.invoiceLegalName?.trim() || null,
-      invoiceBranding?.invoiceAddress?.trim() || null,
-      invoiceBranding?.invoiceVatNumber?.trim()
-        ? `VAT registration number: ${invoiceBranding.invoiceVatNumber.trim()}`
-        : null,
-      invoiceBranding?.invoiceFooterNote?.trim() || null,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
-
     // 1. Add line item to the customer's pending invoice
     await stripe.invoiceItems.create({
       customer: payload.stripeCustomerId,
@@ -101,6 +179,11 @@ export async function createStripeInvoicePdf(
     return Buffer.from(await pdfRes.arrayBuffer());
   } catch (err) {
     console.error("[stripeInvoice] failed to create invoice", err);
-    return null;
+    try {
+      return await createFallbackInvoicePdf(payload);
+    } catch (fallbackErr) {
+      console.error("[stripeInvoice] fallback PDF generation failed", fallbackErr);
+      return null;
+    }
   }
 }

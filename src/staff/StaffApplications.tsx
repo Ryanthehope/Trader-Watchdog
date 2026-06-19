@@ -232,12 +232,24 @@ function formatBytes(n: number) {
 }
 
 async function openApplicationDocument(appId: string, doc: AppDoc) {
-  const blob = await apiGetAuthBlob(
-    `/api/admin/applications/${appId}/documents/${doc.id}/file`
-  );
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank", "noopener,noreferrer");
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  const popup = window.open("", "_blank");
+  if (!popup) {
+    throw new Error("The document window was blocked by the browser. Please allow pop-ups for this site and try again.");
+  }
+  popup.document.title = doc.originalName;
+  popup.document.body.innerHTML = "<p style=\"font-family:sans-serif;padding:16px\">Loading document…</p>";
+
+  try {
+    const blob = await apiGetAuthBlob(
+      `/api/admin/applications/${appId}/documents/${doc.id}/file`
+    );
+    const url = URL.createObjectURL(blob);
+    popup.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (error) {
+    popup.close();
+    throw error;
+  }
 }
 
 export function StaffApplications() {
