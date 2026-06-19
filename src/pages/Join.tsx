@@ -191,6 +191,10 @@ const traderFaqItems: FaqItem[] = [
     q: "Why should I register when I already belong to a trader register?",
     a: " Trader Watchdog provides customers with the easy option, just a one click solution. In your portal you have a window to describe your business and place links to your website or social media as well as other websites or associations where your business is registered."
   },
+  {
+    q: "Will I receive a VAT invoice?",
+    a: "Yes, you will automatically receive a VAT receipt by email from Stripe after payment, and this serves as your VAT invoice for your records."
+  }
 ];
 
 export function Join() {

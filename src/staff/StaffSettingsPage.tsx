@@ -21,6 +21,10 @@ type Settings = {
   checkoutRegistrationFeeName: string | null;
   checkoutMembershipPence: number;
   checkoutRegistrationFeePence: number;
+  invoiceLegalName: string | null;
+  invoiceVatNumber: string | null;
+  invoiceAddress: string | null;
+  invoiceFooterNote: string | null;
   hasStripeSecret: boolean;
   hasStripeWebhookSecret: boolean;
   googleAnalyticsMeasurementId: string | null;
@@ -60,6 +64,10 @@ export function StaffSettingsPage() {
   const [checkoutMembershipPence, setCheckoutMembershipPence] = useState("");
   const [checkoutRegistrationFeePence, setCheckoutRegistrationFeePence] =
     useState("");
+  const [invoiceLegalName, setInvoiceLegalName] = useState("");
+  const [invoiceVatNumber, setInvoiceVatNumber] = useState("");
+  const [invoiceAddress, setInvoiceAddress] = useState("");
+  const [invoiceFooterNote, setInvoiceFooterNote] = useState("");
   const [gaMeasurementId, setGaMeasurementId] = useState("");
   const [gaPropertyId, setGaPropertyId] = useState("");
   const [gaServiceAccountJson, setGaServiceAccountJson] = useState("");
@@ -99,6 +107,10 @@ export function StaffSettingsPage() {
         setCheckoutRegistrationFeePence(
           String(s.checkoutRegistrationFeePence ?? 1800)
         );
+        setInvoiceLegalName(s.invoiceLegalName ?? "");
+        setInvoiceVatNumber(s.invoiceVatNumber ?? "");
+        setInvoiceAddress(s.invoiceAddress ?? "");
+        setInvoiceFooterNote(s.invoiceFooterNote ?? "");
         setGaMeasurementId(s.googleAnalyticsMeasurementId ?? "");
         setGaPropertyId(s.googleAnalyticsPropertyId ?? "");
         setGaServiceAccountJson("");
@@ -165,6 +177,10 @@ export function StaffSettingsPage() {
       )
         ? registrationFeePenceNum
         : 1800;
+      body.invoiceLegalName = invoiceLegalName.trim() || null;
+      body.invoiceVatNumber = invoiceVatNumber.trim() || null;
+      body.invoiceAddress = invoiceAddress.trim() || null;
+      body.invoiceFooterNote = invoiceFooterNote.trim() || null;
 
       body.googleAnalyticsMeasurementId = gaMeasurementId.trim() || null;
       body.googleAnalyticsPropertyId = gaPropertyId.trim() || null;
@@ -581,6 +597,66 @@ export function StaffSettingsPage() {
                   {testEmailResult.message}
                 </p>
               ) : null}
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-4 border-t border-white/10 pt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+            Invoice Compliance
+          </h2>
+          <p className="text-xs leading-relaxed text-slate-500">
+            These values are added to the paid Stripe invoice PDF that is emailed as the VAT receipt. Stripe hosted payment receipts still use your Stripe dashboard public business details.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                Legal business name
+              </label>
+              <input
+                value={invoiceLegalName}
+                onChange={(e) => setInvoiceLegalName(e.target.value)}
+                placeholder="Trader Watchdog Ltd"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                VAT registration number
+              </label>
+              <input
+                value={invoiceVatNumber}
+                onChange={(e) => setInvoiceVatNumber(e.target.value)}
+                placeholder="GB 123 4567 89"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-300">
+                Invoice address
+              </label>
+              <textarea
+                value={invoiceAddress}
+                onChange={(e) => setInvoiceAddress(e.target.value)}
+                rows={3}
+                placeholder="4th Floor Office, 205 Regent Street, London W1B 4HB"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-300">
+                Additional footer note
+              </label>
+              <textarea
+                value={invoiceFooterNote}
+                onChange={(e) => setInvoiceFooterNote(e.target.value)}
+                rows={3}
+                placeholder="Company number 17173750"
+                className="mt-1 w-full rounded-xl border border-white/10 bg-ink-950 px-4 py-3 text-white"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Optional extra text for legal wording or Companies House details shown on the PDF footer.
+              </p>
             </div>
           </div>
         </section>

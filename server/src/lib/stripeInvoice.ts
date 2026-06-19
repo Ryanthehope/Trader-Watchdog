@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { prisma } from "../db.js";
 
 export type StripeInvoicePayload = {
   stripeCustomerId: string;
@@ -9,6 +10,18 @@ export type StripeInvoicePayload = {
   reference: string;
   paidAt: Date;
 };
+
+async function loadInvoiceBranding() {
+  return prisma.organizationSettings.findUnique({
+    where: { id: "default" },
+    select: {
+      invoiceLegalName: true,
+      invoiceVatNumber: true,
+      invoiceAddress: true,
+      invoiceFooterNote: true,
+    },
+  });
+}
 
 /**
  * Creates a finalised, paid Stripe invoice for a payment that was already collected
@@ -23,6 +36,22 @@ export async function createStripeInvoicePdf(
     // VAT breakdown: gross = net × 1.2  →  VAT = gross / 6
     const vatPence = Math.round(payload.amountPence / 6);
     const netPence = payload.amountPence - vatPence;
+    const paidAtDisplay = payload.paidAt.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    const invoiceBranding = await loadInvoiceBranding();
+    const invoiceFooter = [
+      invoiceBranding?.invoiceLegalName?.trim() || null,
+      invoiceBranding?.invoiceAddress?.trim() || null,
+      invoiceBranding?.invoiceVatNumber?.trim()
+        ? `VAT registration number: ${invoiceBranding.invoiceVatNumber.trim()}`
+        : null,
+      invoiceBranding?.invoiceFooterNote?.trim() || null,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
 
     // 1. Add line item to the customer's pending invoice
     await stripe.invoiceItems.create({
@@ -38,14 +67,14 @@ export async function createStripeInvoicePdf(
       auto_advance: false,
       collection_method: "send_invoice",
       days_until_due: 0,
+      description: `Date of supply: ${paidAtDisplay}\nPayment reference: ${payload.reference.slice(0, 30)}`,
+      ...(invoiceFooter ? { footer: invoiceFooter } : {}),
       metadata: { reference: payload.reference.slice(0, 40) },
       custom_fields: [
+        { name: "VAT rate", value: "20%" },
+        { name: "Gross at 20%", value: `£${(payload.amountPence / 100).toFixed(2)}` },
         { name: "Net (ex. VAT)", value: `£${(netPence / 100).toFixed(2)}` },
         { name: "VAT at 20%", value: `£${(vatPence / 100).toFixed(2)}` },
-        {
-          name: "Payment reference",
-          value: payload.reference.slice(0, 30),
-        },
       ],
     });
 
