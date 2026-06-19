@@ -152,6 +152,7 @@ async function createCustomReceiptPdf(
     color: BRAND_BLUE,
   });
 
+  let headerTextX = MARGIN_X;
   const logo = await loadReceiptLogo(invoiceBranding?.brandingLogoStoredName);
   if (logo) {
     const embedded =
@@ -159,18 +160,20 @@ async function createCustomReceiptPdf(
         ? await pdf.embedPng(logo.bytes)
         : await pdf.embedJpg(logo.bytes);
     const ratio = embedded.height / embedded.width;
-    const drawWidth = 72;
+    const drawWidth = 78;
     const drawHeight = drawWidth * ratio;
+    const logoX = MARGIN_X;
     page.drawImage(embedded, {
-      x: PAGE_WIDTH - MARGIN_X - drawWidth,
+      x: logoX,
       y: PAGE_HEIGHT - HEADER_HEIGHT + (HEADER_HEIGHT - drawHeight) / 2,
       width: drawWidth,
       height: drawHeight,
     });
+    headerTextX = logoX + drawWidth + 18;
   }
 
   page.drawText("Receipt", {
-    x: MARGIN_X,
+    x: headerTextX,
     y: PAGE_HEIGHT - 52,
     size: 28,
     font: fontBold,
@@ -178,7 +181,7 @@ async function createCustomReceiptPdf(
   });
 
   page.drawText("Trader Watchdog", {
-    x: MARGIN_X,
+    x: headerTextX,
     y: PAGE_HEIGHT - 76,
     size: 11,
     font: fontRegular,
