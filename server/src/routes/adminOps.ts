@@ -1426,6 +1426,8 @@ router.post("/applications/:id/resend-receipt", async (req, res) => {
       amountPence: paymentIntent.amount_received || paymentIntent.amount,
       reference: paymentIntent.id,
       paidAt,
+      receivedFromName: application.company || "Trader",
+      receivedFromEmail: application.email,
     });
     if (!pdf) {
       res.status(500).json({

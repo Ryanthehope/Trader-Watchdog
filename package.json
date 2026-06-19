@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node ./scripts/vite-build-legacy.mjs",
     "preview": "vite preview",
     "db:push": "prisma db push",
     "db:studio": "prisma studio"

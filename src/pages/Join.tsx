@@ -1166,9 +1166,12 @@ export function Join() {
 
       <section className="small-print-on-light border-b border-slate-200 bg-slate-50 py-8">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="grid gap-3 text-xs leading-relaxed text-slate-500 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {footerNotes.map((note) => (
-              <p key={note} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <p
+                key={note}
+                className="flex min-h-[92px] items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-4 text-center text-sm leading-relaxed text-slate-600 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.18)]"
+              >
                 {note}
               </p>
             ))}

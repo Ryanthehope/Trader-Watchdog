@@ -42,6 +42,8 @@ async function sendStripeReceipt(
     amountPence: params.amountPence,
     reference: params.reference,
     paidAt: params.paidAt,
+    receivedFromName: params.traderName,
+    receivedFromEmail: params.email,
   });
   if (!pdf) {
     console.warn("[stripe webhook] Stripe invoice PDF was not created", {
