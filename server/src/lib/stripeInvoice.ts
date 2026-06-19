@@ -159,10 +159,25 @@ export async function createStripeInvoicePdf(
     // 3. Finalise — generates the PDF
     const finalized = await stripe.invoices.finalizeInvoice(invoice.id);
 
-    // 4. Mark as paid out-of-band (payment was already collected via Checkout Session)
-    const paid = await stripe.invoices.pay(finalized.id, {
-      paid_out_of_band: true,
-    });
+    // 4. Mark as paid out-of-band (payment was already collected via Checkout Session).
+    // Stripe can respond with "Invoice is already paid" for historical resends or if
+    // the invoice has already reached a paid state; in that case, reuse the existing
+    // Stripe invoice PDF instead of falling back to a locally generated document.
+    let paid = finalized;
+    try {
+      paid = await stripe.invoices.pay(finalized.id, {
+        paid_out_of_band: true,
+      });
+    } catch (err) {
+      if (
+        err instanceof Stripe.errors.StripeInvalidRequestError &&
+        /invoice is already paid/i.test(err.message)
+      ) {
+        paid = await stripe.invoices.retrieve(finalized.id);
+      } else {
+        throw err;
+      }
+    }
 
     if (!paid.invoice_pdf) return null;
 
