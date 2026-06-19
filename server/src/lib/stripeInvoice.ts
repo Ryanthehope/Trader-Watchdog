@@ -34,7 +34,7 @@ async function loadInvoiceBranding() {
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const FALLBACK_LOGO_PATH = path.resolve(
   MODULE_DIR,
-  "../../../public/House logo.png"
+  "../../assets/House logo.png"
 );
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
