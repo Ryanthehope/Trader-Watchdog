@@ -34,14 +34,15 @@ async function loadInvoiceBranding() {
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const FALLBACK_LOGO_PATH = path.resolve(
   MODULE_DIR,
-  "../../../public/traderwatchdog_logo.png"
+  "../../../public/House logo.png"
 );
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 const MARGIN_X = 40;
-const TOP_BAND_HEIGHT = 10;
+const HEADER_HEIGHT = 92;
 const BRAND_BLUE = rgb(18 / 255, 42 / 255, 128 / 255);
 const BRAND_GREEN = rgb(0 / 255, 133 / 255, 74 / 255);
+const WHITE = rgb(1, 1, 1);
 const TEXT = rgb(17 / 255, 24 / 255, 39 / 255);
 const MUTED = rgb(71 / 255, 85 / 255, 105 / 255);
 const LINE = rgb(203 / 255, 213 / 255, 225 / 255);
@@ -145,9 +146,9 @@ async function createCustomReceiptPdf(
 
   page.drawRectangle({
     x: 0,
-    y: PAGE_HEIGHT - TOP_BAND_HEIGHT,
+    y: PAGE_HEIGHT - HEADER_HEIGHT,
     width: PAGE_WIDTH,
-    height: TOP_BAND_HEIGHT,
+    height: HEADER_HEIGHT,
     color: BRAND_BLUE,
   });
 
@@ -158,11 +159,11 @@ async function createCustomReceiptPdf(
         ? await pdf.embedPng(logo.bytes)
         : await pdf.embedJpg(logo.bytes);
     const ratio = embedded.height / embedded.width;
-    const drawWidth = 88;
+    const drawWidth = 72;
     const drawHeight = drawWidth * ratio;
     page.drawImage(embedded, {
       x: PAGE_WIDTH - MARGIN_X - drawWidth,
-      y: PAGE_HEIGHT - 88,
+      y: PAGE_HEIGHT - HEADER_HEIGHT + (HEADER_HEIGHT - drawHeight) / 2,
       width: drawWidth,
       height: drawHeight,
     });
@@ -170,15 +171,23 @@ async function createCustomReceiptPdf(
 
   page.drawText("Receipt", {
     x: MARGIN_X,
-    y: PAGE_HEIGHT - 60,
-    size: 26,
+    y: PAGE_HEIGHT - 52,
+    size: 28,
     font: fontBold,
-    color: TEXT,
+    color: WHITE,
+  });
+
+  page.drawText("Trader Watchdog", {
+    x: MARGIN_X,
+    y: PAGE_HEIGHT - 76,
+    size: 11,
+    font: fontRegular,
+    color: rgb(226 / 255, 232 / 255, 240 / 255),
   });
 
   const infoX = MARGIN_X;
   const infoLabelWidth = 118;
-  let infoY = PAGE_HEIGHT - 98;
+  let infoY = PAGE_HEIGHT - HEADER_HEIGHT - 28;
   const infoItems = [
     ["Date of issue", paidAtDisplay],
     ["Date of supply", paidAtDisplay],
@@ -205,7 +214,7 @@ async function createCustomReceiptPdf(
     infoY -= 18;
   }
 
-  const contentTopY = 620;
+  const contentTopY = 560;
   const leftColX = MARGIN_X;
   const rightColX = 330;
   const colWidth = 220;
@@ -253,7 +262,7 @@ async function createCustomReceiptPdf(
     }
   }
 
-  const ruleY = 470;
+  const ruleY = 410;
   page.drawLine({
     start: { x: MARGIN_X, y: ruleY },
     end: { x: PAGE_WIDTH - MARGIN_X, y: ruleY },
@@ -286,42 +295,6 @@ async function createCustomReceiptPdf(
     font: fontRegular,
     color: TEXT,
   });
-
-  const totalsBoxY = 285;
-  const totalsBoxX = PAGE_WIDTH - 215;
-  page.drawRectangle({
-    x: totalsBoxX,
-    y: totalsBoxY,
-    width: 175,
-    height: 96,
-    color: rgb(248 / 255, 250 / 255, 252 / 255),
-    borderColor: LINE,
-    borderWidth: 1,
-  });
-  const totalRows = [
-    ["Total incl. VAT", `£${(payload.amountPence / 100).toFixed(2)}`],
-    ["Net (ex. VAT)", `£${(netPence / 100).toFixed(2)}`],
-    ["VAT at 20%", `£${(vatPence / 100).toFixed(2)}`],
-  ];
-  let totalsY = totalsBoxY + 68;
-  for (const [label, value] of totalRows) {
-    page.drawText(label, {
-      x: totalsBoxX + 14,
-      y: totalsY,
-      size: 11,
-      font: fontBold,
-      color: TEXT,
-    });
-    const valueWidth = fontBold.widthOfTextAtSize(value, 11);
-    page.drawText(value, {
-      x: totalsBoxX + 160 - valueWidth,
-      y: totalsY,
-      size: 11,
-      font: fontBold,
-      color: BRAND_GREEN,
-    });
-    totalsY -= 24;
-  }
 
   if (invoiceBranding?.invoiceFooterNote?.trim()) {
     drawWrappedText(
