@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import Stripe from "stripe";
 import { prisma } from "../db.js";
-import { getStripeClient, getStripeWebhookSecret } from "../lib/stripeClient.js";
+import { getStripeClient, getStripeWebhookSecretCandidates } from "../lib/stripeClient.js";
 import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import {
   notifySubscriptionRenewed,
@@ -70,10 +70,10 @@ function preferredReceiptEmail(member: {
 
 export async function stripeWebhookHandler(req: Request, res: Response) {
   const signatureHeader = req.headers["stripe-signature"];
-  const secret = await getStripeWebhookSecret();
-  const stripe = await getStripeClient();
+  const stripeForVerification = (await getStripeClient()) ?? new Stripe("sk_test_placeholder");
+  const webhookSecrets = await getStripeWebhookSecretCandidates();
 
-  if (!stripe || !secret || typeof signatureHeader !== "string") {
+  if (webhookSecrets.length === 0 || typeof signatureHeader !== "string") {
     res.status(400).type("text/plain").send("Stripe webhook not configured");
     return;
   }
@@ -86,10 +86,36 @@ export async function stripeWebhookHandler(req: Request, res: Response) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(buf, signatureHeader, secret);
+    let verified: Stripe.Event | null = null;
+    for (const secret of webhookSecrets) {
+      try {
+        verified = stripeForVerification.webhooks.constructEvent(
+          buf,
+          signatureHeader,
+          secret
+        );
+        break;
+      } catch {
+        // Try the next configured webhook secret so live/test endpoints can coexist.
+      }
+    }
+    if (!verified) {
+      throw new Error("No configured Stripe webhook secret matched this delivery");
+    }
+    event = verified;
   } catch (e) {
     console.warn("[stripe webhook] signature failed", e);
     res.status(400).type("text/plain").send("Bad signature");
+    return;
+  }
+
+  const stripe = await getStripeClient(event.livemode);
+  if (!stripe) {
+    const mode = event.livemode ? "live" : "test";
+    console.error(`[stripe webhook] ${mode} mode API key is not configured`);
+    res.status(500)
+      .type("text/plain")
+      .send(`Stripe ${mode} mode API key is not configured`);
     return;
   }
 
