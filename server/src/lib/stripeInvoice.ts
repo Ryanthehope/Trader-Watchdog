@@ -160,12 +160,24 @@ async function createCustomReceiptPdf(
         ? await pdf.embedPng(logo.bytes)
         : await pdf.embedJpg(logo.bytes);
     const ratio = embedded.height / embedded.width;
-    const drawWidth = 78;
+    const drawWidth = 84;
     const drawHeight = drawWidth * ratio;
     const logoX = MARGIN_X;
+    const logoY = PAGE_HEIGHT - HEADER_HEIGHT + (HEADER_HEIGHT - drawHeight) / 2;
+    const badgePaddingX = 10;
+    const badgePaddingY = 5;
+
+    page.drawRectangle({
+      x: logoX - badgePaddingX,
+      y: logoY - badgePaddingY,
+      width: drawWidth + badgePaddingX * 2,
+      height: drawHeight + badgePaddingY * 2,
+      color: WHITE,
+    });
+
     page.drawImage(embedded, {
       x: logoX,
-      y: PAGE_HEIGHT - HEADER_HEIGHT + (HEADER_HEIGHT - drawHeight) / 2,
+      y: logoY,
       width: drawWidth,
       height: drawHeight,
     });
