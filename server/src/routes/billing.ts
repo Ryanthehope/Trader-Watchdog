@@ -182,33 +182,11 @@ router.post("/checkout-registration-fee", async (req, res) => {
       return;
     }
 
-    const stripe = await getStripeClient();
-    if (!stripe) {
-      res.status(400).json({ error: "Stripe is not configured" });
-      return;
-    }
-    const origin = siteOrigin(req);
-    const lines = checkoutLineConfig(settings);
-    const discountCodeInput = String(req.body?.discountCode ?? "").trim();
-    const discount = discountCodeInput
-      ? resolveDiscountCode(discountCodeInput, lines.registrationFeePence)
-      : null;
-    const flow = await createStripeCheckoutSession(stripe, {
-      amountPence: discount?.finalPricePence ?? lines.registrationFeePence,
-      description: lines.registrationFeeName,
-      email,
-      existingStripeCustomerId: application.stripeCustomerId,
-      createCustomer: !application.stripeCustomerId,
-      savePaymentMethod: true,
-      successRedirectUrl: `${origin}/join?paid=registration_fee&app=${encodeURIComponent(applicationId)}`,
-      cancelRedirectUrl: `${origin}/join?cancelled=1`,
-      metadata: {
-        applicationId,
-        checkoutKind: "registration_fee",
-        ...(discount ? { discountCode: discount.code } : {}),
-      },
+    res.status(400).json({
+      error:
+        "Registration fee is no longer charged separately. Once your application is approved, the registration fee and first annual membership are collected together.",
     });
-    res.json({ url: flow.url });
+    return;
   } catch (e) {
     const detail = stripeErrorDetails(e);
     console.error("[billing] registration checkout failed", {
@@ -248,24 +226,28 @@ router.post("/checkout-membership", async (req, res) => {
       res.status(400).json({ error: "Membership payment is already recorded" });
       return;
     }
-    if (!application.registrationFeePaidAt) {
-      res.status(400).json({
-        error:
-          "Registration fee must be paid before annual membership checkout is available.",
-      });
-      return;
-    }
     const origin = siteOrigin(req);
     const lines = checkoutLineConfig(settings);
 
     const discountCodeInput = String(req.body?.discountCode ?? "").trim();
-    const discount = discountCodeInput
+    const membershipDiscount = discountCodeInput
       ? resolveDiscountCode(discountCodeInput, lines.membershipPence)
       : null;
+    const registrationDiscount = discountCodeInput
+      ? resolveDiscountCode(discountCodeInput, lines.registrationFeePence)
+      : null;
+    const combinedAmountPence =
+      (application.registrationFeePaidAt
+        ? 0
+        : registrationDiscount?.finalPricePence ?? lines.registrationFeePence) +
+      (membershipDiscount?.finalPricePence ?? lines.membershipPence);
+    const paymentDescription = application.registrationFeePaidAt
+      ? lines.membershipName
+      : "Trader Watchdog registration fee and first annual membership + VAT";
 
     const flow = await createStripeCheckoutSession(stripe, {
-      amountPence: discount?.finalPricePence ?? lines.membershipPence,
-      description: lines.membershipName,
+      amountPence: combinedAmountPence,
+      description: paymentDescription,
       email,
       existingStripeCustomerId: application.stripeCustomerId,
       createCustomer: !application.stripeCustomerId,
@@ -274,7 +256,9 @@ router.post("/checkout-membership", async (req, res) => {
       metadata: {
         applicationId,
         checkoutKind: "membership",
-        ...(discount ? { discountCode: discount.code } : {}),
+        ...(discountCodeInput
+          ? { discountCode: discountCodeInput.trim().toUpperCase() }
+          : {}),
       },
     });
     res.json({ url: flow.url });

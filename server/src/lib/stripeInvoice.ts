@@ -71,8 +71,8 @@ export async function createStripeInvoicePdf(
       ...(invoiceFooter ? { footer: invoiceFooter } : {}),
       metadata: { reference: payload.reference.slice(0, 40) },
       custom_fields: [
-        { name: "VAT rate", value: "20%" },
-        { name: "Gross at 20%", value: `£${(payload.amountPence / 100).toFixed(2)}` },
+        { name: "VAT applied", value: "20%" },
+        { name: "Total incl. VAT", value: `£${(payload.amountPence / 100).toFixed(2)}` },
         { name: "Net (ex. VAT)", value: `£${(netPence / 100).toFixed(2)}` },
         { name: "VAT at 20%", value: `£${(vatPence / 100).toFixed(2)}` },
       ],

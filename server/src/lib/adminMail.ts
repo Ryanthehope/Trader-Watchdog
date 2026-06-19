@@ -473,7 +473,7 @@ export function notifyApplicantSubmissionReceived(
       "",
       "The next step is identity verification. If Sumsub is enabled for your application, you will receive a separate secure verification link by email and you can also return to your application status page at any time to continue.",
       "",
-      "Once your identity verification is complete, the registration fee payment step will unlock.",
+      "Once your identity verification is complete, our team will review your application. If it is approved, we will then invite you to pay the registration fee and first annual membership together.",
       "",
       `If you ever need help, just email us at ${supportEmail}.`,
       "",
@@ -513,7 +513,7 @@ export function notifyApplicantVerificationOutcome(
 
     const subject =
       row.status === "APPROVED"
-        ? "Identity Verification Complete - Registration Fee Ready"
+        ? "Identity Verification Complete - Application Under Review"
         : "We Couldn't Complete Your Verification";
 
     const text =
@@ -524,10 +524,10 @@ export function notifyApplicantVerificationOutcome(
             "Your identity verification is complete — thank you for completing that step.",
             "",
             joinUrl
-              ? `Your application status page is now ready for the registration fee payment step:\n${joinUrl}`
-              : "Your application status page is now ready for the registration fee payment step.",
+              ? `Your application status page has been updated and Trader Watchdog will now complete the final application review:\n${joinUrl}`
+              : "Your application status page has been updated and Trader Watchdog will now complete the final application review.",
             "",
-            "Once your registration fee is paid, our team will continue the final review of your application and contact you when the next step is ready.",
+            "If your application is approved, we will email you the final activation payment step. If it is not approved, no charge will be taken.",
             "",
             "If you need anything in the meantime, just reply to this email.",
             "The Trader Watchdog Team",
@@ -574,7 +574,7 @@ export function notifyApplicantApprovedForPayment(
       ? "Your registration fee is already paid. We have submitted your annual membership payment via the Direct Debit you set up — no further action is needed. Your public profile and member login will be created automatically once the payment clears (usually 3–5 working days)."
       : row.registrationFeePaid
         ? "Your registration fee is confirmed. The final step is to pay the annual membership. Use the secure link below to complete this — once payment is confirmed, your public profile and member login will be created."
-        : "Your application has been approved, but the billing record does not yet match the normal verification-first flow. Use the secure link below to review the next payment step, or reply to this email if you need help.";
+        : "Use the secure link below to pay the registration fee and first annual membership together. Once payment is confirmed, your public profile and member login will be created.";
     const continueSection =
       row.mandateOnFile
         ? ""
@@ -592,7 +592,7 @@ export function notifyApplicantApprovedForPayment(
 
     await sendApplicantEmail(prisma, {
       to: row.email,
-      subject: "Your Application Has Been Approved - Annual Membership Ready",
+      subject: "Your Application Has Been Approved - Activation Payment Ready",
       text,
     });
   })().catch((e) => {

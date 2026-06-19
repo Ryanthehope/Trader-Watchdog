@@ -508,11 +508,23 @@ async function handleMembershipConfirmed(
   stripe?: Stripe,
   stripeCustomerId?: string | null
 ) {
+  const appBeforeMembership = await prisma.application.findUnique({
+    where: { id: appId },
+    select: {
+      membershipSubscribed: true,
+      registrationFeePaidAt: true,
+    },
+  });
+  if (!appBeforeMembership || appBeforeMembership.membershipSubscribed) return;
+
   const updated = await prisma.application.updateMany({
     where: { id: appId, membershipSubscribed: false },
     data: {
       membershipSubscribed: true,
       manualMembershipExpiresAt: addOneCalendarYearEndUtc(paidAt),
+      ...(appBeforeMembership.registrationFeePaidAt
+        ? {}
+        : { registrationFeePaidAt: paidAt }),
     },
   });
 
@@ -569,15 +581,25 @@ async function handleMembershipConfirmed(
       contactEmail: app?.email ?? "",
       contactAddress: app?.tradingAddress,
       contactPostalCode: app?.postcode,
-      description: `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })})`,
+      description: appBeforeMembership.registrationFeePaidAt
+        ? `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })})`
+        : `Registration Fee and Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })})`,
       amountPence,
       reference,
       paidAt,
@@ -598,21 +620,33 @@ async function handleMembershipConfirmed(
     // Stripe invoice PDF — emailed to trader
     if (stripe && stripeCustomerId && app?.email) {
       void sendStripeReceipt(stripe, stripeCustomerId, {
-        description: `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        })})`,
+        description: appBeforeMembership.registrationFeePaidAt
+          ? `Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })})`
+          : `Registration Fee and Annual Membership (${paidAt.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })} – ${addOneCalendarYearEndUtc(paidAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })})`,
         amountPence,
         reference,
         paidAt,
         traderName: app.company ?? "Trader",
         email: app.email,
-        invoiceDescription: "Annual Membership",
+        invoiceDescription: appBeforeMembership.registrationFeePaidAt
+          ? "Annual Membership"
+          : "Registration Fee and Annual Membership",
       });
     }
   })();

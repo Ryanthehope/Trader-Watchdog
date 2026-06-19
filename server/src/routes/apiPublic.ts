@@ -32,7 +32,7 @@ import {
 import { checkoutLineConfig } from "../lib/billingSettings.js";
 import { clampCheckoutPence } from "../lib/billingSettings.js";
 import { getLaunchWindow } from "../lib/launchWindow.js";
-import { findReusableRegistrationFeePaidAt, ensureReusableRegistrationFeeForApplication } from "../lib/reusableRegistrationFee.js";
+import { findReusableRegistrationFeePaidAt } from "../lib/reusableRegistrationFee.js";
 import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
 import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 
@@ -282,13 +282,6 @@ router.post("/applications/applicant-summary", async (req, res) => {
       });
       return;
     }
-    if (!row.registrationFeePaidAt) {
-      row = await ensureReusableRegistrationFeeForApplication(applicationId);
-      if (!row || row.email.toLowerCase() !== email) {
-        res.status(404).json({ error: "Application not found" });
-        return;
-      }
-    }
     const hasRegistrationFeePayment = Boolean(row.registrationFeePaidAt);
     const hasMembershipPayment =
       Boolean(row.membershipSubscribed);  
@@ -301,15 +294,10 @@ router.post("/applications/applicant-summary", async (req, res) => {
       !hasMembershipPayment &&
       !profileLive;
     const canCheckoutRegistrationFee =
-      billingAvailable &&
-      row.status !== "DECLINED" &&
-      (!sumsubEnabled || verificationStatus === "APPROVED") &&
-      !hasRegistrationFeePayment &&
-      !profileLive;
+      false;
     const canCheckoutMembership =
       billingAvailable &&
       row.status === "APPROVED" &&
-      hasRegistrationFeePayment &&
       !hasMembershipPayment &&
       !membershipAutoChargePending &&
       !profileLive;
