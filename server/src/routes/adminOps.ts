@@ -183,7 +183,7 @@ const ADMIN_APPLICATION_FULL_SELECT = {
       membershipExpiresAt: true,
     },
   },
-} satisfies Prisma.ApplicationSelect;
+} as const;
 
 const ADMIN_APPLICATION_MUTATION_SELECT = {
   id: true,
@@ -205,7 +205,7 @@ const ADMIN_APPLICATION_MUTATION_SELECT = {
   verificationStatus: true,
   xeroInvoiceId: true,
   xeroInvoiceFailed: true,
-} satisfies Prisma.ApplicationSelect;
+} as const;
 
 router.get("/dashboard", async (_req, res) => {
   try {
