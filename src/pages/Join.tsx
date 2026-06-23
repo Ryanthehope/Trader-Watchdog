@@ -37,28 +37,62 @@ const applicationRequirements = [
   "Proof of identity, address, and liveness for the verification checks handled through Sumsub.",
   "Your insurance documents showing cover, insurer, and start or renewal date.",
   "Your Waste Carrier Licence number, if applicable.",
-  "Your ICO registration number, if applicable.",
   "Your Gas Safe registration number, if applicable.",
+  "Your NICEIC registration number, if applicable.",
+  "Your ICO registration number, if applicable.",
   "Certificates and memberships to enhance your portfolio, optional upload.",
   "Up to 100 words describing your business, optional.",
   "Upload PDFs or images, up to 8 files, 10 MB each.",
 ];
 
 const traderPoints = [
-  "An affordable, trusted public platform showing transparency for genuine local traders.",
-  " Your own Verified Trader portal shows customers and the public you are insured, compliant and professional.",
-  "One fair fee, no area limits, no paid placements, no extras.",
-  "Help protect your community from rogue traders.",
-  "Automatic reminders for insurance, licences, memberships, and annual renewal.",
-  "Your own  QR code to download for vehicles, stationery, and advertising - connecting direct to your portal.",
-  "All for an annual portal fee of £75 + VAT per year",
+  {
+    text: "Professional recognition.",
+    image: null,
+    imageAlt: "Professional recognition icon placeholder",
+  },
+  {
+    text: "Win more work.",
+    image: "/win more work.png",
+    imageAlt: "Win more work icon",
+  },
+  {
+    text: "Your own green flag portal.",
+    image: "/Green flag portal.png",
+    imageAlt: "Green flag portal icon",
+  },
+  {
+    text: "Unique QR code directs to your portal.",
+    image: "/QR code.png",
+    imageAlt: "QR code icon",
+  },
+  {
+    text: "Branding pack to download.",
+    image: "/branding pack.png",
+    imageAlt: "Branding pack icon",
+  },
+  {
+    text: "100-word description of your business.",
+    image: "/100 words.png",
+    imageAlt: "100 words icon",
+  },
+  {
+    text: "Your qualifications and memberships listed if applicable.",
+    image: "/qualifications.png",
+    imageAlt: "Qualifications icon",
+  },
+  {
+    text: "Automatic reminder of insurance, licences, memberships and portal fee.",
+    image: "/reminder.png",
+    imageAlt: "Reminder icon",
+  },
 ];
 
 const publicViews = [
   {
     title: "Green Flag",
     body: "A search for a verified trader shows a green flag with their public profile, verified business details, insurance, licences and supporting credentials.",
-    image: "/Green flag2.webp",
+    image: "/isolated green phone.png",
     imageAlt: "Green flag",
     tone: "border-emerald-200 bg-emerald-50",
     accentClass: "text-emerald-600",
@@ -66,7 +100,7 @@ const publicViews = [
   {
     title: "Red Flag",
     body: "A search for a business that is not verified shows a red flag advising caution.",
-    image: "/Red flag2.webp",
+    image: "/isolated red phone.png",
     imageAlt: "Red flag",
     tone: "border-rose-200 bg-rose-50",
     accentClass: "text-rose-600",
@@ -132,11 +166,6 @@ const workflowSteps = [
   },
 ];
 
-const footerNotes = [
-  "Verification confirms identity, insurance and licensing only.",
-  "Trader Watchdog does not rate or review traders.",
-  "Householders remain responsible for choosing a trader.",
-];
 
 function selectedFiles(fd: FormData, field: string): File[] {
   return fd
@@ -519,6 +548,8 @@ export function Join() {
     const wasteCarrierNumber = String(fd.get("wasteCarrierNumber") ?? "").trim();
     const gasSafeRequired = String(fd.get("gasSafeRequired") ?? "").trim();
     const gasSafeNumber = String(fd.get("gasSafeNumber") ?? "").trim();
+    const niceicRequired = String(fd.get("niceicRequired") ?? "").trim();
+    const niceicNumber = String(fd.get("niceicNumber") ?? "").trim();
     const icoRequired = String(fd.get("icoRequired") ?? "").trim();
     const icoNumber = String(fd.get("icoNumber") ?? "").trim();
     const businessDescription = String(
@@ -580,6 +611,8 @@ export function Join() {
         wasteCarrierNumber,
         gasSafeRequired,
         gasSafeNumber,
+        niceicRequired,
+        niceicNumber,
         icoRequired,
         icoNumber,
         businessDescription,
@@ -1010,82 +1043,146 @@ export function Join() {
 
   return (
     <>
+      <section className="small-print-on-dark border-b border-brand-800/70 bg-brand-700 px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] sm:px-6 sm:py-5">
+        <div className="mx-auto max-w-6xl">
+          <p className="font-display text-[1.7rem] font-bold uppercase leading-tight text-white sm:text-3xl">
+            BECOME A TRUSTED VERIFIED TRADER
+          </p>
+        </div>
+      </section>
+
       <section className="small-print-on-light border-b border-slate-200 bg-[radial-gradient(circle_at_top,#e8eefb_0%,#f5f7fb_42%,#ffffff_100%)] py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             <img
               src="/House logo.png"
               alt="Trader Watchdog house logo"
-              className="mx-auto h-24 w-auto object-contain sm:h-28"
+              className="mx-auto h-24 w-auto object-contain sm:h-28 lg:h-32"
               loading="lazy"
             />
-            <p
-              className="mt-8 text-lg font-semibold uppercase tracking-[0.24em]"
-              style={{ color: JOIN_HOUSE_LOGO_COLOR }}
-            >
-              How Trader Watchdog Works
-            </p>
-            <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-              A simple green flag / red flag process designed to verify honest traders for householder protection.
+
+            <h1 className="mt-8 font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              WHAT IS TRADER WATCHDOG?
             </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
+              Placeholder text goes here to explain what Trader Watchdog is and how it helps traders stand out.
+              This area can introduce the purpose of verification, the value to householders, and the benefits to genuine businesses.
+              It can also summarise how the process works in simple language before the user continues down the page.
+              Add final approved copy here once the wording is ready.
+            </p>
           </div>
 
-          <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start">
-            <div className="rounded-[2rem] border border-[#d7def3] bg-white/85 p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
+          <div className="mx-auto mt-12 grid max-w-5xl items-center gap-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:gap-12">
+            <img
+              src="/hi%20viz%20with%20phone.jpg"
+              alt="Trader in hi-vis holding a phone"
+              className="mx-auto w-full max-w-[22rem] rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
+              loading="lazy"
+            />
+
+            <div className="text-center lg:text-left">
+              <h2 className="font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                NO CATCHES. JUST TRUST
+              </h2>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
+                Placeholder text goes here to explain the simple promise behind joining Trader Watchdog.
+                Use this area to describe straightforward pricing, transparent checks, and the trust signals traders receive.
+                Add final approved wording here once the marketing copy is ready.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-stretch">
+            <div className="h-full rounded-[2rem] border border-[#d7def3] bg-white/85 p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
               <p
                 className="text-sm font-semibold uppercase tracking-[0.2em]"
                 style={{ color: JOIN_HOUSE_LOGO_COLOR }}
               >
-                Trader Watchdog provides verified traders with
+                Get the benefits now
               </p>
               <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-700 sm:text-base">
                 {traderPoints.map((point) => (
-                  <li key={point} className="flex gap-3">
-                    <span
-                      className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: JOIN_HOUSE_LOGO_COLOR }}
-                    />
-                    <span>{point.trim()}</span>
+                  <li key={point.text} className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#2BA24E] text-white">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="pt-1">{point.text}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="space-y-6">
-              <p
-                className="text-center text-sm font-semibold uppercase tracking-[0.2em]"
-                style={{ color: JOIN_HOUSE_LOGO_COLOR }}
-              >
-                What the public sees
-              </p>
-              <div className="grid gap-6">
-                {publicViews.map((view) => (
-                  <div key={view.title} className={`rounded-[1.75rem] border p-6 shadow-[0_22px_50px_-38px_rgba(15,23,42,0.25)] ${view.tone}`}>
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={view.image}
-                        alt={view.imageAlt}
-                        className="h-16 w-16 shrink-0 object-contain"
-                        loading="lazy"
-                      />
-                      <div>
-                        <h2 className="font-display text-2xl font-semibold text-slate-900">
-                          {view.title.split(" ").map((word, index) => (
-                            <span key={word}>
-                              <span className="text-slate-900">{word.charAt(0)}</span>
-                              {word.slice(1)}
-                              {index < view.title.split(" ").length - 1 ? " " : ""}
-                            </span>
-                          ))}
-                        </h2>
-                        <p className="mt-3 text-sm leading-relaxed text-slate-900 sm:text-base">
-                          {view.body}
-                        </p>
-                      </div>
+            <div className="grid gap-6 sm:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:h-full">
+              <div className="flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
+              <p className="mt-4 text-center text-sm font-medium leading-relaxed text-slate-700 sm:text-base">
+                  Show your community you are a professional verified trader.
+                </p>
+                <img
+                  src="/Van%20square.jpg"
+                  alt="Trader van with Trader Watchdog branding"
+                  className="w-full flex-1 rounded-[1.5rem] bg-white object-contain lg:min-h-[26rem]"
+                  loading="lazy"
+                />
+                
+              </div>
+
+              <div className="grid gap-6 lg:h-full lg:grid-rows-2">
+                <div className="h-full rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
+                  <img
+                    src="/bobs%20card.jpg"
+                    alt="Trader Watchdog business card example"
+                    className="h-full w-full rounded-[1.5rem] object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="h-full rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
+                  <img
+                    src="/painter.jpg"
+                    alt="Painter example image"
+                    className="h-full w-full rounded-[1.5rem] object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 space-y-6">
+            <p
+              className="text-center text-sm font-semibold uppercase tracking-[0.2em]"
+              style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+            >
+              Searches display your status
+            </p>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {publicViews.map((view) => (
+                <div key={view.title} className={`rounded-[1.75rem] border p-6 shadow-[0_22px_50px_-38px_rgba(15,23,42,0.25)] ${view.tone}`}>
+                  <div className="flex items-start gap-5">
+                    <img
+                      src={view.image}
+                      alt={view.imageAlt}
+                      className="h-40 w-40 shrink-0 object-contain sm:h-40 sm:w-40"
+                      loading="lazy"
+                    />
+                    <div>
+                      <h2 className="font-display text-2xl font-semibold text-slate-900">
+                        {view.title.split(" ").map((word, index) => (
+                          <span key={word}>
+                            <span className="text-slate-900">{word.charAt(0)}</span>
+                            {word.slice(1)}
+                            {index < view.title.split(" ").length - 1 ? " " : ""}
+                          </span>
+                        ))}
+                      </h2>
+                      <p className="mt-3 text-sm leading-relaxed text-slate-900 sm:text-base">
+                        {view.body}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1164,30 +1261,9 @@ export function Join() {
         </div>
       </section>
 
-      <section className="small-print-on-light border-b border-slate-200 bg-slate-50 py-8">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {footerNotes.map((note) => (
-              <p
-                key={note}
-                className="flex min-h-[92px] items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-4 text-center text-sm leading-relaxed text-slate-600 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.18)]"
-              >
-                {note}
-              </p>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <main id="application-form" className="join-application-form small-print-on-light border-b border-white/5 pb-24">
       <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/50 to-ink-950 py-12 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
-          <p
-            className="text-md font-semibold uppercase tracking-wider"
-            style={{ color: JOIN_HOUSE_LOGO_COLOR }}
-          >
-            For tradespeople
-          </p>
           <h1 className="mt-2 font-display text-3xl font-bold text-white sm:text-4xl">
             Trader Watchdog Verified Trader Application
           </h1>
@@ -1952,6 +2028,40 @@ export function Join() {
               <input
                 id="gasSafeNumber"
                 name="gasSafeNumber"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="niceicRequired"
+                className="block text-sm font-medium text-slate-300"
+              >
+                Does your business require NICEIC registration?
+              </label>
+              <select
+                id="niceicRequired"
+                name="niceicRequired"
+                required
+                defaultValue=""
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              >
+                <option value="" disabled>
+                  Select one
+                </option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="niceicNumber"
+                className="block text-sm font-medium text-slate-300"
+              >
+                NICEIC registration number, if yes
+              </label>
+              <input
+                id="niceicNumber"
+                name="niceicNumber"
                 className="mt-1.5 w-full rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
               />
             </div>

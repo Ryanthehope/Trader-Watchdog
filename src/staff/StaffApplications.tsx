@@ -46,6 +46,8 @@ type AppRow = {
   wasteCarrierNumber?: string | null;
   gasSafeRequired?: string | null;
   gasSafeNumber?: string | null;
+  niceicRequired?: string | null;
+  niceicNumber?: string | null;
   icoRequired?: string | null;
   icoNumber?: string | null;
   businessDescription?: string | null;
@@ -247,7 +249,15 @@ async function openApplicationDocument(appId: string, doc: AppDoc) {
     popup.location.href = url;
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   } catch (error) {
-    popup.close();
+    const message = error instanceof Error ? error.message : "Could not open document";
+    popup.document.title = "Could not open document";
+    popup.document.body.innerHTML = `
+      <div style="font-family:sans-serif;padding:16px;line-height:1.5;color:#0f172a">
+        <h1 style="margin:0 0 12px;font-size:18px">Could not open document</h1>
+        <p style="margin:0 0 12px">${message}</p>
+        <p style="margin:0;color:#475569">The file request did not complete. You can close this tab and try again after the backend update is live.</p>
+      </div>
+    `;
     throw error;
   }
 }
@@ -1206,6 +1216,18 @@ function ApplicationCard({
                 {row.gasSafeRequired === "Yes"
                   ? row.gasSafeNumber?.trim() || "Required - number not supplied"
                   : row.gasSafeRequired === "No"
+                    ? "Not required"
+                    : "Not stated"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                NICEIC registration
+              </p>
+              <p className="mt-2 text-sm text-white">
+                {row.niceicRequired === "Yes"
+                  ? row.niceicNumber?.trim() || "Required - number not supplied"
+                  : row.niceicRequired === "No"
                     ? "Not required"
                     : "Not stated"}
               </p>

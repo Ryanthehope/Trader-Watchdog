@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { VerifiedMember } from "../types/content";
-import { apiGetMember, apiGetMemberBlob, apiSendMember } from "../lib/api";
+import { apiGetMember, apiGetMemberBlob } from "../lib/api";
 import { useMemberAuth } from "./MemberAuthContext";
 
 type MembershipSummary = {
@@ -26,11 +26,6 @@ type MemberOverviewData = {
   publicProfileUrl: string;
   profileLive: boolean;
   membership: MembershipSummary;
-  stickers: {
-    originalOrderPaidAt: string | null;
-    canOrderAdditional: boolean;
-    additionalOrderReason: string | null;
-  };
   verification: VerificationSummary;
   qr: {
     eligible: boolean;
@@ -45,66 +40,6 @@ type MemberOverviewData = {
     smallPixels: number;
   };
 };
-
-const GENERIC_STICKER_QR_URL = "/generic-traderwatchdog-qr.svg";
-
-const STICKER_PREVIEWS = {
-  "1": {
-    templateSrc: "/Sticker 1.png",
-    label: "250×50mm",
-    qrLeft: "29.8%",
-    qrTop: "22%",
-    qrWidth: "21.5%",
-  },
-  "2": {
-    templateSrc: "/Sticker 2.png",
-    label: "187×93mm",
-    qrLeft: "46%",
-    qrTop: "30%",
-    qrWidth: "20%",
-  },
-} as const;
-
-type StickerVariant = keyof typeof STICKER_PREVIEWS;
-
-function StickerPreviewCard({ variant }: { variant: StickerVariant }) {
-  const preview = STICKER_PREVIEWS[variant];
-
-  return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
-      <div className="relative">
-        <img
-          src={preview.templateSrc}
-          alt={`Van sticker preview ${preview.label}`}
-          className="block w-full"
-          loading="lazy"
-          decoding="async"
-        />
-        <div
-          className="absolute bg-white p-2 shadow-[0_10px_24px_-16px_rgba(15,23,42,0.5)]"
-          style={{
-            left: preview.qrLeft,
-            top: preview.qrTop,
-            width: preview.qrWidth,
-            aspectRatio: "1 / 1",
-          }}
-        >
-          <img
-            src={GENERIC_STICKER_QR_URL}
-            alt="Generic QR code linking to traderwatchdog.co.uk"
-            className="block h-full w-full"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-      </div>
-      <div className="border-t border-slate-200 bg-white px-4 py-3">
-        <p className="text-sm font-semibold text-slate-900">Actual size: {preview.label}</p>
-        <p className="mt-1 text-xs text-slate-500">Example shown with a generic QR linking to traderwatchdog.co.uk.</p>
-      </div>
-    </div>
-  );
-}
 
 async function blobToJpeg(blob: Blob, width: number, height: number): Promise<Blob> {
   const url = URL.createObjectURL(blob);
@@ -152,12 +87,6 @@ export function MemberOverview() {
   const [qrError, setQrError] = useState<string | null>(null);
   const [qrPreviewUrl, setQrPreviewUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [stickerOrderBusy, setStickerOrderBusy] = useState(false);
-  const [additionalStickerBusy, setAdditionalStickerBusy] = useState(false);
-
-  function stickerLabel(variant: StickerVariant) {
-    return variant === "1" ? "250×50mm" : "187×93mm";
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -278,38 +207,6 @@ export function MemberOverview() {
       setQrError(e instanceof Error ? e.message : "Could not download SVG QR");
     } finally {
       setQrBusy(null);
-    }
-  }
-
-  async function handleOrderPhysicalStickers(stickerVariant: StickerVariant) {
-    setStickerOrderBusy(true);
-    setQrError(null);
-    try {
-      const { url } = await apiSendMember<{ url: string }>(
-        "/api/member/portal/sticker-order",
-        { method: "POST", body: JSON.stringify({ stickerVariant }) }
-      );
-      window.location.href = url;
-    } catch (e) {
-      setQrError(e instanceof Error ? e.message : "Could not start sticker order. Please try again.");
-    } finally {
-      setStickerOrderBusy(false);
-    }
-  }
-
-  async function handleOrderAdditionalSticker(stickerVariant: StickerVariant) {
-    setAdditionalStickerBusy(true);
-    setQrError(null);
-    try {
-      const { url } = await apiSendMember<{ url: string }>(
-        "/api/member/portal/sticker-order-additional",
-        { method: "POST", body: JSON.stringify({ stickerVariant }) }
-      );
-      window.location.href = url;
-    } catch (e) {
-      setQrError(e instanceof Error ? e.message : "Could not start sticker order. Please try again.");
-    } finally {
-      setAdditionalStickerBusy(false);
     }
   }
 
@@ -469,7 +366,7 @@ export function MemberOverview() {
                         QR code downloads
                       </h2>
                       <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                        Download your official QR assets for vans, paperwork, and digital use. Each code links directly to your public Trader Watchdog verification page.
+                        Download your official QR assets for vans, paperwork, and digital use. Each code links directly to your public Trader Watchdog verification page. Check your QR code before displaying.
                       </p>
 
                       {canDownloadQr ? (
@@ -543,67 +440,6 @@ export function MemberOverview() {
                           {data.qr.reason ?? "QR downloads are enabled after verification approval."}
                         </div>
                       )}
-
-                      <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-                        <p className="text-sm font-semibold text-slate-900">Order van stickers showing your bespoke QR code!</p>
-                        <p className="mt-1 text-sm text-slate-600">
-                          Choose a size below. Your first order sends <strong>2 stickers of the same selected size</strong> for <strong>£17.50 + VAT</strong>, delivered by Royal Mail Tracked.
-                          Additional stickers are <strong>£6 + VAT</strong> for the same design.
-                        </p>
-                        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                          <StickerPreviewCard variant="1" />
-                          <StickerPreviewCard variant="2" />
-                        </div>
-                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                          <button
-                            type="button"
-                            onClick={() => void handleOrderPhysicalStickers("1")}
-                            disabled={stickerOrderBusy || additionalStickerBusy || qrBusy !== null}
-                            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {stickerOrderBusy ? "Starting checkout…" : `Order 2 × ${stickerLabel("1")}`}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => void handleOrderPhysicalStickers("2")}
-                            disabled={stickerOrderBusy || additionalStickerBusy || qrBusy !== null}
-                            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {stickerOrderBusy ? "Starting checkout…" : `Order 2 × ${stickerLabel("2")}`}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => void handleOrderAdditionalSticker("1")}
-                            disabled={
-                              stickerOrderBusy ||
-                              additionalStickerBusy ||
-                              qrBusy !== null ||
-                              !data.stickers.canOrderAdditional
-                            }
-                            className="rounded-lg border border-brand-600 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {additionalStickerBusy ? "Starting checkout…" : `Order 1 additional ${stickerLabel("1")}`}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => void handleOrderAdditionalSticker("2")}
-                            disabled={
-                              stickerOrderBusy ||
-                              additionalStickerBusy ||
-                              qrBusy !== null ||
-                              !data.stickers.canOrderAdditional
-                            }
-                            className="rounded-lg border border-brand-600 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {additionalStickerBusy ? "Starting checkout…" : `Order 1 additional ${stickerLabel("2")}`}
-                          </button>
-                        </div>
-                        {!data.stickers.canOrderAdditional ? (
-                          <p className="mt-2 text-xs text-slate-500">
-                            {data.stickers.additionalOrderReason}
-                          </p>
-                        ) : null}
-                      </div>
 
                       {qrError ? <p className="mt-4 text-sm text-red-600">{qrError}</p> : null}
                     </div>

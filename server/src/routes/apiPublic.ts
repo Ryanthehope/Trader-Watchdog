@@ -452,6 +452,8 @@ router.post(
       const wasteCarrierNumber = String(req.body?.wasteCarrierNumber ?? "").trim();
       const gasSafeRequired = String(req.body?.gasSafeRequired ?? "").trim();
       const gasSafeNumber = String(req.body?.gasSafeNumber ?? "").trim();
+      const niceicRequired = String(req.body?.niceicRequired ?? "").trim();
+      const niceicNumber = String(req.body?.niceicNumber ?? "").trim();
       const icoRequired = String(req.body?.icoRequired ?? "").trim();
       const icoNumber = String(req.body?.icoNumber ?? "").trim();
       const businessDescription = String(
@@ -484,6 +486,8 @@ router.post(
           wasteCarrierNumber ||
           gasSafeRequired ||
           gasSafeNumber ||
+          niceicRequired ||
+          niceicNumber ||
           icoRequired ||
           icoNumber ||
           businessDescription ||
@@ -500,6 +504,7 @@ router.post(
           !identifiablePersonAddress ||
           !wasteCarrierRequired ||
           !gasSafeRequired ||
+            !niceicRequired ||
           !icoRequired)
       ) {
         res.status(400).json({
@@ -582,6 +587,8 @@ router.post(
             wasteCarrierNumber: wasteCarrierNumber || null,
             gasSafeRequired: gasSafeRequired || null,
             gasSafeNumber: gasSafeNumber || null,
+            niceicRequired: niceicRequired || null,
+            niceicNumber: niceicNumber || null,
             icoRequired: icoRequired || null,
             icoNumber: icoNumber || null,
             businessDescription: businessDescription || null,
@@ -616,6 +623,8 @@ router.post(
         wasteCarrierNumber,
         gasSafeRequired,
         gasSafeNumber,
+        niceicRequired,
+        niceicNumber,
         icoRequired,
         icoNumber,
         businessDescription,

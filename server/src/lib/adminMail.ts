@@ -1,9 +1,5 @@
-import path from "path";
-import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
-import QRCode from "qrcode";
 import { Resend } from "resend";
-import sharp from "sharp";
 import type { PrismaClient } from "@prisma/client";
 
 type EmailAttachment = {
@@ -28,101 +24,6 @@ async function sendViaResend(
   if (result.error) {
     throw new Error(`Resend: ${result.error.message}`);
   }
-}
-
-const ASSETS_DIR = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../assets"
-);
-
-const VAN_STICKER_CONFIGS = {
-  "1": {
-    templateFile: "van-qr-1.jpg",
-    mmWidth: 250,
-    mmHeight: 100,
-    panelLeft: 2060,
-    panelTop: 177,
-    panelSize: 820,
-    qrInset: 18,
-  },
-  "2": {
-    templateFile: "van-qr-2.jpg",
-    mmWidth: 187,
-    mmHeight: 93,
-    panelLeft: 726,
-    panelTop: 174,
-    panelSize: 760,
-    qrInset: 16,
-  },
-} as const;
-
-async function buildStickerQrPanel(
-  cfg: (typeof VAN_STICKER_CONFIGS)[keyof typeof VAN_STICKER_CONFIGS],
-  profileUrl: string
-) {
-  const qrSize = cfg.panelSize - cfg.qrInset * 2;
-  const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
-    type: "png",
-    errorCorrectionLevel: "H",
-    margin: 1,
-    width: qrSize,
-    color: { dark: "#000000", light: "#FFFFFFFF" },
-  });
-
-  return sharp({
-    create: {
-      width: cfg.panelSize,
-      height: cfg.panelSize,
-      channels: 4,
-      background: "#FFFFFF",
-    },
-  })
-    .composite([
-      {
-        input: qrPngBuffer,
-        left: cfg.qrInset,
-        top: cfg.qrInset,
-      },
-    ])
-    .png()
-    .toBuffer();
-}
-
-async function buildVanStickerAttachments(
-  prisma: PrismaClient,
-  member: { slug: string; tvId: string; stickerVariant?: "1" | "2" }
-): Promise<EmailAttachment[]> {
-  const siteBase = await publicSiteBase(prisma);
-  const profileUrl = `${siteBase}/m/${encodeURIComponent(member.slug)}`;
-  const safeId = member.tvId.replace(/[^A-Za-z0-9_-]/g, "");
-
-  const selectedEntries = Object.entries(VAN_STICKER_CONFIGS).filter(
-    ([stickerId]) => !member.stickerVariant || stickerId === member.stickerVariant
-  );
-
-  return Promise.all(
-    selectedEntries.map(async ([stickerId, cfg]) => {
-      const qrPanelBuffer = await buildStickerQrPanel(cfg, profileUrl);
-
-      const templatePath = path.join(ASSETS_DIR, cfg.templateFile);
-      const output = await sharp(templatePath)
-        .composite([
-          {
-            input: qrPanelBuffer,
-            left: cfg.panelLeft,
-            top: cfg.panelTop,
-          },
-        ])
-        .png({ compressionLevel: 9 })
-        .toBuffer();
-
-      return {
-        filename: `trader-watchdog-${safeId}-van-sticker-${stickerId}-${cfg.mmWidth}x${cfg.mmHeight}mm.png`,
-        content: output,
-        contentType: "image/png",
-      };
-    })
-  );
 }
 
 function buildEmailHtml(textBody: string, footerImageUrl: string): string {
@@ -665,7 +566,7 @@ export function notifyMemberWelcome(
       "",
       `Log in here: ${loginUrl}`,
       "",
-      "In the portal you can also find a QR code to add to your website and one to add to a van sticker.",
+      "In the portal you can also find QR code assets to add to your website and printed materials.",
       "",
       "You will be asked to set a new password after your first sign-in. Save the password above before logging in.",
       "",
@@ -713,116 +614,6 @@ export async function sendPasswordResetEmail(
   } else {
     await transport!.sendMail({ from, to: toEmail, subject, text, html });
   }
-}
-
-export function notifyVanStickerOrder(
-  prisma: PrismaClient,
-  member: {
-    name: string;
-    slug: string;
-    tvId: string;
-    stickerVariant?: "1" | "2";
-    loginEmail?: string | null;
-    invoiceAddress?: string | null;
-    location?: string | null;
-    applicationAddress?: string | null;
-  }
-): void {
-  void (async () => {
-    const address =
-      member.invoiceAddress?.trim() || member.applicationAddress?.trim() || member.location?.trim() || "(not provided)";
-    const attachments = await buildVanStickerAttachments(prisma, member).catch((error) => {
-      console.error("[admin-mail] sticker artwork generation failed", error);
-      return [] as EmailAttachment[];
-    });
-    const supplierText = [
-      "Dear Signs & Stickers,",
-      "",
-      `Please arrange dispatch of 2 van stickers (${member.stickerVariant === "2" ? "187×93mm" : "250×100mm"}) to the following trader:`,
-      "",
-      `Trader name: ${member.name}`,
-      `Delivery address: ${address}`,
-      ...(attachments.length > 0
-        ? ["", "The print-ready sticker artwork is attached to this email."]
-        : []),
-      "",
-      "This order has been placed and paid by:",
-      "",
-      "Trader Watchdog Ltd",
-      "Registered in England and Wales",
-      "Company number: 17173750",
-      "Registered office: 4th Floor Office, 205 Regent Street, London, W1B 4HB",
-      "VAT number: 518 4466 75",
-      "",
-      "If you have any questions please contact us at admin@traderwatchdog.co.uk.",
-      "",
-      "Thank you,",
-      "Trader Watchdog",
-    ].join("\n");
-    await sendAdminEmail(prisma, {
-      subject: `Van sticker order — ${member.name}`,
-      text: supplierText,
-      overrideTo: "david@signsandstickers.co.uk",
-      attachments,
-    });
-  })().catch((e) => {
-    console.error("[admin-mail] sticker order notification failed", e);
-  });
-}
-
-export function notifyVanStickerOrderAdditional(
-  prisma: PrismaClient,
-  member: {
-    name: string;
-    slug: string;
-    tvId: string;
-    stickerVariant?: "1" | "2";
-    loginEmail?: string | null;
-    invoiceAddress?: string | null;
-    location?: string | null;
-    applicationAddress?: string | null;
-  }
-): void {
-  void (async () => {
-    const address =
-      member.invoiceAddress?.trim() || member.applicationAddress?.trim() || member.location?.trim() || "(not provided)";
-    const attachments = await buildVanStickerAttachments(prisma, member).catch((error) => {
-      console.error("[admin-mail] additional sticker artwork generation failed", error);
-      return [] as EmailAttachment[];
-    });
-    const supplierText = [
-      "Dear Signs & Stickers,",
-      "",
-      `Please arrange dispatch of one additional van sticker (${member.stickerVariant === "2" ? "187×93mm" : "250×100mm"}) to the following trader:`,
-      "",
-      `Trader name: ${member.name}`,
-      `Delivery address: ${address}`,
-      ...(attachments.length > 0
-        ? ["", "The print-ready sticker artwork is attached to this email."]
-        : []),
-      "",
-      "This order has been placed and paid by:",
-      "",
-      "Trader Watchdog Ltd",
-      "Registered in England and Wales",
-      "Company number: 17173750",
-      "Registered office: 4th Floor Office, 205 Regent Street, London, W1B 4HB",
-      "VAT number: 518 4466 75",
-      "",
-      "If you have any questions please contact us at admin@traderwatchdog.co.uk.",
-      "",
-      "Thank you,",
-      "Trader Watchdog",
-    ].join("\n");
-    await sendAdminEmail(prisma, {
-      subject: `Additional van sticker order — ${member.name}`,
-      text: supplierText,
-      overrideTo: "david@signsandstickers.co.uk",
-      attachments,
-    });
-  })().catch((e) => {
-    console.error("[admin-mail] additional sticker order notification failed", e);
-  });
 }
 
 export function notifySubscriptionRenewed(

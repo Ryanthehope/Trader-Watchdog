@@ -104,7 +104,7 @@ export function MemberLogin() {
                 width="220"
                 height="72"
                 decoding="async"
-                className="h-11 w-auto rounded-md shadow-sm"
+                className="h-11 w-auto mix-blend-lighten"
               />
               <span className="font-display text-2xl font-semibold">
                 Trader log in

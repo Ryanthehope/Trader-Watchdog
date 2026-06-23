@@ -115,11 +115,6 @@ async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerI
 
 type VanStickerId = keyof typeof VAN_STICKER_CONFIGS;
 
-function parseStickerVariant(raw: unknown): VanStickerId | null {
-  const value = String(raw ?? "").trim();
-  return value === "1" || value === "2" ? value : null;
-}
-
 function memberDocDir(memberId: string) {
   return path.join(UPLOAD_ROOT, memberId);
 }
@@ -241,13 +236,6 @@ router.get("/me", async (req, res) => {
       publicProfileUrl: `/m/${m.slug}`,
       mustChangePassword: m.mustChangePassword,
       membership,
-      stickers: {
-        originalOrderPaidAt: m.vanStickerOrderedAt?.toISOString() ?? null,
-        canOrderAdditional: Boolean(m.vanStickerOrderedAt),
-        additionalOrderReason: m.vanStickerOrderedAt
-          ? null
-          : "Additional stickers are available after the first 2-sticker order has been paid.",
-      },
       verification: {
         provider: m.verificationProvider,
         status: m.verificationStatus,
@@ -524,114 +512,6 @@ router.post("/membership/renew", async (req, res) => {
     res.json({ url: flow.url });
   } catch (e) {
     console.error("[billing] membership renewal failed", { error: e });
-    const { statusCode, message } = stripeErrorDetails(e);
-    res.status(statusCode).json({ error: message });
-  }
-});
-
-router.post("/sticker-order", async (req, res) => {
-  try {
-    const memberId = (req as unknown as { memberId: string }).memberId;
-    const stickerVariant = parseStickerVariant(req.body?.stickerVariant);
-    if (!stickerVariant) {
-      res.status(400).json({ error: "Sticker size selection is required" });
-      return;
-    }
-    const m = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: {
-        loginEmail: true,
-        name: true,
-        stripeCustomerId: true,
-        vanStickerOrderedAt: true,
-        invoiceAddress: true,
-        location: true,
-      },
-    });
-    if (!m?.loginEmail?.trim()) {
-      res.status(400).json({ error: "No login email on file" });
-      return;
-    }
-    const stripe = await getStripeClient();
-    if (!stripe) {
-      res.status(400).json({ error: "Stripe is not configured" });
-      return;
-    }
-    const origin = await siteOrigin(req);
-    const flow = await createStripeCheckoutSession(stripe, {
-      amountPence: 2100,
-      description: "Van stickers (×2)",
-      email: m.loginEmail.trim().toLowerCase(),
-      existingStripeCustomerId: m.stripeCustomerId,
-      createCustomer: !m.stripeCustomerId,
-      successRedirectUrl: `${origin}/member?sticker=ordered`,
-      cancelRedirectUrl: `${origin}/member`,
-      metadata: {
-        checkoutKind: "van_sticker_order",
-        memberId,
-        stickerVariant,
-      },
-    });
-    res.json({ url: flow.url });
-  } catch (e) {
-    console.error("[member-portal] sticker order failed", { error: e });
-    const { statusCode, message } = stripeErrorDetails(e);
-    res.status(statusCode).json({ error: message });
-  }
-});
-
-router.post("/sticker-order-additional", async (req, res) => {
-  try {
-    const memberId = (req as unknown as { memberId: string }).memberId;
-    const stickerVariant = parseStickerVariant(req.body?.stickerVariant);
-    if (!stickerVariant) {
-      res.status(400).json({ error: "Sticker size selection is required" });
-      return;
-    }
-    const m = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: {
-        loginEmail: true,
-        name: true,
-        stripeCustomerId: true,
-        vanStickerOrderedAt: true,
-        invoiceAddress: true,
-        location: true,
-      },
-    });
-    if (!m?.loginEmail?.trim()) {
-      res.status(400).json({ error: "No login email on file" });
-      return;
-    }
-    if (!m.vanStickerOrderedAt) {
-      res.status(400).json({
-        error: "Additional stickers can only be ordered after the first 2-sticker pack has been paid.",
-      });
-      return;
-    }
-    const stripe = await getStripeClient();
-    if (!stripe) {
-      res.status(400).json({ error: "Stripe is not configured" });
-      return;
-    }
-    const origin = await siteOrigin(req);
-    const flow = await createStripeCheckoutSession(stripe, {
-      amountPence: 720,
-      description: "Additional van sticker",
-      email: m.loginEmail.trim().toLowerCase(),
-      existingStripeCustomerId: m.stripeCustomerId,
-      createCustomer: !m.stripeCustomerId,
-      successRedirectUrl: `${origin}/member?sticker=ordered`,
-      cancelRedirectUrl: `${origin}/member`,
-      metadata: {
-        checkoutKind: "van_sticker_order_additional",
-        memberId,
-        stickerVariant,
-      },
-    });
-    res.json({ url: flow.url });
-  } catch (e) {
-    console.error("[member-portal] additional sticker order failed", { error: e });
     const { statusCode, message } = stripeErrorDetails(e);
     res.status(statusCode).json({ error: message });
   }

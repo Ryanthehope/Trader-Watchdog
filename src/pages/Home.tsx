@@ -1,59 +1,152 @@
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useSiteData } from "../context/SiteDataContext";
 import { VerifyForm } from "../components/VerifyForm";
+import { useSiteData } from "../context/SiteDataContext";
 import { getLaunchWindow } from "../lib/launchWindow";
-import ghostTradersImage from "../../ghost traders.webp";
 
+function SectionBanner({
+  children,
+  preserveCase = false,
+}: {
+  children: ReactNode;
+  preserveCase?: boolean;
+}) {
+  return (
+    <div className="border-y border-brand-800/70 bg-brand-700 px-4 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] sm:px-6 sm:py-5">
+      <div className="mx-auto max-w-6xl">
+        <p className={`font-display text-[1.7rem] font-bold leading-tight text-white sm:text-3xl ${preserveCase ? "" : "uppercase"}`}>
+          {children}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+type HomeActionPanelProps = {
+  imageSrc: string;
+  imageAlt: string;
+  imageClassName?: string;
+  actionLabel: string;
+  actionClassName?: string;
+  actionHref?: string;
+  actionTo?: string;
+};
+
+function HomeActionPanel({
+  imageSrc,
+  imageAlt,
+  imageClassName,
+  actionLabel,
+  actionClassName,
+  actionHref,
+  actionTo,
+}: HomeActionPanelProps) {
+  const actionBaseClassName =
+    "inline-flex min-h-[3.65rem] items-center justify-center rounded-[1.1rem] px-8 text-center font-display text-[1.9rem] font-bold uppercase tracking-tight text-white shadow-[0_18px_35px_-18px_rgba(0,0,0,0.95)] transition-transform duration-200 hover:-translate-y-0.5 sm:min-h-[4rem] sm:px-10";
+
+  return (
+    <div className="border border-slate-200 bg-white p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.34)] sm:p-5">
+      <div className="overflow-hidden bg-slate-100">
+        <img
+          src={imageSrc}
+          alt={imageAlt}
+          loading="eager"
+          decoding="async"
+          className={`aspect-[1/1.02] w-full object-cover ${imageClassName ?? ""}`}
+        />
+      </div>
+
+      <div className="flex justify-center px-4 pb-2 pt-5 sm:px-6 sm:pt-6">
+        {actionTo ? (
+          <Link to={actionTo} className={`${actionBaseClassName} ${actionClassName ?? "bg-brand-600 hover:bg-brand-500"}`}>
+            {actionLabel}
+          </Link>
+        ) : (
+          <a href={actionHref} className={`${actionBaseClassName} ${actionClassName ?? "bg-brand-600 hover:bg-brand-500"}`}>
+            {actionLabel}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SearchCard() {
+  return (
+    <section id="home-search" className="small-print-on-light bg-white px-4 py-10 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-4xl rounded-[2rem] border border-slate-200 bg-[#F4F6FB] px-6 py-8 text-center shadow-[0_26px_50px_-38px_rgba(15,23,42,0.45)] sm:px-8">
+        <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+          Search a trader now
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+          Enter a business name or telephone number to see whether there is a verified Trader Watchdog listing.
+        </p>
+        <VerifyForm id="home-lookup" layout="hero" />
+      </div>
+    </section>
+  );
+}
 
 function Stats() {
   const items = [
     {
+      image: "/Rogue%20trader.png",
+      imageAlt: "Rogue trader illustration",
+      titleStart: "ROGUE",
+      titleEnd: "TRADERS",
       value: "£3.5bn",
-      label: "estimated lost to rogue traders each year",
-      cardClass:
-        "border-slate-700/60 bg-slate-800/50 text-white shadow-[0_20px_45px_-30px_rgba(0,0,0,0.3)]",
-      valueClass: "text-brand-300",
-      labelClass: "text-slate-300",
+      body: "estimated lost to rogue traders each year",
     },
     {
+      image: "/Fly%20tipping.png",
+      imageAlt: "Fly tipping illustration",
+      titleStart: "FLY",
+      titleEnd: "TIPPING",
       value: "1.26m",
-      label: "fly-tipping incidents reported every year",
-      cardClass:
-        "border-slate-700/60 bg-slate-800/50 text-white shadow-[0_20px_45px_-30px_rgba(0,0,0,0.3)]",
-      valueClass: "text-brand-300",
-      labelClass: "text-slate-300",
+      body: "fly tipping incidents reported last year",
     },
     {
+      image: "/no%20insurance.png",
+      imageAlt: "No insurance illustration",
+      titleStart: "NO",
+      titleEnd: "INSURANCE",
       value: "50%",
-      label: "of traders are under-insured or have no insurance at all",
-      cardClass:
-        "border-slate-700/60 bg-slate-800/50 text-white shadow-[0_20px_45px_-30px_rgba(0,0,0,0.3)]",
-      valueClass: "text-brand-300",
-      labelClass: "text-slate-300",
+      body: "of traders are under insured or have no insurance",
     },
     {
-      value: "Fake Reviews",
-      label: "Are exploding - AI now generates around 30% of them",
-      cardClass:
-        "border-slate-700/70 bg-slate-900 text-white shadow-[0_24px_60px_-30px_rgba(15,23,42,0.45)]",
-      valueClass: "text-white",
-      labelClass: "text-white/80",
+      image: "/fake%20reviews.png",
+      imageAlt: "Fake reviews illustration",
+      titleStart: "FAKE",
+      titleEnd: "REVIEWS",
+      value: "TRUSTED?",
+      body: "fake reviews are exploding - AI generates more than 30%",
     },
   ];
+
   return (
-    <section className="small-print-on-dark border-b border-brand-800/60 bg-brand-800 py-16">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 md:grid-cols-2 xl:grid-cols-4 sm:px-6">
+    <section className="small-print-on-light bg-white px-4 py-12 sm:px-6 sm:py-16">
+      <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
           <div
-            key={item.label}
-            className={`rounded-[1.75rem] border p-8 text-center transition-all duration-200 hover:-translate-y-1 ${item.cardClass}`}
+            key={item.titleEnd}
+            className="flex h-full flex-col border border-slate-200 bg-[#EFF0F2] px-6 py-7 text-center shadow-[0_18px_32px_-30px_rgba(15,23,42,0.3)]"
           >
-            <p className={`font-display text-4xl font-bold sm:text-5xl ${item.valueClass}`}>
+            <img
+              src={item.image}
+              alt={item.imageAlt}
+              loading="lazy"
+              decoding="async"
+              className="mx-auto h-28 w-auto object-contain"
+            />
+            <h2 className="mt-5 flex min-h-[4.75rem] items-start justify-center font-display text-[2rem] font-bold uppercase leading-none tracking-tight sm:text-[2.15rem]">
+              <span className="text-[#59E61B]">{item.titleStart}</span>{" "}
+              <span className="text-[#4A5C94]">{item.titleEnd}</span>
+            </h2>
+            <p className="mt-4 flex min-h-[3.5rem] items-start justify-center font-display text-[2.55rem] font-bold leading-none text-black sm:text-[2.9rem]">
               {item.value}
             </p>
-            <p className={`mt-3 text-sm leading-snug ${item.labelClass}`}>
-              {item.label}
+            <p className="mx-auto mt-4 max-w-[14rem] text-[1.05rem] leading-snug text-slate-900 sm:text-[1.15rem]">
+              {item.body}
             </p>
           </div>
         ))}
@@ -62,117 +155,72 @@ function Stats() {
   );
 }
 
-function IconCheck({ className = "text-emerald-400" }: { className?: string }) {
-  return (
-    <svg
-      className={`h-5 w-5 ${className}`}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M5 13l4 4L19 7"
-      />
-    </svg>
-  );
-}
-
-function IconCross({ className = "text-slate-500" }: { className?: string }) {
-  return (
-    <svg
-      className={`h-5 w-5 ${className}`}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 18L18 6M6 6l12 12"
-      />
-    </svg>
-  );
-}
-
-type CompareCell = "yes" | "no" | "partial";
-
-function CompareCell({ value }: { value: CompareCell }) {
-  if (value === "yes") {
-    return (
-      <span className="inline-flex justify-center" title="Yes">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/15">
-          <IconCheck />
-        </span>
-      </span>
-    );
-  }
-  if (value === "partial") {
-    return (
-      <span
-        className="text-xs font-medium text-black/70"
-        title="Partial or varies by plan"
-      >
-        Varies
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex justify-center" title="No">
-      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5">
-        <IconCross className="text-slate-500" />
-      </span>
-    </span>
-  );
-}
-
-function FeatureHighlights() {
-  const cards = [
+function WhatYouSee() {
+  const panels = [
     {
-      title: "Free",
-      body: "Verifying a trader has never been easier. Just enter their name or telephone number, and click.",
+      title: "A GREEN FLAG",
+      subtitle: "(verified)",
+      image: "/green%20flag%20phone.png",
+      imageAlt: "Phone showing a green verified result",
+      points: [
+        "ID Verified",
+        "Insurance Verified",
+        "Licences Verified (where required)",
+        "Qualifications Confirmed",
+        "Public Profile",
+      ],
+      accentClass: "text-[#32C72E]",
     },
     {
-      title: "Confidential",
-      body: "You do not have to register or sign in,. The trader will never know you have searched them.",
-    },
-    {
-      title: "Proof in one place.",
-      body: "We focus on proof, diligence and consumer protection. All in one place, not scattered around.",
+      title: "A RED FLAG",
+      subtitle: "(not verified)",
+      image: "/red%20flag%20phone.png",
+      imageAlt: "Phone showing a red caution result",
+      points: [
+        "No ID Record?",
+        "No Insurance?",
+        "No Licence?",
+        "Be Cautious",
+      ],
+      accentClass: "text-[#E12F33]",
     },
   ];
+
   return (
-    <section
-      id="highlights"
-      className="small-print-on-light scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-16 sm:py-20"
-    >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-3">
-          {cards.map((c) => (
-            <div
-              key={c.title}
-              className="rounded-lg border border-slate-200 bg-white p-8 text-center transition-all duration-200 hover:border-brand-500/30 hover:bg-slate-50"
-            >
-              <h3 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
-                {c.title}
-              </h3>
-              <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-slate-600">
-                {c.body}
-              </p>
+    <section className="small-print-on-light bg-white px-4 py-12 sm:px-6 sm:py-16">
+      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:gap-14">
+        {panels.map((panel) => (
+          <div
+            key={panel.title}
+            className="grid items-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_30px_60px_-42px_rgba(15,23,42,0.4)] sm:grid-cols-[minmax(0,260px)_1fr] sm:p-8"
+          >
+            <img
+              src={panel.image}
+              alt={panel.imageAlt}
+              loading="lazy"
+              decoding="async"
+              className="mx-auto h-80 w-auto object-contain sm:h-96"
+            />
+
+            <div className="flex h-full flex-col">
+              <h2 className="min-h-[8.75rem] font-display text-3xl font-bold uppercase leading-tight text-slate-900 sm:min-h-[9.5rem] sm:text-4xl">
+                <span className={panel.accentClass}>{panel.title}</span>
+                <br />
+                <span className="normal-case text-slate-900">{panel.subtitle}</span>
+              </h2>
+
+              <ul className="mt-6 space-y-4 text-2xl leading-tight text-slate-900 sm:text-[2rem]">
+                {panel.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );
 }
-
-
 
 function Pillars() {
   const pillars = [
@@ -181,71 +229,64 @@ function Pillars() {
       body: "We use biometric checks and data analysis to verify the identity and location of a trader or Limited Company. This confirms they are who they claim to be, helping protect householders from fraud and false identities.",
     },
     {
+      title: "Public Liability Insurance",
+      body: "Public Liability Insurance protects you if a trader damages your property or injures someone while working. Without it, recovering costs or compensation can be difficult.",
+    },
+    {
       title: "Your Waste",
-      body: "If a trader removes and transports any waste form your property they must legally hold a legal Waste Carrier Licence. If your waste is fly tipped by an unlicensed trader, you can be fined or prosecuted as the waste producer",
+      body: "If a trader removes and transports waste from your property, they must legally hold a Waste Carrier Licence. If your waste is fly tipped by an unlicensed trader, you can be fined or prosecuted as the waste producer.",
     },
     {
       title: "Keeping Your Personal Data Safe",
-      body: "The Information Commissioners Office has strict rules addressing the way businesses store and process your personal data to help reduce identity theft. We ask all traders to check their status with the ICO and their portfolio will show if their registration has been verified.",
+      body: "The Information Commissioner's Office sets rules for how businesses store and process your personal data to help reduce identity theft. We ask traders to check their status with the ICO and show when their registration has been verified.",
     },
     {
       title: "Gas Engineers",
-      body: "A trader must be Gas Safe registered to work on any gas appliance or installation. Using a person that is not registered is illegal and dangerous — faulty gas work can cause leaks, fires or carbon monoxide poisoning.",
-    },
-    {
-      title: "Public Liability Insurance",
-      body: "Public Liability Insurance protects you if a trader damages your property or injures someone while working. Without it, you may struggle to recover costs or compensation if something goes wrong.",
+      body: "A trader must be Gas Safe registered to work on any gas appliance or installation. Using someone who is not registered is illegal and dangerous because faulty gas work can cause leaks, fires or carbon monoxide poisoning.",
     },
     {
       title: "Employers Insurance",
-      body: "If a trader employs staff, they must have Employers’ Liability Insurance. It protects you if a worker is injured on your property — without it, claims can become complicated and leave you exposed.",
+      body: "If a trader employs staff, they must have Employers' Liability Insurance. It protects you if a worker is injured on your property and helps avoid complicated claims.",
     },
     {
       title: "Qualifications and Memberships",
-      body: "Traders can upload up to three qualifications or tradebody memberships to their public profile. This helps householders quickly see verified skills and recognised standards, showing the trader is properly trained for the work they offer.",
+      body: "Traders can upload up to three qualifications or trade body memberships to their public profile. This helps householders quickly see verified skills and recognised standards.",
     },
     {
       title: "Reviews",
-      body: "Fake reviews fuelled by AI are rising fast and can even be purchased online (search ‘buy reviews’). To stay honest and transparent, we don’t offer reviews or recommendations — we provide facts only, so householders can make informed decisions.",
-    }
+      body: "Fake reviews fuelled by AI are rising fast and can even be purchased online. We do not offer reviews or recommendations. We provide facts so householders can make informed decisions.",
+    },
   ];
+
   return (
-    <section id="why" className="small-print-on-light scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-wider text-brand-600">
-          What We Verify For You
-        </p>
-        <h2 className="mt-3 max-w-3xl text-center font-display text-3xl font-bold leading-tight text-slate-900 sm:mx-auto sm:text-4xl">
-          With just one click
-        </h2>
-        <ul className="mx-auto mt-6 max-w-2xl space-y-2 text-center text-base text-slate-600">
-          <li>We check if they are who they say they are.</li>
-          <li>They are based where they say they&apos;re based.</li>
-          <li>They are insured to carry out the work.</li>
-          <li>They comply with legal environmental and data requirements for traders working at domestic properties.</li>
-        </ul>
-        <div className="mt-14 grid gap-8 sm:grid-cols-2">
-          {pillars.map((p) => (
+    <section id="why" className="small-print-on-light scroll-mt-24 bg-[#F2F4F7] px-4 py-12 sm:px-6 sm:py-16">
+      <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mt-3 font-display text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
+            We check the details that matter.
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+            Identity, insurance, licensing and key legal registrations are verified in one place so you can make a safer decision quickly.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {pillars.map((pillar) => (
             <div
-              key={p.title}
-              className="flex gap-5 rounded-lg border border-slate-200 bg-white p-8 transition-all duration-200 hover:border-brand-500/30 hover:bg-slate-50"
+              key={pillar.title}
+              className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-[0_24px_48px_-38px_rgba(15,23,42,0.38)] transition-transform duration-200 hover:-translate-y-1"
             >
-              <span
-                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
-                aria-hidden
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2BA24E] text-white">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-              </span>
-              <div>
-                <h3 className="font-display text-lg font-semibold text-slate-900">
-                  {p.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  {p.body}
-                </p>
               </div>
+              <h3 className="mt-5 font-display text-xl font-bold text-slate-900">
+                {pillar.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                {pillar.body}
+              </p>
             </div>
           ))}
         </div>
@@ -256,7 +297,7 @@ function Pillars() {
 
 function Faq() {
   return (
-    <section id="faq" className="small-print-on-dark border-y border-brand-800/60 bg-brand-800 py-20 sm:py-24">
+    <section id="faq" className="small-print-on-dark border-y border-brand-800/70 bg-brand-700 py-20 sm:py-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <h2 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Common questions
@@ -319,14 +360,14 @@ const publicFaqItems: FaqItem[] = [
   },
 ];
 
-
-
 function useHashScroll() {
   const { pathname, hash } = useLocation();
+
   useEffect(() => {
     if (pathname !== "/" || !hash) return;
     const id = hash.replace(/^#/, "");
     if (!id) return;
+
     requestAnimationFrame(() => {
       document.getElementById(id)?.scrollIntoView({
         behavior: "smooth",
@@ -341,139 +382,54 @@ export function Home() {
   useSiteData();
   const { publicSearchEnabled } = getLaunchWindow();
 
-  const heroBody = publicSearchEnabled
-    ? "Verifying a trader is one click away. It's free, confidential, and you do not have to register. Search their business name or telephone number and view the result before even speaking to them."
-    : "Trader Registration opens 17th June. Trader Verification available 1st July."
-    ;
-
-  const verifyHeading = publicSearchEnabled
-    ? "See if they are legit with one click"
-    : "Public trader search is coming soon";
-
-  const verifyIntro = publicSearchEnabled
-    ? "Search their business name or telephone number and you will immediately see whether there is a verified Trader Watchdog listing for that business."
-    : "Trader Registration opens 17th June. Trader Verification available 1st July."
-    ;
-
-  const heroTopLine =
-    "TRADER WATCHDOG IS A FREE CONSUMER PROTECTION SERVICE TO THE PUBLIC";
-  const heroSubLine = (
-    <>
-      <span className="text-[#2BA24E]">DILIGENCE</span>
-      <span className="text-[#2E3A47]"> RECOMMENDED BY POLICE, TRADING STANDARDS, COUNCILS AND COMMUNITY GROUPS</span>
-    </>
-  );
-  const heroSupport =
-    "VERIFYING A TRADER IS ONLY A CLICK AWAY.";
-
   return (
     <>
-      <section id="verify" className="small-print-on-light relative overflow-hidden scroll-mt-24 border-b border-slate-200/70 bg-[#F2F4F7] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <div className="mx-auto max-w-6xl text-center">
-          <p className="text-2xl font-bold uppercase tracking-tight text-slate-900 sm:text-2xl">
-            {heroTopLine}
-          </p>
-          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-600 sm:text-sm">
-            {heroSubLine}
-          </p>
+      <section id="verify" className="small-print-on-light scroll-mt-24 bg-white pb-12 pt-0 sm:pb-16">
+        <SectionBanner preserveCase>
+          <>
+            <span className="block uppercase">VERIFY A TRADER WITH JUST ONE CLICK.</span>
+            <span className="block">It&apos;s free, no registering, totally anonymous, hassle free.</span>
+          </>
+        </SectionBanner>
 
-          <div className="mx-auto mt-10 max-w-6xl">
-          <div className="flex flex-col items-center justify-center gap-8 md:flex-row md:items-center">
-            <div className="w-full max-w-[420px]">
-              <img
-                src={ghostTradersImage}
-                alt="Tradespeople illustration used in the Trader Watchdog hero"
-                width="420"
-                height="420"
-                fetchPriority="high"
-                decoding="async"
-                className="w-full object-contain"
-              />
-            </div>
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+          <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+            <HomeActionPanel
+              imageSrc="/woman%20with%20phone.jpg"
+              imageAlt="Householder holding a verified trader phone screen"
+              actionLabel="SEARCH a TRADER"
+              actionClassName="bg-[#2BA24E] hover:bg-[#248C42]"
+              actionHref="#home-search"
+            />
 
-            <div className="w-full max-w-[36rem] text-center md:text-left">
-              <h1 className="font-display text-5xl font-bold leading-none sm:text-6xl lg:text-[4.8rem]">
-                <span className="text-[#C62828]">ROGUE </span>
-                <span className="text-slate-400">or </span>
-                <span className="text-[#3B4978]">LEGIT?</span>
-              </h1>
-
-              <h2 className="mt-5 max-w-[30rem] font-display text-2xl font-bold leading-tight text-slate-900 sm:text-5xl">
-                Don&apos;t take their word for it
-              </h2>
-            </div>
+            <HomeActionPanel
+              imageSrc="/Blue%20man.png"
+              imageAlt="Trader in blue workwear holding a verified trader phone screen"
+              imageClassName="object-[center_18%]"
+              actionLabel="JOIN as a TRADER"
+              actionClassName="bg-brand-700 hover:bg-brand-600"
+              actionTo="/join"
+            />
           </div>
-
-          <p className="mx-auto mt-10 max-w-5xl text-center text-2xl font-bold uppercase leading-snug text-slate-900 sm:text-2xl">
-            {heroSupport}
-          </p>
         </div>
 
-          <div className="mx-auto mt-10 max-w-3xl">
-            <VerifyForm id="hero-verify" layout="hero" />
-          </div>
-
-        </div>
+        <SectionBanner preserveCase>
+          <>
+            Trader Watchdog <span className="uppercase">PROTECTS HOUSEHOLDS</span> and supports genuine <span className="uppercase">LOCAL TRADERS</span>, providing diligence recommended by the <span className="uppercase">Police</span>, <span className="uppercase">Trading Standards</span>, <span className="uppercase">Councils</span> and <span className="uppercase">Community Groups</span>
+          </>
+        </SectionBanner>
       </section>
 
       <Stats />
-      <FeatureHighlights />
 
-      <section className="small-print-on-dark border-b border-brand-800/60 bg-brand-800 py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="font-display text-4xl font-bold text-white sm:text-5xl">
-              What you will see
-            </h2>
-          </div>
+      <SectionBanner>WHAT YOU SEE</SectionBanner>
+      <WhatYouSee />
 
-          <div className="mx-auto mt-10 grid max-w-5xl gap-10 md:grid-cols-2 md:gap-12">
-            <div className="flex items-start gap-5 rounded-3xl border border-slate-700/60 bg-slate-800/50 p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-800/70">
-              <img
-                src="/Green%20flag2.webp"
-                alt="Green flag"
-                width="64"
-                height="64"
-                loading="lazy"
-                decoding="async"
-                className="h-16 w-16 shrink-0 object-contain"
-              />
+      {publicSearchEnabled && <SearchCard />}
 
-              <p className="text-base leading-relaxed text-slate-300 sm:text-lg">
-                <span className="font-bold text-white">
-                  A Green Flag
-                </span>{" "}
-                shows a professional, legitimate trader. Their identity,
-                insurance, legal licenses and registrations have been
-                successfully verified.
-              </p>
-            </div>
-
-            <div className="flex items-start gap-5 rounded-3xl border border-slate-700/60 bg-slate-800/50 p-6 text-left shadow-sm transition-all duration-200 hover:bg-slate-800/70">
-              <img
-                src="/Red%20flag2.webp"
-                alt="Red flag"
-                width="64"
-                height="64"
-                loading="lazy"
-                decoding="async"
-                className="h-16 w-16 shrink-0 object-contain"
-              />
-
-              <p className="text-base leading-relaxed text-slate-300 sm:text-lg">
-                <span className="font-bold text-white">
-                  A Red Flag
-                </span>{" "}
-                shows no verified listing. Be cautious. Do not enter an
-                agreement without visual proof of insurance and legal
-                credentials.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      <SectionBanner>WHAT WE VERIFY</SectionBanner>
       <Pillars />
+
       <section className="small-print-on-light border-b border-slate-200 bg-white py-12">
         <div className="mx-auto max-w-md px-4 text-center sm:px-6">
           <img
@@ -485,8 +441,8 @@ export function Home() {
           <p className="mt-4 text-2xl font-semibold text-slate-700">Look for the sign of a Verified Trader</p>
         </div>
       </section>
+
       <Faq />
-      {/* GuidesTeaser removed */}
     </>
   );
 }

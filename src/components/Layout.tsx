@@ -15,6 +15,10 @@ function Logo({
     variant === "header"
       ? "h-16 md:h-20 xl:h-24"
       : "h-14 md:h-16";
+  const logoClass =
+    variant === "header"
+      ? "mix-blend-lighten"
+      : "";
 
   return (
     <div className={`flex shrink-0 items-center gap-3 ${className}`}>
@@ -24,17 +28,17 @@ function Logo({
         width="320"
         height="104"
         decoding="async"
-        className={`block ${sizeClass} w-auto max-w-none rounded-md shadow-sm`}
+        className={`block ${sizeClass} w-auto max-w-none ${logoClass}`}
       />
     </div>
   );
 }
 
 const desktopActionClass =
-  "inline-flex min-h-[46px] items-center justify-center whitespace-nowrap rounded-full px-4 py-2.5 text-[13px] font-semibold text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.14]";
+  "inline-flex min-h-[46px] items-center justify-center whitespace-nowrap rounded-full bg-white px-4 py-2.5 text-[13px] font-semibold text-brand-700 ring-1 ring-white/20 transition-colors duration-200 hover:bg-brand-50";
 
 const desktopLoginClass =
-  "inline-flex min-h-[40px] items-center justify-center whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-white ring-1 ring-white/12 transition-colors duration-200 hover:bg-white/[0.08]";
+  "inline-flex min-h-[40px] items-center justify-center whitespace-nowrap rounded-full bg-white px-4 py-2 text-sm font-medium text-brand-700 ring-1 ring-white/20 transition-colors duration-200 hover:bg-brand-50";
 
 const mobileLinkClass =
   "rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white";
@@ -65,7 +69,7 @@ export function Layout() {
           </button>
         </div>
       ) : null}
-      <header className="sticky top-0 z-50 border-b border-brand-800/70 bg-brand-950/95 backdrop-blur-xl supports-[backdrop-filter]:bg-brand-950/90">
+      <header className="sticky top-0 z-50 border-b border-brand-800/70 bg-brand-700/95 backdrop-blur-xl supports-[backdrop-filter]:bg-brand-700/90">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
           <div className="flex items-center justify-between gap-4 py-2">
             <Link
@@ -77,7 +81,7 @@ export function Layout() {
             </Link>
 
             <div className="hidden items-center gap-3 xl:flex xl:shrink-0">
-              <Link to="/member/login" className={`${desktopLoginClass} bg-white/10`}>
+              <Link to="/member/login" className={desktopLoginClass}>
                 Trader log in
               </Link>
             </div>
@@ -123,13 +127,13 @@ export function Layout() {
 
           <div className="hidden border-t border-white/5 xl:block">
             <nav className="flex items-center justify-center gap-2 py-3">
-              <Link to="/#verify" className={`${desktopActionClass} bg-white/5`}>
+              <Link to="/#verify" className={desktopActionClass}>
                 Verify a trader
               </Link>
-              <Link to="/#why" className={`${desktopActionClass} bg-white/5`}>
+              <Link to="/#why" className={desktopActionClass}>
                 What we check
               </Link>
-              <Link to="/join" className={`${desktopActionClass} bg-brand-600 hover:bg-brand-500`}>
+              <Link to="/join" className={desktopActionClass}>
                 Join Trader Watchdog
               </Link>
             </nav>
@@ -137,7 +141,7 @@ export function Layout() {
         </div>
 
         {menuOpen ? (
-          <div className="border-t border-white/5 bg-ink-950 px-4 py-4 xl:hidden">
+          <div className="border-t border-white/5 bg-brand-700 px-4 py-4 xl:hidden">
             <nav className="flex flex-col gap-1 text-sm font-medium text-slate-300">
               <Link
                 to="/#verify"
@@ -176,61 +180,61 @@ export function Layout() {
         <Outlet />
       </main>
 
-      <footer className="small-print-on-dark mt-auto border-t border-white/10 bg-gradient-to-b from-transparent to-black/20">
+      <footer className="small-print-on-light mt-auto border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-sm">
               <Link to="/" className="inline-block outline-none ring-brand-500 focus-visible:ring-2">
                 <Logo title={brandName} variant="footer" />
               </Link>
-              <p className="mt-4 text-base leading-relaxed text-white/75">
+              <p className="mt-4 text-base leading-relaxed text-slate-700">
                 Independent verification for trades and homeowners — confirm
                 credentials before you hire.
               </p>
             </div>
             <nav
-              className="flex flex-wrap gap-x-6 gap-y-3 text-base text-white/75"
+              className="flex flex-wrap gap-x-6 gap-y-3 text-base text-slate-700"
               aria-label="Footer"
             >
-              <Link to="/join" className="transition-colors hover:text-white">
+              <Link to="/join" className="transition-colors hover:text-slate-950">
                 Apply
               </Link>
-              <Link to="/privacy" className="transition-colors hover:text-white">
+              <Link to="/privacy" className="transition-colors hover:text-slate-950">
                 Privacy Policy
               </Link>
-              <Link to="/cookies" className="transition-colors hover:text-white">
+              <Link to="/cookies" className="transition-colors hover:text-slate-950">
                 Cookie Policy
               </Link>
-              <Link to="/terms" className="transition-colors hover:text-white">
+              <Link to="/terms" className="transition-colors hover:text-slate-950">
                 Terms of Use
               </Link>
-              <Link to="/refunds" className="transition-colors hover:text-white">
+              <Link to="/refunds" className="transition-colors hover:text-slate-950">
                 Refund &amp; Cancellation Policy
               </Link>
-              <Link to="/accessibility" className="transition-colors hover:text-white">
+              <Link to="/accessibility" className="transition-colors hover:text-slate-950">
                 Accessibility
               </Link>
-              <Link to="/complaints" className="transition-colors hover:text-white">
+              <Link to="/complaints" className="transition-colors hover:text-slate-950">
                 Complaints Policy
               </Link>
-              <Link to="/qr-code-policy" className="transition-colors hover:text-white">
+              <Link to="/qr-code-policy" className="transition-colors hover:text-slate-950">
                 QR Code Use
               </Link>
-              <Link to="/verification-methodology" className="transition-colors hover:text-white">
+              <Link to="/verification-methodology" className="transition-colors hover:text-slate-950">
                 Verification Methodology
               </Link>
-              <Link to="/data-retention" className="transition-colors hover:text-white">
+              <Link to="/data-retention" className="transition-colors hover:text-slate-950">
                 Data Retention
               </Link>
-              <Link to="/agreement" className="transition-colors hover:text-white">
+              <Link to="/agreement" className="transition-colors hover:text-slate-950">
                 Trader Agreement
               </Link>
-              <Link to="/contact" className="transition-colors hover:text-white">
+              <Link to="/contact" className="transition-colors hover:text-slate-950">
                 Contact
               </Link>
               <Link
                 to="/member/login"
-                className="text-white/40 transition-colors hover:text-white/75"
+                className="text-slate-500 transition-colors hover:text-slate-900"
               >
                 Trader log in
               </Link>
@@ -238,7 +242,7 @@ export function Layout() {
                 href="https://www.facebook.com/TraderWatchdog"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 transition-colors hover:text-white"
+                className="inline-flex items-center gap-2 transition-colors hover:text-slate-950"
                 aria-label="Trader Watchdog on Facebook"
               >
                 <svg
@@ -253,7 +257,7 @@ export function Layout() {
               </a>
             </nav>
           </div>
-          <div className="mt-10 border-t border-white/5 pt-8 space-y-1 text-center text-sm text-white/60">
+          <div className="mt-10 space-y-1 border-t border-slate-200 pt-8 text-center text-sm text-slate-600">
             <p>
               Trader Watchdog Ltd. Company number 17173750 registered in England and Wales.
             </p>
@@ -262,7 +266,7 @@ export function Layout() {
             <p>ICO registration: ZC158586</p>
             <p>
               Email:{" "}
-              <a href="mailto:admin@traderwatchdog.co.uk" className="hover:text-white">
+              <a href="mailto:admin@traderwatchdog.co.uk" className="hover:text-slate-950">
                 admin@traderwatchdog.co.uk
               </a>
             </p>
@@ -273,7 +277,7 @@ export function Layout() {
                 href="https://head-startwebdevelopment.co.uk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-white"
+                className="hover:text-slate-950"
               >
                 Headstart Web Development
               </a>

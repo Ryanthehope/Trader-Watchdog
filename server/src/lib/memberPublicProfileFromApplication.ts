@@ -7,6 +7,8 @@ type ApplicationPublicProfileSource = {
   wasteCarrierNumber: string | null;
   gasSafeRequired: string | null;
   gasSafeNumber: string | null;
+  niceicRequired: string | null;
+  niceicNumber: string | null;
   icoNumber: string | null;
   businessDescription: string | null;
 };
@@ -32,6 +34,7 @@ export function buildMemberVettingItemsFromApplication(
 ) {
   const wasteCarrierRequired = normalizeRequirement(app.wasteCarrierRequired);
   const gasSafeRequired = normalizeRequirement(app.gasSafeRequired);
+  const niceicRequired = normalizeRequirement(app.niceicRequired);
 
   return [
     {
@@ -97,6 +100,21 @@ export function buildMemberVettingItemsFromApplication(
           value:
             gasSafeRequired === "yes"
               ? app.gasSafeNumber?.trim() || "Verified"
+              : "N/A",
+        },
+        {
+          id: "niceic",
+          label: "NICEIC registration",
+          status: "verified",
+          detail:
+            niceicRequired === "yes"
+              ? "Required for this trade and checked against the application."
+              : niceicRequired === "no"
+                ? "Not required for this trader based on the work declared in the application."
+                : "No requirement recorded on the application.",
+          value:
+            niceicRequired === "yes"
+              ? app.niceicNumber?.trim() || "Verified"
               : "N/A",
         },
         {

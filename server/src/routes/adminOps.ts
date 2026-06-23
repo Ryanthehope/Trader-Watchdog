@@ -126,6 +126,8 @@ const ADMIN_APPLICATION_FULL_SELECT = {
   wasteCarrierNumber: true,
   gasSafeRequired: true,
   gasSafeNumber: true,
+  niceicRequired: true,
+  niceicNumber: true,
   icoRequired: true,
   icoNumber: true,
   businessDescription: true,

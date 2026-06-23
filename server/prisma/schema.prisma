@@ -177,6 +177,8 @@ model Application {
   wasteCarrierNumber           String?
   gasSafeRequired              String?
   gasSafeNumber                String?
+  niceicRequired               String?
+  niceicNumber                 String?
   icoRequired                  String?
   icoNumber                    String?
   businessDescription          String?

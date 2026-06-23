@@ -15,6 +15,8 @@ export type ApplicationPayload = {
   wasteCarrierNumber?: string;
   gasSafeRequired: string;
   gasSafeNumber?: string;
+  niceicRequired: string;
+  niceicNumber?: string;
   icoRequired: string;
   icoNumber?: string;
   businessDescription?: string;
@@ -175,6 +177,9 @@ export async function submitApplication(
         `Waste Carrier number: ${payload.wasteCarrierNumber ?? ""}\n` +
         `Gas Safe required: ${payload.gasSafeRequired}\n` +
         `Gas Safe number: ${payload.gasSafeNumber ?? ""}\n` +
+        `NICEIC required: ${payload.niceicRequired}\n` +
+        `NICEIC number: ${payload.niceicNumber ?? ""}\n` +
+        `ICO required: ${payload.icoRequired}\n` +
         `ICO number: ${payload.icoNumber ?? ""}\n` +
         `Business description: ${payload.businessDescription ?? ""}\n` +
         `Documents confirmed: ${payload.documentsConfirmed ? "Yes" : "No"}\n` +

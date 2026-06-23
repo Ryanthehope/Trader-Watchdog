@@ -6,8 +6,6 @@ import { addOneCalendarYearEndUtc } from "../lib/membershipPeriod.js";
 import {
   notifySubscriptionRenewed,
   notifyMemberWelcome,
-  notifyVanStickerOrder,
-  notifyVanStickerOrderAdditional,
   notifyApplicantVerificationLink,
   sendXeroInvoiceToTrader,
 } from "../lib/adminMail.js";
@@ -170,7 +168,7 @@ async function handleCheckoutSessionCompleted(
         data: { stripeCustomerId },
       });
     }
-    if (memberId && (kind === "member_portal_renewal" || kind === "van_sticker_order" || kind === "van_sticker_order_additional")) {
+    if (memberId && kind === "member_portal_renewal") {
       await prisma.member.updateMany({
         where: { id: memberId },
         data: { stripeCustomerId },
@@ -379,127 +377,6 @@ async function handleCheckoutSessionCompleted(
       }).catch((err) => {
         console.error("[stripe webhook] renewal Stripe receipt send failed", err);
       });
-    }
-    return;
-  }
-
-  // ------------------------------------------------------------------
-  // van_sticker_order
-  // ------------------------------------------------------------------
-  if (kind === "van_sticker_order") {
-    const memberId = metadata.memberId;
-    if (!memberId) return;
-    const stickerVariant = metadata.stickerVariant === "2" ? "2" : "1";
-    await prisma.member.updateMany({
-      where: { id: memberId, vanStickerOrderedAt: null },
-      data: { vanStickerOrderedAt: paidAt },
-    });
-    const member = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: {
-        name: true,
-        slug: true,
-        tvId: true,
-        invoiceEmail: true,
-        loginEmail: true,
-        invoiceAddress: true,
-        location: true,
-        sourceApplication: { select: { tradingAddress: true, postcode: true } },
-      },
-    });
-    if (member) {
-      const receiptEmail = preferredReceiptEmail(member);
-      const applicationAddress = [
-        member.sourceApplication?.tradingAddress,
-        member.sourceApplication?.postcode,
-      ].filter(Boolean).join("\n") || null;
-      notifyVanStickerOrder(prisma, { ...member, stickerVariant, applicationAddress });
-      // Xero invoice — accounting record only
-      void createPaidXeroInvoice({
-        contactName: member.name,
-        contactEmail: receiptEmail ?? member.loginEmail ?? "",
-        contactAddress: member.invoiceAddress,
-        description: "Van Stickers (x2)",
-        amountPence,
-        reference: session.id,
-        paidAt,
-      }).catch((err) => {
-        console.error("[stripe webhook] sticker Xero invoice failed", err);
-      });
-      // Stripe invoice PDF — emailed to trader
-      if (stripeCustomerId && receiptEmail) {
-        void sendStripeReceipt(stripe, stripeCustomerId, {
-          description: "Van Stickers (x2)",
-          amountPence,
-          reference: session.id,
-          paidAt,
-          traderName: member.name,
-          email: receiptEmail,
-          invoiceDescription: "Van Stickers (x2)",
-        }).catch((err) => {
-          console.error("[stripe webhook] sticker Stripe receipt send failed", err);
-        });
-      }
-    }
-    return;
-  }
-
-  // ------------------------------------------------------------------
-  // van_sticker_order_additional
-  // ------------------------------------------------------------------
-  if (kind === "van_sticker_order_additional") {
-    const memberId = metadata.memberId;
-    if (!memberId) return;
-    const stickerVariant = metadata.stickerVariant === "2" ? "2" : "1";
-    const member = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: {
-        name: true,
-        slug: true,
-        tvId: true,
-        invoiceEmail: true,
-        loginEmail: true,
-        invoiceAddress: true,
-        location: true,
-        sourceApplication: { select: { tradingAddress: true, postcode: true } },
-      },
-    });
-    if (member) {
-      const receiptEmail = preferredReceiptEmail(member);
-      const applicationAddress = [
-        member.sourceApplication?.tradingAddress,
-        member.sourceApplication?.postcode,
-      ].filter(Boolean).join("\n") || null;
-      notifyVanStickerOrderAdditional(prisma, { ...member, stickerVariant, applicationAddress });
-      // Xero invoice — accounting record only
-      void createPaidXeroInvoice({
-        contactName: member.name,
-        contactEmail: receiptEmail ?? member.loginEmail ?? "",
-        contactAddress: member.invoiceAddress,
-        description: "Additional Van Sticker",
-        amountPence,
-        reference: session.id,
-        paidAt,
-      }).catch((err) => {
-        console.error(
-          "[stripe webhook] additional sticker Xero invoice failed",
-          err
-        );
-      });
-      // Stripe invoice PDF — emailed to trader
-      if (stripeCustomerId && receiptEmail) {
-        void sendStripeReceipt(stripe, stripeCustomerId, {
-          description: "Additional Van Sticker",
-          amountPence,
-          reference: session.id,
-          paidAt,
-          traderName: member.name,
-          email: receiptEmail,
-          invoiceDescription: "Additional Van Sticker",
-        }).catch((err) => {
-          console.error("[stripe webhook] additional sticker Stripe receipt send failed", err);
-        });
-      }
     }
     return;
   }
