@@ -45,53 +45,43 @@ const applicationRequirements = [
   "Upload PDFs or images, up to 8 files, 10 MB each.",
 ];
 
-const traderPoints = [
+const benefitPoints = [
   {
-    text: "Professional recognition.",
-    image: null,
-    imageAlt: "Professional recognition icon placeholder",
+    number: 1,
+    title: "Prove You are a Genuine, Trustworthy Professional",
+    body: "Trader Watchdog verifies your identity, insurance, and business legitimacy — the checks householders care about – all in one place, not scattered around. Verified traders get a Green Flag on their profile. It means safe to go.",
   },
   {
-    text: "Win more work.",
-    image: "/win more work.png",
-    imageAlt: "Win more work icon",
+    number: 2,
+    title: "QR Gives Instant Access to Your Profile",
+    body: "Your unique QR code takes customers direct to your profile – with just one click. Shows customers you are authentic before they even pick up the phone. Display it on stationery, vehicles, social media, and advertising. It works.",
   },
   {
-    text: "Your own green flag portal.",
-    image: "/Green flag portal.png",
-    imageAlt: "Green flag portal icon",
+    number: 3,
+    title: "Protect Your Reputation with Independent Backing",
+    body: "Your business details, insurance and licences are checked independently. That means customers trust the information — and trust you — far more than a self‑written profile or review page.",
   },
   {
-    text: "Unique QR code directs to your portal.",
-    image: "/QR code.png",
-    imageAlt: "QR code icon",
+    number: 4,
+    title: "Show You are Compliant with Waste‑Licence and Legal Requirements",
+    body: "With fly‑tipping at record levels, householders are concerned. Displaying your verified Waste Carrier Licence gives you a major advantage over unlicensed competitors and reassures customers they are dealing with a professional trader.",
   },
   {
-    text: "Branding pack to download.",
-    image: "/branding pack.png",
-    imageAlt: "Branding pack icon",
+    number: 5,
+    title: "Join a Fair, Transparent Platform That Does not Sell Leads",
+    body: "Trader Watchdog does not sell leads, limit areas, or push traders into bidding wars. You pay a simple registration fee and a low-cost annual subscription — and that's it. No hidden costs. No competition for \"top spots\". No games. Just trust.",
   },
   {
-    text: "100-word description of your business.",
-    image: "/100 words.png",
-    imageAlt: "100 words icon",
-  },
-  {
-    text: "Your qualifications and memberships listed if applicable.",
-    image: "/qualifications.png",
-    imageAlt: "Qualifications icon",
-  },
-  {
-    text: "Automatic reminder of insurance, licences, memberships and portal fee.",
-    image: "/reminder.png",
-    imageAlt: "Reminder icon",
+    number: 6,
+    title: "All For a one-off Registration Fee of £15 + VAT and an Annual Portal Fee of £75 + VAT",
+    body: "Payment activated when your credentials are validated and your application is accepted.",
   },
 ];
 
 const publicViews = [
   {
     title: "Green Flag",
-    body: "A search for a verified trader shows a green flag with their public profile, verified business details, insurance, licences and supporting credentials.",
+    body: "A search on a verified trader will show their portal with a Green Flag and the traders name, stating the identity, insurances and any legally required licences have been verified. The status of current qualifications and memberships listed and your brief description of your business.",
     image: "/isolated green phone.png",
     imageAlt: "Green flag",
     tone: "border-emerald-200 bg-emerald-50",
@@ -99,7 +89,7 @@ const publicViews = [
   },
   {
     title: "Red Flag",
-    body: "A search for a business that is not verified shows a red flag advising caution.",
+    body: "A search for an unverified trader will show a Red Flag stating the trader has not applied to be verified or their application has not been approved. The consumer is advised to be cautious and to insist on viewing their insurances, their licenses, and not to take their word for it. Customers are asked to mention Trader Watchdog in all communications.",
     image: "/isolated red phone.png",
     imageAlt: "Red flag",
     tone: "border-rose-200 bg-rose-50",
@@ -1054,136 +1044,128 @@ export function Join() {
       <section className="small-print-on-light border-b border-slate-200 bg-[radial-gradient(circle_at_top,#e8eefb_0%,#f5f7fb_42%,#ffffff_100%)] py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
-            <img
-              src="/House logo.png"
-              alt="Trader Watchdog house logo"
-              className="mx-auto h-24 w-auto object-contain sm:h-28 lg:h-32"
-              loading="lazy"
-            />
-
-            <h1 className="mt-8 font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-              WHAT IS TRADER WATCHDOG?
+            <h1 className="font-display text-4xl font-bold uppercase tracking-tight text-slate-900 sm:text-5xl">
+              WIN MORE WORK WITH INSTANT REASSURANCE
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
-              Placeholder text goes here to explain what Trader Watchdog is and how it helps traders stand out.
-              This area can introduce the purpose of verification, the value to householders, and the benefits to genuine businesses.
-              It can also summarise how the process works in simple language before the user continues down the page.
-              Add final approved copy here once the wording is ready.
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
+              Householders want fast, factual reassurance. Your verification portal gives them exactly that — no sign‑ups, no pressure, no sales tactics. Just proof you are legitimate, insured and safe to hire. That's what they look for.
+            </p>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
+              The army of small businesses and self-employed want public verification at an affordable price. That's what we give.
             </p>
           </div>
 
-          <div className="mx-auto mt-12 grid max-w-5xl items-center gap-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:gap-12">
+          <div className="mt-12 flex justify-center">
             <img
               src="/hi%20viz%20with%20phone.jpg"
-              alt="Trader in hi-vis holding a phone"
-              className="mx-auto w-full max-w-[22rem] rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
+              alt="Trader holding a phone showing their verification portal"
+              className="mx-auto w-full max-w-sm rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
               loading="lazy"
             />
+          </div>
+        </div>
+      </section>
 
-            <div className="text-center lg:text-left">
-              <h2 className="font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                NO CATCHES. JUST TRUST
-              </h2>
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
-                Placeholder text goes here to explain the simple promise behind joining Trader Watchdog.
-                Use this area to describe straightforward pricing, transparent checks, and the trust signals traders receive.
-                Add final approved wording here once the marketing copy is ready.
-              </p>
-            </div>
+      <section className="small-print-on-light border-b border-slate-200 bg-white py-20 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="font-display text-4xl font-bold uppercase tracking-tight text-slate-900 sm:text-5xl">
+              VERIFIED. LEGIT. TRUSTED
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
+              From dog walkers to gardeners and painters to builders, Trader Watchdog provides the one thing advertising and reviews can't — TRUST.
+            </p>
           </div>
 
-          <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-stretch">
-            <div className="h-full rounded-[2rem] border border-[#d7def3] bg-white/85 p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
-              <p
-                className="text-sm font-semibold uppercase tracking-[0.2em]"
-                style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+          <div className="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+            {benefitPoints.map((point) => (
+              <div
+                key={point.number}
+                className="rounded-[1.75rem] border border-[#d7def3] bg-white/85 p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] backdrop-blur"
               >
-                Get the benefits now
+                <span
+                  className="font-display text-4xl font-bold"
+                  style={{ color: JOIN_HOUSE_LOGO_COLOR }}
+                >
+                  {point.number}.
+                </span>
+                <h3 className="mt-3 font-display text-xl font-semibold text-slate-900">
+                  {point.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base">
+                  {point.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="small-print-on-light border-b border-slate-200 bg-[#f5f7fb] py-20 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <p className="text-center font-display text-2xl font-bold uppercase tracking-tight text-slate-900 sm:text-3xl">
+            SHOW YOUR COMMUNITY YOU ARE A PROFESSIONAL VERIFIED TRADER
+          </p>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+            <div className="flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
+              <img
+                src="/Van%20square.jpg"
+                alt="Trader van with Trader Watchdog branding"
+                className="w-full flex-1 rounded-[1.5rem] bg-white object-contain lg:min-h-[26rem]"
+                loading="lazy"
+              />
+              <p className="mt-4 text-center text-sm leading-relaxed text-slate-700 sm:text-base">
+                A full suite of marketing downloads and the verified traders QR code is available from the traders portal to display on their vehicles, stationery, advertising and social media. Let the code do the talking!
               </p>
-              <ul className="mt-6 space-y-4 text-sm leading-relaxed text-slate-700 sm:text-base">
-                {traderPoints.map((point) => (
-                  <li key={point.text} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#2BA24E] text-white">
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <span className="pt-1">{point.text}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:h-full">
-              <div className="flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
-              <p className="mt-4 text-center text-sm font-medium leading-relaxed text-slate-700 sm:text-base">
-                  Show your community you are a professional verified trader.
-                </p>
+            <div className="grid gap-6 lg:h-full lg:grid-rows-2">
+              <div className="h-full rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
                 <img
-                  src="/Van%20square.jpg"
-                  alt="Trader van with Trader Watchdog branding"
-                  className="w-full flex-1 rounded-[1.5rem] bg-white object-contain lg:min-h-[26rem]"
+                  src="/bobs%20card.jpg"
+                  alt="Trader Watchdog business card example"
+                  className="h-full w-full rounded-[1.5rem] object-cover"
                   loading="lazy"
                 />
-                
               </div>
-
-              <div className="grid gap-6 lg:h-full lg:grid-rows-2">
-                <div className="h-full rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
-                  <img
-                    src="/bobs%20card.jpg"
-                    alt="Trader Watchdog business card example"
-                    className="h-full w-full rounded-[1.5rem] object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="h-full rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
-                  <img
-                    src="/painter.jpg"
-                    alt="Painter example image"
-                    className="h-full w-full rounded-[1.5rem] object-cover"
-                    loading="lazy"
-                  />
-                </div>
+              <div className="h-full rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
+                <img
+                  src="/painter.jpg"
+                  alt="Painter example image"
+                  className="h-full w-full rounded-[1.5rem] object-cover"
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>
 
-          <div className="mt-10 space-y-6">
-            <p
-              className="text-center text-sm font-semibold uppercase tracking-[0.2em]"
-              style={{ color: JOIN_HOUSE_LOGO_COLOR }}
-            >
-              Searches display your status
-            </p>
-            <div className="grid gap-6 lg:grid-cols-2">
-              {publicViews.map((view) => (
-                <div key={view.title} className={`rounded-[1.75rem] border p-6 shadow-[0_22px_50px_-38px_rgba(15,23,42,0.25)] ${view.tone}`}>
-                  <div className="flex items-start gap-5">
-                    <img
-                      src={view.image}
-                      alt={view.imageAlt}
-                      className="h-40 w-40 shrink-0 object-contain sm:h-40 sm:w-40"
-                      loading="lazy"
-                    />
-                    <div>
-                      <h2 className="font-display text-2xl font-semibold text-slate-900">
-                        {view.title.split(" ").map((word, index) => (
-                          <span key={word}>
-                            <span className="text-slate-900">{word.charAt(0)}</span>
-                            {word.slice(1)}
-                            {index < view.title.split(" ").length - 1 ? " " : ""}
-                          </span>
-                        ))}
-                      </h2>
-                      <p className="mt-3 text-sm leading-relaxed text-slate-900 sm:text-base">
-                        {view.body}
-                      </p>
-                    </div>
+        </div>
+      </section>
+
+      <section className="small-print-on-light border-b border-slate-200 bg-white py-20 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            {publicViews.map((view) => (
+              <div key={view.title} className={`rounded-[1.75rem] border p-6 shadow-[0_22px_50px_-38px_rgba(15,23,42,0.25)] ${view.tone}`}>
+                <div className="flex items-start gap-5">
+                  <img
+                    src={view.image}
+                    alt={view.imageAlt}
+                    className="h-40 w-40 shrink-0 object-contain sm:h-40 sm:w-40"
+                    loading="lazy"
+                  />
+                  <div>
+                    <h2 className="font-display text-2xl font-semibold text-slate-900">
+                      {view.title}
+                    </h2>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-900 sm:text-base">
+                      {view.body}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
