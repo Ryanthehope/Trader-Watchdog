@@ -105,7 +105,8 @@ function siteOrigin(req: { get: (h: string) => string | undefined }) {
 
 function resolveDiscountCode(
   code: string,
-  fullAmountPence: number
+  fullAmountPence: number,
+  feeType: "registration" | "membership" = "membership"
 ): {
   code: string;
   discountType: "reduced";
@@ -113,6 +114,8 @@ function resolveDiscountCode(
   savingsPence: number;
 } | null {
   const upper = code.trim().toUpperCase();
+
+  // NGB1 (or env override): reduces both fees to nominal minimum
   const freeCode = (process.env.PROMO_CODE_FREE_MEMBERSHIP?.trim() || "NGB1").toUpperCase();
   if (upper === freeCode) {
     const finalPricePence = Math.min(fullAmountPence, DISCOUNTED_PAYABLE_PENCE);
@@ -123,6 +126,27 @@ function resolveDiscountCode(
       savingsPence: Math.max(fullAmountPence - finalPricePence, 0),
     };
   }
+
+  // NGB25: 25% off first year portal fee only (registration fee unchanged)
+  if (upper === "NGB25") {
+    if (feeType === "registration") {
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0 };
+    }
+    const discount = Math.round(fullAmountPence * 0.25);
+    const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0) };
+  }
+
+  // NGB33: 33% off first year portal fee only (registration fee unchanged)
+  if (upper === "NGB33") {
+    if (feeType === "registration") {
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0 };
+    }
+    const discount = Math.round(fullAmountPence * 0.33);
+    const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0) };
+  }
+
   return null;
 }
 
@@ -140,9 +164,14 @@ router.post("/validate-discount", async (req, res) => {
   const lines = checkoutLineConfig(settings);
   const registrationDiscount = resolveDiscountCode(
     code,
-    lines.registrationFeePence
+    lines.registrationFeePence,
+    "registration"
   );
-  const membershipDiscount = resolveDiscountCode(code, lines.membershipPence);
+  const membershipDiscount = resolveDiscountCode(
+    code,
+    lines.membershipPence,
+    "membership"
+  );
   if (!registrationDiscount || !membershipDiscount) {
     res.json({ valid: false });
     return;
@@ -231,10 +260,10 @@ router.post("/checkout-membership", async (req, res) => {
 
     const discountCodeInput = String(req.body?.discountCode ?? "").trim();
     const membershipDiscount = discountCodeInput
-      ? resolveDiscountCode(discountCodeInput, lines.membershipPence)
+      ? resolveDiscountCode(discountCodeInput, lines.membershipPence, "membership")
       : null;
     const registrationDiscount = discountCodeInput
-      ? resolveDiscountCode(discountCodeInput, lines.registrationFeePence)
+      ? resolveDiscountCode(discountCodeInput, lines.registrationFeePence, "registration")
       : null;
     const combinedAmountPence =
       (application.registrationFeePaidAt
