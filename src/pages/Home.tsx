@@ -159,7 +159,6 @@ function WhatYouSee() {
   const panels = [
     {
       title: "A GREEN FLAG",
-      subtitle: "(verified)",
       image: "/green%20flag%20phone.png",
       imageAlt: "Phone showing a green verified result",
       points: [
@@ -170,19 +169,19 @@ function WhatYouSee() {
         "Public Profile",
       ],
       accentClass: "text-[#32C72E]",
+      bulletVariant: "check" as const,
     },
     {
       title: "A RED FLAG",
-      subtitle: "(not verified)",
       image: "/red%20flag%20phone.png",
       imageAlt: "Phone showing a red caution result",
       points: [
-        "No ID Record?",
-        "No Insurance?",
-        "No Licence?",
-        "Be Cautious",
+        "Identity?",
+        "Insurance?",
+        "Licences?",
       ],
       accentClass: "text-[#E12F33]",
+      bulletVariant: "cross" as const,
     },
   ];
 
@@ -203,15 +202,26 @@ function WhatYouSee() {
             />
 
             <div className="flex h-full flex-col">
-              <h2 className="min-h-[8.75rem] font-display text-3xl font-bold uppercase leading-tight text-slate-900 sm:min-h-[9.5rem] sm:text-4xl">
+              <h2 className="font-display text-3xl font-bold uppercase leading-tight text-slate-900 sm:text-4xl">
                 <span className={panel.accentClass}>{panel.title}</span>
-                <br />
-                <span className="normal-case text-slate-900">{panel.subtitle}</span>
               </h2>
 
               <ul className="mt-6 space-y-4 text-2xl leading-tight text-slate-900 sm:text-[2rem]">
                 {panel.points.map((point) => (
-                  <li key={point}>{point}</li>
+                  <li key={point} className="flex items-center gap-3">
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white ${panel.bulletVariant === "check" ? "bg-[#32C72E]" : "bg-[#E12F33]"}`}>
+                      {panel.bulletVariant === "check" ? (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                    </span>
+                    {point}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -230,7 +240,7 @@ function Pillars() {
     },
     {
       title: "Public Liability Insurance",
-      body: "Public Liability Insurance protects you if a trader damages your property or injures someone while working. Without it, recovering costs or compensation can be difficult.",
+      body: "Public Liability insurance is required to protect your property, and Employers Insurance (if the trader has staff) is required if an employee is injured on your property.",
     },
     {
       title: "Your Waste",
@@ -245,8 +255,8 @@ function Pillars() {
       body: "A trader must be Gas Safe registered to work on any gas appliance or installation. Using someone who is not registered is illegal and dangerous because faulty gas work can cause leaks, fires or carbon monoxide poisoning.",
     },
     {
-      title: "Employers Insurance",
-      body: "If a trader employs staff, they must have Employers' Liability Insurance. It protects you if a worker is injured on your property and helps avoid complicated claims.",
+      title: "Electricians",
+      body: "If you are having any electrical installation work in your home you need to ensure the electrician is a registered NICEIC trades person. We check.",
     },
     {
       title: "Qualifications and Memberships",
@@ -266,7 +276,7 @@ function Pillars() {
             We check the details that matter.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
-            Identity, insurance, licensing and key legal registrations are verified in one place so you can make a safer decision quickly.
+            You check the results — with just one click.
           </p>
         </div>
 
@@ -388,7 +398,7 @@ export function Home() {
         <SectionBanner preserveCase>
           <>
             <span className="block uppercase">VERIFY A TRADER WITH JUST ONE CLICK.</span>
-            <span className="block">It&apos;s free, no registering, totally anonymous, hassle free.</span>
+            <span className="block italic">It&apos;s free, no registering, totally anonymous, and hassle free!</span>
           </>
         </SectionBanner>
 
@@ -414,15 +424,13 @@ export function Home() {
         </div>
 
         <SectionBanner preserveCase>
-          <>
-            Trader Watchdog <span className="uppercase">PROTECTS HOUSEHOLDS</span> and supports genuine <span className="uppercase">LOCAL TRADERS</span>, providing diligence recommended by the <span className="uppercase">Police</span>, <span className="uppercase">Trading Standards</span>, <span className="uppercase">Councils</span> and <span className="uppercase">Community Groups</span>
-          </>
+          <span className="text-white/80">Trader Watchdog protects households and supports genuine local traders, providing the diligence recommended by the police, trading standards, councils and community groups.</span>
         </SectionBanner>
       </section>
 
       <Stats />
 
-      <SectionBanner>WHAT YOU SEE</SectionBanner>
+      <SectionBanner>WHAT YOU SEE – SEARCHES SHOW</SectionBanner>
       <WhatYouSee />
 
       {publicSearchEnabled && <SearchCard />}

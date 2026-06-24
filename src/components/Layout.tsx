@@ -23,7 +23,7 @@ function Logo({
   return (
     <div className={`flex shrink-0 items-center gap-3 ${className}`}>
       <img
-        src="/traderwatchdog_logo.webp"
+        src={variant === "footer" ? "/new%20footer%20logo.jpg" : "/traderwatchdog_logo.webp"}
         alt={title}
         width="320"
         height="104"

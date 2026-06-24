@@ -238,19 +238,19 @@ export function MemberProfile() {
 
   if (loading) {
     return (
-      <main className="flex min-h-[50vh] items-center justify-center px-4">
-        <p className="text-slate-400">Loading profile…</p>
+      <main className="flex min-h-[50vh] items-center justify-center bg-white px-4">
+        <p className="text-slate-500">Loading profile…</p>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="mx-auto max-w-lg px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-xl font-semibold text-white">
+      <main className="mx-auto max-w-lg bg-white px-4 py-24 text-center sm:px-6">
+        <h1 className="font-display text-xl font-semibold text-slate-900">
           Directory unavailable
         </h1>
-        <p className="mt-3 text-slate-400">{error}</p>
+        <p className="mt-3 text-slate-600">{error}</p>
         <button
           type="button"
           onClick={() => reload()}
@@ -264,14 +264,14 @@ export function MemberProfile() {
 
   if (!member) {
     return (
-      <main className="mx-auto max-w-lg px-4 py-24 text-center sm:px-6">
-        <p className="text-sm font-semibold uppercase tracking-wider text-brand-300">
+      <main className="mx-auto max-w-lg bg-white px-4 py-24 text-center sm:px-6">
+        <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
           Trader Watchdog
         </p>
-        <h1 className="mt-2 font-display text-2xl font-semibold text-white">
+        <h1 className="mt-2 font-display text-2xl font-semibold text-slate-900">
           Profile not found
         </h1>
-        <p className="mt-3 text-slate-400">
+        <p className="mt-3 text-slate-600">
           There is no verified listing for that link. Check the Trader Watchdog ID
           spelling or search from the home page.
         </p>
@@ -305,17 +305,17 @@ export function MemberProfile() {
         ];
 
   return (
-    <main className="border-b border-white/5 pb-20">
-      <div className="border-b border-white/5 bg-gradient-to-br from-brand-950/40 to-ink-950 py-10 sm:py-14">
+    <main className="border-b border-slate-200 bg-white pb-20">
+      <div className="border-b border-slate-200 bg-[#f5f7fb] py-10 sm:py-14">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <Link
             to="/#verify"
-            className="text-sm font-medium text-brand-300 hover:text-brand-200"
+            className="text-sm font-medium text-brand-600 hover:text-brand-700"
           >
             ← Verify another business
           </Link>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-ink-900/60 shadow-xl shadow-black/20">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/80">
             <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:justify-between sm:p-8">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start gap-4">
@@ -323,10 +323,10 @@ export function MemberProfile() {
                 <p className="inline-flex rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-bold tracking-wide text-white">
                   Tel: {member.tvId}
                 </p>
-                <h1 className="mt-4 font-display text-3xl font-bold text-white sm:text-4xl">
+                <h1 className="mt-4 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
                   {member.name}
                 </h1>
-                <p className="mt-2 text-lg text-slate-400">
+                <p className="mt-2 text-lg text-slate-600">
                   {member.trade} · {member.publicAddress ?? member.location}
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
@@ -378,11 +378,11 @@ export function MemberProfile() {
       <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
           <div className="space-y-8 lg:col-span-2">
-        <div className="rounded-2xl border border-white/10 bg-ink-900/50 p-6 sm:p-8">
-          <h2 className="font-display text-lg font-semibold text-white">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+          <h2 className="font-display text-lg font-semibold text-slate-900">
             What we checked
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-400">
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
             Each item below was independently audited by Trader Watchdog before this
             business was approved.
           </p>
@@ -391,11 +391,11 @@ export function MemberProfile() {
             <VettingAccordion sections={vettingSections} />
           </div>
 
-          <p className="mt-10 border-t border-white/10 pt-8 text-xs leading-relaxed text-slate-500">
+          <p className="mt-10 border-t border-slate-200 pt-8 text-xs leading-relaxed text-slate-500">
             {DISCLAIMER}
           </p>
 
-          <p className="mt-8 text-sm leading-relaxed text-slate-400">
+          <p className="mt-8 text-sm leading-relaxed text-slate-600">
             {member.blurb}
           </p>
           <p className="mt-4 text-xs text-slate-500">
@@ -409,23 +409,23 @@ export function MemberProfile() {
 
           <aside className="space-y-6 lg:col-span-1">
             <div className="sticky top-6 space-y-6">
-            <div className="space-y-4 rounded-2xl border border-white/10 bg-ink-900/50 p-5 sm:p-6">
-              <h2 className="font-display text-lg font-semibold text-white">
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+              <h2 className="font-display text-lg font-semibold text-slate-900">
                 Verification summary
               </h2>
-              <p className="text-sm leading-relaxed text-slate-400">
+              <p className="text-sm leading-relaxed text-slate-600">
                 This public page is limited to the Trader Watchdog checks carried out on the business and the core information needed to identify it.
               </p>
               <dl className="space-y-2.5 text-sm">
                 <div className="flex items-start justify-between gap-3">
                   <dt className="shrink-0 text-slate-500">Trade</dt>
-                  <dd className="text-right font-medium text-slate-200">{member.trade}</dd>
+                  <dd className="text-right font-medium text-slate-900">{member.trade}</dd>
                 </div>
                 <div className="flex items-start justify-between gap-3">
                   <dt className="shrink-0 text-slate-500">
                     {member.publicAddress ? "Business address" : "Location"}
                   </dt>
-                  <dd className="text-right font-medium text-slate-200">
+                  <dd className="text-right font-medium text-slate-900">
                     {member.publicAddress ?? member.location}
                   </dd>
                 </div>
@@ -435,7 +435,7 @@ export function MemberProfile() {
                     <dd>
                       <a
                         href={`tel:${member.phone}`}
-                        className="font-medium text-brand-300 hover:text-brand-200"
+                        className="font-medium text-brand-600 hover:text-brand-700"
                       >
                         {member.phone}
                       </a>
@@ -443,8 +443,8 @@ export function MemberProfile() {
                   </div>
                 ) : null}
               </dl>
-              <div className="rounded-xl border border-white/10 bg-ink-950/50 p-4 text-sm text-slate-300">
-                Use the mobile number <span className="font-semibold text-white">{member.tvId}</span> and the business details shown on this page when comparing paperwork, quotes, or vans.
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                Use the mobile number <span className="font-semibold text-slate-900">{member.tvId}</span> and the business details shown on this page when comparing paperwork, quotes, or vans.
               </div>
               {member.insurancePolicies && member.insurancePolicies.length > 0 ? (
                 <div>
@@ -454,7 +454,7 @@ export function MemberProfile() {
                   <ul className="space-y-2">
                     {member.insurancePolicies.map((pol, i) => (
                       <li key={i} className="flex items-center justify-between gap-2 text-sm">
-                        <span className="text-slate-300">{pol.type}</span>
+                        <span className="text-slate-700">{pol.type}</span>
                         <InsuranceBadge status={pol.status} />
                       </li>
                     ))}
@@ -466,14 +466,14 @@ export function MemberProfile() {
           </aside>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-dashed border-white/15 bg-ink-900/20 p-6 text-center">
-          <p className="text-sm text-slate-400">
+        <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+          <p className="text-sm text-slate-600">
             Hiring this trade? Confirm their mobile number on this site before
             you pay a deposit.
           </p>
           <Link
             to="/#verify"
-            className="mt-4 inline-flex text-sm font-semibold text-brand-300 hover:text-brand-200"
+            className="mt-4 inline-flex text-sm font-semibold text-brand-600 hover:text-brand-700"
           >
             Verify another trader →
           </Link>
