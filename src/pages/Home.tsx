@@ -170,6 +170,8 @@ function WhatYouSee() {
       ],
       accentClass: "text-[#32C72E]",
       bulletVariant: "check" as const,
+      tagline: "Safe to go!",
+      taglineClass: "text-[#32C72E]",
     },
     {
       title: "A RED FLAG",
@@ -182,6 +184,8 @@ function WhatYouSee() {
       ],
       accentClass: "text-[#E12F33]",
       bulletVariant: "cross" as const,
+      tagline: "Be cautious!",
+      taglineClass: "text-[#E12F33]",
     },
   ];
 
@@ -224,6 +228,9 @@ function WhatYouSee() {
                   </li>
                 ))}
               </ul>
+              <p className={`mt-5 text-2xl font-bold italic sm:text-3xl ${panel.taglineClass}`}>
+                {panel.tagline}
+              </p>
             </div>
           </div>
         ))}
@@ -275,7 +282,7 @@ function Pillars() {
           <h2 className="mt-3 font-display text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
             We check the details that matter.
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+          <p className="mt-4 font-display text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
             You check the results — with just one click.
           </p>
         </div>
@@ -430,7 +437,7 @@ export function Home() {
 
       <Stats />
 
-      <SectionBanner>WHAT YOU SEE – SEARCHES SHOW</SectionBanner>
+      <SectionBanner preserveCase>YOUR SEARCHES SHOW A GREEN FLAG <span className="font-normal normal-case opacity-75">or</span> A RED FLAG</SectionBanner>
       <WhatYouSee />
 
       {publicSearchEnabled && <SearchCard />}

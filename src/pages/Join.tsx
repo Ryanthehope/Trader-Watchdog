@@ -69,7 +69,7 @@ const benefitPoints = [
   {
     number: 5,
     title: "Join a Fair, Transparent Platform That Does not Sell Leads",
-    body: "Trader Watchdog does not sell leads, limit areas, or push traders into bidding wars. You pay a simple registration fee and a low-cost annual subscription — and that's it. No hidden costs. No competition for \"top spots\". No games. Just trust.",
+    body: "Trader Watchdog does not sell leads, limit areas, or push traders into bidding wars. You pay a simple registration fee and a low-cost annual portal fee — and that's it. No hidden costs. No competition for \"top spots\". No games. Just trust.",
   },
   {
     number: 6,
