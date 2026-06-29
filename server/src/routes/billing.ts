@@ -103,7 +103,19 @@ function siteOrigin(req: { get: (h: string) => string | undefined }) {
   );
 }
 
-function resolveDiscountCode(
+// Affiliate codes that carry a recurring annual discount (renewals at the same rate)
+const RECURRING_AFFILIATE_CODES = new Set([
+  "NGB3312", "NGB3313", "NGB3314", "NGB3315", "NGB3316",
+  "NGB3317", "NGB3318", "NGB3319", "NGB3320", "NGB3321",
+  "NGB3322", "NGB3323", "NGB3324",
+  "SAVE25",
+]);
+
+export function isRecurringDiscountCode(code: string): boolean {
+  return RECURRING_AFFILIATE_CODES.has(code.trim().toUpperCase());
+}
+
+export function resolveDiscountCode(
   code: string,
   fullAmountPence: number,
   feeType: "registration" | "membership" = "membership"
@@ -112,10 +124,11 @@ function resolveDiscountCode(
   discountType: "reduced";
   finalPricePence: number;
   savingsPence: number;
+  recurring: boolean;
 } | null {
   const upper = code.trim().toUpperCase();
 
-  // NGB1 (or env override): reduces both fees to nominal minimum
+  // NGB1 (or env override): reduces both fees to nominal minimum (first year only)
   const freeCode = (process.env.PROMO_CODE_FREE_MEMBERSHIP?.trim() || "NGB1").toUpperCase();
   if (upper === freeCode) {
     const finalPricePence = Math.min(fullAmountPence, DISCOUNTED_PAYABLE_PENCE);
@@ -124,27 +137,48 @@ function resolveDiscountCode(
       discountType: "reduced",
       finalPricePence,
       savingsPence: Math.max(fullAmountPence - finalPricePence, 0),
+      recurring: false,
     };
   }
 
   // NGB25: 25% off first year portal fee only (registration fee unchanged)
   if (upper === "NGB25") {
     if (feeType === "registration") {
-      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0 };
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: false };
     }
     const discount = Math.round(fullAmountPence * 0.25);
     const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
-    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0) };
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: false };
   }
 
   // NGB33: 33% off first year portal fee only (registration fee unchanged)
   if (upper === "NGB33") {
     if (feeType === "registration") {
-      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0 };
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: false };
     }
     const discount = Math.round(fullAmountPence * 0.33);
     const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
-    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0) };
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: false };
+  }
+
+  // NGB3312–NGB3324: affiliate codes, 33% off portal fee, recurring each year
+  if (RECURRING_AFFILIATE_CODES.has(upper) && upper.startsWith("NGB")) {
+    if (feeType === "registration") {
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: true };
+    }
+    const discount = Math.round(fullAmountPence * 0.33);
+    const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: true };
+  }
+
+  // SAVE25: 25% off portal fee, recurring each year
+  if (upper === "SAVE25") {
+    if (feeType === "registration") {
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: true };
+    }
+    const discount = Math.round(fullAmountPence * 0.25);
+    const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: true };
   }
 
   return null;

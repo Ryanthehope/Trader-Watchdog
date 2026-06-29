@@ -219,6 +219,8 @@ model Application {
   stripePaymentMethodId            String?
   /// Discounted renewal price (pence) set when a partial discount code was used at membership checkout.
   membershipRenewalPricePence      Int?
+  /// Discount/affiliate code used at membership checkout (stored for staff reporting and commission tracking).
+  paymentDiscountCode              String?
   /// Set when an off-session Stripe membership payment has been started from a saved payment method.
   /// Prevents a second manual checkout while a renewal charge is in flight.
   membershipAutoChargeInitiatedAt  DateTime?

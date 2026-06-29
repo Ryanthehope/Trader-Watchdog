@@ -479,7 +479,7 @@ router.post("/membership/renew", async (req, res) => {
     }
     const origin = await siteOrigin(req);
     const lines = checkoutLineConfig(settings);
-    const renewalAmountPence = m.membershipRenewalPricePence === 0 ? 0 : lines.membershipPence;
+    const renewalAmountPence = m.membershipRenewalPricePence != null ? m.membershipRenewalPricePence : lines.membershipPence;
 
     // Free-membership holders (100% discount for life) — extend without Stripe.
     if (renewalAmountPence === 0) {

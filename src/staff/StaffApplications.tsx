@@ -83,6 +83,7 @@ type AppRow = {
     registration_fee: string | null;
     membership: string | null;
   };
+  paymentDiscountCode?: string | null;
   createdAt: string;
   documents: AppDoc[];
   createdMember: CreatedMemberRef | null;
@@ -877,6 +878,11 @@ function ApplicationCard({
                   No membership payment
                 </span>
               )}
+              {row.paymentDiscountCode ? (
+                <span className="rounded-full bg-violet-500/20 px-2.5 py-1 font-medium text-violet-200">
+                  Code: {row.paymentDiscountCode}
+                </span>
+              ) : null}
               <span
                 className={`rounded-full px-2.5 py-1 font-medium ${verificationStatusClasses(verificationStatus)}`}
               >

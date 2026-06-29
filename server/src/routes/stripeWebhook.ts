@@ -15,6 +15,8 @@ import { generateSumsubWebSdkLink, isSumsubConfigured } from "../lib/sumsub.js";
 import { createPaidXeroInvoice } from "../lib/xeroInvoice.js";
 import { mergeApplicationXeroInvoiceRef } from "../lib/applicationXeroInvoices.js";
 import { createStripeInvoicePdf } from "../lib/stripeInvoice.js";
+import { resolveDiscountCode, isRecurringDiscountCode } from "./billing.js";
+import { getOrgBilling, checkoutLineConfig, billingReady } from "../lib/billingSettings.js";
 
 /**
  * Creates a Stripe invoice PDF for a completed payment and emails it to the trader.
@@ -292,7 +294,8 @@ async function handleCheckoutSessionCompleted(
   if (kind === "membership") {
     const appId = metadata.applicationId;
     if (!appId) return;
-    await handleMembershipConfirmed(appId, amountPence, paidAt, session.id, stripe, stripeCustomerId);
+    const discountCode = typeof metadata.discountCode === "string" ? metadata.discountCode.trim() : undefined;
+    await handleMembershipConfirmed(appId, amountPence, paidAt, session.id, stripe, stripeCustomerId, discountCode || undefined);
     return;
   }
 
@@ -413,7 +416,8 @@ async function handleMembershipConfirmed(
   paidAt: Date,
   reference: string,
   stripe?: Stripe,
-  stripeCustomerId?: string | null
+  stripeCustomerId?: string | null,
+  discountCode?: string
 ) {
   const appBeforeMembership = await prisma.application.findUnique({
     where: { id: appId },
@@ -424,6 +428,27 @@ async function handleMembershipConfirmed(
   });
   if (!appBeforeMembership || appBeforeMembership.membershipSubscribed) return;
 
+  // If a recurring discount code was used, compute and store the renewal price
+  let membershipRenewalPricePence: number | undefined;
+  let paymentDiscountCode: string | undefined;
+  if (discountCode && isRecurringDiscountCode(discountCode)) {
+    try {
+      const billingSettings = await getOrgBilling();
+      if (billingReady(billingSettings)) {
+        const lines = checkoutLineConfig(billingSettings);
+        const resolved = resolveDiscountCode(discountCode, lines.membershipPence, "membership");
+        if (resolved) {
+          membershipRenewalPricePence = resolved.finalPricePence;
+          paymentDiscountCode = resolved.code;
+        }
+      }
+    } catch (err) {
+      console.error("[stripe webhook] failed to resolve recurring discount code", err);
+    }
+  } else if (discountCode) {
+    paymentDiscountCode = discountCode.trim().toUpperCase();
+  }
+
   const updated = await prisma.application.updateMany({
     where: { id: appId, membershipSubscribed: false },
     data: {
@@ -432,6 +457,12 @@ async function handleMembershipConfirmed(
       ...(appBeforeMembership.registrationFeePaidAt
         ? {}
         : { registrationFeePaidAt: paidAt }),
+      ...(membershipRenewalPricePence !== undefined
+        ? { membershipRenewalPricePence }
+        : {}),
+      ...(paymentDiscountCode !== undefined
+        ? { paymentDiscountCode }
+        : {}),
     },
   });
 
@@ -442,6 +473,7 @@ async function handleMembershipConfirmed(
     select: {
       createdMemberId: true,
       manualMembershipExpiresAt: true,
+      membershipRenewalPricePence: true,
     },
   });
   if (
@@ -453,7 +485,7 @@ async function handleMembershipConfirmed(
       data: {
         membershipBillingType: "manual",
         membershipExpiresAt: appAfterMembership.manualMembershipExpiresAt,
-        membershipRenewalPricePence: null,
+        membershipRenewalPricePence: appAfterMembership.membershipRenewalPricePence ?? null,
       },
     });
   }

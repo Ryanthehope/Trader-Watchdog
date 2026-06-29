@@ -1051,15 +1051,21 @@ export function Join() {
               Householders want fast, factual reassurance. Your verification portal gives them exactly that — no sign‑ups, no pressure, no sales tactics. Just proof you are legitimate, insured and safe to hire. That's what they look for.
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
-              The army of small businesses and self-employed want public verification at an affordable price. That's what we give.
+              You want public verification at an affordable price. That's what you get.
             </p>
           </div>
 
-          <div className="mt-12 flex justify-center">
+          <div className="mt-12 flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
             <img
               src="/hi%20viz%20with%20phone.jpg"
               alt="Trader holding a phone showing their verification portal"
-              className="mx-auto w-full max-w-sm rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
+              className="w-full max-w-sm rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
+              loading="lazy"
+            />
+            <img
+              src="/Foundation%20offer.png"
+              alt="Foundation membership offer"
+              className="w-full max-w-sm rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
               loading="lazy"
             />
           </div>

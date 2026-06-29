@@ -161,6 +161,7 @@ const ADMIN_APPLICATION_FULL_SELECT = {
   pendingPortalPasswordExpires: true,
   xeroInvoiceId: true,
   xeroInvoiceFailed: true,
+  paymentDiscountCode: true,
   createdAt: true,
   updatedAt: true,
   createdMemberId: true,

@@ -153,7 +153,7 @@ export async function tryProvisionMemberForApplication(
         mustChangePassword: true,
         membershipUnlimited: false,
         membershipRenewalPricePence:
-          app.membershipRenewalPricePence === 0 ? 0 : undefined,
+          app.membershipRenewalPricePence ?? undefined,
         verificationProvider: app.verificationProvider ?? undefined,
         verificationStatus: app.verificationStatus,
         verificationSubmittedAt: app.verificationSubmittedAt ?? undefined,
