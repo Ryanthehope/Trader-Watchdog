@@ -103,11 +103,15 @@ function siteOrigin(req: { get: (h: string) => string | undefined }) {
   );
 }
 
-// Affiliate codes that carry a recurring annual discount (renewals at the same rate)
-const RECURRING_AFFILIATE_CODES = new Set([
+// Affiliate codes: 33% off first year portal fee, tracked for commission (first year only)
+const AFFILIATE_CODES_33 = new Set([
   "NGB3312", "NGB3313", "NGB3314", "NGB3315", "NGB3316",
   "NGB3317", "NGB3318", "NGB3319", "NGB3320", "NGB3321",
   "NGB3322", "NGB3323", "NGB3324",
+]);
+
+// Codes that carry a recurring annual discount (renewals at the same discounted rate)
+const RECURRING_AFFILIATE_CODES = new Set([
   "SAVE25",
 ]);
 
@@ -161,14 +165,14 @@ export function resolveDiscountCode(
     return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: false };
   }
 
-  // NGB3312–NGB3324: affiliate codes, 33% off portal fee, recurring each year
-  if (RECURRING_AFFILIATE_CODES.has(upper) && upper.startsWith("NGB")) {
+  // NGB3312–NGB3324: affiliate codes, 33% off first year portal fee only (tracked for commission)
+  if (AFFILIATE_CODES_33.has(upper)) {
     if (feeType === "registration") {
-      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: true };
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: false };
     }
     const discount = Math.round(fullAmountPence * 0.33);
     const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
-    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: true };
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: false };
   }
 
   // SAVE25: 25% off portal fee, recurring each year
