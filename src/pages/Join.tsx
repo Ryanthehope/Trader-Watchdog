@@ -1116,7 +1116,7 @@ export function Join() {
           <div className="mt-10 grid gap-6 sm:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div className="flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.22)] sm:p-5">
               <img
-                src="/Van%20square.jpg"
+                src="/van33.jpg"
                 alt="Trader van with Trader Watchdog branding"
                 className="w-full flex-1 rounded-[1.5rem] bg-white object-contain lg:min-h-[26rem]"
                 loading="lazy"

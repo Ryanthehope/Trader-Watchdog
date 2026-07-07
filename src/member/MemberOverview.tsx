@@ -361,25 +361,100 @@ export function MemberOverview() {
               something needs updating after a renewal.
             </p>
           </div>
-                    <div className="rounded-lg border border-slate-300/60 bg-slate-50 p-8">
-                      <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-600">
-                        QR code downloads
+                    <div className="rounded-lg border border-[#e4d7c4] bg-[#f7f1e8] p-8">
+                      <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-700">
+                        Trader portal downloads
                       </h2>
-                      <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                        Download your official QR assets for vans, paperwork, and digital use. Each code links directly to your public Trader Watchdog verification page. Check your QR code before displaying.
+                      <p className="mt-3 text-sm leading-relaxed text-slate-700">
+                        Show your community and the public you are a Verified Trader. Use the badges to connect direct with your portfolio.
                       </p>
 
                       {canDownloadQr ? (
-                        <div className="mt-6 space-y-4">
-                          {qrPreviewUrl ? (
-                            <div className="flex justify-center">
-                              <img
-                                src={qrPreviewUrl}
-                                alt="Your Trader Watchdog QR code"
-                                className="h-36 w-36 rounded border border-slate-200"
-                              />
+                        <div className="mt-6 space-y-6">
+                          <div className="grid gap-4 xl:grid-cols-2">
+                            <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
+                              <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
+                                <img
+                                  src={qrPreviewUrl ?? "/generic-traderwatchdog-qr.svg"}
+                                  alt="Your Trader Watchdog QR code"
+                                  className="h-40 w-40 object-contain"
+                                />
+                              </div>
+                              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                                Your QR code
+                              </h3>
+                              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                                This QR code directs to your business portal. You can download it here for your marketing materials. Please check before displaying to ensure the accuracy and contact us if the code does not direct.
+                              </p>
                             </div>
-                          ) : null}
+
+                            <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
+                              <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
+                                <img
+                                  src="/Badge%20TW1.webp"
+                                  alt="Trader Watchdog badge showing a QR code"
+                                  className="max-h-40 w-full object-contain"
+                                />
+                              </div>
+                              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                                Badge with your QR code
+                              </h3>
+                              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                                Download this badge showing your QR code for stationery, social media and advertising.
+                              </p>
+                            </div>
+
+                            <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
+                              <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
+                                <img
+                                  src="/badge-preview.svg"
+                                  alt="Trader Watchdog badge without a QR code"
+                                  className="max-h-40 w-full object-contain"
+                                />
+                              </div>
+                              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                                Badge ready for your QR code
+                              </h3>
+                              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                                If QR code cannot be placed - Download this badge and add your QR code for stationery, social media and advertising.
+                              </p>
+                            </div>
+
+                            <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
+                              <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
+                                <img
+                                  src="/van33.jpg"
+                                  alt="Trader Watchdog vehicle badge preview"
+                                  className="h-48 w-full rounded-[1rem] object-cover"
+                                />
+                              </div>
+                              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                                Your portal vehicle badge
+                              </h3>
+                              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                                This badge is suitable for vehicles, directing your community and the public to your verified portal. It can be downloaded for printing.
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="rounded-[1.5rem] border border-[#0d2167] bg-[#122a80] p-5 text-white shadow-sm">
+                            <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center">
+                              <img
+                                src="/van-qr-2.jpg"
+                                alt="Vehicle sticker template preview"
+                                className="h-44 w-full rounded-[1.25rem] bg-white object-cover"
+                              />
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-200">
+                                  STICKERS
+                                </p>
+                                <p className="mt-3 text-sm leading-relaxed text-slate-100">
+                                  Vehicle stickers printed with your QR code are available in a choice of two sizes available in packs of two; 100mm x 90mm at £xx and 150mm x 135mm at £xx. Prices include delivery and VAT.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
                           <div className="grid gap-3 sm:grid-cols-2">
                             <button
                               type="button"
@@ -389,7 +464,7 @@ export function MemberOverview() {
                             >
                               {qrBusy === "sticker"
                                 ? "Preparing..."
-                                : `Download 75mm PNG (${data.qr.stickerPixels}px)`}
+                                : `Download QR PNG 75mm (${data.qr.stickerPixels}px)`}
                             </button>
                             <button
                               type="button"
@@ -399,7 +474,7 @@ export function MemberOverview() {
                             >
                               {qrBusy === "small"
                                 ? "Preparing..."
-                                : `Download 20mm JPG (${data.qr.smallPixels}px)`}
+                                : `Download QR JPG 20mm (${data.qr.smallPixels}px)`}
                             </button>
                             <button
                               type="button"
@@ -407,13 +482,13 @@ export function MemberOverview() {
                               disabled={qrBusy !== null}
                               className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
                             >
-                              {qrBusy === "svg" ? "Preparing..." : "Download SVG (resolution-independent)"}
+                              {qrBusy === "svg" ? "Preparing..." : "Download QR SVG (resolution-independent)"}
                             </button>
                           </div>
 
                           <div className="mt-4">
-                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                              Van sticker templates (print-ready, send to printer)
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
+                              Vehicle sticker templates
                             </p>
                             <div className="grid gap-3 sm:grid-cols-2">
                               <button
@@ -422,7 +497,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "van1" ? "Preparing..." : "Download Van sticker 1 — 250×50mm"}
+                                {qrBusy === "van1" ? "Preparing..." : "Download vehicle sticker 1 — 250×50mm"}
                               </button>
                               <button
                                 type="button"
@@ -430,7 +505,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "van2" ? "Preparing..." : "Download Van sticker 2 — 187×93mm"}
+                                {qrBusy === "van2" ? "Preparing..." : "Download vehicle sticker 2 — 187×93mm"}
                               </button>
                             </div>
                           </div>
