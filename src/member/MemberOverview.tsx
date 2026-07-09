@@ -95,9 +95,6 @@ const stickerPreviewCards = [
     title: "Vehicle sticker 1",
     body: "Download this sticker artwork with your QR code placed centrally in the clear area.",
     buttonLabel: "Download vehicle sticker 1",
-    qrLeftPct: (514 / 897) * 100,
-    qrTopPct: (36 / 402) * 100,
-    qrSizePct: (328 / 897) * 100,
   },
   {
     id: "van2" as const,
@@ -106,9 +103,6 @@ const stickerPreviewCards = [
     title: "Vehicle sticker 2",
     body: "Download this larger sticker artwork with your QR code centred in the open white panel.",
     buttonLabel: "Download vehicle sticker 2",
-    qrLeftPct: (60 / 1184) * 100,
-    qrTopPct: (298 / 1064) * 100,
-    qrSizePct: (472 / 1184) * 100,
   },
 ];
 
@@ -571,26 +565,12 @@ export function MemberOverview() {
                               {stickerPreviewCards.map((card) => (
                                 <div key={card.id} className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
                                   <div className="overflow-hidden rounded-[1rem] bg-white">
-                                    <div className="relative">
+                                    <div className="flex aspect-[4/3] items-center justify-center p-4">
                                       <img
                                         src={card.imageSrc}
                                         alt={card.imageAlt}
-                                        className="block w-full h-auto"
+                                        className="block max-h-full max-w-full object-contain"
                                       />
-                                      {qrPreviewUrl ? (
-                                        <img
-                                          src={qrPreviewUrl}
-                                          alt=""
-                                          aria-hidden="true"
-                                          className="pointer-events-none absolute object-contain"
-                                          style={{
-                                            left: `${card.qrLeftPct}%`,
-                                            top: `${card.qrTopPct}%`,
-                                            width: `${card.qrSizePct}%`,
-                                            height: `${card.qrSizePct}%`,
-                                          }}
-                                        />
-                                      ) : null}
                                     </div>
                                   </div>
                                   <h3 className="mt-4 text-base font-semibold text-white">

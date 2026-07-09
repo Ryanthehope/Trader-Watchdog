@@ -77,10 +77,10 @@ const VAN_STICKER_CONFIGS = {
   "2": {
     templateFile: "300dpi.png",
     downloadSuffix: "vehicle-sticker-2",
-    panelLeft: 60,
-    panelTop: 298,
-    panelSize: 472,
-    qrInset: 14,
+    panelLeft: 107,
+    panelTop: 349,
+    panelSize: 370,
+    qrInset: 12,
   },
 } as const;
 
