@@ -43,13 +43,6 @@ type MemberOverviewData = {
   };
 };
 
-const badgeWithQrPreview = {
-  leftPct: (160 / 381) * 100,
-  topPct: (72 / 348) * 100,
-  sizePct: (176 / 381) * 100,
-  insetPct: (8 / 176) * 100,
-};
-
 async function blobToJpeg(blob: Blob, width: number, height: number): Promise<Blob> {
   const url = URL.createObjectURL(blob);
   try {
@@ -93,17 +86,29 @@ const stickerPreviewCards = [
     id: "van1" as const,
     imageSrc: "/bitmap%20stationery%20blank.png",
     imageAlt: "Sticker 1 template preview",
+    sourceWidth: 897,
+    sourceHeight: 402,
     title: "Vehicle sticker 1",
     body: "Download this sticker artwork with your QR code placed centrally in the clear area.",
     buttonLabel: "Download vehicle sticker 1",
+    panelLeft: 514,
+    panelTop: 36,
+    panelSize: 328,
+    qrInset: 10,
   },
   {
     id: "van2" as const,
     imageSrc: "/300dpi.png",
     imageAlt: "Sticker 2 template preview",
+    sourceWidth: 1184,
+    sourceHeight: 1064,
     title: "Vehicle sticker 2",
     body: "Download this larger sticker artwork with your QR code centred in the open white panel.",
     buttonLabel: "Download vehicle sticker 2",
+    panelLeft: 107,
+    panelTop: 349,
+    panelSize: 370,
+    qrInset: 12,
   },
 ];
 
@@ -476,32 +481,11 @@ export function MemberOverview() {
 
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
                               <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
-                                <div className="relative inline-block">
-                                  <img
-                                    src="/Badge%20TW1.webp"
-                                    alt="Trader Watchdog badge showing a QR code"
-                                    className="max-h-40 w-full object-contain"
-                                  />
-                                  {qrPreviewUrl ? (
-                                    <div
-                                      aria-hidden="true"
-                                      className="pointer-events-none absolute bg-white"
-                                      style={{
-                                        left: `${badgeWithQrPreview.leftPct}%`,
-                                        top: `${badgeWithQrPreview.topPct}%`,
-                                        width: `${badgeWithQrPreview.sizePct}%`,
-                                        height: `${badgeWithQrPreview.sizePct}%`,
-                                      }}
-                                    >
-                                      <img
-                                        src={qrPreviewUrl}
-                                        alt=""
-                                        className="h-full w-full object-contain"
-                                        style={{ padding: `${badgeWithQrPreview.insetPct}%` }}
-                                      />
-                                    </div>
-                                  ) : null}
-                                </div>
+                                <img
+                                  src="/Badge%20TW1.webp"
+                                  alt="Trader Watchdog badge showing a QR code"
+                                  className="max-h-40 w-full object-contain"
+                                />
                               </div>
                               <h3 className="mt-4 text-lg font-semibold text-slate-900">
                                 Badge with your QR code
@@ -572,11 +556,32 @@ export function MemberOverview() {
                                 <div key={card.id} className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
                                   <div className="overflow-hidden rounded-[1rem] bg-white">
                                     <div className="flex aspect-[4/3] items-center justify-center p-4">
-                                      <img
-                                        src={card.imageSrc}
-                                        alt={card.imageAlt}
-                                        className="block max-h-full max-w-full object-contain"
-                                      />
+                                      <div className="relative inline-block">
+                                        <img
+                                          src={card.imageSrc}
+                                          alt={card.imageAlt}
+                                          className="block max-h-full max-w-full object-contain"
+                                        />
+                                        {qrPreviewUrl ? (
+                                          <div
+                                            aria-hidden="true"
+                                            className="pointer-events-none absolute bg-white"
+                                            style={{
+                                              left: `${(card.panelLeft / card.sourceWidth) * 100}%`,
+                                              top: `${(card.panelTop / card.sourceHeight) * 100}%`,
+                                              width: `${(card.panelSize / card.sourceWidth) * 100}%`,
+                                              height: `${(card.panelSize / card.sourceHeight) * 100}%`,
+                                            }}
+                                          >
+                                            <img
+                                              src={qrPreviewUrl}
+                                              alt=""
+                                              className="h-full w-full object-contain"
+                                              style={{ padding: `${(card.qrInset / card.panelSize) * 100}%` }}
+                                            />
+                                          </div>
+                                        ) : null}
+                                      </div>
                                     </div>
                                   </div>
                                   <h3 className="mt-4 text-base font-semibold text-white">

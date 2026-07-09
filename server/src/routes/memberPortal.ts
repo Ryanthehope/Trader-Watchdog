@@ -49,10 +49,10 @@ type QrVariant = "sticker" | "small";
 
 const BADGE_WITH_QR_CONFIG = {
   templateFile: "Badge TW1.webp",
-  panelLeft: 160,
-  panelTop: 72,
-  panelSize: 176,
-  qrInset: 8,
+  panelLeft: 154,
+  panelTop: 68,
+  panelSize: 188,
+  qrInset: 10,
 } as const;
 
 const BADGE_BLANK_TEMPLATE_FILE = "badge-preview.svg";
