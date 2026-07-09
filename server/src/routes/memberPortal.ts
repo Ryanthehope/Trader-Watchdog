@@ -49,9 +49,10 @@ type QrVariant = "sticker" | "small";
 
 const BADGE_WITH_QR_CONFIG = {
   templateFile: "Badge TW1.webp",
-  qrLeft: 168,
-  qrTop: 79,
-  qrSize: 160,
+  panelLeft: 160,
+  panelTop: 72,
+  panelSize: 176,
+  qrInset: 8,
 } as const;
 
 const BADGE_BLANK_TEMPLATE_FILE = "badge-preview.svg";
@@ -100,14 +101,14 @@ async function buildQrPng(profileUrl: string, sizePx: number, margin = 1) {
   });
 }
 
-async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerId], profileUrl: string) {
-  const qrSize = cfg.panelSize - cfg.qrInset * 2;
+async function buildQrPanel(panelSize: number, qrInset: number, profileUrl: string) {
+  const qrSize = panelSize - qrInset * 2;
   const qrPngBuffer = await buildQrPng(profileUrl, qrSize);
 
   return sharp({
     create: {
-      width: cfg.panelSize,
-      height: cfg.panelSize,
+      width: panelSize,
+      height: panelSize,
       channels: 4,
       background: "#FFFFFF",
     },
@@ -115,12 +116,16 @@ async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerI
     .composite([
       {
         input: qrPngBuffer,
-        left: cfg.qrInset,
-        top: cfg.qrInset,
+        left: qrInset,
+        top: qrInset,
       },
     ])
     .png()
     .toBuffer();
+}
+
+async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerId], profileUrl: string) {
+  return buildQrPanel(cfg.panelSize, cfg.qrInset, profileUrl);
 }
 
 type VanStickerId = keyof typeof VAN_STICKER_CONFIGS;
@@ -366,14 +371,18 @@ router.get("/qr-code/badge-with-qr", async (req, res) => {
     }
 
     const profileUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
-    const qrPng = await buildQrPng(profileUrl, BADGE_WITH_QR_CONFIG.qrSize);
+    const qrPanel = await buildQrPanel(
+      BADGE_WITH_QR_CONFIG.panelSize,
+      BADGE_WITH_QR_CONFIG.qrInset,
+      profileUrl
+    );
     const templatePath = resolveStickerTemplatePath(BADGE_WITH_QR_CONFIG.templateFile);
     const output = await sharp(templatePath)
       .composite([
         {
-          input: qrPng,
-          left: BADGE_WITH_QR_CONFIG.qrLeft,
-          top: BADGE_WITH_QR_CONFIG.qrTop,
+          input: qrPanel,
+          left: BADGE_WITH_QR_CONFIG.panelLeft,
+          top: BADGE_WITH_QR_CONFIG.panelTop,
         },
       ])
       .png({ compressionLevel: 9 })

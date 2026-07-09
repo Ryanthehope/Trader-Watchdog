@@ -44,9 +44,10 @@ type MemberOverviewData = {
 };
 
 const badgeWithQrPreview = {
-  leftPct: (168 / 381) * 100,
-  topPct: (79 / 348) * 100,
-  sizePct: (160 / 381) * 100,
+  leftPct: (160 / 381) * 100,
+  topPct: (72 / 348) * 100,
+  sizePct: (176 / 381) * 100,
+  insetPct: (8 / 176) * 100,
 };
 
 async function blobToJpeg(blob: Blob, width: number, height: number): Promise<Blob> {
@@ -482,18 +483,23 @@ export function MemberOverview() {
                                     className="max-h-40 w-full object-contain"
                                   />
                                   {qrPreviewUrl ? (
-                                    <img
-                                      src={qrPreviewUrl}
-                                      alt=""
+                                    <div
                                       aria-hidden="true"
-                                      className="pointer-events-none absolute object-contain"
+                                      className="pointer-events-none absolute bg-white"
                                       style={{
                                         left: `${badgeWithQrPreview.leftPct}%`,
                                         top: `${badgeWithQrPreview.topPct}%`,
                                         width: `${badgeWithQrPreview.sizePct}%`,
                                         height: `${badgeWithQrPreview.sizePct}%`,
                                       }}
-                                    />
+                                    >
+                                      <img
+                                        src={qrPreviewUrl}
+                                        alt=""
+                                        className="h-full w-full object-contain"
+                                        style={{ padding: `${badgeWithQrPreview.insetPct}%` }}
+                                      />
+                                    </div>
                                   ) : null}
                                 </div>
                               </div>
