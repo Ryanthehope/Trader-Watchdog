@@ -47,34 +47,40 @@ const QR_SMALL_SIZE_PX = 236; // 20mm at 300 DPI.
 
 type QrVariant = "sticker" | "small";
 
+const BADGE_WITH_QR_CONFIG = {
+  templateFile: "Badge TW1.webp",
+  qrLeft: 168,
+  qrTop: 79,
+  qrSize: 160,
+} as const;
+
+const BADGE_BLANK_TEMPLATE_FILE = "badge-preview.svg";
+
 const ASSETS_DIR = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../assets"
 );
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 
-// Van sticker composite configurations.
+// Sticker composite configurations.
 // QR box coordinates are measured in pixels within the template images.
-// Template sizes: sticker 1 = 2000×800px (labelled 250×50mm), sticker 2 = 2000×800px (labelled 187×93mm).
-// Adjust qrLeft/qrTop/qrSize if positioning needs fine-tuning after a test print.
+// Sticker 1 uses the bitmap stationery template; sticker 2 uses the 300 DPI template.
 const VAN_STICKER_CONFIGS = {
   "1": {
-    templateFile: "Sticker 1.png",
-    mmWidth: 250,
-    mmHeight: 50,
-    panelLeft: 596,
-    panelTop: 176,
-    panelSize: 430,
-    qrInset: 12,
+    templateFile: "bitmap stationery blank.png",
+    downloadSuffix: "vehicle-sticker-1",
+    panelLeft: 514,
+    panelTop: 36,
+    panelSize: 328,
+    qrInset: 10,
   },
   "2": {
-    templateFile: "Sticker 2.png",
-    mmWidth: 187,
-    mmHeight: 93,
-    panelLeft: 920,
-    panelTop: 210,
-    panelSize: 400,
-    qrInset: 12,
+    templateFile: "300dpi.png",
+    downloadSuffix: "vehicle-sticker-2",
+    panelLeft: 60,
+    panelTop: 298,
+    panelSize: 472,
+    qrInset: 14,
   },
 } as const;
 
@@ -84,15 +90,19 @@ function resolveStickerTemplatePath(templateFile: string) {
   return path.join(ASSETS_DIR, templateFile);
 }
 
-async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerId], profileUrl: string) {
-  const qrSize = cfg.panelSize - cfg.qrInset * 2;
-  const qrPngBuffer = await QRCode.toBuffer(profileUrl, {
+async function buildQrPng(profileUrl: string, sizePx: number, margin = 1) {
+  return QRCode.toBuffer(profileUrl, {
     type: "png",
     errorCorrectionLevel: "H",
-    margin: 1,
-    width: qrSize,
+    margin,
+    width: sizePx,
     color: { dark: "#000000", light: "#FFFFFFFF" },
   });
+}
+
+async function buildStickerQrPanel(cfg: (typeof VAN_STICKER_CONFIGS)[VanStickerId], profileUrl: string) {
+  const qrSize = cfg.panelSize - cfg.qrInset * 2;
+  const qrPngBuffer = await buildQrPng(profileUrl, qrSize);
 
   return sharp({
     create: {
@@ -233,7 +243,7 @@ router.get("/me", async (req, res) => {
       profile,
       profileLive,
       loginEmail: m.loginEmail,
-      publicProfileUrl: `/m/${m.slug}`,
+      publicProfileUrl: publicProfileAbsoluteUrl,
       mustChangePassword: m.mustChangePassword,
       membership,
       verification: {
@@ -255,6 +265,8 @@ router.get("/me", async (req, res) => {
         stickerDownloadUrl: "/api/member/portal/qr-code/sticker",
         smallDownloadUrl: "/api/member/portal/qr-code/small",
         svgDownloadUrl: "/api/member/portal/qr-code/svg",
+        badgeWithQrDownloadUrl: "/api/member/portal/qr-code/badge-with-qr",
+        badgeBlankDownloadUrl: "/api/member/portal/qr-code/badge-blank",
         van1DownloadUrl: "/api/member/portal/qr-code/van-sticker/1",
         van2DownloadUrl: "/api/member/portal/qr-code/van-sticker/2",
         stickerPixels: QR_STICKER_SIZE_PX,
@@ -327,6 +339,97 @@ router.get("/qr-code/svg", async (req, res) => {
   }
 });
 
+router.get("/qr-code/badge-with-qr", async (req, res) => {
+  try {
+    const memberId = (req as unknown as { memberId: string }).memberId;
+    const m = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        slug: true,
+        tvId: true,
+        verificationStatus: true,
+        membershipUnlimited: true,
+        membershipBillingType: true,
+        membershipExpiresAt: true,
+      },
+    });
+    if (!m) {
+      res.status(404).json({ error: "Account not found" });
+      return;
+    }
+    if (!isMemberQrEligible(m)) {
+      res.status(403).json({
+        error:
+          "QR downloads are available while your membership is active. Contact us if you need help.",
+      });
+      return;
+    }
+
+    const profileUrl = await memberPublicProfileAbsoluteUrl(req, m.slug);
+    const qrPng = await buildQrPng(profileUrl, BADGE_WITH_QR_CONFIG.qrSize);
+    const templatePath = resolveStickerTemplatePath(BADGE_WITH_QR_CONFIG.templateFile);
+    const output = await sharp(templatePath)
+      .composite([
+        {
+          input: qrPng,
+          left: BADGE_WITH_QR_CONFIG.qrLeft,
+          top: BADGE_WITH_QR_CONFIG.qrTop,
+        },
+      ])
+      .png({ compressionLevel: 9 })
+      .toBuffer();
+
+    const safeId = m.tvId.replace(/[^A-Za-z0-9_-]/g, "");
+    const filename = `trader-watchdog-${safeId}-badge-with-qr.png`;
+    res.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.type("image/png");
+    res.send(output);
+  } catch (e) {
+    console.error("[member portal] badge-with-qr download failed", e);
+    res.status(500).json({ error: "Could not generate badge" });
+  }
+});
+
+router.get("/qr-code/badge-blank", async (req, res) => {
+  try {
+    const memberId = (req as unknown as { memberId: string }).memberId;
+    const m = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        tvId: true,
+        verificationStatus: true,
+        membershipUnlimited: true,
+        membershipBillingType: true,
+        membershipExpiresAt: true,
+      },
+    });
+    if (!m) {
+      res.status(404).json({ error: "Account not found" });
+      return;
+    }
+    if (!isMemberQrEligible(m)) {
+      res.status(403).json({
+        error:
+          "QR downloads are available while your membership is active. Contact us if you need help.",
+      });
+      return;
+    }
+
+    const templatePath = resolveStickerTemplatePath(BADGE_BLANK_TEMPLATE_FILE);
+    const svg = fs.readFileSync(templatePath, "utf8");
+    const safeId = m.tvId.replace(/[^A-Za-z0-9_-]/g, "");
+    const filename = `trader-watchdog-${safeId}-badge-blank.svg`;
+    res.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.type("image/svg+xml");
+    res.send(svg);
+  } catch (e) {
+    console.error("[member portal] badge-blank download failed", e);
+    res.status(500).json({ error: "Could not download badge artwork" });
+  }
+});
+
 // Van sticker composite: QR code composited into the white box on the sticker template.
 router.get("/qr-code/van-sticker/:id", async (req, res) => {
   try {
@@ -380,7 +483,7 @@ router.get("/qr-code/van-sticker/:id", async (req, res) => {
       .toBuffer();
 
     const safeId = m.tvId.replace(/[^A-Za-z0-9_-]/g, "");
-    const filename = `trader-watchdog-${safeId}-van-sticker-${stickerId}-${cfg.mmWidth}x${cfg.mmHeight}mm.png`;
+    const filename = `trader-watchdog-${safeId}-${cfg.downloadSuffix}.png`;
     res.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.type("image/png");

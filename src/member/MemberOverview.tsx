@@ -34,11 +34,19 @@ type MemberOverviewData = {
     stickerDownloadUrl: string;
     smallDownloadUrl: string;
     svgDownloadUrl: string;
+    badgeWithQrDownloadUrl: string;
+    badgeBlankDownloadUrl: string;
     van1DownloadUrl: string;
     van2DownloadUrl: string;
     stickerPixels: number;
     smallPixels: number;
   };
+};
+
+const badgeWithQrPreview = {
+  leftPct: (168 / 381) * 100,
+  topPct: (79 / 348) * 100,
+  sizePct: (160 / 381) * 100,
 };
 
 async function blobToJpeg(blob: Blob, width: number, height: number): Promise<Blob> {
@@ -79,11 +87,36 @@ function saveBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+const stickerPreviewCards = [
+  {
+    id: "van1" as const,
+    imageSrc: "/bitmap%20stationery%20blank.png",
+    imageAlt: "Sticker 1 template preview",
+    title: "Vehicle sticker 1",
+    body: "Download this sticker artwork with your QR code placed centrally in the clear area.",
+    buttonLabel: "Download vehicle sticker 1",
+    qrLeftPct: (514 / 897) * 100,
+    qrTopPct: (36 / 402) * 100,
+    qrSizePct: (328 / 897) * 100,
+  },
+  {
+    id: "van2" as const,
+    imageSrc: "/300dpi.png",
+    imageAlt: "Sticker 2 template preview",
+    title: "Vehicle sticker 2",
+    body: "Download this larger sticker artwork with your QR code centred in the open white panel.",
+    buttonLabel: "Download vehicle sticker 2",
+    qrLeftPct: (60 / 1184) * 100,
+    qrTopPct: (298 / 1064) * 100,
+    qrSizePct: (472 / 1184) * 100,
+  },
+];
+
 export function MemberOverview() {
   const { member } = useMemberAuth();
   const [data, setData] = useState<MemberOverviewData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [qrBusy, setQrBusy] = useState<"sticker" | "small" | "svg" | "van1" | "van2" | null>(null);
+  const [qrBusy, setQrBusy] = useState<"sticker" | "small" | "svg" | "badge" | "badgeBlank" | "van1" | "van2" | null>(null);
   const [qrError, setQrError] = useState<string | null>(null);
   const [qrPreviewUrl, setQrPreviewUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -106,7 +139,7 @@ export function MemberOverview() {
     if (!data?.qr.eligible) return;
     let objectUrl: string | null = null;
     let cancelled = false;
-    apiGetMemberBlob(data.qr.smallDownloadUrl)
+    apiGetMemberBlob(data.qr.svgDownloadUrl)
       .then((blob) => {
         if (cancelled) return;
         objectUrl = URL.createObjectURL(blob);
@@ -119,7 +152,7 @@ export function MemberOverview() {
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [data?.qr.eligible, data?.qr.smallDownloadUrl]);
+  }, [data?.qr.eligible, data?.qr.svgDownloadUrl]);
 
   if (error) {
     return (
@@ -210,12 +243,40 @@ export function MemberOverview() {
     }
   }
 
+  async function downloadBadgeWithQr() {
+    try {
+      setQrError(null);
+      setQrBusy("badge");
+      const blob = await apiGetMemberBlob(qr.badgeWithQrDownloadUrl);
+      const tvId = p.tvId.trim().replace(/[^A-Za-z0-9_-]/g, "");
+      saveBlob(blob, `trader-watchdog-${tvId}-badge-with-qr.png`);
+    } catch (e) {
+      setQrError(e instanceof Error ? e.message : "Could not download badge with QR code");
+    } finally {
+      setQrBusy(null);
+    }
+  }
+
+  async function downloadBlankBadge() {
+    try {
+      setQrError(null);
+      setQrBusy("badgeBlank");
+      const blob = await apiGetMemberBlob(qr.badgeBlankDownloadUrl);
+      const tvId = p.tvId.trim().replace(/[^A-Za-z0-9_-]/g, "");
+      saveBlob(blob, `trader-watchdog-${tvId}-badge-blank.svg`);
+    } catch (e) {
+      setQrError(e instanceof Error ? e.message : "Could not download blank badge artwork");
+    } finally {
+      setQrBusy(null);
+    }
+  }
+
   async function downloadVanSticker(id: "van1" | "van2") {
     try {
       setQrError(null);
       setQrBusy(id);
       const url = id === "van1" ? qr.van1DownloadUrl : qr.van2DownloadUrl;
-      const label = id === "van1" ? "250x50mm" : "187x93mm";
+      const label = id === "van1" ? "vehicle-sticker-1" : "vehicle-sticker-2";
       const blob = await apiGetMemberBlob(url);
       const tvId = p.tvId.trim().replace(/[^A-Za-z0-9_-]/g, "");
       saveBlob(blob, `trader-watchdog-${tvId}-van-sticker-${label}.png`);
@@ -386,15 +447,61 @@ export function MemberOverview() {
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
                                 This QR code directs to your business portal. You can download it here for your marketing materials. Please check before displaying to ensure the accuracy and contact us if the code does not direct.
                               </p>
+                              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                <button
+                                  type="button"
+                                  onClick={() => void downloadStickerPng()}
+                                  disabled={qrBusy !== null}
+                                  className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  {qrBusy === "sticker"
+                                    ? "Preparing..."
+                                    : `Download QR PNG 75mm (${data.qr.stickerPixels}px)`}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void downloadSmallJpg()}
+                                  disabled={qrBusy !== null}
+                                  className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  {qrBusy === "small"
+                                    ? "Preparing..."
+                                    : `Download QR JPG 20mm (${data.qr.smallPixels}px)`}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void downloadSvg()}
+                                  disabled={qrBusy !== null}
+                                  className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
+                                >
+                                  {qrBusy === "svg" ? "Preparing..." : "Download QR SVG (resolution-independent)"}
+                                </button>
+                              </div>
                             </div>
 
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
                               <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
-                                <img
-                                  src="/Badge%20TW1.webp"
-                                  alt="Trader Watchdog badge showing a QR code"
-                                  className="max-h-40 w-full object-contain"
-                                />
+                                <div className="relative inline-block">
+                                  <img
+                                    src="/Badge%20TW1.webp"
+                                    alt="Trader Watchdog badge showing a QR code"
+                                    className="max-h-40 w-full object-contain"
+                                  />
+                                  {qrPreviewUrl ? (
+                                    <img
+                                      src={qrPreviewUrl}
+                                      alt=""
+                                      aria-hidden="true"
+                                      className="pointer-events-none absolute object-contain"
+                                      style={{
+                                        left: `${badgeWithQrPreview.leftPct}%`,
+                                        top: `${badgeWithQrPreview.topPct}%`,
+                                        width: `${badgeWithQrPreview.sizePct}%`,
+                                        height: `${badgeWithQrPreview.sizePct}%`,
+                                      }}
+                                    />
+                                  ) : null}
+                                </div>
                               </div>
                               <h3 className="mt-4 text-lg font-semibold text-slate-900">
                                 Badge with your QR code
@@ -402,6 +509,14 @@ export function MemberOverview() {
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
                                 Download this badge showing your QR code for stationery, social media and advertising.
                               </p>
+                              <button
+                                type="button"
+                                onClick={() => void downloadBadgeWithQr()}
+                                disabled={qrBusy !== null}
+                                className="mt-4 w-full rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {qrBusy === "badge" ? "Preparing..." : "Download badge with your QR code"}
+                              </button>
                             </div>
 
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
@@ -418,6 +533,14 @@ export function MemberOverview() {
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
                                 If QR code cannot be placed - Download this badge and add your QR code for stationery, social media and advertising.
                               </p>
+                              <button
+                                type="button"
+                                onClick={() => void downloadBlankBadge()}
+                                disabled={qrBusy !== null}
+                                className="mt-4 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {qrBusy === "badgeBlank" ? "Preparing..." : "Download blank badge artwork"}
+                              </button>
                             </div>
 
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
@@ -438,75 +561,54 @@ export function MemberOverview() {
                           </div>
 
                           <div className="rounded-[1.5rem] border border-[#0d2167] bg-[#122a80] p-5 text-white shadow-sm">
-                            <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center">
-                              <img
-                                src="/van-qr-2.jpg"
-                                alt="Vehicle sticker template preview"
-                                className="h-44 w-full rounded-[1.25rem] bg-white object-cover"
-                              />
-                              <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-200">
-                                  STICKERS
-                                </p>
-                                <p className="mt-3 text-sm leading-relaxed text-slate-100">
-                                  Vehicle stickers printed with your QR code are available in a choice of two sizes available in packs of two; 100mm x 90mm at £xx and 150mm x 135mm at £xx. Prices include delivery and VAT.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            <button
-                              type="button"
-                              onClick={() => void downloadStickerPng()}
-                              disabled={qrBusy !== null}
-                              className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {qrBusy === "sticker"
-                                ? "Preparing..."
-                                : `Download QR PNG 75mm (${data.qr.stickerPixels}px)`}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void downloadSmallJpg()}
-                              disabled={qrBusy !== null}
-                              className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {qrBusy === "small"
-                                ? "Preparing..."
-                                : `Download QR JPG 20mm (${data.qr.smallPixels}px)`}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void downloadSvg()}
-                              disabled={qrBusy !== null}
-                              className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
-                            >
-                              {qrBusy === "svg" ? "Preparing..." : "Download QR SVG (resolution-independent)"}
-                            </button>
-                          </div>
-
-                          <div className="mt-4">
-                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
-                              Vehicle sticker templates
+                            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-200">
+                              STICKERS
                             </p>
-                            <div className="grid gap-3 sm:grid-cols-2">
-                              <button
-                                type="button"
-                                onClick={() => void downloadVanSticker("van1")}
-                                disabled={qrBusy !== null}
-                                className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                {qrBusy === "van1" ? "Preparing..." : "Download vehicle sticker 1 — 250×50mm"}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => void downloadVanSticker("van2")}
-                                disabled={qrBusy !== null}
-                                className="rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                {qrBusy === "van2" ? "Preparing..." : "Download vehicle sticker 2 — 187×93mm"}
-                              </button>
+                            <p className="mt-3 text-sm leading-relaxed text-slate-100">
+                              Vehicle stickers printed with your QR code are available in a choice of two sizes available in packs of two; 100mm x 90mm at £xx and 150mm x 135mm at £xx. Prices include delivery and VAT.
+                            </p>
+                            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                              {stickerPreviewCards.map((card) => (
+                                <div key={card.id} className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
+                                  <div className="overflow-hidden rounded-[1rem] bg-white">
+                                    <div className="relative">
+                                      <img
+                                        src={card.imageSrc}
+                                        alt={card.imageAlt}
+                                        className="block w-full h-auto"
+                                      />
+                                      {qrPreviewUrl ? (
+                                        <img
+                                          src={qrPreviewUrl}
+                                          alt=""
+                                          aria-hidden="true"
+                                          className="pointer-events-none absolute object-contain"
+                                          style={{
+                                            left: `${card.qrLeftPct}%`,
+                                            top: `${card.qrTopPct}%`,
+                                            width: `${card.qrSizePct}%`,
+                                            height: `${card.qrSizePct}%`,
+                                          }}
+                                        />
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                  <h3 className="mt-4 text-base font-semibold text-white">
+                                    {card.title}
+                                  </h3>
+                                  <p className="mt-2 text-sm leading-relaxed text-slate-100">
+                                    {card.body}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => void downloadVanSticker(card.id)}
+                                    disabled={qrBusy !== null}
+                                    className="mt-4 w-full rounded-lg bg-white px-4 py-3 text-sm font-semibold text-[#122a80] hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                  >
+                                    {qrBusy === card.id ? "Preparing..." : card.buttonLabel}
+                                  </button>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         </div>
