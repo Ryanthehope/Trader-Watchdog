@@ -3,7 +3,10 @@ import { Router } from "express";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { deleteApplicationById } from "../lib/applicationDelete.js";
-import { parseApplicationXeroInvoiceRefs } from "../lib/applicationXeroInvoices.js";
+import {
+  parseApplicationXeroInvoiceRefs,
+  retryApplicationXeroInvoice,
+} from "../lib/applicationXeroInvoices.js";
 import { hashPortalPassword } from "../lib/portalCredentials.js";
 import { getStripeClient } from "../lib/stripeClient.js";
 import { createStripeInvoicePdf } from "../lib/stripeInvoice.js";
@@ -400,14 +403,26 @@ router.get("/applications/:id/xero-invoices/:kind/file", async (req, res) => {
       return;
     }
 
-    const invoiceId = parseApplicationXeroInvoiceRefs(application.xeroInvoiceId)[kind];
-    const pdf =
-      (invoiceId ? await fetchXeroInvoicePDF(invoiceId) : null) ??
-      (await buildApplicationStripeReceiptPdf(req.params.id, kind))?.pdf ??
-      null;
+    let invoiceId = parseApplicationXeroInvoiceRefs(application.xeroInvoiceId)[kind];
+    let pdf = invoiceId ? await fetchXeroInvoicePDF(invoiceId) : null;
+
+    if (!pdf && !invoiceId) {
+      try {
+        const retried = await retryApplicationXeroInvoice(req.params.id, kind);
+        invoiceId = retried.invoiceId;
+        pdf = invoiceId ? await fetchXeroInvoicePDF(invoiceId) : null;
+      } catch (retryError) {
+        console.error("[admin] xero invoice generation fallback failed", retryError);
+      }
+    }
+
+    if (!pdf) {
+      pdf = (await buildApplicationStripeReceiptPdf(req.params.id, kind))?.pdf ?? null;
+    }
     if (!pdf) {
       res.status(502).json({
-        error: "Could not fetch invoice PDF from Xero or regenerate a Stripe VAT receipt",
+        error:
+          "Could not fetch the Xero invoice PDF, generate a missing Xero invoice, or regenerate a Stripe VAT receipt for this payment",
       });
       return;
     }
