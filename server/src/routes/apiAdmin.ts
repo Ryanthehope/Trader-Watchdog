@@ -5,10 +5,16 @@ import { prisma } from "../db.js";
 import { deleteApplicationById } from "../lib/applicationDelete.js";
 import { parseApplicationXeroInvoiceRefs } from "../lib/applicationXeroInvoices.js";
 import { hashPortalPassword } from "../lib/portalCredentials.js";
+import { getStripeClient } from "../lib/stripeClient.js";
+import { createStripeInvoicePdf } from "../lib/stripeInvoice.js";
 import { fetchXeroInvoicePDF } from "../lib/xeroInvoice.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
-import { defaultUploadPath, uploadPathCandidates } from "../lib/uploadPaths.js";
+import {
+  defaultUploadPath,
+  resolveStoredUploadPath,
+  uploadPathCandidates,
+} from "../lib/uploadPaths.js";
 import { requireStaff } from "../middleware/requireStaff.js";
 import adminOps from "./adminOps.js";
 import { registerStaff2faRoutes } from "./staff2fa.js";
@@ -65,6 +71,161 @@ function parseChecks(body: unknown): string[] | null {
 
 function parseGuideBody(body: unknown): string[] | null {
   return parseChecks(body);
+}
+
+function sameUtcDay(date: Date, other: Date) {
+  return date.toISOString().slice(0, 10) === other.toISOString().slice(0, 10);
+}
+
+function describeApplicationReceipt(args: {
+  checkoutKind: string | null | undefined;
+  paidAt: Date;
+  registrationFeePaidAt: Date | null | undefined;
+}) {
+  const paidAtLabel = args.paidAt.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const registrationPaidSameDay =
+    args.registrationFeePaidAt != null && sameUtcDay(args.registrationFeePaidAt, args.paidAt);
+
+  if (args.checkoutKind === "registration_fee") {
+    return {
+      description: "Registration Fee",
+      invoiceDescription: "Registration Fee",
+    };
+  }
+
+  if (args.checkoutKind === "membership") {
+    if (registrationPaidSameDay) {
+      return {
+        description: `Registration Fee and Annual Portal Fee (${paidAtLabel})`,
+        invoiceDescription: "Registration Fee and Annual Portal Fee",
+      };
+    }
+    return {
+      description: `Annual Portal Fee (${paidAtLabel})`,
+      invoiceDescription: "Annual Portal Fee",
+    };
+  }
+
+  return {
+    description: `Trader Watchdog payment (${paidAtLabel})`,
+    invoiceDescription: "Trader Watchdog Payment",
+  };
+}
+
+async function buildApplicationStripeReceiptPdf(
+  applicationId: string,
+  preferredKind?: "registration_fee" | "membership"
+) {
+  const application = await prisma.application.findUnique({
+    where: { id: applicationId },
+    select: {
+      id: true,
+      company: true,
+      email: true,
+      stripeCustomerId: true,
+      registrationFeePaidAt: true,
+      membershipSubscribed: true,
+    },
+  });
+  if (!application?.stripeCustomerId) return null;
+  if (!application.registrationFeePaidAt && !application.membershipSubscribed) return null;
+
+  const stripe = await getStripeClient();
+  if (!stripe) return null;
+
+  const results = await stripe.paymentIntents.search({
+    query: `metadata['applicationId']:'${applicationId}' AND status:'succeeded'`,
+    limit: 10,
+  });
+  const paymentIntent =
+    results.data.find((pi) => pi.metadata?.checkoutKind === preferredKind) ??
+    results.data.find((pi) => {
+      const kind = pi.metadata?.checkoutKind;
+      return kind === "registration_fee" || kind === "membership";
+    });
+  if (!paymentIntent) return null;
+
+  const paidAt = new Date(paymentIntent.created * 1000);
+  const { description, invoiceDescription } = describeApplicationReceipt({
+    checkoutKind: paymentIntent.metadata?.checkoutKind,
+    paidAt,
+    registrationFeePaidAt: application.registrationFeePaidAt,
+  });
+  const pdf = await createStripeInvoicePdf(stripe, {
+    stripeCustomerId: application.stripeCustomerId,
+    description,
+    amountPence: paymentIntent.amount_received || paymentIntent.amount,
+    reference: paymentIntent.id,
+    paidAt,
+    receivedFromName: application.company || "Trader",
+    receivedFromEmail: application.email,
+  });
+  if (!pdf) return null;
+
+  return {
+    pdf,
+    invoiceDescription,
+  };
+}
+
+async function buildMemberStripeReceiptPdf(memberId: string) {
+  const member = await prisma.member.findUnique({
+    where: { id: memberId },
+    select: {
+      id: true,
+      name: true,
+      loginEmail: true,
+      invoiceEmail: true,
+      membershipExpiresAt: true,
+      stripeCustomerId: true,
+    },
+  });
+  if (!member?.stripeCustomerId) return null;
+
+  const stripe = await getStripeClient();
+  if (!stripe) return null;
+
+  const results = await stripe.paymentIntents.search({
+    query: `metadata['memberId']:'${memberId}' AND status:'succeeded'`,
+    limit: 10,
+  });
+  const paymentIntent = results.data.find(
+    (pi) => pi.metadata?.checkoutKind === "member_portal_renewal"
+  );
+  if (!paymentIntent) return null;
+
+  const paidAt = new Date(paymentIntent.created * 1000);
+  const endLabel = member.membershipExpiresAt
+    ? member.membershipExpiresAt.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : null;
+  const paidAtLabel = paidAt.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const description = endLabel
+    ? `Annual Portal Fee Renewal (${paidAtLabel} – ${endLabel})`
+    : `Annual Portal Fee Renewal (${paidAtLabel})`;
+  const pdf = await createStripeInvoicePdf(stripe, {
+    stripeCustomerId: member.stripeCustomerId,
+    description,
+    amountPence: paymentIntent.amount_received || paymentIntent.amount,
+    reference: paymentIntent.id,
+    paidAt,
+    receivedFromName: member.name,
+    receivedFromEmail: member.invoiceEmail?.trim() || member.loginEmail?.trim() || undefined,
+  });
+  if (!pdf) return null;
+
+  return { pdf };
 }
 
 /** Members */
@@ -189,17 +350,11 @@ router.get("/members/:memberId/documents/:documentId/file", async (req, res) => 
     const candidateRoots = process.env.MEMBER_UPLOAD_DIR?.trim()
       ? [uploadRoot]
       : uploadPathCandidates("member-documents");
-    const safeName = path.basename(doc.storedName);
     let resolved: string | null = null;
-    for (const candidateRoot of candidateRoots) {
-      const base = path.resolve(candidateRoot, doc.memberId);
-      const candidate = path.resolve(base, safeName);
-      if ((!candidate.startsWith(base + path.sep) && candidate !== base) || !fs.existsSync(candidate)) {
-        continue;
-      }
-      resolved = candidate;
-      break;
-    }
+    resolved = resolveStoredUploadPath(
+      candidateRoots.map((candidateRoot) => path.resolve(candidateRoot, doc.memberId)),
+      doc.storedName
+    );
     if (!resolved) {
       res.status(404).json({ error: "Not found" });
       return;
@@ -242,9 +397,14 @@ router.get("/applications/:id/xero-invoices/:kind/file", async (req, res) => {
       return;
     }
 
-    const pdf = await fetchXeroInvoicePDF(invoiceId);
+    const pdf =
+      (await fetchXeroInvoicePDF(invoiceId)) ??
+      (await buildApplicationStripeReceiptPdf(req.params.id, kind))?.pdf ??
+      null;
     if (!pdf) {
-      res.status(502).json({ error: "Could not fetch invoice PDF from Xero" });
+      res.status(502).json({
+        error: "Could not fetch invoice PDF from Xero or regenerate a Stripe VAT receipt",
+      });
       return;
     }
 
@@ -285,9 +445,14 @@ router.get("/members/:id/xero-invoice/file", async (req, res) => {
       return;
     }
 
-    const pdf = await fetchXeroInvoicePDF(member.xeroInvoiceId);
+    const pdf =
+      (await fetchXeroInvoicePDF(member.xeroInvoiceId.trim())) ??
+      (await buildMemberStripeReceiptPdf(req.params.id))?.pdf ??
+      null;
     if (!pdf) {
-      res.status(502).json({ error: "Could not fetch invoice PDF from Xero" });
+      res.status(502).json({
+        error: "Could not fetch invoice PDF from Xero or regenerate a Stripe VAT receipt",
+      });
       return;
     }
 

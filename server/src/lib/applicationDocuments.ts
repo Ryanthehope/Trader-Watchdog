@@ -3,7 +3,11 @@ import fs from "fs";
 import path from "path";
 import type { Express } from "express";
 import { prisma } from "../db.js";
-import { defaultUploadPath, uploadPathCandidates } from "./uploadPaths.js";
+import {
+  defaultUploadPath,
+  resolveStoredUploadPath,
+  uploadPathCandidates,
+} from "./uploadPaths.js";
 
 const UPLOAD_ROOT =
   process.env.APPLICATION_UPLOAD_DIR?.trim() ||
@@ -29,20 +33,11 @@ export function applicationDocumentResolvedPath(
   applicationId: string,
   storedName: string
 ): string | null {
-  const safeName = path.basename(storedName);
   const configuredRoot = process.env.APPLICATION_UPLOAD_DIR?.trim();
   const candidateBases = configuredRoot
     ? [path.join(configuredRoot, applicationId)]
     : uploadPathCandidates("application-documents", applicationId);
-  for (const candidateBase of candidateBases) {
-    const base = path.resolve(candidateBase);
-    const resolved = path.resolve(base, safeName);
-    if ((!resolved.startsWith(base + path.sep) && resolved !== base) || !fs.existsSync(resolved)) {
-      continue;
-    }
-    return resolved;
-  }
-  return null;
+  return resolveStoredUploadPath(candidateBases, storedName);
 }
 
 export function ensureApplicationDocDir(applicationId: string) {
