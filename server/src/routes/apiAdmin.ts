@@ -3,7 +3,9 @@ import { Router } from "express";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { deleteApplicationById } from "../lib/applicationDelete.js";
+import { parseApplicationXeroInvoiceRefs } from "../lib/applicationXeroInvoices.js";
 import { hashPortalPassword } from "../lib/portalCredentials.js";
+import { fetchXeroInvoicePDF } from "../lib/xeroInvoice.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import { defaultUploadPath, uploadPathCandidates } from "../lib/uploadPaths.js";
@@ -108,6 +110,7 @@ router.get("/members/:id", async (req, res) => {
         sourceApplication: {
           select: {
             id: true,
+            xeroInvoiceId: true,
             documents: {
               orderBy: { createdAt: "asc" },
               select: {
@@ -143,6 +146,13 @@ router.get("/members/:id", async (req, res) => {
           createdAt: doc.createdAt.toISOString(),
         })),
         sourceApplicationId: m.sourceApplication?.id ?? null,
+        xeroInvoiceId: m.xeroInvoiceId ?? null,
+        sourceApplicationXeroInvoices: m.sourceApplication
+          ? parseApplicationXeroInvoiceRefs(m.sourceApplication.xeroInvoiceId)
+          : {
+              registration_fee: null,
+              membership: null,
+            },
         sourceApplicationDocuments:
           m.sourceApplication?.documents.map((doc) => ({
             id: doc.id,
@@ -203,6 +213,99 @@ router.get("/members/:memberId/documents/:documentId/file", async (req, res) => 
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Could not load file" });
+  }
+});
+
+router.get("/applications/:id/xero-invoices/:kind/file", async (req, res) => {
+  try {
+    const kind = String(req.params.kind ?? "").trim();
+    if (kind !== "registration_fee" && kind !== "membership") {
+      res.status(400).json({ error: "kind must be registration_fee or membership" });
+      return;
+    }
+
+    const application = await prisma.application.findUnique({
+      where: { id: req.params.id },
+      select: {
+        company: true,
+        xeroInvoiceId: true,
+      },
+    });
+    if (!application) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
+    const invoiceId = parseApplicationXeroInvoiceRefs(application.xeroInvoiceId)[kind];
+    if (!invoiceId) {
+      res.status(404).json({ error: "No Xero invoice is stored for this payment" });
+      return;
+    }
+
+    const pdf = await fetchXeroInvoicePDF(invoiceId);
+    if (!pdf) {
+      res.status(502).json({ error: "Could not fetch invoice PDF from Xero" });
+      return;
+    }
+
+    const safeCompany = (application.company || "trader")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "trader";
+    const label = kind === "registration_fee" ? "registration-fee" : "membership";
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${safeCompany}-${label}-invoice.pdf"`
+    );
+    res.send(pdf);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not download invoice" });
+  }
+});
+
+router.get("/members/:id/xero-invoice/file", async (req, res) => {
+  try {
+    const member = await prisma.member.findUnique({
+      where: { id: req.params.id },
+      select: {
+        name: true,
+        xeroInvoiceId: true,
+      },
+    });
+    if (!member) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    if (!member.xeroInvoiceId) {
+      res.status(404).json({ error: "No member renewal invoice is stored" });
+      return;
+    }
+
+    const pdf = await fetchXeroInvoicePDF(member.xeroInvoiceId);
+    if (!pdf) {
+      res.status(502).json({ error: "Could not fetch invoice PDF from Xero" });
+      return;
+    }
+
+    const safeName = (member.name || "member")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "member";
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${safeName}-renewal-invoice.pdf"`
+    );
+    res.send(pdf);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Could not download invoice" });
   }
 });
 

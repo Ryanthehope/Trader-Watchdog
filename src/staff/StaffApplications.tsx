@@ -466,6 +466,9 @@ function ApplicationCard({
     "registration_fee" | "membership" | null
   >(null);
   const [receiptBusy, setReceiptBusy] = useState(false);
+  const [invoiceBusy, setInvoiceBusy] = useState<
+    "registration_fee" | "membership" | null
+  >(null);
   const [sumsubBusy, setSumsubBusy] = useState<"launch" | "sync" | null>(null);
   const [provisionFlash, setProvisionFlash] = useState<{
     password?: string;
@@ -490,6 +493,8 @@ function ApplicationCard({
   const linked = row.createdMember ?? null;
   const hasRegistrationFeePayment = Boolean(row.registrationFeePaidAt);
   const hasMembershipPayment = Boolean(row.membershipSubscribed);
+  const registrationInvoiceReady = Boolean(row.xeroInvoices?.registration_fee);
+  const membershipInvoiceReady = Boolean(row.xeroInvoices?.membership);
   const awaitingRegistrationPayment =
     row.status !== "DECLINED" && !linked && !hasRegistrationFeePayment;
   const awaitingMembershipAfterApproval =
@@ -688,6 +693,27 @@ function ApplicationCard({
       alert(e instanceof Error ? e.message : "Could not resend receipt");
     } finally {
       setReceiptBusy(false);
+    }
+  };
+
+  const downloadInvoice = async (kind: "registration_fee" | "membership") => {
+    setInvoiceBusy(kind);
+    try {
+      const blob = await apiGetAuthBlob(
+        `/api/admin/applications/${row.id}/xero-invoices/${kind}/file`
+      );
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${row.company || "trader"}-${kind}-invoice.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not download invoice");
+    } finally {
+      setInvoiceBusy(null);
     }
   };
 
@@ -1126,6 +1152,30 @@ function ApplicationCard({
                 className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3.5 py-2.5 text-sm font-medium text-sky-100/95 transition hover:bg-sky-500/16 disabled:opacity-50"
               >
                 {receiptBusy ? "Sending…" : "Re-send VAT receipt"}
+              </button>
+            ) : null}
+            {registrationInvoiceReady ? (
+              <button
+                type="button"
+                disabled={invoiceBusy !== null}
+                onClick={() => void downloadInvoice("registration_fee")}
+                className="rounded-xl border border-violet-500/35 bg-violet-500/10 px-3.5 py-2.5 text-sm font-medium text-violet-100/95 transition hover:bg-violet-500/16 disabled:opacity-50"
+              >
+                {invoiceBusy === "registration_fee"
+                  ? "Downloading…"
+                  : "Download reg invoice"}
+              </button>
+            ) : null}
+            {membershipInvoiceReady ? (
+              <button
+                type="button"
+                disabled={invoiceBusy !== null}
+                onClick={() => void downloadInvoice("membership")}
+                className="rounded-xl border border-violet-500/35 bg-violet-500/10 px-3.5 py-2.5 text-sm font-medium text-violet-100/95 transition hover:bg-violet-500/16 disabled:opacity-50"
+              >
+                {invoiceBusy === "membership"
+                  ? "Downloading…"
+                  : "Download membership invoice"}
               </button>
             ) : null}
             <button

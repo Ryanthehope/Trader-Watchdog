@@ -32,6 +32,11 @@ type MemberDoc = {
   createdAt: string;
 };
 
+type SourceApplicationXeroInvoices = {
+  registration_fee: string | null;
+  membership: string | null;
+};
+
 function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
@@ -100,6 +105,15 @@ export function StaffMemberForm() {
   const [memberDocuments, setMemberDocuments] = useState<MemberDoc[]>([]);
   const [sourceApplicationId, setSourceApplicationId] = useState<string | null>(null);
   const [sourceApplicationDocuments, setSourceApplicationDocuments] = useState<ApplicationDoc[]>([]);
+  const [receiptBusy, setReceiptBusy] = useState(false);
+  const [invoiceBusy, setInvoiceBusy] = useState<
+    "registration_fee" | "membership" | "renewal" | null
+  >(null);
+  const [memberXeroInvoiceId, setMemberXeroInvoiceId] = useState<string | null>(null);
+  const [sourceApplicationXeroInvoices, setSourceApplicationXeroInvoices] = useState<SourceApplicationXeroInvoices>({
+    registration_fee: null,
+    membership: null,
+  });
 
   useEffect(() => {
     if (isNew || !id) {
@@ -125,7 +139,9 @@ export function StaffMemberForm() {
             membershipBillingType?: string | null;
             membershipExpiresAt?: string | null;
             memberDocuments?: MemberDoc[];
+            xeroInvoiceId?: string | null;
             sourceApplicationId?: string | null;
+            sourceApplicationXeroInvoices?: SourceApplicationXeroInvoices;
             sourceApplicationDocuments?: ApplicationDoc[];
           };
         }>(`/api/admin/members/${id}`);
@@ -149,7 +165,14 @@ export function StaffMemberForm() {
           m.membershipExpiresAt ? m.membershipExpiresAt.slice(0, 10) : ""
         );
         setMemberDocuments(m.memberDocuments ?? []);
+        setMemberXeroInvoiceId(m.xeroInvoiceId ?? null);
         setSourceApplicationId(m.sourceApplicationId ?? null);
+        setSourceApplicationXeroInvoices(
+          m.sourceApplicationXeroInvoices ?? {
+            registration_fee: null,
+            membership: null,
+          }
+        );
         setSourceApplicationDocuments(m.sourceApplicationDocuments ?? []);
 
         // Load insurance policies
@@ -231,6 +254,72 @@ export function StaffMemberForm() {
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       alert(e instanceof Error ? e.message : "Could not open document");
+    }
+  };
+
+  const resendReceipt = async () => {
+    if (!sourceApplicationId) return;
+    setReceiptBusy(true);
+    try {
+      const d = await apiSend<{
+        ok: true;
+        emailedTo: string;
+        invoiceDescription: string;
+        paymentReference: string;
+      }>(`/api/admin/applications/${sourceApplicationId}/resend-receipt`, {
+        method: "POST",
+      });
+      alert(
+        `Receipt resent to ${d.emailedTo} for ${d.invoiceDescription}. Reference: ${d.paymentReference}`
+      );
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not resend receipt");
+    } finally {
+      setReceiptBusy(false);
+    }
+  };
+
+  const downloadApplicationInvoice = async (
+    kind: "registration_fee" | "membership"
+  ) => {
+    if (!sourceApplicationId) return;
+    setInvoiceBusy(kind);
+    try {
+      const blob = await apiGetAuthBlob(
+        `/api/admin/applications/${sourceApplicationId}/xero-invoices/${kind}/file`
+      );
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${name || "trader"}-${kind}-invoice.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not download invoice");
+    } finally {
+      setInvoiceBusy(null);
+    }
+  };
+
+  const downloadMemberRenewalInvoice = async () => {
+    if (!id || !memberXeroInvoiceId) return;
+    setInvoiceBusy("renewal");
+    try {
+      const blob = await apiGetAuthBlob(`/api/admin/members/${id}/xero-invoice/file`);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${name || "member"}-renewal-invoice.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not download invoice");
+    } finally {
+      setInvoiceBusy(null);
     }
   };
 
@@ -513,6 +602,24 @@ export function StaffMemberForm() {
               <span className="font-mono text-slate-400">/login</span> (Member tab)
               to view their dashboard and edit allowed profile fields.
             </p>
+            {memberXeroInvoiceId ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/12 bg-ink-950/40 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-200">Latest renewal invoice</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Download the most recent Xero invoice stored against this member renewal.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void downloadMemberRenewalInvoice()}
+                  disabled={invoiceBusy !== null}
+                  className="rounded-lg border border-brand-400/30 bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-100 transition hover:bg-brand-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {invoiceBusy === "renewal" ? "Downloading…" : "Download renewal invoice"}
+                </button>
+              </div>
+            ) : null}
             {!isNew && portalEnabled ? (
               <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-slate-300">
                 <input
@@ -719,6 +826,60 @@ export function StaffMemberForm() {
             <p className="mt-1 text-xs text-slate-500">
               Files uploaded by the trader during their join application.
             </p>
+            {sourceApplicationId ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/12 bg-ink-950/40 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-200">VAT receipt</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Re-send the Stripe/Xero VAT receipt linked to the original join application.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void resendReceipt()}
+                  disabled={receiptBusy}
+                  className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs font-medium text-amber-100 transition hover:bg-amber-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {receiptBusy ? "Sending…" : "Re-send VAT receipt"}
+                </button>
+              </div>
+            ) : null}
+            {sourceApplicationId &&
+            (sourceApplicationXeroInvoices.registration_fee ||
+              sourceApplicationXeroInvoices.membership) ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/12 bg-ink-950/40 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-200">Application invoices</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Download any Xero invoices already stored for the original join application.
+                  </p>
+                </div>
+                {sourceApplicationXeroInvoices.registration_fee ? (
+                  <button
+                    type="button"
+                    onClick={() => void downloadApplicationInvoice("registration_fee")}
+                    disabled={invoiceBusy !== null}
+                    className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs font-medium text-amber-100 transition hover:bg-amber-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {invoiceBusy === "registration_fee"
+                      ? "Downloading…"
+                      : "Download reg invoice"}
+                  </button>
+                ) : null}
+                {sourceApplicationXeroInvoices.membership ? (
+                  <button
+                    type="button"
+                    onClick={() => void downloadApplicationInvoice("membership")}
+                    disabled={invoiceBusy !== null}
+                    className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs font-medium text-amber-100 transition hover:bg-amber-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {invoiceBusy === "membership"
+                      ? "Downloading…"
+                      : "Download membership invoice"}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
             {sourceApplicationDocuments.length > 0 && sourceApplicationId ? (
               <ul className="mt-4 divide-y divide-white/[0.06] overflow-hidden rounded-xl border border-white/12 bg-ink-950/55">
                 {sourceApplicationDocuments.map((doc) => (
