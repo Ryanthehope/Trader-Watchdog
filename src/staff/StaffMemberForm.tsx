@@ -110,10 +110,15 @@ export function StaffMemberForm() {
     "registration_fee" | "membership" | "renewal" | null
   >(null);
   const [memberXeroInvoiceId, setMemberXeroInvoiceId] = useState<string | null>(null);
+  const [hasMemberStripeBilling, setHasMemberStripeBilling] = useState(false);
   const [sourceApplicationXeroInvoices, setSourceApplicationXeroInvoices] = useState<SourceApplicationXeroInvoices>({
     registration_fee: null,
     membership: null,
   });
+  const [sourceApplicationHasRegistrationFeePayment, setSourceApplicationHasRegistrationFeePayment] =
+    useState(false);
+  const [sourceApplicationHasMembershipPayment, setSourceApplicationHasMembershipPayment] =
+    useState(false);
 
   useEffect(() => {
     if (isNew || !id) {
@@ -140,8 +145,11 @@ export function StaffMemberForm() {
             membershipExpiresAt?: string | null;
             memberDocuments?: MemberDoc[];
             xeroInvoiceId?: string | null;
+            hasMemberStripeBilling?: boolean;
             sourceApplicationId?: string | null;
             sourceApplicationXeroInvoices?: SourceApplicationXeroInvoices;
+            sourceApplicationHasRegistrationFeePayment?: boolean;
+            sourceApplicationHasMembershipPayment?: boolean;
             sourceApplicationDocuments?: ApplicationDoc[];
           };
         }>(`/api/admin/members/${id}`);
@@ -166,12 +174,19 @@ export function StaffMemberForm() {
         );
         setMemberDocuments(m.memberDocuments ?? []);
         setMemberXeroInvoiceId(m.xeroInvoiceId ?? null);
+        setHasMemberStripeBilling(Boolean(m.hasMemberStripeBilling));
         setSourceApplicationId(m.sourceApplicationId ?? null);
         setSourceApplicationXeroInvoices(
           m.sourceApplicationXeroInvoices ?? {
             registration_fee: null,
             membership: null,
           }
+        );
+        setSourceApplicationHasRegistrationFeePayment(
+          Boolean(m.sourceApplicationHasRegistrationFeePayment)
+        );
+        setSourceApplicationHasMembershipPayment(
+          Boolean(m.sourceApplicationHasMembershipPayment)
         );
         setSourceApplicationDocuments(m.sourceApplicationDocuments ?? []);
 
@@ -602,12 +617,12 @@ export function StaffMemberForm() {
               <span className="font-mono text-slate-400">/login</span> (Member tab)
               to view their dashboard and edit allowed profile fields.
             </p>
-            {memberXeroInvoiceId ? (
+            {memberXeroInvoiceId || hasMemberStripeBilling ? (
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/12 bg-ink-950/40 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-200">Latest renewal invoice</p>
                   <p className="mt-1 text-xs text-slate-500">
-                    Download the most recent Xero invoice stored against this member renewal.
+                    Download the most recent renewal invoice or VAT receipt available for this member.
                   </p>
                 </div>
                 <button
@@ -845,16 +860,16 @@ export function StaffMemberForm() {
               </div>
             ) : null}
             {sourceApplicationId &&
-            (sourceApplicationXeroInvoices.registration_fee ||
-              sourceApplicationXeroInvoices.membership) ? (
+            (sourceApplicationHasRegistrationFeePayment ||
+              sourceApplicationHasMembershipPayment) ? (
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/12 bg-ink-950/40 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-200">Application invoices</p>
                   <p className="mt-1 text-xs text-slate-500">
-                    Download any Xero invoices already stored for the original join application.
+                    Download the registration or membership invoice/receipt linked to the original join application.
                   </p>
                 </div>
-                {sourceApplicationXeroInvoices.registration_fee ? (
+                {sourceApplicationHasRegistrationFeePayment ? (
                   <button
                     type="button"
                     onClick={() => void downloadApplicationInvoice("registration_fee")}
@@ -866,7 +881,7 @@ export function StaffMemberForm() {
                       : "Download reg invoice"}
                   </button>
                 ) : null}
-                {sourceApplicationXeroInvoices.membership ? (
+                {sourceApplicationHasMembershipPayment ? (
                   <button
                     type="button"
                     onClick={() => void downloadApplicationInvoice("membership")}

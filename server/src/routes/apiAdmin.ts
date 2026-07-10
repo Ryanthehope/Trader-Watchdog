@@ -272,6 +272,8 @@ router.get("/members/:id", async (req, res) => {
           select: {
             id: true,
             xeroInvoiceId: true,
+            registrationFeePaidAt: true,
+            membershipSubscribed: true,
             documents: {
               orderBy: { createdAt: "asc" },
               select: {
@@ -299,6 +301,7 @@ router.get("/members/:id", async (req, res) => {
         membershipUnlimited: m.membershipUnlimited,
         membershipBillingType: m.membershipBillingType,
         membershipExpiresAt: m.membershipExpiresAt?.toISOString() ?? null,
+        hasMemberStripeBilling: Boolean(m.stripeCustomerId),
         memberDocuments: m.documents.map((doc) => ({
           id: doc.id,
           originalName: doc.originalName,
@@ -314,6 +317,12 @@ router.get("/members/:id", async (req, res) => {
               registration_fee: null,
               membership: null,
             },
+        sourceApplicationHasRegistrationFeePayment: Boolean(
+          m.sourceApplication?.registrationFeePaidAt
+        ),
+        sourceApplicationHasMembershipPayment: Boolean(
+          m.sourceApplication?.membershipSubscribed
+        ),
         sourceApplicationDocuments:
           m.sourceApplication?.documents.map((doc) => ({
             id: doc.id,
@@ -392,13 +401,8 @@ router.get("/applications/:id/xero-invoices/:kind/file", async (req, res) => {
     }
 
     const invoiceId = parseApplicationXeroInvoiceRefs(application.xeroInvoiceId)[kind];
-    if (!invoiceId) {
-      res.status(404).json({ error: "No Xero invoice is stored for this payment" });
-      return;
-    }
-
     const pdf =
-      (await fetchXeroInvoicePDF(invoiceId)) ??
+      (invoiceId ? await fetchXeroInvoicePDF(invoiceId) : null) ??
       (await buildApplicationStripeReceiptPdf(req.params.id, kind))?.pdf ??
       null;
     if (!pdf) {
@@ -440,13 +444,10 @@ router.get("/members/:id/xero-invoice/file", async (req, res) => {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    if (!member.xeroInvoiceId) {
-      res.status(404).json({ error: "No member renewal invoice is stored" });
-      return;
-    }
-
     const pdf =
-      (await fetchXeroInvoicePDF(member.xeroInvoiceId.trim())) ??
+      (member.xeroInvoiceId?.trim()
+        ? await fetchXeroInvoicePDF(member.xeroInvoiceId.trim())
+        : null) ??
       (await buildMemberStripeReceiptPdf(req.params.id))?.pdf ??
       null;
     if (!pdf) {
