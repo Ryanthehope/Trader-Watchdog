@@ -10,7 +10,7 @@ import {
 import { hashPortalPassword } from "../lib/portalCredentials.js";
 import { getStripeClient } from "../lib/stripeClient.js";
 import { createStripeInvoicePdf } from "../lib/stripeInvoice.js";
-import { fetchXeroInvoicePDF } from "../lib/xeroInvoice.js";
+import { createPaidXeroInvoice, fetchXeroInvoicePDF } from "../lib/xeroInvoice.js";
 import { guideToPublic, memberToPublic } from "../lib/memberSerialize.js";
 import { parseManualMembershipExpiryInput } from "../lib/membershipExpiryInput.js";
 import {
@@ -229,6 +229,74 @@ async function buildMemberStripeReceiptPdf(memberId: string) {
   if (!pdf) return null;
 
   return { pdf };
+}
+
+async function ensureMemberRenewalXeroInvoice(memberId: string) {
+  const member = await prisma.member.findUnique({
+    where: { id: memberId },
+    select: {
+      id: true,
+      name: true,
+      loginEmail: true,
+      invoiceEmail: true,
+      invoiceAddress: true,
+      membershipExpiresAt: true,
+      stripeCustomerId: true,
+      xeroInvoiceId: true,
+    },
+  });
+  if (!member) return null;
+  if (member.xeroInvoiceId?.trim()) return member.xeroInvoiceId.trim();
+  if (!member.stripeCustomerId) return null;
+
+  const stripe = await getStripeClient();
+  if (!stripe) return null;
+
+  const results = await stripe.paymentIntents.search({
+    query: `metadata['memberId']:'${memberId}' AND status:'succeeded'`,
+    limit: 10,
+  });
+  const paymentIntent = results.data.find(
+    (pi) => pi.metadata?.checkoutKind === "member_portal_renewal"
+  );
+  if (!paymentIntent) return null;
+
+  const paidAt = new Date(paymentIntent.created * 1000);
+  const endLabel = member.membershipExpiresAt
+    ? member.membershipExpiresAt.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : null;
+  const paidAtLabel = paidAt.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const description = endLabel
+    ? `Annual Portal Fee Renewal (${paidAtLabel} – ${endLabel})`
+    : `Annual Portal Fee Renewal (${paidAtLabel})`;
+
+  const xeroId = await createPaidXeroInvoice({
+    contactName: member.name,
+    contactEmail: member.invoiceEmail?.trim() || member.loginEmail?.trim() || "",
+    contactAddress: member.invoiceAddress,
+    description,
+    amountPence: paymentIntent.amount_received || paymentIntent.amount,
+    reference: paymentIntent.id,
+    paidAt,
+  });
+
+  await prisma.member.update({
+    where: { id: memberId },
+    data: {
+      xeroInvoiceId: xeroId ?? undefined,
+      xeroInvoiceFailed: !xeroId,
+    },
+  });
+
+  return xeroId;
 }
 
 /** Members */
@@ -459,15 +527,25 @@ router.get("/members/:id/xero-invoice/file", async (req, res) => {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    const pdf =
-      (member.xeroInvoiceId?.trim()
-        ? await fetchXeroInvoicePDF(member.xeroInvoiceId.trim())
-        : null) ??
-      (await buildMemberStripeReceiptPdf(req.params.id))?.pdf ??
-      null;
+    let invoiceId = member.xeroInvoiceId?.trim() || null;
+    let pdf = invoiceId ? await fetchXeroInvoicePDF(invoiceId) : null;
+
+    if (!pdf && !invoiceId) {
+      try {
+        invoiceId = await ensureMemberRenewalXeroInvoice(req.params.id);
+        pdf = invoiceId ? await fetchXeroInvoicePDF(invoiceId) : null;
+      } catch (retryError) {
+        console.error("[admin] member renewal xero invoice generation fallback failed", retryError);
+      }
+    }
+
+    if (!pdf) {
+      pdf = (await buildMemberStripeReceiptPdf(req.params.id))?.pdf ?? null;
+    }
     if (!pdf) {
       res.status(502).json({
-        error: "Could not fetch invoice PDF from Xero or regenerate a Stripe VAT receipt",
+        error:
+          "Could not fetch the Xero invoice PDF, generate a missing renewal invoice in Xero, or regenerate a Stripe VAT receipt",
       });
       return;
     }
