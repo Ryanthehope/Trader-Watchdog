@@ -36,8 +36,7 @@ export function LookupMiss() {
         </p>
       )}
       <p className="mt-4 text-sm text-slate-500">
-        If no verified listing appears, treat the trader as unverified. 
-        Be cautious. Do not enter an agreement without a visual check of their insurance, licences, and other supporting evidence.
+        We were unable to verify this trader. We recommend carrying out additional checks before entering into any agreement, including a visual check of their insurance, licences, and other supporting evidence.
       </p>
       <p className="mt-3 text-sm font-semibold text-red-300">
         Please mention Trader Watchdog when communicating with traders.

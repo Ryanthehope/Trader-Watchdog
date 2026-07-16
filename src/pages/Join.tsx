@@ -89,7 +89,7 @@ const publicViews = [
   },
   {
     title: "Red Flag",
-    body: "A search for an unverified trader will show a Red Flag stating the trader has not applied to be verified or their application has not been approved. The consumer is advised to be cautious and to insist on viewing their insurances, their licenses, and not to take their word for it. Customers are asked to mention Trader Watchdog in all communications.",
+    body: "A search for an unverified trader will show a Red Flag stating Trader Watchdog was unable to verify the trader or their application has not been approved. Consumers are advised to carry out additional checks, insist on seeing insurance and any relevant licences, and avoid entering into agreements without supporting evidence. Customers are asked to mention Trader Watchdog in all communications.",
     image: "/isolated red phone.png",
     imageAlt: "Red flag",
     tone: "border-rose-200 bg-rose-50",
