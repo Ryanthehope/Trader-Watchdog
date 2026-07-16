@@ -81,6 +81,9 @@ function SearchCard() {
         <h2 className="mt-4 font-display text-4xl font-bold text-slate-900 sm:text-5xl">
           Check a trader before you let them into your home.
         </h2>
+        <p className="mx-auto mt-6 max-w-3xl font-display text-2xl font-bold leading-tight text-slate-900 sm:text-[2rem]">
+          See their credentials before making contact.
+        </p>
         <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-xl">
           Verify a trader with just one click. Enter a business name or telephone number to see whether Trader Watchdog has been able to confirm the facts.
         </p>
@@ -103,10 +106,15 @@ function HowItWorks() {
     {
       step: "2",
       title: "We verify the facts",
-      body: "Identity, insurance, licences, qualifications, and other relevant checks are reviewed independently.",
+      body: "Not the reviews, the opinions or the reccommendations - just the facts.",
     },
     {
       step: "3",
+      title: "We display flags",
+      body: "Green for a verified trader and red for traders that are not verified.",
+    },
+    {
+      step: "4",
       title: "Make an informed decision",
       body: "Use the result to compare traders with greater confidence before agreeing any work.",
     },
@@ -120,27 +128,33 @@ function HowItWorks() {
             How it works
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-            A simple check in three clear steps.
+            A simple check in four clear steps.
           </h2>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {steps.map((step, index) => (
             <div
               key={step.step}
-              className="relative rounded-[1.6rem] border border-slate-200 bg-white p-6 shadow-[0_18px_36px_-32px_rgba(15,23,42,0.3)]"
+              className="group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#cfe8cf] bg-[linear-gradient(180deg,#ffffff_0%,#f6fbf5_100%)] p-6 shadow-[0_24px_48px_-34px_rgba(15,23,42,0.22)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_28px_56px_-32px_rgba(15,23,42,0.26)]"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-700 font-display text-2xl font-bold text-white">
-                {step.step}
+              <div className="absolute inset-x-0 top-0 h-1 bg-[#2BA24E]" />
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] border border-[#1e7f3b] bg-[#2BA24E] font-display text-2xl font-bold text-white shadow-[0_18px_28px_-18px_rgba(43,162,78,0.9)]">
+                  {step.step}
+                </div>
+                <span className="rounded-full bg-[#eaf7ea] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#2f7b39]">
+                  Step {step.step}
+                </span>
               </div>
-              <h3 className="mt-5 font-display text-2xl font-bold text-slate-900">
+              <h3 className="mt-5 min-h-[3.5rem] font-display text-[1.75rem] font-bold leading-tight text-slate-900">
                 {step.title}
               </h3>
-              <p className="mt-3 text-base leading-relaxed text-slate-600">
+              <p className="mt-3 flex-1 text-base leading-relaxed text-slate-600">
                 {step.body}
               </p>
               {index < steps.length - 1 ? (
-                <div className="pointer-events-none absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#E7EEF9] text-brand-700 lg:flex">
+                <div className="pointer-events-none absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#cfe8cf] bg-white text-[#2BA24E] xl:flex">
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-5-5 5 5-5 5" />
                   </svg>
@@ -261,8 +275,6 @@ function WhatYouSee() {
   const panels = [
     {
       title: "A GREEN FLAG",
-      image: "/green%20flag%20phone.png",
-      imageAlt: "Phone showing a green verified result",
       points: [
         "ID Verified",
         "Insurance Verified",
@@ -278,14 +290,12 @@ function WhatYouSee() {
     },
     {
       title: "A RED FLAG",
-      image: "/red%20flag%20phone.png",
-      imageAlt: "Phone showing a red caution result",
       points: [
         "Identity cannot be verified",
-        "No insurance confirmed",
-        "No Waste Carrier Licence (where applicable)",
-        "Missing or expired licences",
-        "No ICO registration (where relevant)",
+        "No insurance?",
+        "No Waste Carrier Licence (where applicable)?",
+        "Missing or expired licences?",
+        "No ICO registration (where relevant)?",
         "Unable to verify business details",
       ],
       accentClass: "text-[#E12F33]",
@@ -301,25 +311,20 @@ function WhatYouSee() {
         {panels.map((panel) => (
           <div
             key={panel.title}
-            className="grid items-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_30px_60px_-42px_rgba(15,23,42,0.4)] sm:grid-cols-[minmax(0,260px)_1fr] sm:p-8"
+            className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_30px_60px_-42px_rgba(15,23,42,0.4)] sm:p-8"
           >
-            <img
-              src={panel.image}
-              alt={panel.imageAlt}
-              loading="lazy"
-              decoding="async"
-              className="mx-auto h-80 w-auto object-contain sm:h-96"
-            />
-
             <div className="flex h-full flex-col">
               <h2 className="font-display text-3xl font-bold uppercase leading-tight text-slate-900 sm:text-4xl">
                 <span className={panel.accentClass}>{panel.title}</span>
               </h2>
+              <p className={`mt-3 text-lg font-bold leading-snug sm:text-xl ${panel.taglineClass}`}>
+                {panel.tagline}
+              </p>
 
-              <ul className="mt-6 space-y-3 text-lg leading-snug text-slate-900 sm:text-[1.2rem]">
+              <ul className="mt-6 grid gap-x-6 gap-y-3 text-lg leading-snug text-slate-900 sm:grid-cols-2 sm:text-[1.2rem]">
                 {panel.points.map((point) => (
-                  <li key={point} className="flex items-center gap-3">
-                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white ${panel.bulletVariant === "check" ? "bg-[#32C72E]" : "bg-[#E12F33]"}`}>
+                  <li key={point} className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-4 py-3">
+                    <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white ${panel.bulletVariant === "check" ? "bg-[#32C72E]" : "bg-[#E12F33]"}`}>
                       {panel.bulletVariant === "check" ? (
                         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -330,13 +335,10 @@ function WhatYouSee() {
                         </svg>
                       )}
                     </span>
-                    {point}
+                    <span>{point}</span>
                   </li>
                 ))}
               </ul>
-              <p className={`mt-5 text-lg font-bold leading-snug sm:text-xl ${panel.taglineClass}`}>
-                {panel.tagline}
-              </p>
             </div>
           </div>
         ))}
@@ -353,7 +355,7 @@ function Pillars() {
     },
     {
       title: "Public Liability Insurance",
-      body: "Public Liability insurance is required to protect your property, and Employers Insurance (if the trader has staff) is required if an employee is injured on your property.",
+      body: "Public Liability insurance protects you and your property from any damage caused by a trader. Employers Insurance protects you from being responsible for any employees working at your property",
     },
     {
       title: "Your Waste",
@@ -443,63 +445,6 @@ function Faq() {
   );
 }
 
-function VerifiedTraderBenefits() {
-  return (
-    <section className="small-print-on-light border-b border-slate-200 bg-white px-4 py-12 sm:px-6 sm:py-16">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brand-700">
-            Verified trader benefits
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-            Give customers an instant way to verify your credentials.
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-            Every Verified Trader receives their own online profile, QR code, and window sticker so customers can instantly confirm who they are dealing with before work begins.
-          </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {[
-              "A public profile with independently checked business details.",
-              "A QR code that links straight to the trader's verification page.",
-              "A window sticker that shows customers verification is active.",
-            ].map((point) => (
-              <div key={point} className="rounded-[1.4rem] border border-slate-200 bg-[#F7F9FC] p-5 text-sm leading-relaxed text-slate-600 shadow-[0_18px_36px_-34px_rgba(15,23,42,0.3)]">
-                {point}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          <div className="rounded-[1.8rem] border border-slate-200 bg-[#F7F9FC] p-5 text-center shadow-[0_22px_42px_-34px_rgba(15,23,42,0.34)]">
-            <img
-              src="/Badge%20TW3.webp"
-              alt="Trader Watchdog verified trader window sticker"
-              className="mx-auto w-full max-w-[18rem]"
-              loading="lazy"
-            />
-            <p className="mt-4 text-base font-semibold text-slate-800">
-              Window sticker
-            </p>
-          </div>
-
-          <div className="rounded-[1.8rem] border border-slate-200 bg-[#F7F9FC] p-5 text-center shadow-[0_22px_42px_-34px_rgba(15,23,42,0.34)]">
-            <img
-              src="/QR%20code.png"
-              alt="Trader Watchdog QR code example"
-              className="mx-auto w-full max-w-[13rem]"
-              loading="lazy"
-            />
-            <p className="mt-4 text-base font-semibold text-slate-800">
-              QR code access
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 type FaqItem = {
   q: string;
   a: string;
@@ -508,7 +453,7 @@ type FaqItem = {
 const priorityFaqItems: FaqItem[] = [
   {
     q: "Is Trader Watchdog free?",
-    a: "Yes. Public trader checks are free to use. Traders only pay when their verification application is approved.",
+    a: "Yes. The free service is funded by honest, transparent traders that have successfully passed the verification process.",
   },
   {
     q: "Do I need an account?",
@@ -584,7 +529,7 @@ export function Home() {
             <HomeActionPanel
               imageSrc="/Lady%20square.png"
               imageAlt="Householder reviewing trader details on a phone"
-              actionLabel="SEARCH a TRADER"
+              actionLabel="SEARCH A VERIFIED TRADER"
               actionClassName="bg-[#2BA24E] hover:bg-[#248C42]"
               actionHref="#home-search"
             />
@@ -592,7 +537,7 @@ export function Home() {
             <HomeActionPanel
               imageSrc="/Tradesman.png"
               imageAlt="Two tradesmen standing together on site"
-              actionLabel="BECOME a VERIFIED TRADER"
+              actionLabel="BECOME A VERIFIED TRADER"
               actionClassName="bg-brand-700 hover:bg-brand-600"
               actionTo="/join"
             />
@@ -600,7 +545,7 @@ export function Home() {
         </div>
 
         <SectionBanner preserveCase>
-          <span className="text-white/80">Trader Watchdog protects households and supports genuine local traders, providing the diligence recommended by the police, trading standards, councils and community groups.</span>
+          <span className="text-white/80">Trader Watchdog supports you, your community, and legitimate traders, providing independently verified diligence recommended by Police, Trading Standards and Community Groups.</span>
         </SectionBanner>
       </section>
 
@@ -617,9 +562,6 @@ export function Home() {
 
       <SectionBanner>WHAT WE VERIFY</SectionBanner>
       <Pillars />
-
-      <VerifiedTraderBenefits />
-
       <Faq />
     </>
   );

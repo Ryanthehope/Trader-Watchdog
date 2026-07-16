@@ -47,7 +47,7 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
       <input
         id={`${id}-input`}
         type="search"
-        placeholder={publicSearchEnabled ? "Search business name or telephone number" : "Public trader search opens 1 July 2026"}
+        placeholder="Enter the business name or business telephone number"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         autoComplete="off"
@@ -55,7 +55,7 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
         aria-busy={loading}
         className={
           isHero
-            ? "min-h-[52px] flex-1 rounded-xl border border-brand-700 bg-brand-600 px-4 text-white shadow-inner shadow-black/20 placeholder:text-white/70 transition-shadow focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/45 disabled:cursor-not-allowed"
+            ? "min-h-[52px] flex-1 rounded-xl border border-[#1f7c39] bg-[#2BA24E] px-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_18px_30px_-20px_rgba(43,162,78,0.75)] placeholder:text-white/85 transition-shadow focus:border-[#17632d] focus:outline-none focus:ring-2 focus:ring-[#2BA24E]/35 disabled:cursor-not-allowed"
             : "min-h-[52px] flex-1 rounded-xl border border-white/12 bg-ink-900 px-4 text-white shadow-inner shadow-black/10 placeholder:text-slate-500 transition-shadow focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/45 disabled:cursor-not-allowed disabled:opacity-50"
         }
       />
