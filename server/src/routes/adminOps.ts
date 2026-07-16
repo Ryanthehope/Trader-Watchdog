@@ -185,6 +185,42 @@ const ADMIN_APPLICATION_FULL_SELECT = {
     },
   },
 } as const;
+const ADMIN_APPLICATION_FALLBACK_SELECT = {
+  id: true,
+  company: true,
+  trade: true,
+  email: true,
+  postcode: true,
+  status: true,
+  notes: true,
+  vettingChecklist: true,
+  vettingState: true,
+  approvedAt: true,
+  membershipSubscribed: true,
+  manualMembershipExpiresAt: true,
+  createdAt: true,
+  updatedAt: true,
+  createdMemberId: true,
+  documents: {
+    orderBy: { createdAt: "desc" as const },
+    select: {
+      id: true,
+      originalName: true,
+      mimeType: true,
+      sizeBytes: true,
+      createdAt: true,
+    },
+  },
+  createdMember: {
+    select: {
+      id: true,
+      slug: true,
+      tvId: true,
+      membershipBillingType: true,
+      membershipExpiresAt: true,
+    },
+  },
+} as const;
 
 const ADMIN_APPLICATION_MUTATION_SELECT = {
   id: true,

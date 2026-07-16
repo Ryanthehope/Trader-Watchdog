@@ -268,7 +268,7 @@ export function StaffApplications() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sumsubEnabled, setSumsubEnabled] = useState(false);
+  const [sumsubEnabled, setSumsubEnabled] = useState<boolean | null>(null);
 
   const filteredRows = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -291,6 +291,7 @@ export function StaffApplications() {
 
   const load = () => {
     setLoading(true);
+    setError(null);
     apiGetAuth<{ applications: AppRow[]; sumsubEnabled: boolean }>("/api/admin/applications")
       .then((d) => {
         setSumsubEnabled(Boolean(d.sumsubEnabled));
@@ -302,9 +303,14 @@ export function StaffApplications() {
           }))
         );
       })
-      .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Failed");
+        setSumsubEnabled(null);
+      })
       .finally(() => setLoading(false));
   };
+
+  const sumsubAvailable = sumsubEnabled === true;
 
   useEffect(() => {
     load();
@@ -378,7 +384,7 @@ export function StaffApplications() {
         <strong className="text-slate-300">expiry date</strong> (portal access ends after
         that). Copy the one-time portal password from the banner when it appears.
       </p>
-      {!sumsubEnabled ? (
+      {sumsubEnabled === false ? (
         <p className="mt-3 max-w-3xl rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100/90">
           Sumsub is currently disabled. Applications can still be approved and processed without the automated identity check.
         </p>
@@ -427,6 +433,7 @@ export function StaffApplications() {
                   onDelete={removeApp}
                   reload={load}
                   sumsubEnabled={sumsubEnabled}
+                                  sumsubEnabled={sumsubAvailable}
                 />
               ))}
             </div>
