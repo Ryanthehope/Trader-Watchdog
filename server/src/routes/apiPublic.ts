@@ -14,7 +14,6 @@ import {
 } from "../lib/applicationDocuments.js";
 import {
   billingReady,
-  getOrgBilling,
 } from "../lib/billingSettings.js";
 import { getStripeSecretKey } from "../lib/stripeClient.js";
 // import { buildMemberBadgeSvgFromRow, buildTraderWatchdogBadgeSvg } from "../lib/memberBadgeSvg.js";
@@ -165,16 +164,64 @@ function parseBooleanish(value: unknown): boolean {
   return normalized === "true" || normalized === "1" || normalized === "on";
 }
 
+type PublicOrgRuntimeConfig = {
+  billingEnabled: boolean;
+  recaptchaEnabled: boolean;
+  recaptchaSiteKey: string | null;
+  recaptchaSecretKey: string | null;
+  brandingLogoStoredName: string | null;
+  invoiceLegalName: string | null;
+  checkoutMembershipName: string | null;
+  checkoutMembershipPence: number | null;
+};
+
+async function getPublicOrgRuntimeConfig(): Promise<PublicOrgRuntimeConfig> {
+  const row = await prisma.organizationSettings.findUnique({
+    where: { id: "default" },
+    select: {
+      billingEnabled: true,
+      recaptchaEnabled: true,
+      recaptchaSiteKey: true,
+      recaptchaSecretKey: true,
+      brandingLogoStoredName: true,
+      invoiceLegalName: true,
+      checkoutMembershipName: true,
+      checkoutMembershipPence: true,
+    },
+  });
+
+  return {
+    billingEnabled: row?.billingEnabled ?? false,
+    recaptchaEnabled: row?.recaptchaEnabled ?? false,
+    recaptchaSiteKey: row?.recaptchaSiteKey ?? null,
+    recaptchaSecretKey: row?.recaptchaSecretKey ?? null,
+    brandingLogoStoredName: row?.brandingLogoStoredName ?? null,
+    invoiceLegalName: row?.invoiceLegalName ?? null,
+    checkoutMembershipName: row?.checkoutMembershipName ?? null,
+    checkoutMembershipPence: row?.checkoutMembershipPence ?? null,
+  };
+}
+
+async function safeStripeReady() {
+  try {
+    return Boolean(await getStripeSecretKey());
+  } catch {
+    return false;
+  }
+}
+
 router.get("/public-config", async (_req, res) => {
   const contactEmail =
     process.env.CONTACT_EMAIL?.trim() ||
     process.env.PUBLIC_CONTACT_EMAIL?.trim() ||
     null;
   try {
-    const s = await getOrgBilling();
-    const stripeOk = Boolean(await getStripeSecretKey());
+    const s = await getPublicOrgRuntimeConfig();
+    const stripeOk = await safeStripeReady();
     const lines = checkoutLineConfig(s);
-    const baseMembershipPence = clampCheckoutPence(s.checkoutMembershipPence);
+    const baseMembershipPence = clampCheckoutPence(
+      s.checkoutMembershipPence ?? lines.membershipPence
+    );
 
     res.json({
       recaptchaSiteKey:
@@ -205,7 +252,7 @@ router.get("/public-config", async (_req, res) => {
 /** Organization logo for invoices / site (PNG or JPEG). */
 router.get("/public/branding/logo", async (_req, res) => {
   try {
-    const s = await getOrgBilling();
+    const s = await getPublicOrgRuntimeConfig();
     if (!s.brandingLogoStoredName?.trim()) {
       res.status(404).end();
       return;
@@ -253,8 +300,8 @@ router.post("/applications/applicant-summary", async (req, res) => {
   const sumsubEnabled = isSumsubConfigured();
   let billingAvailable = false;
   try {
-    const s = await getOrgBilling();
-    const stripeOk = Boolean(await getStripeSecretKey());
+    const s = await getPublicOrgRuntimeConfig();
+    const stripeOk = await safeStripeReady();
     billingAvailable = billingReady(s) && stripeOk;
   } catch {
     billingAvailable = false;
@@ -524,7 +571,7 @@ router.post(
         return;
       }
 
-      const org = await getOrgBilling();
+      const org = await getPublicOrgRuntimeConfig();
       if (org.recaptchaEnabled) {
         const secret =
           process.env.TURNSTILE_SECRET_KEY?.trim() ||
@@ -673,7 +720,7 @@ router.post(
           }
         })();
       }
-      const stripeOk = Boolean(await getStripeSecretKey());
+      const stripeOk = await safeStripeReady();
       const billingAvailable = billingReady(org) && stripeOk;
       res.status(201).json({
         application: {
