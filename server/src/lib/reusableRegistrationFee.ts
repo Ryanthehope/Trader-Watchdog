@@ -24,8 +24,20 @@ export async function findReusableRegistrationFeePaidAt(
 export async function ensureReusableRegistrationFeeForApplication(
   applicationId: string
 ) {
+  const SELECT = {
+    id: true,
+    email: true,
+    status: true,
+    createdMemberId: true,
+    registrationFeePaidAt: true,
+    verificationStatus: true,
+    verificationApprovedAt: true,
+    createdAt: true,
+  } as const;
+
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
+    select: SELECT,
   });
 
   if (!application) return null;
@@ -42,5 +54,6 @@ export async function ensureReusableRegistrationFeeForApplication(
   return prisma.application.update({
     where: { id: application.id },
     data: { registrationFeePaidAt: reusableRegistrationFeePaidAt },
+    select: SELECT,
   });
 }

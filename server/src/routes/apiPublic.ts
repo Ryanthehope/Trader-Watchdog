@@ -284,6 +284,7 @@ router.post("/applications/verify", async (req, res) => {
     }
     const row = await prisma.application.findUnique({
       where: { id: applicationId },
+      select: { email: true },
     });
     const exists = Boolean(
       row && row.email.toLowerCase() === email.toLowerCase()
@@ -315,6 +316,17 @@ router.post("/applications/applicant-summary", async (req, res) => {
     }
     let row = await prisma.application.findUnique({
       where: { id: applicationId },
+      select: {
+        email: true,
+        status: true,
+        verificationStatus: true,
+        registrationFeePaidAt: true,
+        membershipSubscribed: true,
+        membershipAutoChargeInitiatedAt: true,
+        createdMemberId: true,
+        pendingPortalPassword: true,
+        pendingPortalPasswordExpires: true,
+      },
     });
     if (!row || row.email.toLowerCase() !== email) {
       res.json({
@@ -412,11 +424,16 @@ router.post("/applications/verification-link", async (req, res) => {
       res.status(404).json({ error: "Application not found" });
       return;
     }
+    const siteBase = await publicSiteBase(prisma).catch(() => process.env.PUBLIC_SITE_URL?.trim() ?? "");
+    const redirectUrl = siteBase
+      ? `${siteBase}/join?app=${encodeURIComponent(applicationId)}&email=${encodeURIComponent(email)}`
+      : undefined;
     const link = await generateSumsubWebSdkLink({
       userId: ensured.externalUserId,
       email: ensured.email,
       phone: ensured.phone,
       lang: "en",
+      redirectUrl,
     });
     res.json({ url: link.url });
   } catch (e) {
@@ -702,11 +719,16 @@ router.post(
           try {
             const ensured = await ensureSumsubApplicantForApplication(prisma, row.id);
             if (ensured.kind !== "not_found") {
+              const siteBase = await publicSiteBase(prisma).catch(() => process.env.PUBLIC_SITE_URL?.trim() ?? "");
+              const redirectUrl = siteBase
+                ? `${siteBase}/join?app=${encodeURIComponent(row.id)}&email=${encodeURIComponent(row.email)}`
+                : undefined;
               const link = await generateSumsubWebSdkLink({
                 userId: ensured.externalUserId,
                 email: ensured.email,
                 phone: ensured.phone,
                 lang: "en",
+                redirectUrl,
               });
               notifyApplicantVerificationLink(prisma, {
                 traderName: row.identifiablePerson,

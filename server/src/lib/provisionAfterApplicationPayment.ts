@@ -25,6 +25,16 @@ export async function provisionIfApplicationPaid(
 ): Promise<ProvisionAfterPaymentResult> {
   const app = await prisma.application.findUnique({
     where: { id: applicationId },
+    select: {
+      status: true,
+      email: true,
+      company: true,
+      identifiablePerson: true,
+      createdMemberId: true,
+      registrationFeePaidAt: true,
+      membershipSubscribed: true,
+      manualMembershipExpiresAt: true,
+    },
   });
   if (!app) return { ok: false, reason: "not_found" };
   if (app.status !== "APPROVED") return { ok: false, reason: "not_approved" };

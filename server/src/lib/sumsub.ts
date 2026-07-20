@@ -42,6 +42,8 @@ type SumsubWebSdkLinkInput = {
   phone?: string | null;
   lang?: string;
   ttlInSecs?: number;
+  /** Optional URL Sumsub redirects the user to after they complete verification. */
+  redirectUrl?: string;
 };
 
 type SumsubWebSdkLinkResponse = {
@@ -261,6 +263,7 @@ export async function generateSumsubWebSdkLink(
       phone: normalizePhoneE164(input.phone) ?? undefined,
     },
     ttlInSecs: input.ttlInSecs ?? 86400,
+    ...(input.redirectUrl ? { redirectUrl: input.redirectUrl } : {}),
   });
 
   return sumsubJsonRequest<SumsubWebSdkLinkResponse>("POST", path, body);

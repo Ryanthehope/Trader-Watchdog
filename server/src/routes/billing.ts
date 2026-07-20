@@ -23,6 +23,15 @@ async function assertRegistrationCheckoutAllowed(
 ) {
   let row = await prisma.application.findUnique({
     where: { id: applicationId },
+    select: {
+      email: true,
+      status: true,
+      createdMemberId: true,
+      registrationFeePaidAt: true,
+      verificationStatus: true,
+      verificationApprovedAt: true,
+      createdAt: true,
+    },
   });
   if (!row) {
     return { error: "Application not found" as const };
@@ -70,6 +79,16 @@ async function assertMembershipCheckoutAllowed(
 ) {
   const row = await prisma.application.findUnique({
     where: { id: applicationId },
+    select: {
+      email: true,
+      status: true,
+      createdMemberId: true,
+      membershipSubscribed: true,
+      stripeCustomerId: true,
+      registrationFeePaidAt: true,
+      approvedAt: true,
+      createdAt: true,
+    },
   });
   if (!row) {
     return { error: "Application not found" as const };

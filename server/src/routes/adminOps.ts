@@ -27,6 +27,7 @@ import {
   notifyMemberWelcome,
   sendXeroInvoiceToTrader,
   sendAdminEmail,
+  publicSiteBase,
 } from "../lib/adminMail.js";
 import { ensureSumsubApplicantForApplication } from "../lib/ensureSumsubApplicant.js";
 import {
@@ -1197,11 +1198,15 @@ router.post("/applications/:id/sumsub-link", async (req, res) => {
       return;
     }
 
+    const siteBase = await publicSiteBase(prisma).catch(() => process.env.PUBLIC_SITE_URL?.trim() ?? "");
     const link = await generateSumsubWebSdkLink({
       userId: ensured.externalUserId,
       email: ensured.email,
       phone: ensured.phone,
       lang: "en",
+      redirectUrl: siteBase
+        ? `${siteBase}/join?app=${encodeURIComponent(id)}&email=${encodeURIComponent(ensured.email)}`
+        : undefined,
     });
 
     // Email the link to the applicant rather than returning it to the admin.
