@@ -71,6 +71,17 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
         {loading ? "Loading…" : "Check"}
       </button>
     </form>
+    {query.trim() ? (
+      <div className="mt-3 text-center">
+        <button
+          type="button"
+          onClick={() => setQuery("")}
+          className="text-sm font-medium text-slate-500 underline underline-offset-4 hover:text-slate-700"
+        >
+          Clear and start again
+        </button>
+      </div>
+    ) : null}
     </div>
   );
 }

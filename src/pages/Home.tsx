@@ -74,21 +74,15 @@ function HomeActionPanel({
 function SearchCard() {
   return (
     <section id="home-search" className="small-print-on-light bg-white px-4 py-10 sm:px-6 sm:py-14">
-      <div className="mx-auto max-w-5xl rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(145deg,#f7fafc_0%,#eef5ff_100%)] px-6 py-10 text-center shadow-[0_30px_70px_-42px_rgba(15,23,42,0.45)] sm:px-10 sm:py-12">
+      <div className="mx-auto max-w-5xl rounded-[2.4rem] border border-slate-200 bg-white px-6 py-10 text-center shadow-[0_30px_70px_-42px_rgba(15,23,42,0.45)] sm:px-10 sm:py-12">
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brand-700">
-          Search before you commit
+          Validate a trader with just one click — before you make contact
         </p>
         <h2 className="mt-4 font-display text-4xl font-bold text-slate-900 sm:text-5xl">
-          Check a trader before you let them into your home.
+          SEARCH THE VERIFIED TRADER REGISTER
         </h2>
-        <p className="mx-auto mt-6 max-w-3xl font-display text-2xl font-bold leading-tight text-slate-900 sm:text-[2rem]">
-          See their credentials before making contact.
-        </p>
-        <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-xl">
-          Verify a trader with just one click. Enter a business name or telephone number to see whether Trader Watchdog has been able to confirm the facts.
-        </p>
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-base">
-          Free to use, no account required, and anonymous from start to finish.
+        <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-xl">
+          Enter the business name or business telephone number of the trader you would like to verify
         </p>
         <VerifyForm id="home-lookup" layout="hero" />
       </div>
@@ -101,17 +95,17 @@ function HowItWorks() {
     {
       step: "1",
       title: "Search for a trader",
-      body: "Enter the business name or telephone number to start a check.",
+      body: "Start your search — enter the business name or telephone number.",
     },
     {
       step: "2",
       title: "We verify the facts",
-      body: "Not the reviews, the opinions or the reccommendations - just the facts.",
+      body: "Not the reviews, the opinions or the recommendations - just the facts.",
     },
     {
       step: "3",
       title: "We display flags",
-      body: "Green for a verified trader and red for traders that are not verified.",
+      body: "Green for a verified trader and red for traders that are not verified. See more below.",
     },
     {
       step: "4",
@@ -128,7 +122,7 @@ function HowItWorks() {
             How it works
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-            A simple check in four clear steps.
+            Simple verification in four clear steps.
           </h2>
         </div>
 
@@ -281,7 +275,7 @@ function WhatYouSee() {
         "Licences Verified (where required)",
         "Qualifications and memberships confirmed",
         "Public Profile",
-        "QR code and window sticker issued",
+        "Verified trader QR code issued",
       ],
       accentClass: "text-[#32C72E]",
       bulletVariant: "check" as const,
@@ -519,8 +513,8 @@ export function Home() {
       <section id="verify" className="small-print-on-light scroll-mt-24 bg-white pb-12 pt-0 sm:pb-16">
         <SectionBanner preserveCase>
           <>
-            <span className="block">Check a trader before you commit.</span>
-            <span className="block text-white/85">Verify a trader with just one click. It&apos;s free, anonymous, and designed to help you choose with confidence.</span>
+            <span className="block">VERIFY A TRADER WITH JUST ONE CLICK.</span>
+            <span className="block text-white/85">It&apos;s free, no registering, totally anonymous, and hassle free!</span>
           </>
         </SectionBanner>
 
@@ -545,15 +539,19 @@ export function Home() {
         </div>
 
         <SectionBanner preserveCase>
-          <span className="text-white/80">Trader Watchdog supports you, your community, and legitimate traders, providing independently verified diligence recommended by Police, Trading Standards and Community Groups.</span>
+          <>
+            <span className="block">Trader Watchdog unites householders with honest, legitimate traders.</span>
+            <span className="mt-2 block text-base font-normal normal-case text-white/80">Trader Watchdog protects households and supports genuine local traders, providing the diligence recommended by the police, trading standards, councils and community groups.</span>
+            <span className="mt-1 block text-base font-normal normal-case text-white/75">Fast, free access to verified diligence recommended by Police, Trading Standards and Community Groups before you make contact.</span>
+          </>
         </SectionBanner>
       </section>
-
-      {publicSearchEnabled && <SearchCard />}
 
       <HowItWorks />
 
       <QuickFaqs />
+
+      {publicSearchEnabled && <SearchCard />}
 
       <Stats />
 
