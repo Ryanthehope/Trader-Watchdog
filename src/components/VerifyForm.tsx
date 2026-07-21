@@ -55,7 +55,7 @@ export function VerifyForm({ id = "tv-verify", layout = "section" }: Props) {
         aria-busy={loading}
         className={
           isHero
-            ? "min-h-[52px] flex-1 rounded-xl border border-[#1f7c39] bg-[#2BA24E] px-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_18px_30px_-20px_rgba(43,162,78,0.75)] placeholder:text-white/85 transition-shadow focus:border-[#17632d] focus:outline-none focus:ring-2 focus:ring-[#2BA24E]/35 disabled:cursor-not-allowed"
+            ? "min-h-[52px] flex-1 rounded-xl border border-slate-300 bg-white px-4 text-slate-900 shadow-[0_14px_28px_-20px_rgba(15,23,42,0.35)] placeholder:text-slate-500 transition-shadow focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/25 disabled:cursor-not-allowed"
             : "min-h-[52px] flex-1 rounded-xl border border-white/12 bg-ink-900 px-4 text-white shadow-inner shadow-black/10 placeholder:text-slate-500 transition-shadow focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/45 disabled:cursor-not-allowed disabled:opacity-50"
         }
       />

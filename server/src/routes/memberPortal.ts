@@ -612,6 +612,7 @@ router.post("/membership/renew", async (req, res) => {
       amountPence: renewalAmountPence,
       description: `${lines.membershipName} renewal`,
       email: m.loginEmail.trim().toLowerCase(),
+      customerName: m.name,
       existingStripeCustomerId: m.stripeCustomerId,
       createCustomer: !m.stripeCustomerId,
       successRedirectUrl: `${origin}/member/billing?renewal=success`,

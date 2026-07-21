@@ -80,6 +80,8 @@ async function assertMembershipCheckoutAllowed(
   const row = await prisma.application.findUnique({
     where: { id: applicationId },
     select: {
+      company: true,
+      identifiablePerson: true,
       email: true,
       status: true,
       createdMemberId: true,
@@ -335,6 +337,7 @@ router.post("/checkout-membership", async (req, res) => {
       amountPence: combinedAmountPence,
       description: paymentDescription,
       email,
+      customerName: application.identifiablePerson?.trim() || application.company,
       existingStripeCustomerId: application.stripeCustomerId,
       createCustomer: !application.stripeCustomerId,
       successRedirectUrl: `${origin}/join?paid=membership&app=${encodeURIComponent(applicationId)}`,

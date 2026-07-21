@@ -5,6 +5,8 @@ export type StripeCheckoutParams = {
   description: string;
   /** Pre-filled email shown on the Stripe checkout page. */
   email: string;
+  /** Customer name shown in Stripe for accounting and receipts. */
+  customerName?: string | null;
   /** Existing Stripe customer ID to attach this payment to (optional). */
   existingStripeCustomerId?: string | null;
   /** When true, Stripe creates a Customer for one-off guest checkouts. */
@@ -27,6 +29,7 @@ export async function createStripeCheckoutSession(
   stripe: Stripe,
   params: StripeCheckoutParams
 ): Promise<{ url: string }> {
+  const normalizedCustomerName = params.customerName?.trim() || undefined;
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: "payment",
     line_items: [
@@ -51,12 +54,24 @@ export async function createStripeCheckoutSession(
   };
 
   if (params.existingStripeCustomerId) {
+    if (normalizedCustomerName) {
+      await stripe.customers.update(params.existingStripeCustomerId, {
+        name: normalizedCustomerName,
+        email: params.email,
+      });
+    }
     sessionParams.customer = params.existingStripeCustomerId;
   } else {
     if (params.createCustomer) {
-      sessionParams.customer_creation = "always";
+      const customer = await stripe.customers.create({
+        name: normalizedCustomerName,
+        email: params.email,
+        metadata: params.metadata,
+      });
+      sessionParams.customer = customer.id;
+    } else {
+      sessionParams.customer_email = params.email;
     }
-    sessionParams.customer_email = params.email;
   }
 
   const session = await stripe.checkout.sessions.create(sessionParams);

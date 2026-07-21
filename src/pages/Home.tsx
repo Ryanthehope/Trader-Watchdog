@@ -78,7 +78,7 @@ function SearchCard() {
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brand-700">
           Validate a trader with just one click — before you make contact
         </p>
-        <h2 className="mt-4 font-display text-4xl font-bold text-slate-900 sm:text-5xl">
+        <h2 className="mt-4 font-display text-4xl font-bold text-brand-700 sm:text-5xl">
           SEARCH THE VERIFIED TRADER REGISTER
         </h2>
         <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-xl">
@@ -94,8 +94,8 @@ function HowItWorks() {
   const steps = [
     {
       step: "1",
-      title: "Search for a trader",
-      body: "Start your search — enter the business name or telephone number.",
+      title: "Start our search",
+      body: "Enter the business name or telephone number.",
     },
     {
       step: "2",
@@ -513,8 +513,7 @@ export function Home() {
       <section id="verify" className="small-print-on-light scroll-mt-24 bg-white pb-12 pt-0 sm:pb-16">
         <SectionBanner preserveCase>
           <>
-            <span className="block">VERIFY A TRADER WITH JUST ONE CLICK.</span>
-            <span className="block text-white/85">It&apos;s free, no registering, totally anonymous, and hassle free!</span>
+            <span className="block">TRADER WATCHDOG UNITES HOUSEHOLDS WITH HONEST AND LEGITIMATE TRADERS</span>
           </>
         </SectionBanner>
 
@@ -540,9 +539,7 @@ export function Home() {
 
         <SectionBanner preserveCase>
           <>
-            <span className="block">Trader Watchdog unites householders with honest, legitimate traders.</span>
-            <span className="mt-2 block text-base font-normal normal-case text-white/80">Trader Watchdog protects households and supports genuine local traders, providing the diligence recommended by the police, trading standards, councils and community groups.</span>
-            <span className="mt-1 block text-base font-normal normal-case text-white/75">Fast, free access to verified diligence recommended by Police, Trading Standards and Community Groups before you make contact.</span>
+            <span className="mt-1 block text-[1.75rem] font-bold uppercase tracking-[0.08em] text-white">Fast, free access to verified diligence recommended by Police, Trading Standards and Community Groups before you make contact.</span>
           </>
         </SectionBanner>
       </section>
