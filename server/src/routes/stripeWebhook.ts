@@ -155,6 +155,10 @@ async function handleCheckoutSessionCompleted(
 
   const paidAt = new Date(session.created * 1000);
   const amountPence = session.amount_total ?? 0;
+  const paymentReference =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : session.payment_intent?.id ?? session.id;
   const stripeCustomerId =
     typeof session.customer === "string" ? session.customer : null;
 
@@ -249,7 +253,7 @@ async function handleCheckoutSessionCompleted(
           void sendStripeReceipt(stripe, stripeCustomerId, {
             description: "Registration Fee",
             amountPence,
-            reference: session.id,
+            reference: paymentReference,
             paidAt,
             traderName: app.company ?? "Trader",
             email: app.email,
@@ -266,7 +270,7 @@ async function handleCheckoutSessionCompleted(
           contactPostalCode: app?.postcode,
           description: "Registration Fee",
           amountPence,
-          reference: session.id,
+          reference: paymentReference,
           paidAt,
         });
         void prisma.application.update({
@@ -295,7 +299,7 @@ async function handleCheckoutSessionCompleted(
     const appId = metadata.applicationId;
     if (!appId) return;
     const discountCode = typeof metadata.discountCode === "string" ? metadata.discountCode.trim() : undefined;
-    await handleMembershipConfirmed(appId, amountPence, paidAt, session.id, stripe, stripeCustomerId, discountCode || undefined);
+    await handleMembershipConfirmed(appId, amountPence, paidAt, paymentReference, stripe, stripeCustomerId, discountCode || undefined);
     return;
   }
 
@@ -356,7 +360,7 @@ async function handleCheckoutSessionCompleted(
         year: "numeric",
       })})`,
       amountPence,
-      reference: session.id,
+      reference: paymentReference,
       paidAt,
     }).then((xeroId) => {
       void prisma.member.update({
@@ -372,7 +376,7 @@ async function handleCheckoutSessionCompleted(
       void sendStripeReceipt(stripe, stripeCustomerId, {
         description: `Annual Portal Fee Renewal (${paidAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} – ${renewedUntil.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })})`,
         amountPence,
-        reference: session.id,
+        reference: paymentReference,
         paidAt,
         traderName: member.name,
         email: receiptEmail,

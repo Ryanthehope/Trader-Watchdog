@@ -82,15 +82,15 @@ const publicViews = [
   {
     title: "Green Flag",
     body: "A search on a verified trader will show their portal with a Green Flag and the traders name, stating the identity, insurances and any legally required licences have been verified. The status of current qualifications and memberships listed and your brief description of your business.",
-    image: "/isolated green phone.png",
+    image: "/Green%20phone.png",
     imageAlt: "Green flag",
     tone: "border-emerald-200 bg-emerald-50",
     accentClass: "text-emerald-600",
   },
   {
     title: "Red Flag",
-    body: "A search for an unverified trader will show a Red Flag stating Trader Watchdog was unable to verify the trader or their application has not been approved. Consumers are advised to carry out additional checks, insist on seeing insurance and any relevant licences, and avoid entering into agreements without supporting evidence. Customers are asked to mention Trader Watchdog in all communications.",
-    image: "/isolated red phone.png",
+    body: "A search for an unverified trader will show a Red Flag. Consumers are advised to carry out additional checks, insist on seeing insurance and any relevant licences, and avoid entering into agreements without supporting evidence. Customers are asked to mention Trader Watchdog in all communications.",
+    image: "/Red%20%20phone.png",
     imageAlt: "Red flag",
     tone: "border-rose-200 bg-rose-50",
     accentClass: "text-rose-600",
@@ -1130,23 +1130,27 @@ export function Join() {
               <p className="mt-6 text-base leading-relaxed text-slate-700">
                 Verified Traders are able to download a unique QR code linked directly to their Trader Watchdog portal. You can place it on your van, your quotes, your social media and your stationery — anywhere customers see your name.
               </p>
-              <p className="mt-4 text-base leading-relaxed text-slate-700">
+              <p className="mt-4 text-base leading-relaxed font-bold text-slate-700">
                 It&apos;s instant proof you&apos;re genuine. It&apos;s trust you can display. And it&apos;s a brilliant marketing tool traders have never had before.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <img
-                src="/van33.jpg"
-                alt="Trader van displaying a QR code sticker"
-                className="w-full rounded-[1.5rem] border border-slate-200 object-cover shadow-[0_20px_40px_-30px_rgba(15,23,42,0.25)]"
-                loading="lazy"
-              />
-              <img
-                src="/bobs%20card.jpg"
-                alt="Business card with Trader Watchdog QR code"
-                className="w-full rounded-[1.5rem] border border-slate-200 object-cover shadow-[0_20px_40px_-30px_rgba(15,23,42,0.25)]"
-                loading="lazy"
-              />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex min-h-[19rem] items-center justify-center rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-[0_20px_40px_-30px_rgba(15,23,42,0.25)] sm:min-h-[21rem]">
+                <img
+                  src="/sticker_joiner.png"
+                  alt="Trader watchdog verified tick"
+                  className="max-h-full w-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex min-h-[19rem] items-center justify-center rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-[0_20px_40px_-30px_rgba(15,23,42,0.25)] sm:min-h-[21rem]">
+                <img
+                  src="/sticker_joiner2.png"
+                  alt="Trader watchdog verified tick"
+                  className="max-h-full w-full object-contain"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1160,20 +1164,22 @@ export function Join() {
               Clear Status at a Glance
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-700">
-              When a householder scans your QR code or looks you up, they see one of two flags instantly.
+              When a householder scans your QR code or looks you up, they see one of two flags:
             </p>
           </div>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {publicViews.map((view) => (
               <div key={view.title} className={`rounded-[1.75rem] border p-6 shadow-[0_22px_50px_-38px_rgba(15,23,42,0.25)] ${view.tone}`}>
-                <div className="flex items-start gap-5">
-                  <img
-                    src={view.image}
-                    alt={view.imageAlt}
-                    className="h-40 w-40 shrink-0 object-contain sm:h-40 sm:w-40"
-                    loading="lazy"
-                  />
+                <div className="flex flex-col items-center gap-5 text-center sm:items-start sm:text-left">
+                  <div className="flex h-72 w-full items-center justify-center rounded-[1.5rem] border border-white/70 bg-white/70 p-4 shadow-[0_18px_34px_-26px_rgba(15,23,42,0.2)] sm:h-80">
+                    <img
+                      src={view.image}
+                      alt={view.imageAlt}
+                      className="max-h-full w-auto object-contain"
+                      loading="lazy"
+                    />
+                  </div>
                   <div>
                     <h3 className={`font-display text-2xl font-semibold ${view.accentClass}`}>
                       {view.title}
@@ -1187,7 +1193,7 @@ export function Join() {
             ))}
           </div>
 
-          <p className="mx-auto mt-8 max-w-2xl text-center text-base font-semibold text-slate-800">
+          <p className="mx-auto mt-8 max-w-2xl text-center text-base font-bold text-slate-800">
             Two flags. One simple message. Householders understand your status instantly.
           </p>
         </div>

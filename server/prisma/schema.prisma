@@ -251,6 +251,12 @@ model ApplicationDocument {
   @@index([applicationId])
 }
 
+model IssuedInvoice {
+  id               Int      @id @default(autoincrement())
+  paymentReference String   @unique
+  createdAt        DateTime @default(now())
+}
+
 model OrganizationSettings {
   id                                String  @id @default("default")
   revenueMtdCents                   Int     @default(0)

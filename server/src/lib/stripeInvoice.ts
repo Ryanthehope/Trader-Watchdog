@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import Stripe from "stripe";
 import { prisma } from "../db.js";
+import { ensureIssuedInvoiceNumber } from "./issuedInvoiceNumber.js";
 import { orgBrandingFilePath } from "./orgBrandingPaths.js";
 
 export type StripeInvoicePayload = {
@@ -114,6 +115,7 @@ async function loadReceiptLogo(storedName?: string | null) {
 async function createCustomReceiptPdf(
   payload: StripeInvoicePayload
 ): Promise<Buffer> {
+  const invoiceNumber = await ensureIssuedInvoiceNumber(payload.reference);
   const vatPence = Math.round(payload.amountPence / 6);
   const netPence = payload.amountPence - vatPence;
   const paidAtDisplay = payload.paidAt.toLocaleDateString("en-GB", {
@@ -204,6 +206,7 @@ async function createCustomReceiptPdf(
   const infoLabelWidth = 118;
   let infoY = PAGE_HEIGHT - HEADER_HEIGHT - 28;
   const infoItems = [
+    ["Invoice number", invoiceNumber],
     ["Date of issue", paidAtDisplay],
     ["Date of supply", paidAtDisplay],
     ["VAT applied", "20%"],

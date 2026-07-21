@@ -9,6 +9,7 @@ import {
 } from "xero-node";
 import { getAuthorisedXeroClient } from "./xeroClient.js";
 import { prisma } from "../db.js";
+import { ensureIssuedInvoiceNumber } from "./issuedInvoiceNumber.js";
 
 export type XeroInvoicePayload = {
     contactName: string;        // traders company name
@@ -102,6 +103,7 @@ async function resolveInvoiceContact(
 export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promise<string | null> {
     try {
         const client = await getAuthorisedXeroClient();
+    const invoiceNumber = await ensureIssuedInvoiceNumber(payload.reference);
 
         const settings = await prisma.organizationSettings.findUnique({
             where: { id: "default" },
@@ -134,6 +136,7 @@ export async function createPaidXeroInvoice(payload: XeroInvoicePayload): Promis
       lineAmountTypes: LineAmountTypes.Exclusive,
       date: payload.paidAt.toISOString().split("T")[0],
       dueDate: payload.paidAt.toISOString().split("T")[0],
+      invoiceNumber,
       reference: payload.reference,
       status: Invoice.StatusEnum.AUTHORISED,
     };
