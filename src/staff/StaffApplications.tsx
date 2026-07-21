@@ -1102,10 +1102,6 @@ function ApplicationCard({
                   </button>
                 ) : null}
               </>
-            ) : sumsubEnabled && row.status !== "DECLINED" ? (
-              <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-slate-400">
-                Sumsub unlocks after the registration fee is paid
-              </span>
             ) : null}
             {row.status === "APPROVED" && !linked ? (
               <>

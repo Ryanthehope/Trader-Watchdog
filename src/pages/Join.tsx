@@ -5,6 +5,11 @@ import {
   submitApplication,
 } from "../lib/submitApplication";
 import { apiBaseUrl } from "../lib/api";
+import {
+  resolveCheckoutDiscountCode,
+  type DiscountQuote,
+  type ValidatedDiscount,
+} from "../lib/checkoutDiscount";
 import { getLaunchWindow } from "../lib/launchWindow";
 
 const apiBase = () => apiBaseUrl();
@@ -26,11 +31,6 @@ type ApplicantSummary = {
   profileLive: boolean;
   /** Shown until first portal login or expiry; not stored in the browser. */
   oneTimePassword: string | null;
-};
-
-type DiscountQuote = {
-  registrationFinalPricePence: number;
-  membershipFinalPricePence: number;
 };
 
 const applicationRequirements = [
@@ -672,6 +672,38 @@ export function Join() {
     setApplicantSummaryReady(false);
   };
 
+  const validateDiscountCode = async (
+    code: string
+  ): Promise<ValidatedDiscount | null> => {
+    const normalizedCode = code.trim().toUpperCase();
+    if (!normalizedCode) return null;
+    const res = await fetch(`${apiBase()}/api/billing/validate-discount`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: normalizedCode }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      valid?: boolean;
+      registrationFinalPricePence?: number;
+      membershipFinalPricePence?: number;
+    };
+    if (
+      !res.ok ||
+      !data.valid ||
+      typeof data.registrationFinalPricePence !== "number" ||
+      typeof data.membershipFinalPricePence !== "number"
+    ) {
+      return null;
+    }
+    return {
+      code: normalizedCode,
+      quote: {
+        registrationFinalPricePence: data.registrationFinalPricePence,
+        membershipFinalPricePence: data.membershipFinalPricePence,
+      },
+    };
+  };
+
   const applyDiscountCode = async () => {
     if (!normalizedDiscountCode) {
       setDiscountError("Enter a code first.");
@@ -684,38 +716,21 @@ export function Join() {
     setDiscountError(null);
     setDiscountSuccess(null);
     try {
-      const res = await fetch(`${apiBase()}/api/billing/validate-discount`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: normalizedDiscountCode }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        valid?: boolean;
-        registrationFinalPricePence?: number;
-        membershipFinalPricePence?: number;
-      };
-      if (
-        !res.ok ||
-        !data.valid ||
-        typeof data.registrationFinalPricePence !== "number" ||
-        typeof data.membershipFinalPricePence !== "number"
-      ) {
+      const validated = await validateDiscountCode(normalizedDiscountCode);
+      if (!validated) {
         setAppliedDiscountCode(null);
         setDiscountQuote(null);
         setDiscountError("Code not recognised.");
         return;
       }
-      setAppliedDiscountCode(normalizedDiscountCode);
-      setDiscountQuote({
-        registrationFinalPricePence: data.registrationFinalPricePence,
-        membershipFinalPricePence: data.membershipFinalPricePence,
-      });
+      setAppliedDiscountCode(validated.code);
+      setDiscountQuote(validated.quote);
       const regLabel =
-        formatVatExclusiveLabel(data.registrationFinalPricePence) ??
-        formatSterling(data.registrationFinalPricePence);
+        formatVatExclusiveLabel(validated.quote.registrationFinalPricePence) ??
+        formatSterling(validated.quote.registrationFinalPricePence);
       const memberLabel =
-        formatVatExclusiveLabel(data.membershipFinalPricePence) ??
-        formatSterling(data.membershipFinalPricePence);
+        formatVatExclusiveLabel(validated.quote.membershipFinalPricePence) ??
+        formatSterling(validated.quote.membershipFinalPricePence);
       setDiscountSuccess(
         `Code applied. Approved applications pay ${regLabel} registration fee and ${memberLabel} annual portal fee together.`
       );
@@ -733,15 +748,45 @@ export function Join() {
     const targetApplicationId = options?.applicationId ?? applicationId;
     const targetEmail = options?.email ?? savedEmail;
     if (!targetApplicationId || !targetEmail) return;
-    if (normalizedDiscountCode && !discountApplied) {
-      setFormError("Apply the discount code before starting checkout.");
-      return;
-    }
     setCheckoutLoading(kind);
     setFormError(null);
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), CHECKOUT_REQUEST_TIMEOUT_MS);
     try {
+      let checkoutDiscountCode: string | undefined;
+      if (normalizedDiscountCode) {
+        setDiscountLoading(true);
+        setDiscountError(null);
+        setDiscountSuccess(null);
+        const discountResolution = await resolveCheckoutDiscountCode({
+          normalizedDiscountCode,
+          discountApplied,
+          appliedDiscountCode,
+          validateDiscountCode,
+        });
+        if (discountResolution.invalid) {
+          setAppliedDiscountCode(null);
+          setDiscountQuote(null);
+          setDiscountError("Code not recognised.");
+          setCheckoutLoading(null);
+          return;
+        }
+        checkoutDiscountCode = discountResolution.checkoutDiscountCode;
+        if (discountResolution.validatedDiscount) {
+          const validated = discountResolution.validatedDiscount;
+          setAppliedDiscountCode(validated.code);
+          setDiscountQuote(validated.quote);
+          const regLabel =
+            formatVatExclusiveLabel(validated.quote.registrationFinalPricePence) ??
+            formatSterling(validated.quote.registrationFinalPricePence);
+          const memberLabel =
+            formatVatExclusiveLabel(validated.quote.membershipFinalPricePence) ??
+            formatSterling(validated.quote.membershipFinalPricePence);
+          setDiscountSuccess(
+            `Code applied. Approved applications pay ${regLabel} registration fee and ${memberLabel} annual portal fee together.`
+          );
+        }
+      }
       const path =
         kind === "registration"
           ? "/api/billing/checkout-registration-fee"
@@ -753,7 +798,7 @@ export function Join() {
         body: JSON.stringify({
           applicationId: targetApplicationId,
           email: targetEmail,
-          discountCode: discountApplied ? appliedDiscountCode : undefined,
+          discountCode: checkoutDiscountCode,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -778,6 +823,7 @@ export function Join() {
       }
     } finally {
       window.clearTimeout(timeout);
+      setDiscountLoading(false);
       setCheckoutLoading(null);
     }
   };
@@ -1336,7 +1382,6 @@ export function Join() {
               </div>
             </div>
           ) : null}
-          <div className="mt-6">{renderDiscountCodeBox()}</div>
         </div>
       </div>
 
