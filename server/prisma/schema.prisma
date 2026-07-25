@@ -103,6 +103,8 @@ model ComplianceRecord {
   referenceNumber String?
   expiryDate      DateTime?
   notes           String?
+  sourceDocumentKind String?
+  sourceDocumentId   String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

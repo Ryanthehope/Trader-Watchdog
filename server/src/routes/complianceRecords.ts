@@ -11,6 +11,8 @@ function serializeRecord(record: {
   referenceNumber: string | null;
   expiryDate: Date | null;
   notes: string | null;
+  sourceDocumentKind: string | null;
+  sourceDocumentId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -21,6 +23,8 @@ function serializeRecord(record: {
     referenceNumber: record.referenceNumber,
     expiryDate: record.expiryDate?.toISOString() ?? null,
     notes: record.notes,
+    sourceDocumentKind: record.sourceDocumentKind,
+    sourceDocumentId: record.sourceDocumentId,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
   };
@@ -42,7 +46,15 @@ router.get("/:memberId", requireStaff, async (req, res) => {
 
 router.post("/", requireStaff, async (req, res) => {
   try {
-    const { memberId, type, referenceNumber, expiryDate, notes } = req.body;
+    const {
+      memberId,
+      type,
+      referenceNumber,
+      expiryDate,
+      notes,
+      sourceDocumentKind,
+      sourceDocumentId,
+    } = req.body;
 
     if (!memberId || typeof memberId !== "string") {
       res.status(400).json({ error: "Member ID is required" });
@@ -53,10 +65,62 @@ router.post("/", requireStaff, async (req, res) => {
       return;
     }
 
-    const member = await prisma.member.findUnique({ where: { id: memberId } });
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        id: true,
+        sourceApplication: { select: { id: true } },
+      },
+    });
     if (!member) {
       res.status(404).json({ error: "Member not found" });
       return;
+    }
+
+    let normalizedSourceKind: "member" | "application" | null = null;
+    let normalizedSourceId: string | null = null;
+    const rawSourceKind =
+      typeof sourceDocumentKind === "string" ? sourceDocumentKind.trim().toLowerCase() : "";
+    const rawSourceId =
+      typeof sourceDocumentId === "string" ? sourceDocumentId.trim() : "";
+
+    if (rawSourceKind || rawSourceId) {
+      if (!rawSourceKind || !rawSourceId) {
+        res.status(400).json({ error: "Linked document kind and ID must be provided together" });
+        return;
+      }
+      if (rawSourceKind !== "member" && rawSourceKind !== "application") {
+        res.status(400).json({ error: "Linked document kind must be member or application" });
+        return;
+      }
+
+      if (rawSourceKind === "member") {
+        const doc = await prisma.memberDocument.findFirst({
+          where: { id: rawSourceId, memberId },
+          select: { id: true },
+        });
+        if (!doc) {
+          res.status(400).json({ error: "Selected member portal upload was not found for this trader" });
+          return;
+        }
+      } else {
+        const sourceApplicationId = member.sourceApplication?.id;
+        if (!sourceApplicationId) {
+          res.status(400).json({ error: "This trader has no linked application uploads to attach" });
+          return;
+        }
+        const doc = await prisma.applicationDocument.findFirst({
+          where: { id: rawSourceId, applicationId: sourceApplicationId },
+          select: { id: true },
+        });
+        if (!doc) {
+          res.status(400).json({ error: "Selected application upload was not found for this trader" });
+          return;
+        }
+      }
+
+      normalizedSourceKind = rawSourceKind;
+      normalizedSourceId = rawSourceId;
     }
 
     let parsedExpiryDate: Date | null = null;
@@ -78,6 +142,8 @@ router.post("/", requireStaff, async (req, res) => {
             : null,
         expiryDate: parsedExpiryDate,
         notes: typeof notes === "string" && notes.trim() ? notes.trim() : null,
+        sourceDocumentKind: normalizedSourceKind,
+        sourceDocumentId: normalizedSourceId,
       },
     });
 

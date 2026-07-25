@@ -23,6 +23,8 @@ type ComplianceRecord = {
   referenceNumber: string | null;
   expiryDate: string | null;
   notes: string | null;
+  sourceDocumentKind: "member" | "application" | null;
+  sourceDocumentId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -118,6 +120,7 @@ export function StaffMemberForm() {
   const [complianceReferenceNumber, setComplianceReferenceNumber] = useState("");
   const [complianceExpiry, setComplianceExpiry] = useState("");
   const [complianceNotes, setComplianceNotes] = useState("");
+  const [complianceSourceKey, setComplianceSourceKey] = useState("");
   const [complianceAdding, setComplianceAdding] = useState(false);
   const [complianceError, setComplianceError] = useState<string | null>(null);
   const [memberDocuments, setMemberDocuments] = useState<MemberDoc[]>([]);
@@ -277,6 +280,7 @@ export function StaffMemberForm() {
     setComplianceAdding(true);
     setComplianceError(null);
     try {
+      const [sourceDocumentKind = "", sourceDocumentId = ""] = complianceSourceKey.split(":");
       const created = await apiSend<ComplianceRecord>("/api/compliance-records", {
         method: "POST",
         body: JSON.stringify({
@@ -285,6 +289,8 @@ export function StaffMemberForm() {
           referenceNumber: complianceReferenceNumber.trim() || null,
           expiryDate: complianceExpiry.trim() || null,
           notes: complianceNotes.trim() || null,
+          sourceDocumentKind: sourceDocumentKind || null,
+          sourceDocumentId: sourceDocumentId || null,
         }),
       });
       setComplianceRecords((current) => [...current, created]);
@@ -292,6 +298,7 @@ export function StaffMemberForm() {
       setComplianceReferenceNumber("");
       setComplianceExpiry("");
       setComplianceNotes("");
+      setComplianceSourceKey("");
     } catch (e) {
       setComplianceError(
         e instanceof Error ? e.message : "Could not add compliance record"
@@ -312,6 +319,37 @@ export function StaffMemberForm() {
       alert(e instanceof Error ? e.message : "Could not delete compliance record");
     }
   };
+
+  const linkedComplianceDocument = (record: ComplianceRecord) => {
+    if (!record.sourceDocumentKind || !record.sourceDocumentId) return null;
+    if (record.sourceDocumentKind === "member") {
+      const doc = memberDocuments.find((candidate) => candidate.id === record.sourceDocumentId);
+      return doc ? { kind: "member" as const, doc } : null;
+    }
+    const doc = sourceApplicationDocuments.find((candidate) => candidate.id === record.sourceDocumentId);
+    return doc ? { kind: "application" as const, doc } : null;
+  };
+
+  const openComplianceLinkedDocument = async (record: ComplianceRecord) => {
+    const linked = linkedComplianceDocument(record);
+    if (!linked) return;
+    if (linked.kind === "member") {
+      await openMemberDocument(linked.doc);
+      return;
+    }
+    await openSourceApplicationDocument(linked.doc);
+  };
+
+  const complianceSourceOptions = [
+    ...sourceApplicationDocuments.map((doc) => ({
+      key: `application:${doc.id}`,
+      label: `Application upload: ${doc.originalName}`,
+    })),
+    ...memberDocuments.map((doc) => ({
+      key: `member:${doc.id}`,
+      label: `Member portal upload: ${doc.originalName}`,
+    })),
+  ];
 
   const openSourceApplicationDocument = async (doc: ApplicationDoc) => {
     if (!sourceApplicationId) return;
@@ -871,7 +909,7 @@ export function StaffMemberForm() {
           <div className="sm:col-span-2 rounded-xl border border-violet-500/20 bg-violet-950/20 p-5">
             <h2 className="text-sm font-semibold text-violet-200">Compliance documents and registrations</h2>
             <p className="mt-1 text-xs text-slate-500">
-              Staff-managed records for non-insurance evidence such as waste carrier licences, Gas Safe, NICEIC, ICO, DBS or other registrations.
+              Staff-managed records for non-insurance evidence such as waste carrier licences, Gas Safe, NICEIC, ICO, DBS or other registrations. Each record can optionally link to an upload from the original application or the member portal.
             </p>
 
             {complianceRecords.length > 0 ? (
@@ -879,13 +917,15 @@ export function StaffMemberForm() {
                 <table className="w-full text-xs">
                   <thead className="border-b border-white/10 bg-ink-950/60">
                     <tr>
-                      {["Type", "Reference", "Expiry", "Notes", "Added", ""].map((heading) => (
+                      {["Type", "Reference", "Expiry", "Linked file", "Notes", "Added", ""].map((heading) => (
                         <th key={heading} className="px-3 py-2 text-left font-semibold text-slate-400">{heading}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {complianceRecords.map((record) => (
+                    {complianceRecords.map((record) => {
+                      const linked = linkedComplianceDocument(record);
+                      return (
                       <tr key={record.id} className="hover:bg-white/[0.02] align-top">
                         <td className="px-3 py-2 text-slate-200">{record.type}</td>
                         <td className="px-3 py-2 font-mono text-slate-400">{record.referenceNumber || "—"}</td>
@@ -897,6 +937,21 @@ export function StaffMemberForm() {
                                 year: "numeric",
                               })
                             : "—"}
+                        </td>
+                        <td className="px-3 py-2 text-slate-300">
+                          {linked ? (
+                            <button
+                              type="button"
+                              onClick={() => void openComplianceLinkedDocument(record)}
+                              className="text-left text-brand-300 hover:text-brand-200"
+                            >
+                              {linked.kind === "application" ? "Application" : "Portal"}: {linked.doc.originalName}
+                            </button>
+                          ) : record.sourceDocumentId ? (
+                            <span className="text-slate-500">Linked file unavailable</span>
+                          ) : (
+                            "—"
+                          )}
                         </td>
                         <td className="px-3 py-2 text-slate-400">{record.notes || "—"}</td>
                         <td className="px-3 py-2 text-slate-400">
@@ -916,7 +971,7 @@ export function StaffMemberForm() {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>
@@ -956,6 +1011,24 @@ export function StaffMemberForm() {
                   onChange={(e) => setComplianceExpiry(e.target.value)}
                   className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-3 py-2 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                 />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-slate-400">Link an existing trader upload</label>
+                <select
+                  value={complianceSourceKey}
+                  onChange={(e) => setComplianceSourceKey(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-white/10 bg-ink-900 px-3 py-2 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                >
+                  <option value="">No linked file</option>
+                  {complianceSourceOptions.map((option) => (
+                    <option key={option.key} value={option.key}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-slate-500">
+                  Choose a file the trader already uploaded during registration or through the member portal.
+                </p>
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-slate-400">Notes</label>
