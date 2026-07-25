@@ -432,8 +432,7 @@ export function StaffApplications() {
                   onSave={patch}
                   onDelete={removeApp}
                   reload={load}
-                  sumsubEnabled={sumsubEnabled}
-                                  sumsubEnabled={sumsubAvailable}
+                  sumsubEnabled={sumsubAvailable}
                 />
               ))}
             </div>
