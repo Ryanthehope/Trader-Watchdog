@@ -89,9 +89,25 @@ model Member {
   documents                MemberDocument[]
   /// Filled when this profile was auto-created from an approved application.
   sourceApplication        Application?     @relation("MemberFromApprovedApplication")
+  complianceRecords        ComplianceRecord[]
   insurancePolicies        Insurance[]
   /// Set when Xero invoice creation failed so staff can retry manually.
   xeroInvoiceFailed        Boolean @default(false)
+}
+
+model ComplianceRecord {
+  id              String   @id @default(cuid())
+  memberId        String
+  member          Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  type            String
+  referenceNumber String?
+  expiryDate      DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([expiryDate])
 }
 
 model Insurance {

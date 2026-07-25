@@ -97,6 +97,37 @@ const publicViews = [
   },
 ];
 
+const joinStickerShowcase = [
+  {
+    title: "Van Sticker 1",
+    body: "Square-format artwork that suits rear doors, side panels and other broad flat spaces.",
+    image: "/sticker_joiner.png",
+    imageAlt: "Square Trader Watchdog van sticker artwork",
+    imageClassName: "object-contain",
+  },
+  {
+    title: "Van Sticker 2",
+    body: "Landscape artwork that works well on side panels, doors and longer horizontal spaces.",
+    image: "/sticker_joiner2.png",
+    imageAlt: "Landscape Trader Watchdog van sticker artwork",
+    imageClassName: "object-contain",
+  },
+  {
+    title: "Van Sticker 3",
+    body: "Compact badge-style artwork that helps customers spot your QR code quickly from closer range.",
+    image: "/Badge%20TW3.webp",
+    imageAlt: "Compact Trader Watchdog sticker artwork",
+    imageClassName: "object-contain",
+  },
+  {
+    title: "Stationery Example",
+    body: "An example of how your artwork can appear on printed stationery and customer-facing materials.",
+    image: "/Stationery%201.png",
+    imageAlt: "Trader Watchdog artwork shown on stationery",
+    imageClassName: "object-contain",
+  },
+] as const;
+
 const workflowSteps = [
   {
     step: "01",
@@ -1094,25 +1125,19 @@ export function Join() {
             <h1 className="font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               Independent verification earns trust — and brings in more customers.
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
-              Householders want simple, factual reassurance. That&apos;s what they get.
+            <p className="mx-auto mt-6 max-w-3xl text-xl leading-snug text-slate-700 sm:text-2xl">
+              Householders want simple, factual reassurance. <span className="font-bold text-slate-900">That&apos;s what they get.</span>
             </p>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-700 sm:text-lg">
-              You want affordable, independent verification. That&apos;s what you get.
+            <p className="mx-auto mt-3 max-w-3xl text-xl leading-snug text-slate-700 sm:text-2xl">
+              You want affordable, independent verification. <span className="font-bold text-slate-900">That&apos;s what you get.</span>
             </p>
           </div>
 
-          <div className="mt-12 flex flex-col items-center justify-center gap-6 sm:flex-row sm:items-start">
+          <div className="mt-10 flex justify-center">
             <img
               src="/hi%20viz%20with%20phone.jpg"
               alt="Trader holding a phone showing their verification portal"
-              className="w-full max-w-sm rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
-              loading="lazy"
-            />
-            <img
-              src="/van33.jpg"
-              alt="Trader van with Trader Watchdog QR code sticker"
-              className="w-full max-w-sm rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
+              className="w-full max-w-xl rounded-[1.75rem] border border-slate-200 object-cover shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
               loading="lazy"
             />
           </div>
@@ -1122,35 +1147,40 @@ export function Join() {
       {/* Section 2 — Your Verification, On Display Everywhere */}
       <section className="small-print-on-light border-b border-slate-200 bg-white py-20 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
             <div>
               <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-slate-900 sm:text-4xl">
                 Your Verification, On Display Everywhere
               </h2>
-              <p className="mt-6 text-base leading-relaxed text-slate-700">
-                Verified Traders are able to download a unique QR code linked directly to their Trader Watchdog portal. You can place it on your van, your quotes, your social media and your stationery — anywhere customers see your name.
-              </p>
-              <p className="mt-4 text-base leading-relaxed font-bold text-slate-700">
+              <p className="mt-4 font-display text-xl font-bold leading-snug text-slate-900 sm:text-2xl">
                 It&apos;s instant proof you&apos;re genuine. It&apos;s trust you can display. And it&apos;s a brilliant marketing tool traders have never had before.
+              </p>
+              <p className="mt-6 text-base leading-relaxed text-slate-700 sm:text-lg">
+                Verified traders can download print-ready artwork displaying their individual QR code, linking the public and customers direct to their Trader Watchdog Green Flag business portal. Use it on your van, your quotes, your social media and your stationery — anywhere customers see your name. Stickers can be ordered direct from your printer or use ours. Examples are shown here.
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex min-h-[19rem] items-center justify-center rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-[0_20px_40px_-30px_rgba(15,23,42,0.25)] sm:min-h-[21rem]">
-                <img
-                  src="/sticker_joiner.png"
-                  alt="Trader watchdog verified tick"
-                  className="max-h-full w-full object-contain"
-                  loading="lazy"
-                />
-              </div>
-              <div className="flex min-h-[19rem] items-center justify-center rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-[0_20px_40px_-30px_rgba(15,23,42,0.25)] sm:min-h-[21rem]">
-                <img
-                  src="/sticker_joiner2.png"
-                  alt="Trader watchdog verified tick"
-                  className="max-h-full w-full object-contain"
-                  loading="lazy"
-                />
-              </div>
+              {joinStickerShowcase.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-[0_20px_40px_-30px_rgba(15,23,42,0.25)]"
+                >
+                  <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[1.25rem] bg-slate-50 p-3">
+                    <img
+                      src={item.image}
+                      alt={item.imageAlt}
+                      className={`h-full w-full ${item.imageClassName}`}
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="mt-4 text-sm font-semibold uppercase tracking-[0.12em] text-slate-900">
+                    {item.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                    {item.body}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1234,12 +1264,13 @@ export function Join() {
 
       {/* Section 5 — Benefits of Being a Verified Trader */}
       <section className="small-print-on-light border-b border-slate-200 bg-[#f5f7fb] py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <div>
+            <div className="text-center">
               <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-slate-900 sm:text-4xl">
                 Benefits of Being a Verified Trader
               </h2>
+            </div>
               <ul className="mt-8 space-y-4">
                 {[
                   { title: "Instant Trust", body: "Householders see your verified status immediately." },
@@ -1247,6 +1278,7 @@ export function Join() {
                   { title: "Marketing Your Code", body: "Free downloads and vehicle stickers at cost." },
                   { title: "Professional Green Flag", body: "Independent checks that set you apart from the crowd." },
                   { title: "More Customer Confidence", body: "Clear reassurance leads to more enquiries and more work." },
+                  { title: "Renewal Reminders", body: "Renewal reminders for insurance, licences and subscription so nothing important gets missed." },
                 ].map((item) => (
                   <li key={item.title} className="flex items-start gap-4">
                     <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
@@ -1260,15 +1292,6 @@ export function Join() {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="flex justify-center">
-              <img
-                src="/Foundation%20offer.png"
-                alt="Foundation offer — 25% off"
-                className="w-full max-w-sm rounded-[1.75rem] border border-slate-200 object-contain shadow-[0_24px_50px_-36px_rgba(15,23,42,0.28)]"
-                loading="lazy"
-              />
-            </div>
           </div>
         </div>
       </section>

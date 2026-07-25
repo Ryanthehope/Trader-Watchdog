@@ -16,6 +16,8 @@ import { DataRetention } from "./pages/DataRetention";
 import { TraderAgreement } from "./pages/TraderAgreement";
 import { LookupMiss } from "./pages/LookupMiss";
 import { MemberProfile } from "./pages/MemberProfile";
+import { NewsAndViews } from "./pages/NewsAndViews";
+import { OurStory } from "./pages/OurStory";
 
 import { StaffAuthProvider } from "./staff/StaffAuthContext";
 import { StaffDashboard } from "./staff/StaffDashboard";
@@ -103,6 +105,8 @@ export default function App() {
           <Route path="m/:slug" element={<MemberProfile />} />
           <Route path="lookup/miss" element={<LookupMiss />} />
           <Route path="join" element={<Join />} />
+          <Route path="our-story" element={<OurStory />} />
+          <Route path="news-and-views" element={<NewsAndViews />} />
           {/* Removed post-job route */}
           {/* Guides/advice routes removed */}
           <Route path="privacy" element={<Privacy />} />

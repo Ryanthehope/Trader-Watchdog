@@ -133,6 +133,12 @@ export function Layout() {
               <Link to="/#why" className={desktopActionClass}>
                 What we check
               </Link>
+              <Link to="/our-story" className={desktopActionClass}>
+                Our Story
+              </Link>
+              <Link to="/news-and-views" className={desktopActionClass}>
+                News and Views
+              </Link>
               <Link to="/join" className={desktopActionClass}>
                 Join Trader Watchdog
               </Link>
@@ -163,6 +169,20 @@ export function Layout() {
                 onClick={() => setMenuOpen(false)}
               >
                 Join Trader Watchdog
+              </Link>
+              <Link
+                to="/our-story"
+                className={mobileLinkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                Our Story
+              </Link>
+              <Link
+                to="/news-and-views"
+                className={mobileLinkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                News and Views
               </Link>
               <Link
                 to="/member/login"
@@ -198,6 +218,12 @@ export function Layout() {
             >
               <Link to="/join" className="transition-colors hover:text-slate-950">
                 Apply
+              </Link>
+              <Link to="/our-story" className="transition-colors hover:text-slate-950">
+                Our Story
+              </Link>
+              <Link to="/news-and-views" className="transition-colors hover:text-slate-950">
+                News and Views
               </Link>
               <Link to="/privacy" className="transition-colors hover:text-slate-950">
                 Privacy Policy

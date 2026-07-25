@@ -88,9 +88,9 @@ const stickerPreviewCards = [
     imageAlt: "Sticker 1 template preview",
     sourceWidth: 897,
     sourceHeight: 402,
-    title: "Vehicle sticker 1",
-    body: "Download this sticker artwork with your QR code placed centrally in the clear area.",
-    buttonLabel: "Download vehicle sticker 1",
+    title: "Van sticker 1",
+    body: "Print-ready artwork with your QR code embedded and crop marks applied for direct supply to your printer.",
+    buttonLabel: "Download van sticker 1",
     panelLeft: 514,
     panelTop: 36,
     panelSize: 328,
@@ -102,9 +102,9 @@ const stickerPreviewCards = [
     imageAlt: "Sticker 2 template preview",
     sourceWidth: 1184,
     sourceHeight: 1064,
-    title: "Vehicle sticker 2",
-    body: "Download this larger sticker artwork with your QR code centred in the open white panel.",
-    buttonLabel: "Download vehicle sticker 2",
+    title: "Van sticker 2",
+    body: "Print-ready artwork with your QR code centred in the open white panel and crop marks applied.",
+    buttonLabel: "Download van sticker 2",
     panelLeft: 107,
     panelTop: 349,
     panelSize: 370,
@@ -423,16 +423,20 @@ export function MemberOverview() {
             </p>
           </div>
                     <div className="rounded-lg border border-[#e4d7c4] bg-[#f7f1e8] p-8">
-                      <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-700">
-                        Trader portal downloads
+                      <h2 className="font-display text-3xl font-bold text-slate-900">
+                        Fly Your Flag!
                       </h2>
                       <p className="mt-3 text-sm leading-relaxed text-slate-700">
-                        Show your community and the public you are a Verified Trader. Use the badges to connect direct with your portfolio.
+                        The logos and badges below can be downloaded to boost your marketing.
                       </p>
 
                       {canDownloadQr ? (
-                        <div className="mt-6 space-y-6">
-                          <div className="grid gap-4 xl:grid-cols-2">
+                        <div className="mt-6 space-y-8">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-600">
+                              For Stationery
+                            </p>
+                            <div className="mt-4 grid gap-4 xl:grid-cols-3">
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
                               <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
                                 <img
@@ -445,7 +449,7 @@ export function MemberOverview() {
                                 Your QR code
                               </h3>
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                This QR code directs to your business portal. You can download it here for your marketing materials. Please check before displaying to ensure the accuracy and contact us if the code does not direct.
+                                This QR code directs to your business portal. Download it for quotes, stationery, leaflets and other marketing materials.
                               </p>
                               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                                 <button
@@ -491,7 +495,7 @@ export function MemberOverview() {
                                 Badge with your QR code
                               </h3>
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                Download this badge showing your QR code for stationery, social media and advertising.
+                                Download this badge for stationery, social media and advertising where you want your verified status shown clearly.
                               </p>
                               <button
                                 type="button"
@@ -515,7 +519,7 @@ export function MemberOverview() {
                                 Badge ready for your QR code
                               </h3>
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                If QR code cannot be placed - Download this badge and add your QR code for stationery, social media and advertising.
+                                If the QR code needs placing separately, download this artwork and add your QR code before sending it to print.
                               </p>
                               <button
                                 type="button"
@@ -526,32 +530,17 @@ export function MemberOverview() {
                                 {qrBusy === "badgeBlank" ? "Preparing..." : "Download blank badge artwork"}
                               </button>
                             </div>
-
-                            <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
-                              <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
-                                <img
-                                  src="/van33.jpg"
-                                  alt="Trader Watchdog vehicle badge preview"
-                                  className="h-48 w-full rounded-[1rem] object-cover"
-                                />
-                              </div>
-                              <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                                Your portal vehicle badge
-                              </h3>
-                              <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                This badge is suitable for vehicles, directing your community and the public to your verified portal. It can be downloaded for printing.
-                              </p>
                             </div>
                           </div>
 
                           <div className="rounded-[1.5rem] border border-[#0d2167] bg-[#122a80] p-5 text-white shadow-sm">
                             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-200">
-                              STICKERS
+                              For Vehicle Stickers
                             </p>
                             <p className="mt-3 text-sm leading-relaxed text-slate-100">
-                              Vehicle stickers printed with your QR code are available in a choice of two sizes available in packs of two; 100mm x 90mm at £xx and 150mm x 135mm at £xx. Prices include delivery and VAT.
+                              Van stickers are print-ready with your QR code embedded and crop marks applied. Download and send them direct to your printer or to Direct Sticker Printing (<a href="https://www.discountstickerprinting.co.uk" target="_blank" rel="noreferrer" className="font-semibold text-white underline underline-offset-4 hover:text-slate-200">www.discountstickerprinting.co.uk</a>). They have a minimum order value of £12 which will buy 6 or more waterproof vinyl van stickers of the same design.
                             </p>
-                            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                            <div className="mt-5 grid gap-4 lg:grid-cols-3">
                               {stickerPreviewCards.map((card) => (
                                 <div key={card.id} className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
                                   <div className="overflow-hidden rounded-[1rem] bg-white">
@@ -600,7 +589,27 @@ export function MemberOverview() {
                                   </button>
                                 </div>
                               ))}
+                              <div className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
+                                <div className="overflow-hidden rounded-[1rem] bg-white">
+                                  <div className="flex aspect-[4/3] items-center justify-center p-4">
+                                    <img
+                                      src="/van33.jpg"
+                                      alt="Example of a Trader Watchdog sticker applied to a working van"
+                                      className="h-full w-full rounded-[0.85rem] object-cover"
+                                    />
+                                  </div>
+                                </div>
+                                <h3 className="mt-4 text-base font-semibold text-white">
+                                  Van sticker 3
+                                </h3>
+                                <p className="mt-2 text-sm leading-relaxed text-slate-100">
+                                  Visual example showing how the sticker can look once fitted, helping you judge placement and scale on your van.
+                                </p>
+                              </div>
                             </div>
+                            <p className="mt-5 text-sm font-semibold text-amber-100">
+                              NOTE: Check your QR code links to your portal before finalising printing.
+                            </p>
                           </div>
                         </div>
                       ) : (
