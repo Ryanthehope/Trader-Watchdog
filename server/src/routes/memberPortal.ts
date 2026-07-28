@@ -48,7 +48,7 @@ const QR_SMALL_SIZE_PX = 236; // 20mm at 300 DPI.
 type QrVariant = "sticker" | "small";
 
 const BADGE_WITH_QR_CONFIG = {
-  templateFile: "1A Stationery 2 40x30mm.png",
+  templateFile: "1A Stationery 2 blank 40x30mm.png",
   panelLeft: 18,
   panelTop: 56,
   panelSize: 246,

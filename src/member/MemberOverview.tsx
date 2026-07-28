@@ -505,8 +505,8 @@ export function MemberOverview() {
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
                               <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
                                 <img
-                                  src="/1A%20Stationery%202%2040x30mm.png"
-                                  alt="1A stationery 40x30 artwork showing a QR placement example"
+                                  src="/1A%20Stationery%202%20blank%2040x30mm.png"
+                                  alt="1A stationery 40x30 blank artwork with QR box"
                                   className="max-h-40 w-full object-contain"
                                 />
                               </div>
