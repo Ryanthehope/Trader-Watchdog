@@ -1123,7 +1123,7 @@ export function Join() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-              Independent verification earns trust — and brings in more customers.
+              Independent verification separates honest traders from the shady ones — and brings in more customers.
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-xl leading-snug text-slate-700 sm:text-2xl">
               Householders want simple, factual reassurance. <span className="font-bold text-slate-900">That&apos;s what they get.</span>

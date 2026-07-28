@@ -38,6 +38,7 @@ type MemberOverviewData = {
     badgeBlankDownloadUrl: string;
     van1DownloadUrl: string;
     van2DownloadUrl: string;
+    van3DownloadUrl: string;
     stickerPixels: number;
     smallPixels: number;
   };
@@ -84,31 +85,45 @@ function saveBlob(blob: Blob, filename: string) {
 const stickerPreviewCards = [
   {
     id: "van1" as const,
-    imageSrc: "/bitmap%20stationery%20blank.png",
-    imageAlt: "Sticker 1 template preview",
-    sourceWidth: 897,
-    sourceHeight: 402,
-    title: "Van sticker 1",
-    body: "Print-ready artwork with your QR code embedded and crop marks applied for direct supply to your printer.",
-    buttonLabel: "Download van sticker 1",
-    panelLeft: 514,
-    panelTop: 36,
-    panelSize: 328,
-    qrInset: 10,
+    imageSrc: "/1A%20STICKER%201%20150x130mm.png",
+    imageAlt: "1A sticker 1 template preview",
+    sourceWidth: 1973,
+    sourceHeight: 1731,
+    title: "1A sticker 1 150mm x 130mm",
+    body: "Print-ready artwork with your Trader Watchdog QR code fitted into the supplied box for direct use with your printer.",
+    buttonLabel: "Download 1A sticker 1",
+    panelLeft: 153,
+    panelTop: 468,
+    panelSize: 820,
+    qrInset: 18,
   },
   {
     id: "van2" as const,
-    imageSrc: "/300dpi.png",
-    imageAlt: "Sticker 2 template preview",
-    sourceWidth: 1184,
-    sourceHeight: 1064,
-    title: "Van sticker 2",
-    body: "Print-ready artwork with your QR code centred in the open white panel and crop marks applied.",
-    buttonLabel: "Download van sticker 2",
-    panelLeft: 107,
-    panelTop: 349,
-    panelSize: 370,
-    qrInset: 12,
+    imageSrc: "/1A%20sticker%202%20140x130mm.png",
+    imageAlt: "1A sticker 2 template preview",
+    sourceWidth: 1865,
+    sourceHeight: 1731,
+    title: "1A sticker 2 140mm x 130mm",
+    body: "Print-ready artwork with your Trader Watchdog QR code placed inside the provided box and ready for print.",
+    buttonLabel: "Download 1A sticker 2",
+    panelLeft: 849,
+    panelTop: 456,
+    panelSize: 812,
+    qrInset: 18,
+  },
+  {
+    id: "van3" as const,
+    imageSrc: "/1A%20sticker%203%20145x80mm.png",
+    imageAlt: "1A sticker 3 template preview",
+    sourceWidth: 1894,
+    sourceHeight: 1113,
+    title: "1A sticker 3 145mm x 80mm",
+    body: "Compact print-ready artwork with your Trader Watchdog QR code fitted inside the supplied box for closer-range placement.",
+    buttonLabel: "Download 1A sticker 3",
+    panelLeft: 97,
+    panelTop: 237,
+    panelSize: 660,
+    qrInset: 16,
   },
 ];
 
@@ -116,7 +131,7 @@ export function MemberOverview() {
   const { member } = useMemberAuth();
   const [data, setData] = useState<MemberOverviewData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [qrBusy, setQrBusy] = useState<"sticker" | "small" | "svg" | "badge" | "badgeBlank" | "van1" | "van2" | null>(null);
+  const [qrBusy, setQrBusy] = useState<"sticker" | "small" | "svg" | "badge" | "badgeBlank" | "van1" | "van2" | "van3" | null>(null);
   const [qrError, setQrError] = useState<string | null>(null);
   const [qrPreviewUrl, setQrPreviewUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -263,20 +278,24 @@ export function MemberOverview() {
       setQrBusy("badgeBlank");
       const blob = await apiGetMemberBlob(qr.badgeBlankDownloadUrl);
       const tvId = p.tvId.trim().replace(/[^A-Za-z0-9_-]/g, "");
-      saveBlob(blob, `trader-watchdog-${tvId}-badge-blank.svg`);
+      saveBlob(blob, `trader-watchdog-${tvId}-1a-stationery-30x25.png`);
     } catch (e) {
-      setQrError(e instanceof Error ? e.message : "Could not download blank badge artwork");
+      setQrError(e instanceof Error ? e.message : "Could not download stationery artwork");
     } finally {
       setQrBusy(null);
     }
   }
 
-  async function downloadVanSticker(id: "van1" | "van2") {
+  async function downloadVanSticker(id: "van1" | "van2" | "van3") {
     try {
       setQrError(null);
       setQrBusy(id);
-      const url = id === "van1" ? qr.van1DownloadUrl : qr.van2DownloadUrl;
-      const label = id === "van1" ? "vehicle-sticker-1" : "vehicle-sticker-2";
+      const assets = {
+        van1: { url: qr.van1DownloadUrl, label: "1a-sticker-1-150x130mm" },
+        van2: { url: qr.van2DownloadUrl, label: "1a-sticker-2-140x130mm" },
+        van3: { url: qr.van3DownloadUrl, label: "1a-sticker-3-145x80mm" },
+      } as const;
+      const { url, label } = assets[id];
       const blob = await apiGetMemberBlob(url);
       const tvId = p.tvId.trim().replace(/[^A-Za-z0-9_-]/g, "");
       saveBlob(blob, `trader-watchdog-${tvId}-van-sticker-${label}.png`);
@@ -486,16 +505,16 @@ export function MemberOverview() {
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
                               <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
                                 <img
-                                  src="/Badge%20TW1.webp"
-                                  alt="Trader Watchdog badge showing a QR code"
+                                  src="/1A%20Stationery%202%2040x30mm.png"
+                                  alt="1A stationery 40x30 artwork showing a QR placement example"
                                   className="max-h-40 w-full object-contain"
                                 />
                               </div>
                               <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                                Badge with your QR code
+                                1A stationery 40mm x 30mm
                               </h3>
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                Download this badge for stationery, social media and advertising where you want your verified status shown clearly.
+                                Download compact stationery artwork with your Trader Watchdog QR code already placed into the design.
                               </p>
                               <button
                                 type="button"
@@ -503,23 +522,23 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="mt-4 w-full rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "badge" ? "Preparing..." : "Download badge with your QR code"}
+                                {qrBusy === "badge" ? "Preparing..." : "Download 1A stationery 40x30"}
                               </button>
                             </div>
 
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
                               <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
                                 <img
-                                  src="/badge-preview.svg"
-                                  alt="Trader Watchdog badge without a QR code"
+                                  src="/1A%20Stationery%2030x25.png"
+                                  alt="1A stationery 30x25 artwork"
                                   className="max-h-40 w-full object-contain"
                                 />
                               </div>
                               <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                                Badge ready for your QR code
+                                1A stationery 30mm x 25mm
                               </h3>
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                If the QR code needs placing separately, download this artwork and add your QR code before sending it to print.
+                                Download this smaller stationery artwork as supplied. This design does not include a QR code.
                               </p>
                               <button
                                 type="button"
@@ -527,7 +546,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="mt-4 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "badgeBlank" ? "Preparing..." : "Download blank badge artwork"}
+                                {qrBusy === "badgeBlank" ? "Preparing..." : "Download 1A stationery 30x25"}
                               </button>
                             </div>
                             </div>
@@ -538,7 +557,7 @@ export function MemberOverview() {
                               For Vehicle Stickers
                             </p>
                             <p className="mt-3 text-sm leading-relaxed text-slate-100">
-                              Van stickers are print-ready with your QR code embedded and crop marks applied. Download and send them direct to your printer or to Direct Sticker Printing (<a href="https://www.discountstickerprinting.co.uk" target="_blank" rel="noreferrer" className="font-semibold text-white underline underline-offset-4 hover:text-slate-200">www.discountstickerprinting.co.uk</a>). They have a minimum order value of £12 which will buy 6 or more waterproof vinyl van stickers of the same design.
+                              Van stickers are print-ready with your QR code embedded and crop marks applied. Download and send them direct to your printer or to <a href="https://www.discountstickerprinting.co.uk" target="_blank" rel="noreferrer" className="font-semibold text-white underline underline-offset-4 hover:text-slate-200">Discount Sticker Printing</a>. They have a minimum order value of £12 which will buy 6 or more waterproof vinyl van stickers of the same design.
                             </p>
                             <div className="mt-5 grid gap-4 lg:grid-cols-3">
                               {stickerPreviewCards.map((card) => (
@@ -589,23 +608,6 @@ export function MemberOverview() {
                                   </button>
                                 </div>
                               ))}
-                              <div className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
-                                <div className="overflow-hidden rounded-[1rem] bg-white">
-                                  <div className="flex aspect-[4/3] items-center justify-center p-4">
-                                    <img
-                                      src="/van33.jpg"
-                                      alt="Example of a Trader Watchdog sticker applied to a working van"
-                                      className="h-full w-full rounded-[0.85rem] object-cover"
-                                    />
-                                  </div>
-                                </div>
-                                <h3 className="mt-4 text-base font-semibold text-white">
-                                  Van sticker 3
-                                </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-slate-100">
-                                  Visual example showing how the sticker can look once fitted, helping you judge placement and scale on your van.
-                                </p>
-                              </div>
                             </div>
                             <p className="mt-5 text-sm font-semibold text-amber-100">
                               NOTE: Check your QR code links to your portal before finalising printing.

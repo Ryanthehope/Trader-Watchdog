@@ -48,14 +48,14 @@ const QR_SMALL_SIZE_PX = 236; // 20mm at 300 DPI.
 type QrVariant = "sticker" | "small";
 
 const BADGE_WITH_QR_CONFIG = {
-  templateFile: "Badge TW1.webp",
-  panelLeft: 154,
-  panelTop: 68,
-  panelSize: 188,
-  qrInset: 10,
+  templateFile: "1A Stationery 2 40x30mm.png",
+  panelLeft: 18,
+  panelTop: 56,
+  panelSize: 246,
+  qrInset: 12,
 } as const;
 
-const BADGE_BLANK_TEMPLATE_FILE = "badge-preview.svg";
+const BADGE_BLANK_TEMPLATE_FILE = "1A Stationery 30x25.png";
 
 const ASSETS_DIR = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -65,23 +65,30 @@ const PUBLIC_DIR = path.join(process.cwd(), "public");
 
 // Sticker composite configurations.
 // QR box coordinates are measured in pixels within the template images.
-// Sticker 1 uses the bitmap stationery template; sticker 2 uses the 300 DPI template.
 const VAN_STICKER_CONFIGS = {
   "1": {
-    templateFile: "bitmap stationery blank.png",
-    downloadSuffix: "vehicle-sticker-1",
-    panelLeft: 514,
-    panelTop: 36,
-    panelSize: 328,
-    qrInset: 10,
+    templateFile: "1A STICKER 1 150x130mm.png",
+    downloadSuffix: "1a-sticker-1-150x130mm",
+    panelLeft: 153,
+    panelTop: 468,
+    panelSize: 820,
+    qrInset: 18,
   },
   "2": {
-    templateFile: "300dpi.png",
-    downloadSuffix: "vehicle-sticker-2",
-    panelLeft: 107,
-    panelTop: 349,
-    panelSize: 370,
-    qrInset: 12,
+    templateFile: "1A sticker 2 140x130mm.png",
+    downloadSuffix: "1a-sticker-2-140x130mm",
+    panelLeft: 849,
+    panelTop: 456,
+    panelSize: 812,
+    qrInset: 18,
+  },
+  "3": {
+    templateFile: "1A sticker 3 145x80mm.png",
+    downloadSuffix: "1a-sticker-3-145x80mm",
+    panelLeft: 97,
+    panelTop: 237,
+    panelSize: 660,
+    qrInset: 16,
   },
 } as const;
 
@@ -274,6 +281,7 @@ router.get("/me", async (req, res) => {
         badgeBlankDownloadUrl: "/api/member/portal/qr-code/badge-blank",
         van1DownloadUrl: "/api/member/portal/qr-code/van-sticker/1",
         van2DownloadUrl: "/api/member/portal/qr-code/van-sticker/2",
+        van3DownloadUrl: "/api/member/portal/qr-code/van-sticker/3",
         stickerPixels: QR_STICKER_SIZE_PX,
         smallPixels: QR_SMALL_SIZE_PX,
       },
@@ -426,13 +434,13 @@ router.get("/qr-code/badge-blank", async (req, res) => {
     }
 
     const templatePath = resolveStickerTemplatePath(BADGE_BLANK_TEMPLATE_FILE);
-    const svg = fs.readFileSync(templatePath, "utf8");
+    const image = fs.readFileSync(templatePath);
     const safeId = m.tvId.replace(/[^A-Za-z0-9_-]/g, "");
-    const filename = `trader-watchdog-${safeId}-badge-blank.svg`;
+    const filename = `trader-watchdog-${safeId}-1a-stationery-30x25.png`;
     res.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.type("image/svg+xml");
-    res.send(svg);
+    res.type("image/png");
+    res.send(image);
   } catch (e) {
     console.error("[member portal] badge-blank download failed", e);
     res.status(500).json({ error: "Could not download badge artwork" });
@@ -444,8 +452,8 @@ router.get("/qr-code/van-sticker/:id", async (req, res) => {
   try {
     const memberId = (req as unknown as { memberId: string }).memberId;
     const idRaw = String(req.params.id ?? "").trim();
-    if (idRaw !== "1" && idRaw !== "2") {
-      res.status(400).json({ error: "Van sticker id must be 1 or 2" });
+    if (idRaw !== "1" && idRaw !== "2" && idRaw !== "3") {
+      res.status(400).json({ error: "Van sticker id must be 1, 2 or 3" });
       return;
     }
     const stickerId = idRaw as VanStickerId;
