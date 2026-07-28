@@ -543,7 +543,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="mt-4 w-full rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "badge" ? "Preparing..." : "Download 1A stationery 40x30"}
+                                {qrBusy === "badge" ? "Preparing..." : "Download 1A stationery 40mmx30mm"}
                               </button>
                             </div>
 
@@ -567,7 +567,7 @@ export function MemberOverview() {
                                 disabled={qrBusy !== null}
                                 className="mt-4 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {qrBusy === "badgeBlank" ? "Preparing..." : "Download 1A stationery 30x25"}
+                                {qrBusy === "badgeBlank" ? "Preparing..." : "Download 1A stationery 30mmx25mm"}
                               </button>
                             </div>
                             </div>
