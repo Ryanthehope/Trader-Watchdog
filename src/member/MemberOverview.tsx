@@ -504,11 +504,32 @@ export function MemberOverview() {
 
                             <div className="rounded-[1.5rem] border border-[#ddd2bf] bg-[#fffdf7] p-5 shadow-sm">
                               <div className="flex min-h-[15rem] items-center justify-center rounded-[1.25rem] bg-white p-4">
-                                <img
-                                  src="/1A%20Stationery%202%20blank%2040x30mm.png"
-                                  alt="1A stationery 40x30 blank artwork with QR box"
-                                  className="max-h-40 w-full object-contain"
-                                />
+                                <div className="relative inline-block">
+                                  <img
+                                    src="/1A%20Stationery%202%20blank%2040x30mm.png"
+                                    alt="1A stationery 40x30 blank artwork with QR box"
+                                    className="max-h-40 w-full object-contain"
+                                  />
+                                  {qrPreviewUrl ? (
+                                    <div
+                                      aria-hidden="true"
+                                      className="pointer-events-none absolute bg-white"
+                                      style={{
+                                        left: `${(18 / 474) * 100}%`,
+                                        top: `${(56 / 360) * 100}%`,
+                                        width: `${(246 / 474) * 100}%`,
+                                        height: `${(246 / 360) * 100}%`,
+                                      }}
+                                    >
+                                      <img
+                                        src={qrPreviewUrl}
+                                        alt=""
+                                        className="h-full w-full object-contain"
+                                        style={{ padding: `${(12 / 246) * 100}%` }}
+                                      />
+                                    </div>
+                                  ) : null}
+                                </div>
                               </div>
                               <h3 className="mt-4 text-lg font-semibold text-slate-900">
                                 1A stationery 40mm x 30mm
