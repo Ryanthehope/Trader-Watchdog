@@ -99,28 +99,28 @@ const publicViews = [
 
 const joinStickerShowcase = [
   {
-    title: "1A sticker 1 150mm x 130mm",
+    title: "Sticker 1 150mm x 130mm",
     body: "Print-ready square-format artwork sized for rear doors, side panels and other broad flat spaces.",
     image: "/1A%20STICKER%201%20sample%20150x130mm.png",
     imageAlt: "1A sticker 1 sample artwork showing the QR placement",
     imageClassName: "object-contain",
   },
   {
-    title: "1A sticker 2 140mm x 130mm",
+    title: "Sticker 2 140mm x 130mm",
     body: "Print-ready landscape artwork that works well on side panels, doors and longer horizontal spaces.",
     image: "/1A%20Sticker%202%20sample%20140x130mm.png",
     imageAlt: "1A sticker 2 sample artwork showing the QR placement",
     imageClassName: "object-contain",
   },
   {
-    title: "1A sticker 3 145mm x 80mm",
+    title: "Sticker 3 145mm x 80mm",
     body: "Compact print-ready artwork sized for closer-range placement where space is tighter.",
     image: "/1A%20Sticker%203%20sample%20145x80mm.png",
     imageAlt: "1A sticker 3 sample artwork showing the QR placement",
     imageClassName: "object-contain",
   },
   {
-    title: "1A stationery 2",
+    title: "Stationery 40mm x 30mm",
     body: "Compact stationery artwork for printed customer-facing materials and supporting branded paperwork.",
     image: "/1A%20Stationery%202%2040x30mm.png",
     imageAlt: "1A stationery 2 artwork",
