@@ -43,6 +43,9 @@ const desktopLoginClass =
 const mobileLinkClass =
   "rounded-lg px-3 py-2.5 hover:bg-white/5 hover:text-white";
 
+const supportPhoneLabel = "01295 982166";
+const supportPhoneHref = "tel:01295982166";
+
 export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { error, reload, brandName } = useSiteData();
@@ -80,10 +83,16 @@ export function Layout() {
               <Logo title={brandName} variant="header" />
             </Link>
 
-            <div className="hidden items-center gap-3 xl:flex xl:shrink-0">
+            <div className="hidden xl:flex xl:shrink-0 xl:flex-col xl:items-end xl:gap-1.5">
               <Link to="/member/login" className={desktopLoginClass}>
                 Trader log in
               </Link>
+              <a
+                href={supportPhoneHref}
+                className="pr-1 text-sm font-semibold text-white/90 transition-colors duration-200 hover:text-white"
+              >
+                Telephone: {supportPhoneLabel}
+              </a>
             </div>
 
             <button
@@ -191,6 +200,13 @@ export function Layout() {
               >
                 Trader log in
               </Link>
+              <a
+                href={supportPhoneHref}
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-center text-white transition-colors hover:bg-white/10"
+                onClick={() => setMenuOpen(false)}
+              >
+                Call {supportPhoneLabel}
+              </a>
             </nav>
           </div>
         ) : null}
