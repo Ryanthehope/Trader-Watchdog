@@ -94,7 +94,7 @@ function HowItWorks() {
   const steps = [
     {
       step: "1",
-      title: "Start our search",
+      title: "Start your search",
       body: "Enter the business name or telephone number.",
     },
     {
