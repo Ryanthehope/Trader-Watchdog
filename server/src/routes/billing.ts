@@ -132,8 +132,8 @@ const AFFILIATE_CODES_33 = new Set([
 ]);
 
 // Codes that carry a recurring annual discount (renewals at the same discounted rate)
-const RECURRING_AFFILIATE_CODES = new Set([
-  "SAVE25",
+const RECURRING_AFFILIATE_CODES = new Set<string>([
+  // None currently active
 ]);
 
 export function isRecurringDiscountCode(code: string): boolean {
@@ -196,14 +196,14 @@ export function resolveDiscountCode(
     return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: false };
   }
 
-  // SAVE25: 25% off portal fee, recurring each year
+  // SAVE25: 25% off first year portal fee only (registration fee unchanged)
   if (upper === "SAVE25") {
     if (feeType === "registration") {
-      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: true };
+      return { code: upper, discountType: "reduced", finalPricePence: fullAmountPence, savingsPence: 0, recurring: false };
     }
     const discount = Math.round(fullAmountPence * 0.25);
     const finalPricePence = Math.max(fullAmountPence - discount, DISCOUNTED_PAYABLE_PENCE);
-    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: true };
+    return { code: upper, discountType: "reduced", finalPricePence, savingsPence: Math.max(fullAmountPence - finalPricePence, 0), recurring: false };
   }
 
   return null;
