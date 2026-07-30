@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
 import { prisma } from "../db.js";
 import { publicSiteBase, sendPasswordResetEmail } from "../lib/adminMail.js";
+import { getJwtSecret } from "../lib/jwtsecret.js";
 
 const router = Router();
 
@@ -21,12 +22,7 @@ function normalizePassword(value: unknown): string {
 }
 
 function jwtSecret(): string {
-  const s = process.env.JWT_SECRET?.trim();
-  if (!s) {
-    console.warn("[tradeverify] JWT_SECRET is not set; using insecure development default");
-    return "tradeverify-dev-insecure-secret";
-  }
-  return s;
+  return getJwtSecret();
 }
 
 const memberAuthLimiter = rateLimit({
@@ -69,7 +65,7 @@ router.post("/login", memberAuthLimiter, async (req, res) => {
     });
     const token = jwt.sign(
       { sub: member.id, role: "member", email: member.loginEmail },
-      jwtSecret(),
+      getJwtSecret(),
       { expiresIn: "14d" }
     );
     res.json({

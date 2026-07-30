@@ -1,16 +1,6 @@
 import type { Request, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-
-function jwtSecret(): string {
-  const s = process.env.JWT_SECRET?.trim();
-  if (!s) {
-    console.warn(
-      "[tradeverify] JWT_SECRET is not set; using insecure development default"
-    );
-    return "tradeverify-dev-insecure-secret";
-  }
-  return s;
-}
+import { getJwtSecret } from "../lib/jwtsecret.js";
 
 export const requireMember: RequestHandler = (req, res, next) => {
   const h = req.headers.authorization;
@@ -20,7 +10,7 @@ export const requireMember: RequestHandler = (req, res, next) => {
     return;
   }
   try {
-    const payload = jwt.verify(token, jwtSecret()) as jwt.JwtPayload & {
+    const payload = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload & {
       role?: string;
     };
     if (payload.role !== "member" || !payload.sub || typeof payload.sub !== "string") {

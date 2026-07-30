@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { verifySync } from "otplib";
 import { prisma } from "../db.js";
 import rateLimit from "express-rate-limit";
+import { getJwtSecret } from "../lib/jwtsecret.js";
 
 const router = Router();
 
@@ -20,12 +21,7 @@ function normalizePassword(value: unknown): string {
 }
 
 function jwtSecret(): string {
-  const s = process.env.JWT_SECRET?.trim();
-  if (!s) {
-    console.warn("[tradeverify] JWT_SECRET is not set; using insecure development default");
-    return "tradeverify-dev-insecure-secret";
-  }
-  return s;
+  return getJwtSecret();
 }
 
 const authLimiter = rateLimit({
@@ -58,7 +54,7 @@ router.post("/login", authLimiter, async (req, res) => {
     if (staff.totpEnabled && staff.totpSecret) {
       const pendingToken = jwt.sign(
         { sub: staff.id, k: "2fa" },
-        jwtSecret(),
+        getJwtSecret(),
         { expiresIn: "5m" }
       );
       res.json({
@@ -75,7 +71,7 @@ router.post("/login", authLimiter, async (req, res) => {
 
     const token = jwt.sign(
       { sub: staff.id, email: staff.email, role: "staff" },
-      jwtSecret(),
+      getJwtSecret(),
       { expiresIn: "7d" }
     );
     res.json({
@@ -102,7 +98,7 @@ router.post("/verify-2fa", authLimiter, async (req, res) => {
     }
     let payload: jwt.JwtPayload & { sub?: string; k?: string };
     try {
-      payload = jwt.verify(pendingToken, jwtSecret()) as jwt.JwtPayload & {
+      payload = jwt.verify(pendingToken, getJwtSecret()) as jwt.JwtPayload & {
         sub?: string;
         k?: string;
       };
@@ -131,7 +127,7 @@ router.post("/verify-2fa", authLimiter, async (req, res) => {
     }
     const token = jwt.sign(
       { sub: staff.id, email: staff.email, role: "staff" },
-      jwtSecret(),
+      getJwtSecret(),
       { expiresIn: "7d" }
     );
     res.json({

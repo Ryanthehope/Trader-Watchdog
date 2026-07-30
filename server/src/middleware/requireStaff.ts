@@ -1,15 +1,9 @@
 import type { Request, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
+import { getJwtSecret } from "../lib/jwtsecret.js";
 
 function jwtSecret(): string {
-  const s = process.env.JWT_SECRET?.trim();
-  if (!s) {
-    console.warn(
-      "[tradeverify] JWT_SECRET is not set; using insecure development default"
-    );
-    return "tradeverify-dev-insecure-secret";
-  }
-  return s;
+  return getJwtSecret();
 }
 
 export const requireStaff: RequestHandler = (req, res, next) => {
@@ -20,7 +14,7 @@ export const requireStaff: RequestHandler = (req, res, next) => {
     return;
   }
   try {
-    const payload = jwt.verify(token, jwtSecret()) as jwt.JwtPayload & {
+    const payload = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload & {
       role?: string;
     };
     const id = payload.sub;
@@ -28,10 +22,10 @@ export const requireStaff: RequestHandler = (req, res, next) => {
       res.status(401).json({ error: "Invalid token" });
       return;
     }
-    if (payload.role === "member") {
-      res.status(403).json({ error: "Member token cannot access staff routes" });
+    if (payload.role !== "staff") {
+      res.status(403).json({ error: "Staff access required" });
       return;
-    }
+}
     (req as Request & { staffId: string }).staffId = id;
     next();
   } catch {
