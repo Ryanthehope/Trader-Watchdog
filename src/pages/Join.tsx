@@ -1158,6 +1158,9 @@ export function Join() {
               <p className="mt-6 text-base leading-relaxed text-slate-700 sm:text-lg">
                 Verified traders can download print-ready artwork displaying their individual QR code, linking the public and customers direct to their Trader Watchdog Green Flag business portal. Use it on your van, your quotes, your social media and your stationery — anywhere customers see your name. Stickers can be ordered direct from your printer or use ours. Examples are shown here.
               </p>
+              <p className="mt-4 text-base leading-relaxed text-slate-700 sm:text-lg">
+                The Trader Watchdog Verified logo is also available to add to your website or social media.
+              </p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {joinStickerShowcase.map((item) => (
@@ -1194,7 +1197,7 @@ export function Join() {
               Clear Status at a Glance
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-700">
-              When a householder scans your QR code or looks you up, they see one of two flags:
+              Your business can be searched by name, telephone number or your QR code:
             </p>
           </div>
 
