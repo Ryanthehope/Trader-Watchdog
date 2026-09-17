@@ -340,7 +340,7 @@ router.post("/checkout-membership", async (req, res) => {
       customerName: application.identifiablePerson?.trim() || application.company,
       existingStripeCustomerId: application.stripeCustomerId,
       createCustomer: !application.stripeCustomerId,
-      successRedirectUrl: `${origin}/join?paid=membership&app=${encodeURIComponent(applicationId)}`,
+      successRedirectUrl: `${origin}/join?paid=membership&app=${encodeURIComponent(applicationId)}&value=${combinedAmountPence}`,
       cancelRedirectUrl: `${origin}/join?cancelled=1`,
       metadata: {
         applicationId,

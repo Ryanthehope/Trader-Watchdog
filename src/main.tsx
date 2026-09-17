@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { GoogleAnalytics } from "./components/GoogleAnalytics";
+import { MetaPixel } from "./components/MetaPixel";
 import { CookieBanner } from "./components/CookieBanner";
 import { SiteDataProvider } from "./context/SiteDataContext";
 import "./index.css";
@@ -12,6 +13,7 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <SiteDataProvider>
         <GoogleAnalytics />
+        <MetaPixel />
         <App />
         <CookieBanner />
       </SiteDataProvider>
